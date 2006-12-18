@@ -1,6 +1,6 @@
 # NGL File Server for KVIrc
 # Written by LoSko, Noldor, Grifisx (2006)
-
+#
 # register the script: this must be the first instruction executed
 # since it will abort with an error when a greater version is already installed
 addon.register("NGLfserv","1.0.0",%NGLlogo,$tr("Written by: Noldor\, Grifisx\, LoSko","NGLfserv"),"3.2.2",NGLfserv_32.png)
