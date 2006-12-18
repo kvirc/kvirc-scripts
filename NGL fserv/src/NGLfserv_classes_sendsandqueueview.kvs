@@ -20,7 +20,7 @@ alias(NGLfserv::classes::sendsAndQueueView)
 			for(%i=0;%i!=%Queues->$count();%i++)
 			{
 				%item=$new(listviewitem,$$)
-				if(%i<10)
+				if(%i<9)
 					%item->$setText(0,"0"$(%i+1))
 				else
 					%item->$setText(0,$(%i+1))
@@ -37,7 +37,7 @@ alias(NGLfserv::classes::sendsAndQueueView)
 			{
 				%id=%Send->$at(%i)->%dcc_id
 				%item=$new(listviewitem,$$)
-				if(%i<10)
+				if(%i<9)
 					%item->$setText(0,"0"$(%i+1))
 				else
 					%item->$setText(0,$(%i+1))

@@ -11,7 +11,6 @@ alias(NGLfserv::config::save)
 			config.write %c MaxShellLife %MaxShellLife
 			config.write %c MaxUserIdle %MaxUserIdle
 			config.write %c FindMsg %FindMsg
-			config.write %c DisplayNoOccurrenceFound %DisplayNoOccurrenceFound
 			config.write %c NGLc1 %NGLc1
 			config.write %c NGLc2 %NGLc2
 			config.write %c DccReverse %DccReverse
@@ -23,10 +22,7 @@ alias(NGLfserv::config::save)
 			config.write %c NGLSentBytes %NGLSentBytes
 			config.write %c NGLSentFiles %NGLSentFiles
 			config.write %c MaxSessions %MaxSessions
-			config.write %c QuickGet %B_quickget
-			config.write %c MultipleResultsPerLine %MultipleResultsPerLine
 			config.write %c UsePswd %UsePswd
-			config.write %c FindFilter %FindFilter
 			config.write %c CloneDetection %CloneDetection
 
 			config.write %c Triggersnumber $length(%Triggers{})
@@ -69,6 +65,9 @@ alias(NGLfserv::config::save)
 					config.write %c "%channel"respondtolist %FservChannels{%channel}->$getRespToList()
 					config.write %c "%channel"respondtofind %FservChannels{%channel}->$getRespToFind()
 					config.write %c "%channel"respondtomyqueues %FservChannels{%channel}->$getRespToMyQueues()
+					config.write %c "%channel"usequickget %FservChannels{%channel}->$getUseQuickGet()
+					config.write %c "%channel"displayNoOccurrenceFound %FservChannels{%channel}->$getDisplayNoOccurrenceFound()
+					config.write %c "%channel"multipleResultsPerLine %FservChannels{%channel}->$getMultipleResultsPerLine()
 					%FservChannels{%channel}->$cache()->$savecache()
 				}
 			}

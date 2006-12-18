@@ -1,6 +1,6 @@
 # NGL File Server for KVIrc
 # Written by LoSko, Noldor, Grifisx (2006)
-#
+
 # register the script: this must be the first instruction executed
 # since it will abort with an error when a greater version is already installed
 addon.register("NGLfserv","1.0.0",%NGLlogo,$tr("Written by: Noldor\, Grifisx\, LoSko","NGLfserv"),"3.2.2",NGLfserv_32.png)
@@ -69,7 +69,7 @@ defpopup("NGLfserv")
 
 	item($tr("Options"),20)
 	{
-		NGLfserv::gui::gui
+		NGLfserv::classes::gui::gui
 	}
 
 	item($tr("Monitor","NGLfserv"),171)
@@ -79,7 +79,7 @@ defpopup("NGLfserv")
 			%NGLmonitor->$raise()
 		}
 		else{
-			%NGLmonitor=$new(NGLfserv::classes::guimonitor)
+			%NGLmonitor=$new(NGLfserv::classes::gui::monitor)
 			%NGLmonitor->$show()
 		}
 	}
@@ -108,7 +108,7 @@ setmenu -q -i=7 %NGLlogo NGLfserv
 
 /*addon.setconfigurecallback("NGLfserv")
 {
-	NGLfserv::gui::gui
+	NGLfserv::classes::gui::gui
 }*/
 
 defpopup(NGLfserv_channel)

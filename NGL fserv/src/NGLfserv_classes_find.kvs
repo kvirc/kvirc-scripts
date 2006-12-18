@@ -134,13 +134,13 @@ alias(NGLfserv::classes::find)
 								foreach(%fd,$$->%instances_mirror->$item(%i)->$occurrences()){
 									%fileName=$str.token(0,"?",%fd)
 									%token = $k(%NGLc1)"["$k(%NGLc2)%fileName $k(%NGLc1)Size: $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc($str.token(1,"?",%fd))$k(%NGLc1)
-									if(%B_quickget) {
+									if(%FservChannels{$$->%channel}->$getUseQuickGet()) {
 										%token .= " Qget: $k(%NGLc2)/ctcp "$me" qget "$$->%instances_mirror->$item(%i)->$trigger()"|"$str.token(2,"?",%fd)"|"$str.token(3,"?",%fd)$k(%NGLc1)"] "
 									}
 									else {
 										%token .= "] "
 									}
-									if(%MultipleResultsPerLine) {
+									if(%FservChannels{$$->%channel}->$getMultipleResultsPerLine()) {
 										if($($str.len(%buffer) + $str.len(%token))<=400) %buffer .= %token
 										else{
 											msg -q $$->%nick %buffer
@@ -170,7 +170,7 @@ alias(NGLfserv::classes::find)
 					for(%i=0;%i<$$->%instances_mirror->$count();%i++)
 							$$->%instances_mirror->$item(%i)->%trigger->$resetFlag()
 					// no occurence found
-					if(%DisplayNoOccurrenceFound)
+					if(%FservChannels{$$->%channel}->$getDisplayNoOccurrenceFound())
 						notice -q $$->%nick $k(%NGLc2)%NGLlogo: $k(%NGLc1)No file has been found
 					%FservChannels{$$->%channel}->$cache()->$append($$->%string_to_find)
 					delete $this

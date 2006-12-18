@@ -18,8 +18,10 @@ alias(NGLfserv::corefunctions::send)
 
 	#-----Checks if the user is a clone of anyone in sends or queue
 	if(%CloneDetection) {
-		%winid = %shell->%shellwindow
-		rebind %fl_send->%ircContext
+		if(%type == "shell") {
+			%winid = %shell->%shellwindow
+			rebind %fl_send->%ircContext
+		}
 		if(%Nick_nr_sends{}#>0) {
 			foreach(%k,$keys(%Nick_nr_sends{})) {
 				if($mask(%k,9) == $mask(%fl_send->%nick,9) && %Nick_nr_sends{%k} && %k != %fl_send->%nick) {
@@ -40,7 +42,7 @@ alias(NGLfserv::corefunctions::send)
 				}
 			}
 		}
-		rebind %winid
+		if(%type == "shell") rebind %winid
 	}
 
 	#-----Checks if the file is already queued/sending

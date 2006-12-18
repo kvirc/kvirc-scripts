@@ -87,7 +87,7 @@ alias(NGLfserv::events::init)
 						 	foreach(%tr,%FservChannels{$chan.name}->%rootFolders{}) {
 								%triggerName=%tr->$triggerName()
 								if(%Triggers{%triggerName}->%activeChannels{$chan.name}) {
-									if(%FindFilter) {
+									if(%FservChannels{$chan.name}->$getFindFilter()) {
 										if($chan.isvoice(%requesting,$channel($chan.name))) %nickstatus = "voice"
 										if($chan.isop(%requesting,$channel($chan.name))) %nickstatus = "op"
 										%access = %Triggers{%triggerName}->%activeChannels{$chan.name}->$getAccessType()
@@ -243,7 +243,6 @@ alias(NGLfserv::events::init)
 			}
 			event(OnCtcpRequest,NGLfserv_qget)
 			{
-				if (!%B_quickget) return
 				%requesting=$0
 				%ctcpName=$4
 				%parameter=$5
@@ -294,17 +293,11 @@ alias(NGLfserv::events::init)
 						%file=%trigger->$getFileById(|f%fileindex,%folder_obj)
 						%completepath=%folderpath%file
 						%size=%trigger->$fileSizeAt(%fileindex)
-					
-						# Bisogna ottenere questi due parametri
-						# - %completepath: la path completa del file
-						# - %size: la dimensione del file
-						# Se si riesce ad ottenerli correttamente (io non so come farlo), il q_get è fatto
-						# Tutti gli altri parametri da passare al namespace send sono già a posto
 	
 						if (%file){
 							NGLfserv::corefunctions::send "qget" %requesting %nickStatus %completepath %size $console($context) %triggerName
 						}
-						else if(%DisplayNoOccurrenceFound) notice -q %requesting $k(%NGLc2)%NGLlogo: $k(%NGLc1)No file has been found
+						else notice -q %requesting $k(%NGLc2)%NGLlogo: $k(%NGLc1)No file corresponding to this quickget index
 						halt
 					}
 				}

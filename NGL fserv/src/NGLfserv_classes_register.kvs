@@ -5,14 +5,12 @@ alias(NGLfserv::classes::register)
 			NGLfserv::classes::customwidgets::checkbox,\
 			NGLfserv::classes::customwidgets::button,\
 			NGLfserv::classes::customwidgets::groupbox,\
-			NGLfserv::classes::optionstriggers,\
-			NGLfserv::classes::optionssharedfiles,\
-			NGLfserv::classes::optionschannels,\
-			NGLfserv::classes::optionssendqueue,\
-			NGLfserv::classes::optionsother,\
-			NGLfserv::classes::optionsshell,\
-			NGLfserv::classes::optionsrestrictedaccess,\
-			NGLfserv::classes::guimonitor,\
+			NGLfserv::classes::gui::triggers,\
+			NGLfserv::classes::gui::sharedfiles,\
+			NGLfserv::classes::gui::channels,\
+			NGLfserv::classes::gui::globals,\
+			NGLfserv::classes::gui::shell,\
+			NGLfserv::classes::gui::monitor,\
 			NGLfserv::classes::chanGeneralProperties,\
 			NGLfserv::classes::chanTriggerProperties,\
 			NGLfserv::classes::sendsAndQueueView,\
