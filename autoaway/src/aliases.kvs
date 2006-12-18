@@ -1,0 +1,137 @@
+# autoaway::core::config::load takes care of loading the configuration
+# from a config file and placing everything in a global hash
+
+alias(autoaway::core::config::load)
+{
+	if(%AutoAway{"configloaded"})return; # already loaded
+
+	%c = $config.open("autoaway.kvc","r");
+	%AutoAway{"Enabled"} = $config.read(%c,"Enabled",1);
+	%AutoAway{"Reason"} = $config.read(%c,"Reason",$tr("felt asleep over the keyboard...","autoaway"));
+	%AutoAway{"InactivityTimeoutInMins"} = $config.read(%c,"InactivityTimeoutInMins",10);
+	%AutoAway{"UseAwayMessage"} = $config.read(%c,"UseAwayMessage",0)
+	%AutoAway{"AwayMessage"} = $config.read(%c,"AwayMessage",$tr("felt asleep over the keyboard after \%AutoAwayTime minutes of inactivity...","autoaway"))
+	config.close %c
+
+	%AutoAway{"configloaded"} = 1
+}
+
+# autoaway::core::config::save does the reverse job: store from
+# the global hash to the config file
+
+alias(autoaway::core::config::save)
+{
+	if(!%AutoAway{"configloaded"})return; # not loaded
+
+	%c = $config.open("autoaway.kvc","w");
+	config.write %c "Enabled" %AutoAway{"Enabled"}
+	config.write %c "Reason" %AutoAway{"Reason"}
+	config.write %c "InactivityTimeoutInMins" %AutoAway{"InactivityTimeoutInMins"}
+	config.write %c "UseAwayMessage" %AutoAway{"UseAwayMessage"}
+	config.write %c "AwayMessage" %AutoAway{"AwayMessage"}
+	config.close %c
+}
+
+# The configuration alias: it creates a dialog that allows
+# configuring our script via GUI. It is pretty straightforward
+
+alias(autoaway::configure)
+{
+	# Define the dialog class
+	# Don't get messed here.
+	# Hint: $this->something == $$->something == @something (only three different forms, use the one that you like most)
+
+	%x = $new(autoaway::configure_dialog,0)
+	%x->$setModal(1)
+	%x->$show()
+	# the rest of the job will be done asynchronously by the dialog
+}
+
+# Our help alias will invoke the help viewer and will display
+# the documentation we have just installed
+
+alias(autoaway::help)
+{
+	help.open "autoaway/index.html"
+}
+
+alias(autoaway::start)
+{
+	if(!$ic)
+	{
+		echo $tr("Autoaway must be started in a connected IRC context","autoaway")
+		halt
+	}
+	
+	if(!$server)
+	{
+		echo $tr("Autoaway must be started in a connected IRC context","autoaway")
+		halt
+	}
+	
+	autoaway::core::config::load
+	
+	if(!%AutoAway{"Enabled"})return; # not enabled at all
+	
+	if($isTimer("autoaway_check_$ic"))killtimer "autoaway_check_$ic"
+
+	%AutoAway{"Timestamp$ic"} = $unixtime
+
+	timer("autoaway_check_$ic",30000)
+	{
+		if($away)return
+		if(!%AutoAway{"Timestamp$ic"})%AutoAway{"Timestamp$ic"} = $unixtime
+
+		%timediff = $($unixtime - %AutoAway{"Timestamp$ic"})
+		
+		if(!%AutoAway{"InactivityTimeoutInMins"})%AutoAway{"InactivityTimeoutInMins"} = 10
+		
+		%mintime = $(%AutoAway{"InactivityTimeoutInMins"} * 60)
+		if(%mintime < %timediff)
+		{
+			# time to enter away
+			%AutoAwayTime = $(%timediff / 60)
+			echo $tr("Entering AutoAway after","autoaway") %AutoAwayTime $tr("minutes of IRC context inactivity","autoaway")
+			# eval it, so identifiers are evaluated
+			eval "away %AutoAway{\"Reason\"}"
+			if(%AutoAway{"UseAwayMessage"})
+			{
+				foreach(%w,$window.list(channel),$window.list(query))
+					eval "me -r=%w %AutoAway{\"AwayMessage\"}"
+			}
+		}
+	}
+}
+
+alias(autoaway::stop)
+{
+	if(!$ic)
+	{
+		echo $tr("Autoaway can be running only in an IRC context","autoaway")
+		halt
+	}
+
+	if($isTimer("autoaway_check_$ic"))killtimer "autoaway_check_$ic"
+}
+
+alias(autoaway::startall)
+{
+	foreach(%w,$window.list(console,all))
+	{
+		rebind %w
+		if($server)
+			autoaway::start
+	}
+}
+
+alias(autoaway::stopall)
+{
+	foreach(%w,$window.list(console,all))
+	{
+		rebind %w
+		autoaway::stop
+	}
+
+	autoaway::core::config::save
+}
+

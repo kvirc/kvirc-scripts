@@ -1,0 +1,329 @@
+///////////////////////////////////////////////////////////
+// The lag bar it self
+///////////////////////////////////////////////////////////
+objects.killclass -q twins::lagbar::bar
+class(twins::lagbar::bar,dockwindow)
+{
+	constructor
+	{
+
+		// Config
+		twins::lagbar::core::config::load
+
+		// Main dock window
+		%G_hTwinsLagBar{bar} = $$
+		@$setCaption($tr("Twins Lag Bar",twinsmediaplayer))
+		@$settooltip($tr("Twins Lag Bar",twinsmediaplayer))
+		@$setAllowedDockAreas("t")
+		@$setOrientation("horizontal")
+		@$setResizeEnabled($true)
+
+		// Widget to add to dock
+		@%m_hContainer = $new(widget,$this)
+		%l = $new(layout,@%m_hContainer)
+
+		// The bar itself
+		@%m_hBar = $new(widget,@%m_hContainer)
+		@%m_hBar->$setminimumwidth(%TwinsLagBar{width})
+		@%m_hBar->$setminimumheight(25)
+		%l->$addwidget(@%m_hBar,0,0)
+		privateimpl(@%m_hBar,paintevent){@$emit("painted");}
+		objects.connect @%m_hBar painted $$ paint
+
+		// The painter
+		@%m_hPainter = $new(painter,@%m_hBar)
+
+		// Add container to dock area
+		@$addwidget(@%m_hContainer)
+
+		// Load config and paint
+		@$loadConfig
+
+		// Timer to get lag
+		@$starttimer(5000)
+
+	}
+
+	timerEvent()
+	{
+		@%m_hBar->$repaint(1)
+	}
+
+	paint()
+	{
+		if($isempty(@%m_uWidth)) return
+
+		%pixPerbar = 6
+		%pixBorder = 1
+
+		%nbar = $math.floor($(1.*(@%m_uWidth/%pixPerBar)))
+		%lagPerBar = $(@%m_uMaxLag/%nbar)
+		if(@$istesting())
+			%lag = @%m_uMaxLag
+		else if($option(boolUseLagMeterEngine) && $ic && $server && $me)
+			%lag = $($lag.lag/1000.)
+		else
+			%lag = -1.
+		if(%lag == -1.){
+			%imax = 0
+			%text = "-.-s"
+		} else {
+			if(%lag > @%m_uMaxLag)
+				%lag = $(@%m_uMaxLag * 1.)
+			%text = $str.printf("?.1fs",%lag)
+			%imax = $int($math.ceil($(%lag/%lagPerBar)))
+		}
+
+		%fontSize = $(@$height/2-4)
+		if(%fontSize>15) %fontSize=15
+		@%m_hPainter->$begin(@%m_hBar)
+		@%m_hPainter->$setfont(%fontSize,monospace,fixedpitch)
+		@%m_hPainter->$setfontsize(%fontSize)
+		@%m_hPainter->$setbrush(@%m_aColor{low})
+		%lagLev = $(@%m_uMaxLag/3.)
+
+//		if(%imax)
+//		for(%i=0;%i<%imax;%i++)
+		for(%i=0;%i<%nbar;%i++)
+		{
+			%iLag=$(%lagPerBar*(%i+0.5))
+
+			// Define the color according to a level
+			if(%i>=%imax)
+			{
+				@%m_hPainter->$end
+				@%m_hPainter->$begin(@%m_hBar)
+			} else if(%iLag>2.*%lagLev)
+				@%m_hPainter->$setbrush(@%m_aColor{high})
+			else if(%iLag>%lagLev)
+				@%m_hPainter->$setbrush(@%m_aColor{medium})
+
+			// Draw an element
+			@%m_hPainter->$drawrect(\
+				$(%pixPerbar*%i),\
+					$(@%m_hBar->$height/2+2),\
+				$(%pixPerbar-%pixBorder),\
+					$(@%m_hBar->$height/2-2))
+		}
+		if(@$istesting())
+			%text = "["$tr("test",twinslagbar)"] %text"
+		else
+				%text = $tr("Lag:",twinslagbar) %text
+		@%m_hPainter->$drawtext(0,$(@%m_hBar->$height/2-2),"%text",-1,LTR)
+		@%m_hPainter->$end
+	}
+
+	setColor(type,[R,G,B])
+	{
+		@%m_aColor{$0} = $1
+	}
+
+	setWidth(width)
+	{
+		@%m_uWidth = $0
+		@%m_hBar->$setminimumwidth($0)
+	}
+
+	setMaxLag(lag)
+	{
+		@%m_uMaxLag = $0
+	}
+
+	setTesting($0 = 0/1)
+	{
+		@%m_bTesting = $0
+		if(!$0) @$loadConfig()
+	}
+
+	istesting()
+	{
+		if($isempty(@%m_bTesting))
+			@%m_bTesting = 0
+		return @%m_bTesting
+	}
+
+	loadConfig()
+	{
+		foreach(%level,low,medium,high)
+			@$setColor(%level,%TwinsLagBar{colors:%level})
+		@$setWidth(%TwinsLagBar{width})
+		@$setMaxLag(%TwinsLagBar{maxlag})
+		@$timerEvent()
+	}
+
+	quit()
+	{
+		delete $$
+	}
+	destructor()
+	{
+		if(%G_hTwinsLagBar{bar} == $$)
+			%G_hTwinsLagBar{bar} =
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+// Configuration
+///////////////////////////////////////////////////////////
+objects.killclass -q twins::lagbar::config
+class(twins::lagbar::config,dialog)
+{
+	constructor
+	{
+
+		// Config
+		twins::lagbar::core::config::load
+
+		// Main widget
+		%G_hTwinsLagBar{config} = $$
+		@$setCaption($str.printf($tr("Twins LagBar-?s",twinslagbar),$addon.version(twinslagbar)))
+		%ll = $new(layout,$$)
+		%ll->$setmargin(20)
+		%ll->$setspacing(20)
+
+		// Title
+		%title = $new(label,$$)
+		%title->$settext(<center><h2>$str.printf($tr("Twins LagBar-?s",twinslagbar),$addon.version(twinslagbar))</h2></center>)
+		%ll->$addmulticellwidget(%title,0,0,0,3)
+
+		// Status
+		@%m_hStatus = $new(checkbox,$$)
+		@%m_hStatus->$settext($tr("Use it?",twinslagbar))
+		@%m_hStatus->$setchecked(%TwinsLagbar{status})
+		%ll->$addmulticellwidget(@%m_hStatus,1,1,0,1)
+		objects.connect @%m_hStatus clicked $$ checkTest
+
+		// Max lag
+		%maxlag = $new(label,$$)
+		%maxlag->$settext($tr("Max lag:",twinslagbar))
+		@%m_hMaxLag = $new(spinbox,$$)
+		@%m_hMaxLag->$setminvalue(1)
+		@%m_hMaxLag->$setmaxvalue(600)
+		@%m_hMaxLag->$setsuffix("s")
+		@%m_hMaxLag->$setvalue(%TwinsLagbar{maxlag})
+		%ll->$addwidget(%maxlag,2,0)
+		%ll->$addwidget(@%m_hMaxLag,2,1)
+		objects.connect @%m_hMaxLag valueChanged $$ testIt
+
+		// Width
+		%width = $new(label,$$)
+		%width->$settext($tr("Width:",twinslagbar))
+		@%m_hWidth = $new(spinbox,$$)
+		@%m_hWidth->$setminvalue(6)
+		@%m_hWidth->$setmaxvalue($(6 * 50))
+		@%m_hWidth->$setlinestep(6)
+		@%m_hWidth->$setsuffix("px")
+		@%m_hWidth->$setvalue(%TwinsLagbar{width})
+		%ll->$addwidget(%width,3,0)
+		%ll->$addwidget(@%m_hWidth,3,1)
+		objects.connect @%m_hWidth valueChanged $$ testIt
+
+		// Color group
+		%colors = $new(groupbox,$$)
+		%colors->$settitle($tr("Colors",twinslagbar))
+		%ll->$addmulticellwidget(%colors,1,3,2,3)
+		%lc = $new(layout,%colors)
+		%lc->$setmargin(20)
+		%lc->$setspacing(20)
+		// Color specs
+		%cn = $array($tr("Red",twinslagbar),$tr("Green",twinslagbar),$tr("Blue",twinslagbar))
+		%bg = $array("FF0000","00FF00","0000FF")
+		%fg = $array("000000","000000","FFFFFF")
+		for(%i=0;%i<3;%i++)
+		{
+			%cns <+ $new(label,%colors)
+			%cns[%i]->$settext(%cn[%i])
+			%cns[%i]->$setbackgroundcolor(%bg[%i])
+			%cns[%i]->$setforegroundcolor(%fg[%i])
+			%lc->$addwidget(%cns[%i],0,$(%i + 1))
+		}
+		// Spin boxes
+		%l = 0
+		%levels = $array($tr("High",twinslagbar),$tr("Medium",twinslagbar),$tr("Low",twinslagbar))
+		foreach(%level,high,medium,low)
+		{
+			%tags <+ $new(label,%colors)
+			%tags[%l]->$settext(%levels[%l])
+			%lc->$addwidget(%tags[%l],$(%l + 1),0)
+			for(%i=0;%i<3;%i++)
+			{
+				@%m_hColor{%level} <+ $new(spinbox,%colors)
+				@%m_hColor{%level}[%i]->$setminvalue(0)
+				@%m_hColor{%level}[%i]->$setmaxvalue(255)
+				@%m_hColor{%level}[%i]->$setvalue(%TwinsLagbar{colors:%level}[%i])
+				%lc->$addwidget(@%m_hColor{%level}[%i],$(%l + 1),$(%i + 1))
+				objects.connect @%m_hColor{%level}[%i] valueChanged $$ testIt
+			}
+			%l++
+		}
+
+		// Actions
+		%tt = $array($tr(Ok),$tr(Apply),$tr(Close))
+		%i = 0
+		foreach(%type,ok,apply,close)
+		{
+			@%m_hBt{%type} = $new(button,$$)
+			@%m_hBt{%type}->$settext($tr(%tt[%i]))
+			%ll->$addwidget(@%m_hBt{%type},4,$(%i + 1))
+			objects.connect @%m_hBt{%type} clicked $$ %type
+			%i++
+		}
+
+		@$testIt()
+
+	}
+
+	// Test it on the lagbar itself according to the current settings
+	testIt()
+	{
+
+		if(!$objects.exists(%G_hTwinsLagBar{bar}))
+		{
+			%TwinsLagBar{status} = 1
+			twins::lagbar::show
+		}
+		if($objects.exists(%G_hTwinsLagBar{bar}))
+		{
+			%G_hTwinsLagBar{bar}->$setTesting(1)
+			%G_hTwinsLagBar{bar}->$setMaxLag(@%m_hMaxLag->$value())
+			%G_hTwinsLagBar{bar}->$setWidth(@%m_hWidth->$value())
+			foreach(%level,low,medium,high)
+				%G_hTwinsLagBar{bar}->$setColor(%level,$array(\
+					@%m_hColor{%level}[0]->$value(),\
+					@%m_hColor{%level}[1]->$value(),\
+					@%m_hColor{%level}[2]->$value()))
+			%G_hTwinsLagBar{bar}->$timerEvent()
+		}
+	}
+
+	apply()
+	{
+		%TwinsLagBar{maxlag} = @%m_hMaxLag->$value()
+		%TwinsLagBar{width} = @%m_hWidth->$value()
+/*		foreach(%level,low,medium,high)
+				%TwinsLagBar{colors:%level} = $array(\
+					@%m_hColor{%level}[0]->$value(),\
+					@%m_hColor{%level}[1]->$value(),\
+					@%m_hColor{%level}[2]->$value())*/
+		twins::lagbar::core::config::save
+	}
+
+	ok()
+	{
+		@$apply()
+		@$close()
+	}
+
+	close()
+	{
+		delete $$
+	}
+
+	destructor()
+	{
+		if($objects.exists(%G_hTwinsLagBar{bar}))
+			%G_hTwinsLagBar{bar}->$setTesting(0)
+		%G_hTwinsLagBar{config} =
+	}
+}

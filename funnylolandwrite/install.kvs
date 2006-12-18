@@ -1,0 +1,444 @@
+#######################################################							
+# Grifisx & Noldor 2005 (.:mDm:.Team) & HelLViS69
+# & a sweet girl	=) ....luci e ombre
+#######################################################
+addon.register("Lol&Color","0.1",$tr("Lol&Color","L&c"),$tr("A simple script for lol and kiss with F3-F8 keys and for funny writing","Ls"),"3.2.0","Ls/Ls_32.png")
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+		
+	# This is an automatically generated alias that will erase the installed files
+	alias(lollosa){}
+	alias(lolwritecolor){}
+	event(onAccelKeyPressed,lollosaaccel){}
+	defpopup("lolwritecolor"){}
+	delpopupitem -d -q channeltextview 696968
+	delpopupitem -d -q channeltextview 696969
+	delpopupitem -d -q querytextview 69696912
+	# Done
+}
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+
+# then generate the uninstall alias
+# finally kill the installer helper
+delete %installer
+
+# Script Alias
+event(OnAccelKeyPressed,lollosaaccel)
+{
+	if($0==F3)
+	{
+		lollosa
+		%loltemp=$new(lollosa)
+		%loltemp->$randlol()
+		say  $b()%loltemp->%lolLong
+	}
+	if($0==F4)
+	{
+		lollosa
+		%loltemp=$new(lollosa)
+		%loltemp->$randkiss()
+		say  $b()%loltemp->%kissLong
+	}
+	if($0==F5)
+	{
+		lollosa
+		%loltemp=$new(lollosa)
+		%loltemp->$randslurp()
+		say  $b()%loltemp->%slurpLong
+	}
+	if($0==F6)
+	{
+		lollosa
+		%loltemp=$new(lollosa)
+		%loltemp->$randsmile()
+		say  $b()%loltemp->%smileLong
+	}
+	if($0==F7)
+	{
+		lollosa
+		%loltemp=$new(lollosa)
+		%loltemp->$randdance()
+		say  $b()%loltemp->%danceLong
+	}
+	if($0==F8)
+	{
+		lollosa
+		%loltemp=$new(lollosa)
+		%loltemp->$randurra()
+		say  $b()%loltemp->%urraLong
+	}
+}
+
+alias(lollosa)
+{
+	class(lollosa,object)
+	{
+	
+		randlol()
+		{
+			%lol[] =$array("Ah","HA","AH","hA","Uh","Hu","ah"," Ha","hU","uH","ua")
+			%rnd =$rand(30)
+			%idx = $(%rnd+5)
+			while(%idx!=0)
+			{
+				$$->%lolLong=$$->%lolLong %lol[$rand(10)]
+				$$->%lolLong=$str.replace("$$->%lolLong",""," ")
+				
+				%idx--
+			}
+		}
+		randkiss()
+		{
+			%kiss ="\:\*\*"
+			%rnd =$rand(30)
+			%idx = $(%rnd+5)
+			while(%idx!=0)
+			{
+				$$->%kissLong=$$->%kissLong $k($rand(15))%kiss
+				$$->%kissLong=$str.replace("$$->%kissLong",""," ")
+				
+				%idx--
+			}
+		}
+		randsmile()
+		{
+			%smile[] =$array("^__^","^____^","^_^","^_______^")
+			%rnd =$rand(20)
+			%idx = $(%rnd+5)
+			while(%idx!=0)
+			{
+				$$->%smileLong=$$->%smileLong $k($rand(15)) %smile[$rand(3)]
+				$$->%smileLong=$str.replace("$$->%smileLong",""," ")			
+				%idx--
+			}
+	
+		}
+		randslurp()
+		{
+			%slurp ="\:\@\@"
+			%rnd =$rand(30)
+			%idx = $(%rnd+5)
+			while(%idx!=0)
+			{
+				$$->%slurpLong=$$->%slurpLong $k($rand(15))%slurp
+				$$->%slurpLong=$str.replace("$$->%slurpLong",""," ")
+				
+				%idx--
+			}
+		}
+		randdance()
+		{
+			%dance ="\<o\> \<o\/ \\o\> \\o\/ "
+			%rnd =$rand(4)
+			%idx = $(%rnd+5)
+			while(%idx!=0)
+			{
+				$$->%danceLong=$$->%danceLong $k($rand(15))%dance		
+				%idx--
+			}
+	
+		}
+		randurra()
+		{
+			%urra ="o\/ \\o \\o\/ "
+			%rnd =$rand(4)
+			%idx = $(%rnd+5)
+			while(%idx!=0)
+			{
+				$$->%urraLong=$$->%urraLong $k($rand(15))%urra		
+				%idx--
+			}
+	
+		} 
+	}
+}
+
+
+alias(lolwriteColor)
+{
+	%msgTextColor=$1;
+	%Colorasfondo=$2;
+	class(lolwritecolor,object)
+	{
+		singlecolor()
+		{
+			event(OnTextInput,msgTextColor)
+			{
+				if(%msgTextColor==""){%msgTextColor=1;}
+				say $k(%msgTextColor) $0  ;
+				halt;
+			}
+		}
+		rainbow()
+		{
+			event(OnTextInput,msgTextColor)
+			{	
+				%szFrase=$0
+				%idx=1
+				while(%idx!=($str.len(%szFrase)+1))
+				{
+					%sztmp =  $str.section(%szFrase,"",%idx,%idx)
+					%szFraseColorata=%szFraseColorata$k($rand(15))%sztmp
+					%idx++;
+				}
+				say %szFraseColorata  ;
+				halt;
+				
+			}
+		}
+		bold()
+		{
+			event(OnTextInput,msgTextColor)
+			{
+				say $b() $0  ;
+				halt;
+			}
+		}
+		underline()
+		{
+			event(OnTextInput,msgTextColor)
+			{
+				say $u() $0  ;
+				halt;
+			}
+		}
+		backgroundcolor()
+		{
+			event(OnTextInput,msgTextColor)
+			{
+				if(%msgTextColor==""){%msgTextColor=1;}
+				say $k(%msgTextColor,%Colorasfondo) $0  ;
+				halt;
+			}
+		}
+		mirror()
+		{
+			event(OnTextInput,msgTextColor)
+			{	
+				%szFrase=$0
+				%idx=$($str.len(%szFrase)+1)
+				while(%idx!=0)
+				{
+					%sztmp =  $str.section(%szFrase,"",%idx,%idx)
+					%szFraseColorata=%szFraseColorata%sztmp;
+					%idx--;
+				}
+				say %szFraseColorata  ;
+				halt;
+				
+			}
+		}
+		upperlower()
+		{
+			event(OnTextInput,msgTextColor)
+			{	
+				%szFrase=$0
+				%idx=1
+				%itmp=1
+				while(%idx!=($str.len(%szFrase)+1))
+				{
+					if(%itmp==1)
+					{
+						%sztmp =  $str.upcase($str.section(%szFrase,"",%idx,%idx));
+						%itmp=0
+					}
+					else
+					{
+						%sztmp =  $str.lowcase($str.section(%szFrase,"",%idx,%idx));
+						%itmp=1
+					}
+					%szFraseColorata=%szFraseColorata%sztmp
+					%idx++;
+				}
+				say %szFraseColorata  ;
+				halt;
+				
+			}
+		}
+		lamer()
+		{
+			event(OnTextInput,msgTextColor)
+			{
+				%normal[]=$array(a,b,c,d,e,g,h,i,l,m,n,o,p,r,s,t,u,v,w)
+				%lamah[]=$array(4,8,\©,\|\),3,9,\|\-\|,\|,\|\_,\|V\|,\|\\\|,0,þ,\®,5,7,\|\_\|,\\/,\\/\\/)
+				%idx=0
+				%text =$0
+				while(%idx!=19)
+				{
+					%text=$str.replacenocase(%text,%lamah[%idx],%normal[%idx])
+					%idx++
+				}
+				say %text
+				halt
+			}
+		}
+		italic()
+		{
+			event(OnTextInput,msgTextColor)
+			{
+				%r=$($str.len($0)/3)
+				say $k(9,3)$str.mid($0,0,%r)$k(1,0)$str.mid($0,%r,%r)$k(0,4)$str.mid($0,$(%r*2),$(%r+2))
+				halt;
+			}
+		}
+		disable()
+		{
+			event(OnTextInput,msgTextColor){}
+		}
+	}
+	switch($0){
+		case("c")
+		{
+			%tmp=$new(lolwritecolor);
+			%tmp->$singlecolor();
+			break;
+		}
+		case("d")
+		{
+			%tmp=$new(lolwritecolor);
+			%tmp->$disable();
+			if(%msgTextColor){delete %msgTextColor;}
+			if(%ColoraSfondo){delete %ColoraSfondo;}
+			break;
+		}
+		case("bg")
+		{
+			%tmp=$new(lolwritecolor);
+			%tmp->$backgroundcolor();
+			break;
+		}
+		case("u")
+		{
+			%tmp=$new(lolwritecolor);
+			%tmp->$underline();
+			break;
+		}
+		case("b")
+		{
+			%tmp=$new(lolwritecolor);
+			%tmp->$bold();
+			break;
+		}
+		case("r")
+		{
+			%tmp=$new(lolwritecolor);
+			%tmp->$rainbow();
+			break;
+		}
+		case("m")
+		{
+			%tmp=$new(lolwritecolor);
+			%tmp->$mirror();
+			break;
+		}
+		case("ul")
+		{
+			%tmp=$new(lolwritecolor);
+			%tmp->$upperlower();
+			break;
+		}
+		case("l"){
+			%tmp=$new(lolwritecolor);
+			%tmp->$lamer();
+			break;
+		}
+		case("IT")
+		{
+			%tmp=$new(lolwritecolor);
+			%tmp->$italic();
+			break;	
+		}
+		default{
+			echo $k(5) $u() $tr("Usage:")
+			echo $k(5) \[ $k(10) $u()$tr("Rainbow mode")$u() $k(5) \]$o - /lolwritecolor r
+			echo $k(5) \[ $k(10) $u()$tr("Bold Mode")$u() $k(5) \]$o - /lolwritecolor b
+			echo $k(5) \[ $k(10) $u()$tr("Underline Mode")$u() $k(5) \]$o - /lolwritecolor u
+			echo $k(5) \[ $k(10) $u()$tr("Altern upper and lower case mode")$u() $k(5) \]$o - /lolwritecolor ul
+			echo $k(5) \[ $k(10) $u()$tr("Mirror mode")$u() $k(5) \]$o - /lolwritecolor m
+			echo $k(5) \[ $k(10) $u()$tr("Single-colour mode")$u() $k(5) \]$o - /lolwritecolor c <colornumber>
+			echo $k(5) \[ $k(10) $u()$tr("BackGround color mode")$u() $k(5) \]$o - /lolwritecolor bg <text color> <background color>
+			echo $k(5) \[ $k(10) $u()$tr("Leet mode")$u() $k(5) \]$o - /lolwritecolor l
+			echo $k(5) \[ $k(10) $u()$tr("Italic mode")$u() $k(5) \]$o - /lolwritecolor IT
+			echo $k(5) \[ $k(10) $u()$tr("Disable script")$u() $k(5) \]$o - /lolwritecolor d
+			break;
+		}
+	}
+
+}
+
+# Popups
+defpopup-m ("channeltextview")
+{
+	separator("696968")
+	
+	extpopup("$tr("Funny Write")","lolwritecolor","267","696969")
+}
+
+defpopup-m ("querytextview")
+{
+	separator("69696912")
+	
+	extpopup("$tr("Funny Write")","lolwritecolor","267","696969")
+}
+defpopup("lolwritecolor")
+{
+	label("$tr("Write Color")")
+	
+	item("$tr("Rainbow")","149")
+	{
+		lolwritecolor r
+	}
+	
+	item("$tr("Bold")","220")
+	{
+		lolwritecolor b
+	}
+	
+	item("$tr("Underline")","03")
+	{
+		lolwritecolor u
+	}
+	
+	item("$tr("Mirror")","240")
+	{
+		lolwritecolor m
+	}
+	
+	item("$tr("Upper&Lower")","141")
+	{
+		lolwritecolor ul
+	}
+	
+	item("$tr("L4m3r")","112")
+	{
+		lolwritecolor l
+	}
+
+	item("$tr("Italic")","112")
+	{
+		lolwritecolor IT
+	}
+
+	item("$tr("Disable")","221")
+	{
+		lolwritecolor d
+	}
+
+	item("$tr("Help")","28")
+	{
+		lolwritecolor
+	}
+	
+}
+

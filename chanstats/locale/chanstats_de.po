@@ -1,0 +1,186 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ChanStats 1.1.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-07-15 19:08+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: g00dsP33D <gspeed@gmx.net>\n"
+"Language-Team: german <de@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../install.kvs:5
+msgid "Channel Statistics"
+msgstr "Kanalstatistiken"
+
+#: ../install.kvs:5
+msgid "Shows Statistics for a joined channel."
+msgstr "Zeigt Statistiken beim Betreten eines Kanals"
+
+#: ../install.kvs:70
+msgid "Chanstats Config"
+msgstr "ChanStats Konfiguration"
+
+#: ../install.kvs:83
+msgid "cleanup options"
+msgstr "Bereinigungseinstellungen"
+
+#: ../install.kvs:90
+msgid "remove channels from the regchan-module after :"
+msgstr "entferne Kanaele vom regchan-Modul nach :"
+
+#: ../install.kvs:108
+msgid "days without ChanStats."
+msgstr "Tagen ohne ChanStats"
+
+#: ../install.kvs:118
+msgid "display options"
+msgstr "Anzeigeeinstellungen"
+
+#: ../install.kvs:126
+msgid "display user-percentages"
+msgstr "zeige Benutzer-Verteilung"
+
+#: ../install.kvs:143
+msgid "enable percentage-bars, drawn with char :"
+msgstr "zeige Prozentbalken, erstellt durch das Zeichen :"
+
+#: ../install.kvs:163
+msgid "enable developments"
+msgstr "zeige Benutzer-Entwicklungen"
+
+#: ../install.kvs:173
+msgid "display user-peak"
+msgstr "zeige Benutzerhoechstzahl"
+
+#: ../install.kvs:180
+msgid "display last visit"
+msgstr "zeige letzten Besuch"
+
+#: ../install.kvs:192
+msgid "notification options"
+msgstr "Bereinigungseinstellungen"
+
+#: ../install.kvs:200
+msgid "show new user-peaks"
+msgstr "ueber neue Benutzerhoechstzahl benachrichtigen"
+
+#: ../install.kvs:207
+msgid "show removed channels by cleanup [console-window]"
+msgstr "ueber bereinigte Kanaele benachrichtigen [Konsolenfenster]"
+
+#: ../install.kvs:220
+msgid "OK"
+msgstr "Ok"
+
+#: ../install.kvs:229
+msgid "Apply"
+msgstr "Anwenden"
+
+#: ../install.kvs:238
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: ../install.kvs:468
+msgid "channel-data for"
+msgstr "Kanaldaten fuer"
+
+#: ../install.kvs:468
+msgid "has been removed from regchan-module."
+msgstr "wurden vom regchan-Modul entfernt."
+
+#: ../install.kvs:531
+msgid "channels have been removed from the regchan-module."
+msgstr "Kanaele wurden vom regchan-Modul entfernt."
+
+#: ../install.kvs:591
+msgid "New user peak for channel"
+msgstr "Neue Benutzerhoechstzahl fuer Kanal"
+
+#: ../install.kvs:591 ../install.kvs:804 ../install.kvs:826
+msgid "user(s)"
+msgstr "Benutzer"
+
+#: ../install.kvs:766
+msgid "usage: /chanstats <option>"
+msgstr "Nutzung: /chanstats <Option>"
+
+#: ../install.kvs:768
+msgid "possible options:"
+msgstr "moegliche Optionen:"
+
+#: ../install.kvs:769
+msgid "configure ChanStats-script"
+msgstr "ChanStats-Script konfigurieren"
+
+#: ../install.kvs:770
+msgid "displays usercounts,peak-data and time of last visit"
+msgstr "Statistiken anzeigen"
+
+#: ../install.kvs:771
+msgid "resets channel-data in the regchan-module"
+msgstr "entferne Kanaldaten vom regchan-Modul"
+
+#: ../install.kvs:772
+msgid "you were just reading the results ;)"
+msgstr "Du liest gerade das Ergebnis ;)"
+
+#: ../install.kvs:810
+msgid "OP(s)"
+msgstr "Op(s)"
+
+#: ../install.kvs:813
+msgid "half-OP(s)"
+msgstr "Halb-Op(s)"
+
+#: ../install.kvs:816
+msgid "voice(s)"
+msgstr "Voice(s)"
+
+#: ../install.kvs:819
+msgid "peon(s)"
+msgstr "normale(r) Benutzer"
+
+#: ../install.kvs:826
+msgid "user peak"
+msgstr "Benutzerhoechstzahl"
+
+#: ../install.kvs:832
+msgid "last visit"
+msgstr "letzter Besuch"
+
+#: ../install.kvs:836
+msgid "ERROR"
+msgstr "FEHLER"
+
+#: ../install.kvs:836
+msgid "chanstats are only available in channel windows"
+msgstr "ChanStats sind nur in Kanalfenstern verfuegbar"
+
+#: ../install.kvs:875
+msgid "installation of the chanstats script was succesful,"
+msgstr "Installation des ChanStats-Scriptes erfolgreich abgeschlossen,"
+
+#: ../install.kvs:876
+msgid "configure ChanStats by using '/chanstats config'."
+msgstr "konfiguriere ChanStats durch '/chanstats config'."
+
+#: ../install.kvs:877
+msgid "perform a '/chanstats help' to see possible actions."
+msgstr "Durch '/chanstats help' erhaelst Du eine Liste moeglicher Optionen."
+
+#: ../install.kvs:878
+msgid ""
+"you can always uninstall ChanStats by using 'Manage Addons ...' from the "
+"settings menu"
+msgstr ""
+"Das Script kann jederzeit deinstalliert werden ueber 'Manage Addons ...' im "
+"Einstellungen-Menue."
+

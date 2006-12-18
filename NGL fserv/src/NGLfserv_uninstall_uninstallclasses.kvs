@@ -1,0 +1,14 @@
+alias(NGLfserv::uninstall::uninstallclasses)
+{
+	%temp=$str.grep("NGLfserv",$file.ls($file.localdir(classes/),f))
+	%temp=$str.replace(%temp,"",".kvs")
+	%classes[]=$str.split(",",$str.replace(%temp,"::","--"),n)
+	
+	for (%i=0;%i<$length(%classes[]);%i++;)	{
+		if ($classDefined("%classes[%i]")){
+			 objects.killclass %classes[%i]
+		}
+	}
+}
+
+

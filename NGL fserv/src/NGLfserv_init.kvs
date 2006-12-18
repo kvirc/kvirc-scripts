@@ -1,0 +1,17 @@
+alias(NGLfserv::init)
+{
+	# register classes
+	NGLfserv::classes::register
+	
+	# init events
+	NGLfserv::events::init	
+	
+	# init variables
+	NGLfserv::config::initialiseglobalvar
+			
+	
+	 # load config
+	NGLFserv::config::load
+}
+
+

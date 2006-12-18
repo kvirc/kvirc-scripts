@@ -1,0 +1,186 @@
+alias(NGLfserv::config::load)
+{
+	NGLfserv::config::initialiseglobalvar
+
+			%NglConfigPath=$file.localdir(config/scripts/)
+
+			%c = $config.open("NGLfserv.kvc","r")
+			config.setsection %c general
+
+			// maximum sends
+			%MaxSends=$config.read(%c,"MaxSends",2)
+
+			// each users maximum sends
+			%EachSends=$config.read(%c,"EachSends",1)
+
+			// maximum queues
+			%MaxQueues=$config.read(%c,"MaxQueues",10)
+
+			// each users maximum queues
+			%EachQueues=$config.read(%c,"EachQueues",2)
+
+			// Flag enable/disable fserv
+			%FservActive=$config.read(%c,"FservActive","ON")
+
+			// Max time of the shell
+			%MaxShellLife=$config.read(%c,"MaxShellLife",120000)
+
+			// Max time of user's idle time
+			%MaxUserIdle=$config.read(%c,"MaxUserIdle",45000)
+
+			// Max find results
+			%FindMsg=$config.read(%c,"FindMsg",5)
+
+			// Display No files found
+			%DisplayNoOccurrenceFound=$config.read(%c,"DisplayNoOccurrenceFound",0)
+
+			// Find filtering
+			%FindFilter=$config.read(%c,"FindFilter",0)
+
+			// Flag for enabling/disabling DccReverse send
+			%DccReverse=$config.read(%c,"DccReverse",0)
+
+			// Colors
+			%NGLc1=$config.read(%c,"NGLc1")
+			%NGLc2=$config.read(%c,"NGLc2")
+
+			if (%NGLc1=="" || %NGLc2=="") {
+				%NGLc1=$(2+$rand(13))
+				%NGLc2=$(2+$rand(13))
+				while(%NGLc1==%NGLc2)
+					%NGLc2=$(2+$rand(13))
+			}
+
+			// Maximum resends
+			%MaxResends=$config.read(%c,"MaxResends",3)
+
+			// Instant send size
+			%InstantSendSize=$config.read(%c,"InstantSendSize",1048576)
+
+			// Resend interval
+			%ResendInterval=$config.read(%c,"ResendInterval",10000)
+
+			// Priority Type
+			%PriorityType = $config.read(%c,"PriorityType",0)
+
+			// Maximum cache dimension
+			%MaxCacheFind=$config.read(%c,"MaxCacheFind",50)
+
+			// Statistics
+			%NGLSentBytes = $config.read(%c,"NGLSentBytes",0.0)
+			%NGLSentFiles = $config.read(%c,"NGLSentFiles",0)
+
+			// MaxSessions
+			%MaxSessions = $config.read(%c,"MaxSessions",5)
+
+			%G_NGLdebug=$config.read(%c,"NGLdebug",0)
+
+			%B_quickget=$config.read(%c,"QuickGet",$false)
+
+			%MultipleResultsPerLine=$config.read(%c,"MultipleResultsPerLine",$true)
+
+			%CloneDetection=$config.read(%c,"CloneDetection",$true)
+
+			%triggersnumber=$config.read(%c,Triggersnumber)
+			// moving to first trigger
+
+			NGLfserv::corefunctions::ngldebug triggers to load %triggersnumber
+			%nochannel=$true
+			%cnt=0
+			%total=0
+			// while there are triggers
+			while(%total!=%triggersnumber){
+				config.setsection %c TRIGGER%cnt
+				if ($config.read(%c,"triggername")){
+					%total++
+					NGLfserv::corefunctions::ngldebug reading trigger $config.read(%c,"triggername")
+					// trigger's name
+					%triggername=$config.read(%c,"triggername")
+					%welcomemessage=$config.read(%c,"welcomemessage")
+					%password=$config.read(%c,"password")
+					// loading trigger folder structure
+
+					%Triggers{%triggername}=$new(NGLfserv::classes::trigger,0)
+					%Triggers{%triggername}->$setName(%triggername)
+					%Triggers{%triggername}->%welcomeMessage=%welcomemessage
+					%Triggers{%triggername}->%password=%password
+					%chan=0
+				// searching for trigger's channels
+					while ($config.read(%c,"channel"%chan)) {
+						%nochannel=$false
+						%channelname=$config.read(%c,"channel"%chan)
+						%channel=$NGLfserv::corefunctions::channels(a,%channelname,%triggername)
+						// settings triggertype and prioritytype
+						%Triggers{%triggername}->$getChannel(%channelname)->$setTriggerType($config.read(%c,%channelname"triggertype"))
+						%Triggers{%triggername}->$getChannel(%channelname)->$setAccessType($config.read(%c,%channelname"accesstype"))
+						%Triggers{%triggername}->$getChannel(%channelname)->$setAccessByPswd($config.read(%c,"UsePswd",$false))
+						%chan++
+					}
+				}
+				%cnt++
+			}
+
+			if (!$length(%Triggers{})) return
+			if (!%nochannel) {
+				config.setsection %c channelsgeneraloptions
+				foreach(%channel,$keys(%FservChannels{})) {
+					%FservChannels{%channel}->$setRespToList($config.read(%c,"%channel"respondtolist))
+					%FservChannels{%channel}->$setRespToFind($config.read(%c,"%channel"respondtofind))
+					%FservChannels{%channel}->$setRespToMyQueues($config.read(%c,"%channel"respondtomyqueues))
+				}
+			}
+			config.close %c
+			%Asyncio=$new(NGLfserv::classes::asynchLoad)
+			foreach(%trigger,$keys(%Triggers{})){
+				%instance=$new(list,%Asyncio)
+				%c = $config.open("NGLfservtriggertree"%trigger".kvc",rw)
+				config.setsection %c general
+				%realnodes=$config.read(%c,"realnodes",0)
+				%i=0
+				//%keylist[]=$config.sectionlist(%c)
+				/*for(%i=0;%i<$length(%keylist[]);%i++;)
+				{
+				*/
+				while (%i<%realnodes){
+					config.setsection %c realnode%i
+					//config.setsection %c %keylist[%i]
+					%rrf=$config.read(%c,"realRootFolder")
+					if (%rrf)
+					{
+						if ($file.exists(%rrf$config.read(%c,"realnodedir")))
+						{
+							%instance_node=$new(object,%instance)
+							%instance_node->%trigger=%Triggers{%trigger}
+							%instance_node->%realRootFolder=%rrf
+							%instance_node->%pathFromTrigger=$config.read(%c,"pathFromTrigger")
+							%instance_node->%dir=$config.read(%c,"realnodedir")
+							if (%instance_node->%dir=="\/") %instance_node->%dir=""
+							%instance->$append(%instance_node)
+							%inst=$true
+						}
+						else{
+							NGLfserv::corefunctions::ngldebug la dir $config.read(%c,"realRootFolder")$config.read(%c,"realnodedir") non esiste: rimuovo il nodo dalla config!
+							config.clearsection %c realnode%i
+							if (!$config.read(%c,"realnodedir")){
+								%Triggers{%trigger}->$setFirstEmptyNode()
+							}
+						}
+					}
+					%i++
+				}
+				if (%inst) {
+					%Asyncio->$addInstance(%instance,%c)
+					%b_instance=$true
+				}
+				else{
+					 %Triggers{%trigger}->%noNode=$true
+					  config.close %c
+				}
+
+			}
+			if (%b_instance) %Asyncio->$start()
+			else delete %Asyncio
+			//config.close %c
+}
+
+

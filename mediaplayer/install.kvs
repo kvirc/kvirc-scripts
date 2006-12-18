@@ -1,0 +1,174 @@
+addon.register("HellMediaplayer","1.3","Hell Mediaplayer",$tr("A simple script for announcing mp3s that are played by someone"),"3.2.0")
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	# This is an automatically generated alias that will erase the installed files
+	objects.killclass -q mediaconfig
+	alias(hell_mediaconf){}
+	alias(hell_leggiconf){}
+	alias(hell_mediaplayer){}
+	event(OnChannelMessage,dcctrigger){}
+	event(OnKVIrcStartup,start){}
+	delpopupitem -d -q channeltextview 696968
+	%HellvisCoder=""
+	%Player_check=""
+	%Player_trigger=""
+	# Done
+}
+
+addon.setconfigurecallback(HellMediaplayer){
+	hell_mediaconf
+}
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+
+# then generate the uninstall alias
+# finally kill the installer helper
+delete %installer
+
+# Script Config
+%HellvisCoder=HelLViS69
+%Player_check=1
+%Player_trigger=!mediasend
+%cfg=$config.open(hellconfig.kvc);
+config.write %cfg HellvisCoder %HellvisCoder
+config.write %cfg Player_check %Player_check
+config.write %cfg Player_trigger %Player_trigger
+config.close %cfg;
+
+# Script Event
+event(OnChannelMessage,dcctrigger){
+	if((!$str.isempty(%Player_trigger)) && ($3 == %Player_trigger)){
+		if($str.isempty($mediaplayer.nowPlaying) == 1){
+			notice $0 Il player non e' in funzione :)
+			halt
+		}
+		if(%Player_check == 1){
+			dcc.send $0 $mediaplayer.localFile
+		}
+	}
+}
+
+event(OnKVIrcStartup,start){
+	hell_leggiconf
+}
+
+# Script Alias
+alias(hell_mediaconf){
+	class (mediaconfig,dialog){
+		constructor(){
+			$$->$setCaption(%HellvisCoder :: Mediaplayer)
+	
+			$$->%l=$new(layout,$$)
+			$$->%l->$setMargin(5)
+			$$->%l->$setSpacing(5)
+	
+			$$->%gb_player=$new(groupbox,$$)
+			$$->%gb_player->$setTitle("Mediaplayer")
+			$$->%gb_player->$setAlignment("Left")
+			$$->%lgb_player=$new(layout,$$->%gb_player)
+			$$->%lgb_player->$setMargin(10)
+			$$->%lgb_player->$setColStretch(0,30)
+	
+			$$->%player_check=$new(checkbox,$$->%gb_player)
+			$$->%player_check->$setText("Abilita trigger per inviare il file in DCC")
+			if(%Player_check==1){
+				$$->%player_check->$setChecked()
+			}
+			$$->%lgb_player->$addMultiCellWidget($$->%player_check,0,0,0,1)
+		
+			$$->%player_trigger_lb=$new(label,$$->%gb_player)
+			$$->%player_trigger_lb->$setText("Trigger: ")
+			$$->%lgb_player->$addWidget($$->%player_trigger_lb,1,0)
+			
+			$$->%player_trigger=$new(lineedit,$$->%gb_player)
+			$$->%player_trigger->$setText(%Player_trigger)
+			$$->%lgb_player->$addWidget($$->%player_trigger,1,1)
+			$$->%l->$addMultiCellWidget($$->%gb_player,0,0,0,2)
+	
+			$$->%btn_ok=$new(button,$$)
+			$$->%btn_ok->$setText("OK")
+			$$->%l->$addWidget($$->%btn_ok,1,0)
+			objects.connect $$->%btn_ok "clicked" $$ "okClicked"
+	
+			$$->%btn_apply=$new(button,$$)
+			$$->%btn_apply->$settext("Applica")
+			$$->%l->$addWidget($$->%btn_apply,1,1)
+			objects.connect $$->%btn_apply "clicked" $$ "applyClicked"
+	
+			$$->%btn_cancel=$new(button,$$)
+			$$->%btn_cancel->$settext("Annulla")
+			$$->%l->$addWidget($$->%btn_cancel,1,2)
+			objects.connect $$->%btn_cancel "clicked" $$ "cancelClicked"
+	
+			$$->$resize(200,130)
+		}
+			
+		okClicked(){
+			$$->$configSave()
+			delete $$
+		} 
+		
+		applyClicked(){
+			$$->$configSave()
+		}
+	
+		cancelClicked(){
+			delete $$
+		}
+		
+		configSave(){
+			%cfg=$config.open(hellconfig.kvc)
+			config.write %cfg Player_check $$->%player_check->$isChecked
+			config.write %cfg Player_trigger $$->%player_trigger->$text()
+			config.close %cfg
+			hell_leggiconf
+		}
+	}
+			
+	%media=$new(mediaconfig)
+	%media->$show()
+}
+
+alias(hell_leggiconf){
+	%cfg=$config.open(hellconfig.kvc)
+	%HellvisCoder=$config.read(%cfg, HellvisCoder)
+	%Player_check=$config.read(%cfg, Player_check)
+	%Player_trigger=$config.read(%cfg, Player_trigger)
+	config.close %cfg
+}
+
+alias(hell_mediaplayer){
+	%mp3=$mediaplayer.nowPlaying
+	if($str.isempty(%mp3) == 1){
+		echo -w=$active $b$k(4)Warning:$o $k(4)Il player non e' in funzione
+		halt
+	}
+	
+	if(%Player_check == 1){
+		%mp3=$str.append($b%mp3$o, " - Type %Player_trigger to get it!")
+	}
+	
+	me ascolta $b%mp3$o
+}
+
+# Script Popups
+defpopup-m ("channeltextview")
+{
+	label(%HellvisCoder Mediaplayer)
+	item("Annuncia Mp3","234"){
+		hell_mediaplayer
+	}
+	item("Configurazione",""){
+		hell_mediaconf
+	}
+}

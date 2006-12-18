@@ -1,0 +1,246 @@
+class(twins::inputcolor::configure,dialog)
+{
+	# INPUTCOLOR ADDON CONFIGURATION
+	# ==============================
+
+	constructor()
+	{
+		# Load configuration
+		twins::inputcolor::core::config::load
+
+		# Cation
+		@$setcaption($str.printf($tr("Twinsinputcolor-?s configuration",twinsinputcolor),$addon.version(twinsinputcolor)))
+
+		# Layout
+		%l=$new(layout,$$)
+		%l->$setspacing(20)
+		%l->$setmargin(20)
+		%l->$setRowStretch(2,1)
+
+		# Title
+		%title=$new(label,$$)
+		%title->$setalignment(center)
+		%title->$settext(<h3>$str.printf($tr("Twinsinputcolor-?s configuration",twinsinputcolor),$addon.version(twinsinputcolor))</h3>)
+		%l->$addmulticellwidget(%title,0,0,0,3)
+
+		###########################################
+
+		# Status
+		@%m_hStatus=$new(checkbox,$$)
+		@%m_hStatus->$settext($tr("On/Off",twinsinputcolor))
+		@%m_hStatus->$setchecked($(%TwinsInputColor{status}))
+		%l->$addwidget(@%m_hStatus,1,0)
+
+		# Stoppers
+		%lstop=$new(label,$$)
+		%lstop->$settext($tr("Stoppers:",twinsinputcolor))
+		@%m_hstop=$new(lineedit,$$)
+		@%m_hStop->$settext(%TwinsInputColor{stop})
+		%tt=$tr("These single characters suppress colors when they are at beginning of input line.<br>It is useful for bot commands for example.",twinsinputcolor)
+		%lstop->$settooltip(%tt)
+		@%m_hStop->$settooltip(%tt)
+		%l->$addwidget(%lstop,1,1)
+		%l->$addwidget(@%m_hStop,1,2)
+
+		# Show example
+		@%m_hExample=$new(label,$$)
+		@%m_hExample->$setalignment(center)
+		@%m_hExample->$setFrameStyle(Box,Sunken)
+		%l->$addwidget(@%m_hExample,1,3)
+
+		# Structure
+		%st=$new(groupbox,$$)
+		%st->$settitle($tr("Structure",twinsinputcolor))
+		%stl=$new(layout,%st)
+		%stl->$setmargin(15)
+		%stl->$setspacing(10)
+		%l->$addwidget(%st,2,0)
+		# bold
+		@%m_hBold=$new(checkbox,%st)
+		@%m_hBold->$settext($tr("Bold",twinsinputcolor))
+		@%m_hBold->$setchecked($str.contains(%TwinsInputColor{code},$b))
+		# underline
+		@%m_hUnderline=$new(checkbox,%st)
+		@%m_hUnderline->$settext($tr("Underline",twinsinputcolor))
+		@%m_hUnderline->$setchecked($str.contains(%TwinsInputColor{code},$u))
+		%stl->$addwidget(@%m_hBold,0,0)
+		%stl->$addwidget(@%m_hUnderline,1,0)
+
+
+		# Colors
+		%co=$new(groupbox,$$)
+		%co->$settitle($tr("Colors",twinsinputcolor))
+		%col=$new(layout,%co)
+		%col->$setmargin(15)
+		%col->$setspacing(10)
+		%l->$addmulticellwidget(%co,2,2,1,2)
+		# foreground
+		%lfg=$new(label,%co)
+		%lfg->$settext($tr("Foreground:",twinsinputcolor))
+		@%m_hFg=$new(spinbox,%co)
+		@%m_hFg->$setminvalue(0)
+		@%m_hFg->$setmaxvalue(15)
+		%tmp=$str.mid($str.rightfromfirst(%TwinsInputColor{code},$k),0,2)
+		if($str.isempty(%tmp))%tmp=1
+		@%m_hFg->$setvalue(%tmp)
+		# background
+		%lbg=$new(label,%co)
+		%lbg->$settext($tr("Background:",twinsinputcolor))
+		%tmp2=$str.rightfromfirst(%TwinsInputColor{code},\,)
+		@%m_hIsBg=$new(checkbox,%co)
+		@%m_hIsBg->$settext($tr("Use background",twinsinputcolor))
+		@%m_hIsBg->$setchecked($(!$str.isempty(%tmp2)))
+		if($str.isempty(%tmp2))%tmp2=0
+		@%m_hBg=$new(spinbox,%co)
+		@%m_hBg->$setminvalue(0)
+		@%m_hBg->$setmaxvalue(15)
+		@%m_hBg->$setvalue(%tmp2)
+		%col->$addwidget(%lfg,0,0)
+		%col->$addwidget(@%m_hFg,0,1)
+		%col->$addwidget(%lbg,1,0)
+		%col->$addwidget(@%m_hBg,1,1)
+		%col->$addmulticellwidget(@%m_hIsBg,2,2,0,1)
+		@%m_hIsBg->$toggleevent
+
+
+		# Where
+		%wh=$new(groupbox,$$)
+		%wh->$settitle($tr("Where",twinsinputcolor))
+		%wh->$settooltip($tr("Where to use your color",twinsinputcolor))
+		%whl=$new(layout,%wh)
+		%whl->$setmargin(15)
+		%whl->$setspacing(10)
+		%l->$addwidget(%wh,2,3)
+		# chans
+		@%chans=$new(checkbox,%wh)
+		@%chans->$settext($tr("Channels",twinsinputcolor))
+		@%chans->$setchecked($str.contains(%TwinsInputColor{where},channel))
+		%whl->$addwidget(@%chans,0,0)
+		# pv
+		@%pv=$new(checkbox,%wh)
+		@%pv->$settext($tr("Queries",twinsinputcolor))
+		@%pv->$setchecked($str.contains(%TwinsInputColor{where},query))
+		%whl->$addwidget(@%pv,1,0)
+		# dccchats
+		@%dcc=$new(checkbox,%wh)
+		@%dcc->$settext($tr("DccChats",twinsinputcolor))
+		@%dcc->$setchecked($str.contains(%TwinsInputColor{where},dccchat))
+		%whl->$addwidget(@%dcc,2,0)
+
+		objects.connect @%m_hBold toggled $$ showcolor
+		objects.connect @%m_hUnderline toggled $$ showcolor
+		objects.connect @%m_hFg valueChanged $$ showcolor
+		objects.connect @%m_hBg valueChanged $$ showcolor
+		objects.connect @%m_hIsBg toggled $$ showcolor
+		@$showcolor
+		objects.connect @%m_hStatus toggled $$ showcolor
+
+		###########################################
+
+		# Ok
+		%ok=$new(button,$$)
+		%ok->$settext($tr(Ok))
+		%l->$addwidget(%ok,3,0)
+		objects.connect %ok clicked $$ ok
+
+		# Apply
+		%ap=$new(button,$$)
+		%ap->$settext($tr(Apply))
+		%l->$addmulticellwidget(%ap,3,3,1,2)
+		objects.connect %ap clicked $$ apply
+
+		# Close
+		%cl=$new(button,$$)
+		%cl->$settext($tr(Close))
+		%l->$addwidget(%cl,3,3)
+		objects.connect %cl clicked $$ close
+
+	}
+
+	apply()
+	{
+		%TwinsInputColor{status}=@%m_hStatus->$ischecked
+		if(@%m_hBold->$ischecked)
+			%code=$b
+		if(@%m_hUnderline->$ischecked)
+			%code .= $u
+		%fg=@%m_hFg->$value
+		if(@%m_hIsBg->$ischecked)
+			%bg=@%m_hBg->$value
+		if(%fg!=1||!$str.isempty(%bg)){
+			if(%fg<10) %fg=0%fg
+			%code .= $k%fg
+			if(!$str.isempty(%bg)){
+				if(%bg<10) %bg=0%bg
+				%code<,%bg
+			}
+		}
+		%TwinsInputColor{code}=%code
+		%TwinsInputColor{stop}=@%m_hStop->$text
+		if(@%chans->$ischecked)
+			%where=channel
+		if(@%pv->$ischecked)
+			%where<<query
+		if(@%dcc->$ischecked)
+			%where<<dccchat
+		%TwinsInputColor{where}=%where
+
+		twins::inputcolor::core::config::save
+	}
+
+	ok()
+	{
+		@$apply
+		@$close
+	}
+
+	close()
+	{
+		delete $$
+	}
+
+	showcolor()
+	{
+		%msg=<font size=+1>$tr("example",twinsinputcolor)</font>
+		if(@%m_hBold->$ischecked)
+			%msg=<b>%msg</b>
+		if(@%m_hUnderline->$ischecked)
+			%msg=<u>%msg</u>
+		@%m_hExample->$setfont(14,courrier,fixedpitch)
+		@%m_hExample->$setforegroundColor(@$mirctorgb(@%m_hFg->$value))
+		if(@%m_hIsBg->$ischecked)
+			@%m_hExample->$setBackgroundColor(@$mirctorgb(@%m_hBg->$value))
+		//else
+		//	@%m_hExample->$setBackgroundImage(132)
+		@%m_hExample->$settext(%msg)
+	}
+
+	mouseReleaseEvent()
+	{
+		@$showcolor
+	}
+
+	mirctorgb()
+	{
+		switch($0){
+			case(0):return "FFFFFF"
+			case(1):return "000000"
+			case(2):return "00008C"
+			case(3):return "006400"
+			case(4):return "E60000"
+			case(5):return "960000"
+			case(6):return "500050"
+			case(7):return "E65100"
+			case(8):return "FFFF00"
+			case(9):return "00FF00"
+			case(10):return "0096B4"
+			case(11):return "AAAAFF"
+			case(12):return "0F0FFF"
+			case(13):return "C800C8"
+			case(14):return "505050"
+			case(15):return "AAAAAA"
+		}
+
+	}
+
+}

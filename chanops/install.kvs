@@ -1,0 +1,140 @@
+# Channel operations utility script
+# Written by Szymon Stefanek (2005)
+
+
+# register the script: this must be the first instruction executed
+# since it will abort with an error when a greater version is already installed
+addon.register("chanops","1.0.0",$tr("Channel Operations","chanops"),$tr("Provides toolbar buttons for several commonly used channel operations","chanops"),"3.2.0.99",chanops_op_32.png)
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	
+	# This is an automatically generated alias that will erase the installed files
+	chanops_uninstallfiles
+
+	action.destroy chanops_whois
+	action.destroy chanops_kick
+	action.destroy chanops_op
+	action.destroy chanops_kickban
+	action.destroy chanops_deop
+	alias(chanops_whois){}
+	alias(chanops_kick){}
+	alias(chanops_op){}
+	alias(chanops_kickban){}
+	alias(chanops_deop){}
+	alias(chanops_uninstall){}
+	
+	toolbar.destroy chanops
+	# Done
+}
+
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+# copy files in each subdirectory
+# the pics
+%installer->$copyFiles("%mypath/pics/","*.png","$file.localdir("pics")")
+# the translations
+%installer->$copyFiles("%mypath/locale/","*.mo","$file.localdir("locale")")
+# the documentation
+%installer->$copyFiles("%mypath/help/en/chanops/","*.html","$file.localdir("help/en/chanops")")
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("chanops_uninstallfiles")
+# finally kill the installer helper
+delete %installer
+
+
+# We provide the utilities as aliases
+alias(chanops_whois)
+{
+	if($selected)
+		foreach(%nick,$selected)
+			whois %nick
+	
+}
+
+alias(chanops_kick)
+{
+	if($selected)
+		foreach(%nick,$selected)
+			kick %nick
+}
+
+alias(chanops_op)
+{
+	if($selected)op $selected
+}
+
+alias(chanops_deop)
+{
+	if($selected)deop $selected
+}
+
+alias(chanops_kickban)
+{
+	if($selected)
+	{
+		foreach(%nick,$selected)
+		{
+			if(%nick)
+			{
+				%mask = $mask(%nick,7);
+			
+				if(!%mask)%mask = %nick; # plain ban
+				
+				%raw = "kick $target %nick :You're not welcome here!"
+
+				if($chan.isOp(%nick))%raw2 = "mode $target -o+b %nick %mask"
+				else %raw2 = "mode $target +b %mask"
+
+				raw -q %raw$cr$lf%raw2
+			}
+		}
+	}
+}
+
+# And also as actions
+action.create -i -c -w=c -s -t=channel (chanops_whois,$tr("Request /WHOIS","chanops"),$tr("Request WHOIS for selected users on a channel","chanops"),chanops_whois_32.png,chanops_whois_16.png)
+{
+	chanops_whois
+}
+
+action.create -i -c -w=c -s -t=channel (chanops_op,$tr("Op Users","chanops"),$tr("Give Op to the selected users on a channel","chanops"),chanops_op_32.png,chanops_op_16.png)
+{
+	chanops_op
+}
+
+action.create -i -c -w=c -s -t=channel (chanops_deop,$tr("DeOp Users","chanops"),$tr("DeOp the selected users on a channel","chanops"),chanops_deop_32.png,chanops_deop_16.png)
+{
+	chanops_deop
+}
+
+action.create -i -c -w=c -s -t=channel (chanops_kick,$tr("Kick Users","chanops"),$tr("Kick the selected users on a channel","chanops"),chanops_kick_32.png,chanops_kick_16.png)
+{
+	chanops_kick
+}
+
+action.create -i -c -w=c -s -t=channel (chanops_kickban,$tr("Kick/Ban Users","chanops"),$tr("Kick and Ban the selected users on a channel","chanops"),chanops_kickban_32.png,chanops_kickban_16.png)
+{
+	chanops_kickban
+}
+
+
+# So we can use them in a toolbar :)
+toolbar.create chanops $tr("Channel Operations","chanops") "chanops_16.png"
+toolbar.additem chanops chanops_whois
+toolbar.additem chanops chanops_op
+toolbar.additem chanops kvirc.separator
+toolbar.additem chanops chanops_deop
+toolbar.additem chanops chanops_kick
+toolbar.additem chanops chanops_kickban
+toolbar.show chanops
+

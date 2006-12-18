@@ -1,0 +1,77 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-08-02 15:45+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../src/actions.kvs:1
+msgid "Twins: Show Lag Bar"
+msgstr ""
+
+#: ../src/actions.kvs:1
+msgid "Show the lag bar of the Twins script"
+msgstr ""
+
+#: ../src/classes.kvs:16
+msgid "Lag"
+msgstr ""
+
+#: ../src/classes.kvs:17
+msgid "Twins Lag Bar"
+msgstr ""
+
+#: ../src/classes.kvs:155 ../src/classes.kvs:162
+msgid "Twins LagBar-?s"
+msgstr ""
+
+#: ../src/classes.kvs:167
+msgid "Use it?"
+msgstr ""
+
+#: ../src/classes.kvs:174
+msgid "Max lag:"
+msgstr ""
+
+#: ../src/classes.kvs:186
+msgid "Width:"
+msgstr ""
+
+#: ../src/classes.kvs:198
+msgid "Colors"
+msgstr ""
+
+#: ../src/classes.kvs:204
+msgid "Red"
+msgstr ""
+
+#: ../src/classes.kvs:204
+msgid "Green"
+msgstr ""
+
+#: ../src/classes.kvs:204
+msgid "Blue"
+msgstr ""
+
+#: ../src/classes.kvs:217
+msgid "High"
+msgstr ""
+
+#: ../src/classes.kvs:217
+msgid "Medium"
+msgstr ""
+
+#: ../src/classes.kvs:217
+msgid "Low"
+msgstr ""

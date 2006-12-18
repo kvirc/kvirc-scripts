@@ -1,0 +1,25 @@
+event(OnKVIrcStartup,twins::inputcolor)
+{
+	# INPUT TEXT COLOR
+	# ----------------
+	twins::inputcolor::core::config::load
+}
+
+
+event(OnTextInput,twins::inputcolor)
+{
+	# TEXT COLOR
+	# -----------
+	if(%TwinsInputColor{status}&&%TwinsInputColor{code}&&$str.contains(%TwinsInputColor{where},$window.type)){
+		if($str.contains(%TwinsInputColor{stop},$str.left($0,1)))return
+		if($channel){
+
+			if($str.contains($str.word(0,$chan.mode),c))return
+		}
+		say %TwinsInputColor{code}$0
+		halt
+	}
+}
+if($addon.exists(twins))
+	eventctl -d OnTextInput twins::inputcolor
+

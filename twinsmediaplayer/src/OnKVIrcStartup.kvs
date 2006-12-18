@@ -1,0 +1,10 @@
+event(OnKVIrcStartup,twinsmediaplayer)
+{
+	twins::mediaplayer::core::config::load
+	
+	if(%TwinsMediaPlayer{startmode} == "on" || \
+		(%TwinsMediaPlayer{startmode} == "remember" && \
+		 %TwinsMediaPlayer{laststartmode} == "on") )
+		twins::mediaplayer::show
+}
+

@@ -1,0 +1,87 @@
+alias(NGLfserv::classes::chanGeneralProperties)
+{
+	class(NGLfserv::classes::chanGeneralProperties,object)
+	{
+		function constructor()
+		{
+			$$->%channelName=$0
+			$$->%respToList=$true
+			$$->%respToFind=$true
+			$$->%respToMyQueues=$false
+			$$->%cache=$new(NGLfserv::classes::cache,$$,cache,$$->%channelName)
+		}
+		function destructor()
+		{
+			$$->%cache->$resetCache()
+			delete $$->%cache
+		}
+		function setRespToList()
+		{
+			$$->%respToList=$0
+		}
+		function setRespToFind()
+		{
+			$$->%respToFind=$0
+		}
+		function setRespToMyQueues()
+		{
+			$$->%respToMyQueues=$0
+		}
+		function toggleRespToList()
+		{
+			if($$->%respToList) $$->%respToList=$false
+			else $$->%respToList=$true
+		}
+		function toggleRespToFind()
+		{
+			if($$->%respToFind) $$->%respToFind=$false
+			else $$->%respToFind=$true
+		}
+		function toggleRespToMyQueues()
+		{
+			if($$->%respToMyQueues) $$->%respToMyQueues=$false
+			else $$->%respToMyQueues=$true
+		}
+		function getChannelName()
+		{
+			return $$->%channelName
+		}
+		function getRespToList()
+		{
+			return $$->%respToList
+		}
+		function getRespToFind()
+		{
+			return $$->%respToFind
+		}
+		function getRespToMyQueues()
+		{
+			return $$->%respToMyQueues
+		}
+		function addRootFolder()
+		{
+			$$->%rootFolders{$0->$triggerName()}=$0
+			$$->%cache->$resetCache()
+		}
+		function removeRootFolder()
+		{
+			$$->%rootFolders{$0}=""
+			$$->%cache->$resetCache()
+		}
+		function isRootFolderEmpty()
+		{
+			if($$->%rootFolders{}#==0) return $true
+			else return $false
+		}
+		function createCache()
+		{
+			$$->%cache=$new(NGLfserv::classes::cache,$$,cache,$$->%channelName)
+		}
+		function cache()
+		{
+			return $$->%cache
+		}
+	}
+}
+
+

@@ -1,0 +1,5 @@
+action.create -t=tools ("twins::lagbar::show",$tr("Twins: Show Lag Bar"),$tr("Show the lag bar of the Twins script"),"twins/32x32/twins_lagbar_32.png","twins/16x16/twins_lagbar_16.png")
+{
+	twins::lagbar::show
+}
+

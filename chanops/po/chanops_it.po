@@ -1,0 +1,29 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Szymon Stefanek <pragma at kvirc dot net>, 2005.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Chanops 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-01-10 03:41+0100\n"
+"PO-Revision-Date: 2005-01-10 03:31+0100\n"
+"Last-Translator: Szymon Stefanek <pragma at kvirc dot net>\n"
+"Language-Team: IT <it@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../chanops.kvs:52
+msgid "Request /WHOIS"
+msgstr "Richiedi /WHOIS"
+
+#: ../chanops.kvs:52
+msgid "Request WHOIS for selected users on a channel"
+msgstr "Richiedi WHOIS per gli utenti selezionati su un canale"
+
+#: ../chanops.kvs:59
+msgid "Channel Operations"
+msgstr "Operazioni di Canale"

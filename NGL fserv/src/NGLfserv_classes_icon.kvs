@@ -1,0 +1,39 @@
+alias(NGLfserv::classes::icon)
+{
+	class(NGLfserv::classes::icon,widget)
+	{
+		constructor()
+		{
+			%root=$file.localdir(pics/NGLfserv/)
+			if ($str.right(%root,1)!="\/") %root .= \/
+			// actions
+			$$->%icon_dict{up}=%root"icon_up.png"
+			$$->%icon_dict{down}=%root"icon_down.png"
+			$$->%icon_dict{ok}=%root"icon_ok.png"
+			$$->%icon_dict{cancel}=%root"icon_cancel.png"
+			$$->%icon_dict{send}=%root"icon_send.png"
+			$$->%icon_dict{resend}=%root"icon_resend.png"
+			$$->%icon_dict{enqueue}=%root"icon_enqueue.png"
+			$$->%icon_dict{add}=%root"icon_add.png"
+			// mime type
+			$$->%icon_dict{video}=%root"icon_video.png"
+			$$->%icon_dict{sound}=%root"icon_sound.png"
+			$$->%icon_dict{default}=%root"icon_default.png"
+			$$->%icon_dict{image}=%root"icon_image.png"
+			$$->%icon_dict{html}=%root"icon_html.png"
+			$$->%icon_dict{doc}=%root"icon_doc.png"
+			// folders
+			$$->%icon_dict{folder}=%root"icon_folder.png"	
+			$$->%icon_dict{folderopen}=%root"icon_folder_open.png"
+			$$->%icon_dict{redfolder}=%root"icon_red_folder.png"	
+			$$->%icon_dict{redfoldercancel}=%root"icon_red_folder_cancel.png"
+			$$->%icon_dict{redfolderopen}=%root"icon_red_folder_open.png"
+		}
+		getIcon()
+		{
+			return $$->%icon_dict{$0}
+		}
+	}
+}
+
+

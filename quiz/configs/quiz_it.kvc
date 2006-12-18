@@ -1,0 +1,37 @@
+[Computer]
+Count=4
+n0Q=Qual e' il nome del "calcolatore" all'interno della CPU ?
+n0A=ALU
+n0D=1
+
+n1Q=Chi e' il maggior concorrente di Intel ?
+n1A=AMD
+n1D=1
+
+n2Q=Chi e' il maggior concorrente di Windows ?
+n2A=linux
+n2D=1
+
+n3Q=Chi e' il primo autore del kernel linux ?
+n3A=Linus Torvalds
+n3D=1
+
+[Musica]
+Count=1
+n0Q=Come si chiama il leader degli Aerosmith ?
+n0A=Steve Tyler
+n0D=1
+
+n1Q=Un famoso compositore...
+n1A=Wolfgang Amadeus Mozart
+n1D=2
+
+[Astronomia]
+Count=1
+n0Q=Qual e' il pianeta piu' grande del Sistema Solare ?
+n0A=Giove
+n0D=1
+
+n1Q=Qual e' il pianeta piu' vicino al Sole ?
+n1A=Mercurio
+n1D=1

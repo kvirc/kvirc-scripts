@@ -1,0 +1,325 @@
+# translation of twinsmediaplayer_ru.po to
+# This file is distributed under the same license as the PACKAGE package.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER.
+# root <wizard@opendoor.ru>, 2006.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: twinsmediaplayer_ru\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-06-26 19:18+0200\n"
+"PO-Revision-Date: 2006-05-16 16:28+0400\n"
+"Last-Translator: root <wizard@opendoor.ru>\n"
+"Language-Team:  <ru@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.10\n"
+
+#: ../src/actions.kvs:1
+msgid "Twins: Show Mediaplayer"
+msgstr "Twins: показать проигырватель"
+
+#: ../src/actions.kvs:1
+msgid "Show the mediaplayer of the Twins script"
+msgstr "Показать проигрыватель для Twins скрипта"
+
+#: ../src/aliases.kvs:15
+msgid "is listening to"
+msgstr "слушает"
+
+#: ../src/aliases.kvs:89
+msgid ""
+"It is the 3rd time we attempt to start amarok. If you want to try again, "
+"type $b/\\%TwinsMediaPlayer.try=0$b before."
+msgstr ""
+
+#: ../src/aliases.kvs:96
+#, fuzzy, c-format
+msgid "Starting Twins Media Player in$k(12) %iTime$k()s"
+msgstr "Twins скрипт для проигрывателя музыки"
+
+#: ../src/classes.kvs:5
+msgid "Year"
+msgstr ""
+
+#: ../src/classes.kvs:6
+msgid "Genre"
+msgstr ""
+
+#: ../src/classes.kvs:7
+msgid "Length"
+msgstr ""
+
+#: ../src/classes.kvs:8
+msgid "Frequency"
+msgstr ""
+
+#: ../src/classes.kvs:9
+msgid "Bitrate"
+msgstr ""
+
+#: ../src/classes.kvs:10
+msgid "Freq"
+msgstr ""
+
+#: ../src/classes.kvs:11
+msgid "unknown"
+msgstr ""
+
+#: ../src/classes.kvs:12
+msgid "stopped"
+msgstr ""
+
+#: ../src/classes.kvs:13
+msgid "playing"
+msgstr ""
+
+#: ../src/classes.kvs:14
+#, fuzzy
+msgid "paused"
+msgstr "Пауза"
+
+#: ../src/classes.kvs:40
+msgid "Twins Media Player"
+msgstr "Twins скрипт для проигрывателя музыки"
+
+#: ../src/classes.kvs:58
+msgid "Previous track"
+msgstr "Предыдущая песня"
+
+#: ../src/classes.kvs:64
+msgid "Rewind"
+msgstr ""
+
+#: ../src/classes.kvs:70
+msgid "Stop"
+msgstr "Стоп"
+
+#: ../src/classes.kvs:76
+msgid "Pause"
+msgstr "Пауза"
+
+#: ../src/classes.kvs:82
+msgid "Play"
+msgstr "Играть"
+
+#: ../src/classes.kvs:88
+msgid "Fast forward"
+msgstr ""
+
+#: ../src/classes.kvs:94
+msgid "Next track"
+msgstr "Следующая песня"
+
+#: ../src/classes.kvs:125
+msgid "Shuffle"
+msgstr ""
+
+#: ../src/classes.kvs:135
+msgid "Repeat current track"
+msgstr ""
+
+#: ../src/classes.kvs:141
+msgid "Advertise the current track on a channel or in a query"
+msgstr "Показать проигрываемую песню"
+
+#: ../src/classes.kvs:151
+msgid "Configure the media player"
+msgstr "Конфигурировать проигрыватель"
+
+#: ../src/classes.kvs:157
+msgid "Volume control"
+msgstr ""
+
+#: ../src/classes.kvs:173
+msgid "Current volume"
+msgstr ""
+
+#: ../src/classes.kvs:180
+msgid "Volume"
+msgstr ""
+
+#: ../src/classes.kvs:185
+msgid "Open url or add files to playlist"
+msgstr "Открыть url или добавить файлы в список"
+
+#: ../src/classes.kvs:191
+msgid "Advertise and <i>offer</i> the current track on a channel or in a query"
+msgstr "Показать и <i>предложить для скачивания</i> проигрываемую песню"
+
+#: ../src/classes.kvs:201
+msgid "Close the media player"
+msgstr "Выбрать проигрыватель"
+
+#: ../src/classes.kvs:207
+msgid "Show the player"
+msgstr "Показать плеер"
+
+#: ../src/classes.kvs:213
+msgid "Hide the player"
+msgstr "Спрятать плеер"
+
+#: ../src/classes.kvs:305
+msgid "No track being played"
+msgstr "Никакой песни не проигрывается"
+
+#: ../src/classes.kvs:492
+msgid "Status:"
+msgstr "Статус:"
+
+#: ../src/classes.kvs:606
+msgid "Choose a file or an Mrl to play"
+msgstr "Выбрать файл или MRL для проигрывания"
+
+#: ../src/classes.kvs:610
+msgid "Choose a file "
+msgstr "Выбрать файл"
+
+#: ../src/classes.kvs:615
+msgid "Play an mrl (ex.: http://..., or dvd://...):"
+msgstr "Проиграть mrl ( например http://..., или dvd://...):"
+
+#: ../src/classes.kvs:618
+msgid "Ok"
+msgstr "Ок"
+
+#: ../src/classes.kvs:635
+msgid "Play Mrl"
+msgstr "Проиграть Mrl"
+
+#: ../src/classes.kvs:635
+msgid "Your Mrl is empty!"
+msgstr "Ваш Mrl пуст!"
+
+#: ../src/classes.kvs:640
+msgid "Add File"
+msgstr "Добавить файл"
+
+#: ../src/classes.kvs:657
+msgid "Confirm Quit"
+msgstr "Подтвердите выход"
+
+#: ../src/classes.kvs:664
+msgid "Do you really want to close the Twins media Player?"
+msgstr "Вы действительно хотите закрыть Twins media Player?"
+
+#: ../src/classes.kvs:668
+msgid "Remember this choice?"
+msgstr "Запомнить выбор?"
+
+#: ../src/classes.kvs:716
+msgid "Twins Media Player Configuration"
+msgstr "Конфигурация Twins Media Player"
+
+#: ../src/classes.kvs:729
+msgid "Advertising"
+msgstr "Показ на канале"
+
+#: ../src/classes.kvs:733
+msgid "Choose the technical information you want to advertise"
+msgstr "Выберите техническую информацию, которая должна быть показана"
+
+#: ../src/classes.kvs:756
+msgid "Announcement string"
+msgstr "Строка, показываемая на канале"
+
+#: ../src/classes.kvs:766
+msgid "Separator string between tecnhical information"
+msgstr "Разделитель между технической информацией"
+
+#: ../src/classes.kvs:785
+msgid "Timeout of file offers"
+msgstr "Время доступности для скачивания файла"
+
+#: ../src/classes.kvs:797
+msgid "Max length of offered file names"
+msgstr ""
+
+#: ../src/classes.kvs:811
+msgid "Look"
+msgstr "Вид"
+
+#: ../src/classes.kvs:814
+msgid "Window"
+msgstr "Окно"
+
+#: ../src/classes.kvs:816
+msgid "Artist"
+msgstr "Автор"
+
+#: ../src/classes.kvs:818
+msgid "Title"
+msgstr "Название"
+
+#: ../src/classes.kvs:820
+msgid "Album"
+msgstr "Альбом"
+
+#: ../src/classes.kvs:834
+msgid "Player"
+msgstr "Плеер"
+
+#: ../src/classes.kvs:843
+msgid "Choose your player"
+msgstr "Выберите свой плеер"
+
+#: ../src/classes.kvs:853
+msgid "Auto-detect"
+msgstr "Автоматический выбор"
+
+#: ../src/classes.kvs:873
+msgid "Start && Quit"
+msgstr "Запуск и выход"
+
+#: ../src/classes.kvs:877
+msgid "Start mode"
+msgstr "Режим запуска"
+
+#: ../src/classes.kvs:891
+msgid "Always start the media player with KVIrc"
+msgstr "Всегда открывать окно при запуске KVIrc"
+
+#: ../src/classes.kvs:892
+msgid "Let the user to manually start the media player"
+msgstr "Позволить пользователю вручную открывать окно"
+
+#: ../src/classes.kvs:893
+msgid "Remember the media player state of the last KVIrc session"
+msgstr "Запоминать последнее состояние окна"
+
+#: ../src/classes.kvs:901
+msgid "Confirm before quit"
+msgstr "Подтвердите выход"
+
+#: ../src/classes.kvs:938
+msgid "Foreground"
+msgstr "Передний план"
+
+#: ../src/classes.kvs:942 ../src/classes.kvs:950
+msgid "Enter an html color code like <b>white</b> or <b>#ffffff</b>"
+msgstr "Ведите html код, например <b>white/b> или <b>#ffffff</b>"
+
+#: ../src/classes.kvs:946
+msgid "Background"
+msgstr "Фон"
+
+#: ../src/classes.kvs:971
+msgid "Genre:"
+msgstr ""
+
+#: ../src/classes.kvs:973
+msgid "Length:"
+msgstr ""
+
+#: ../src/classes.kvs:975
+msgid "Bitrate:"
+msgstr ""
+
+#: ../src/classes.kvs:1004
+msgid "none"
+msgstr "нет"
+
+#: ../src/classes.kvs:1005
+msgid "Found:"
+msgstr "Найдено:"

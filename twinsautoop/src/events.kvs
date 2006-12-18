@@ -1,0 +1,48 @@
+event(OnMeOp,twins::autoop)
+{
+	twins::autoop::core::load
+	twins::autoop::check -q
+}
+
+event(OnMeDeOp,twins::autoop)
+{
+	twins::autoop::core::unload
+}
+
+event(OnMePart,twins::autoop)
+{
+	twins::autoop::core::unload
+}
+
+event(OnKVIrcStartup,twins::autoop)
+{
+	twins::autoop::core::config::load
+}
+
+event(OnIRCConnectionTerminated,twins::autoop)
+{
+	twins::autoop::core::unload -i
+}
+
+event(OnDeOp,twins::autoop)
+{
+	if(%TwinsAutoOp{recheck:op})
+		twins::autoop::check -q -o $3
+}
+
+event(OnDeVoice,twins::autoop)
+{
+	if(%TwinsAutoOp{recheck:voice})
+		twins::autoop::check -q -v $3
+}
+
+event(OnUnBan,twins::autoop)
+{
+	if(%TwinsAutoOp{recheck:ban})
+		twins::autoop::check -q -b
+}
+
+event(OnJoin,twins::autoop)
+{
+	twins::autoop::check -q $0
+}

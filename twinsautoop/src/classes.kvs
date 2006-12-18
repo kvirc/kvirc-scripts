@@ -1,0 +1,890 @@
+/////////////////////////////////////////////////////////////////////
+// Configuration dialog
+/////////////////////////////////////////////////////////////////////
+
+objects.killclass -q twins::autoop::config
+class(twins::autoop::config,dialog)
+{
+	constructor()
+	{
+
+		// Setup
+		twins::autoop::core::config::load
+		%G_hTwinsAutoOp{config} = $$
+		$$->$setCaption($tr("Twins Auto Op",twinsautoop))
+
+		// Layout
+		%lll = $new(layout,$$)
+		%lll->$setspacing(20)
+		%lll->$setmargin(20)
+
+		// Title
+		%title = $new(label,$$)
+		%title->$settext(<center><h2>$tr("Twins Auto Op configuration",twinsautoop)</h2></center>)
+		%lll->$addmulticellwidget(%title,0,0,0,2)
+
+		// Tabs
+		// ----
+		%tab = $new(tabwidget,$$)
+		%lll->$addmulticellwidget(%tab,1,1,0,2)
+
+		// First tab
+		%tabs <+ $new(widget,%tab)
+		%tab->$addtab(%tabs[0],$tr("Flags",twinsautoop),108)
+		%tab->$setTabToolTip(%tabs[0],$tr("Set flags to user on channels for op, voice and ban actions",twinsautoop))
+		%ll <+ $new(layout,%tabs[0])
+		%ll[0]->$setmargin(20)
+		%ll[0]->$setspacing(20)
+
+		//Second tab
+		%tabs <+ $new(widget,%tab)
+		%tab->$addtab(%tabs[1],$tr("Configuration",twinsautoop),20)
+		%tab->$setTabToolTip(%tabs[1],$tr("Other configurations",twinsautoop))
+		%ll <+ $new(layout,%tabs[1])
+		%ll[1]->$setmargin(20)
+		%ll[1]->$setspacing(20)
+
+		// Where?
+		// ------
+		%hWhere{g} = $new(groupbox,%tabs[0])
+		%hWhere{g}->$settitle($tr("Where?",twinsautoop))
+		%hWhere{l} = $new(layout,%hWhere{g})
+		%hWhere{l}->$setmargin(20)
+		%hWhere{l}->$setspacing(20)
+		%ll[0]->$addwidget(%hWhere{g},0,0)
+
+		// Channel
+		%chan{name} = $new(label,%hWhere{g})
+		%chan{name}->$settext($tr("Channel",twinsautoop))
+		@%m_hChan{c} = $new(combobox,%hWhere{g})
+		@%m_hChan{a} = $new(lineedit,%hWhere{g})
+		%hWhere{l}->$addwidget(%chan{name},0,0)
+		%hWhere{l}->$addwidget(@%m_hChan{c},1,0)
+		%hWhere{l}->$addwidget(@%m_hChan{a},2,0)
+		objects.connect @%m_hChan{c} activated $$ loadNetList
+
+		// Netmask
+		%net = $new(label,%hWhere{g})
+		%net->$settext($tr("Netmask",twinsautoop))
+		@%m_hNet{c} = $new(combobox,%hWhere{g})
+		@%m_hNet{a} = $new(lineedit,%hWhere{g})
+		%hWhere{l}->$addwidget(%net,0,1)
+		%hWhere{l}->$addwidget(@%m_hNet{c},1,1)
+		%hWhere{l}->$addwidget(@%m_hNet{a},2,1)
+		objects.connect @%m_hNet{c} activated $$ loadCurrentChan
+
+		// Add
+		%chan{del} = $new(button,%hWhere{g})
+		%chan{del}->$settext($tr("Remove",twinsautoop))
+		%chan{add} = $new(button,%hWhere{g})
+		%chan{add}->$settext($tr("Add",twinsautoop))
+		%hWhere{l}->$addwidget(%chan{del},1,2)
+		%hWhere{l}->$addwidget(%chan{add},2,2)
+		objects.connect %chan{add} clicked $$ addChan
+		objects.connect %chan{del} clicked $$ delChan
+
+		// What to do?
+		// -----------
+		%hWhat{g} = $new(groupbox,%tabs[0])
+		%hWhat{g}->$settitle($tr("What to do?",twinsautoop))
+		%hWhat{l} = $new(layout,%hWhat{g})
+		%hWhat{l}->$setmargin(20)
+		%hWhat{l}->$setspacing(20)
+		%ll[0]->$addwidget(%hWhat{g},1,0)
+
+		// Action
+		@%m_hAct{type} = $new(combobox,%hWhat{g})
+		@%m_hAct{type}->$insertItem($tr("AutoOp",twinsautoop))
+		@%m_hAct{type}->$insertItem($tr("AutoVoice",twinsautoop))
+		@%m_hAct{type}->$insertItem($tr("AutoBan",twinsautoop))
+
+		// Status
+		@%m_hAct{status} = $new(checkbox,%hWhat{g})
+		@%m_hAct{status}->$settext($tr("On/Off",twinsautoop))
+		objects.connect @%m_hAct{type} clicked $$ setActStatus
+
+		// Stuff
+		@%m_hAct{icon}{op} = 34
+		@%m_hAct{icon}{voice} = 35
+		@%m_hAct{icon}{ban} = 67
+		%hWhat{l}->$addwidget(@%m_hAct{type},0,0)
+		%hWhat{l}->$addwidget(@%m_hAct{status},1,0)
+#		objects.connect @%m_hAct{type} activated $$ setUserFlags
+		objects.connect @%m_hAct{type} activated $$ loadCurrentChan
+
+
+		// Who ?
+		// -----
+		%hWho{g} = $new(groupbox,%tabs[0])
+		%hWho{g}->$settitle($tr("Who?",twinsautoop))
+		%hWho{l} = $new(layout,%hWho{g})
+		%hWho{l}->$setmargin(20)
+		%hWho{l}->$setspacing(20)
+		%ll[0]->$addmulticellwidget(%hWho{g},0,1,1,1)
+
+		// Add user
+		%hWho{a} = $new(button,%hWho{g})
+		%hWho{a}->$settext($tr("Add user"))
+		%hWho{a}->$settooltip($tr("Add a user",twinsautoop))
+		%hWho{l}->$addwidget(%hWho{a},0,0)
+		objects.connect %hWho{a} clicked $$ addUser
+
+		// User list
+		@%m_hUsers{list} = $new(listview,%hWho{g})
+		@%m_hUsers{list}->$settooltip($tr("Registered users",twinsautoop))
+		@%m_hUsers{list}->$addcolumn("",18)
+		@%m_hUsers{list}->$addcolumn("",18)
+		@%m_hUsers{list}->$addcolumn("",100)
+		@%m_hUsers{list}->$hideListViewHeader()
+		%hWho{l}->$addwidget(@%m_hUsers{list},1,0)
+		objects.connect @%m_hUsers{list} itemclicked $$ updateUser
+
+
+		// Other configurations
+		// --------------------
+
+		// Status
+		@%m_hMisc{status} = $new(checkbox,%tabs[1])
+		@%m_hMisc{status}->$settext($tr("Enable the AutoOp system",twinsautoop))
+		@%m_hMisc{status}->$setchecked(%TwinsAutoOp{status})
+		%ll[1]->$addmulticellwidget(@%m_hMisc{Status},0,0,0,1)
+
+		// Delay
+		%delay = $new(label,%tabs[1])
+		%delay->$settext($tr("Delay before auto op/voice:",twinsautoop))
+		@%m_hMisc{delay} = $new(spinbox,%tabs[1])
+		@%m_hMisc{delay}->$setminvalue(0)
+		@%m_hMisc{delay}->$setmaxvalue(180)
+		@%m_hMisc{delay}->$setsuffix("s")
+		@%m_hMisc{delay}->$setvalue(%TwinsAutoOp{delay})
+		%ll[1]->$addwidget(%delay,1,0)
+		%ll[1]->$addwidget(@%m_hMisc{delay},1,1)
+
+
+		// Group kick/ban
+		%kb = $new(groupbox,%tabs[1])
+		%kb->$settitle($tr("Kick/bans",twinsautoop))
+		%ll[1]->$addmulticellwidget(%kb,2,2,0,1)
+		%kbll = $new(layout,%kb)
+		%kbll->$setspacing(20)
+		%kbll->$setmargin(20)
+
+		// Kick Reason
+		%kickreason = $new(label,%kb)
+		%kickreason->$settext($tr("Kick reason for auto kickbans:",twinsautoop))
+		@%m_hMisc{kickreason} = $new(lineedit,%kb)
+		@%m_hMisc{kickreason}->$settext(%TwinsAutoOp{kickreason})
+		%kbll->$addwidget(%kickreason,0,0)
+		%kbll->$addmulticellwidget(@%m_hMisc{kickreason},0,0,1,2)
+
+		// Ban types
+		%tag = $tr("Here you choose which bans to apply.<br>There are two types of ban:<ul><li>using the exact registered masks of the user</li><li>using the the default ban type (see the IRC option page in the configuration dialog)</li></ul>",twinsautoop))
+		%bantypes = $new(label,%kb)
+		%bantypes->$settext($tr("Select which bans to apply:",twinsautoop))
+		%bantypes->$settooltip(%tag)
+		@%m_hMisc{bantypes} <+ $new(checkbox,%kb)
+		@%m_hMisc{bantypes}[0]->$settext($tr("Default ban type",twinsautoop))
+		@%m_hMisc{bantypes}[0]->$setchecked($(%TwinsAutoOp{bantypes} == 1 || %TwinsAutoOp{bantypes} == 3))
+		@%m_hMisc{bantypes}[0]->$settooltip(%tag)
+		@%m_hMisc{bantypes} <+ $new(checkbox,%kb)
+		@%m_hMisc{bantypes}[1]->$settext($tr("Registered masks",twinsautoop))
+		@%m_hMisc{bantypes}[1]->$setchecked($(%TwinsAutoOp{bantypes} > 1))
+		@%m_hMisc{bantypes}[1]->$settooltip(%tag)
+		%kbll->$addwidget(%bantypes,1,0)
+		%kbll->$addwidget(@%m_hMisc{bantypes}[0],1,1)
+		%kbll->$addwidget(@%m_hMisc{bantypes}[1],1,2)
+
+
+		// Group for rechecks
+		%rechecks = $new(groupbox,%tabs[1])
+		%rechecks->$settitle($tr("Rechecks for auto...",twinsautoop))
+		%ll[1]->$addmulticellwidget(%rechecks,3,3,0,1)
+		%rll = $new(layout,%rechecks)
+		%rll->$setspacing(20)
+		%rll->$setmargin(20)
+		%i=0
+		foreach(%action,Op,Voice,Ban)
+		{
+			@%m_hRechecks{%action} = $new(checkbox,%rechecks)
+			@%m_hRechecks{%action}->$settext(%action)
+			@%m_hRechecks{%action}->$setchecked(%TwinsAutoOp{recheck:%action})
+			%rll->$addwidget(@%m_hRechecks{%action},0,%i)
+			%i++
+		}
+
+		// Group for console
+		%cons = $new(groupbox,%tabs[1])
+		%cons->$settitle($tr("Console for reporting actions",twinsautoop))
+		%ll[1]->$addmulticellwidget(%cons,4,4,0,1)
+		%cll = $new(layout,%cons)
+		%cll->$setspacing(20)
+		%cll->$setmargin(20)
+		// Use it
+		@%m_hCons{console} = $new(checkbox,%cons)
+		@%m_hCons{console}->$settext($tr("Use it",twinsautoop))
+		@%m_hCons{console}->$setchecked(%TwinsAutoOp{console})
+		// Log it
+		@%m_hCons{log} = $new(checkbox,%cons)
+		@%m_hCons{log}->$settext($tr("Log it",twinsautoop))
+		// Layout
+		%cll->$addwidget(@%m_hCons{console},0,0)
+		%cll->$addwidget(@%m_hCons{log},0,1)
+		@%m_hCons{log}->$setchecked(%TwinsAutoOp{log})
+
+		// Widget actions
+		// --------------
+
+		// Ok
+		%ok = $new(button,$$)
+		%ok->$settext($tr(Ok))
+		%lll->$addwidget(%ok,2,0)
+		objects.connect %ok clicked $$ ok
+
+		// Apply
+		%ap = $new(button,$$)
+		%ap->$settext($tr(Apply))
+		%lll->$addwidget(%ap,2,1)
+		objects.connect %ap clicked $$ apply
+
+		// Close
+		%cl = $new(button,$$)
+		%cl->$settext($tr(Close))
+		%lll->$addwidget(%cl,2,2)
+		objects.connect %cl clicked $$ close
+
+		// Connect to the setuser dialog
+		// -----------------------------
+		if($objects.exists(%G_hTwinsAutoOp{setuser}))
+			objects.connect %G_hTwinsAutoOp{setuser} okClicked $$ load
+
+		// Init loading
+		// ------------
+		@$load()
+
+	}
+
+	// Load cache FROM DISK (DOESN'T ERASE)
+	loadCache()
+	{
+	#debug load cache
+		foreach(%cn,$regchan.list)
+		{
+			%chan = $str.lefttofirst(%cn,@)
+			%net = $str.rightfromfirst(%cn,@)
+			#debug loadCache: %chan %net
+			foreach(%action,op,voice,ban)
+			{
+				foreach(%user,$str.split(",",$regchan.property(%chan,%net,auto%action:users)))
+					if(%user && $reguser.mask(%user) && $isempty(@%m_aCache{%chan}{%net}{%action}{users}{%user})){
+						@%m_aCache{%chan}{%net}{%action}{users}{%user} = 1
+					}
+				if($isempty(@%m_aCache{%chan}{%net}{%action}{status}))
+				{
+					@%m_aCache{%chan}{%net}{%action}{status} = $regchan.property(%chan,%net,auto%action:status)
+					#debug loadCache status: \@\%m_aCache{%chan}{%net}{%action}{status} = @%m_aCache{%chan}{%net}{%action}{status} | $isempty(@%m_aCache{%chan}{%net}{%action}{status})
+					if($isempty(@%m_aCache{%chan}{%net}{%action}{status}))
+						@%m_aCache{%chan}{%net}{%action}{status} = 0
+				}
+			}
+		}
+	}
+
+	// Load channels FROM CACHE
+	loadChanList()
+	{
+	#debug +++ loadChanList
+		// Clean
+		@%m_hChan{c}->$clear()
+
+		// Load list to combo
+		%i = 0
+		if($isset(@%m_aCache))
+		foreach(%chan,$keys(@%m_aCache))
+		{
+			if($isempty(%set{%chan}))
+			{
+				// Do not duplicate chans
+				@%m_hChan{c}->$insertItem(%chan)
+				%set{%chan} = 1
+
+				// Set from last selection
+				if($isset(@%m_aLast{chan}) && $str.equalnocase(%chan,@%m_aLast{chan}))
+					@%m_hChan{c}->$setcurrentitem(%i)
+				%i++
+			}
+		}
+
+		// Load netmasks of current item
+		@$loadNetList()
+	}
+
+	// Load network FROM CACHE for current channel
+	loadNetList()
+	{
+	#debug +++ loadNetList
+		// Clean
+		@%m_hNet{c}->$clear()
+
+		// Load list to combo
+		%chan = @%m_hChan{c}->$current
+		if(!$isset(%chan)) return
+		%i = 0
+		foreach(%net,$keys(@%m_aCache{%chan}))
+		{
+			// Insert
+			@%m_hNet{c}->$insertitem(%net)
+
+			// Set from last selection
+			if($isset(@%m_aLast{net}) && $str.equalnocase(%net,@%m_aLast{net}))
+				@%m_hNet{c}->$setcurrentitem(%i)
+			%i++
+		}
+
+		// Now load chan config
+		@$loadCurrentChan()
+	}
+
+	// Set channel status for a specific action FROM CACHE
+	loadCurrentChan()
+	{
+		%chan = @%m_hChan{c}->$current
+		%net = @%m_hNet{c}->$current
+		if($isempty(%chan) || $isempty(%net))return
+		%action = @$action
+		#debug loadCurrentChan %chan %net %action
+
+		// Status from cache
+		#debug set status @%m_aCache{%chan}{%net}{%action}{status}
+		@%m_hAct{status}->$setchecked(@%m_aCache{%chan}{%net}{%action}{status})
+
+		// User flag from cache
+		@$setUserFlags
+	}
+
+	// Load user list FROM REGUSER DATABASE
+	loadUserList()
+	{
+		// Clean
+		%lvi = @%m_hUsers{list}->$firstchild()
+		while(%lvi)
+		{
+			delete %lvi
+			%lvi = %lvi->$nextsibling()
+		}
+
+		// Add users
+		foreach(%user,$reguser.list)
+		{
+			%lvi = $new(listviewitem,@%m_hUsers{list})
+			%lvi->$setCheckable(1)
+			%lvi->$settext(2,%user)
+//			%lvi->$setRenameEnabled(0)
+		}
+
+		@$setUserFlags()
+	}
+
+	// (Re)Load everything
+	load()
+	{
+		// Save the current configuration
+		@%m_aLast{chan} = @%m_hChan{c}->$current()
+		@%m_aLast{net} = @%m_hNet{c}->$current()
+
+		// Load
+		@$loadCache()
+		@$loadUserList()
+		@$loadChanList()
+
+		// Clean
+		@%m_aLast =
+	}
+
+	// Add a channel to the combo list
+	addChan()
+	{
+		// Guess values
+		%chan = @%m_hChan{a}->$text
+		if($isempty(%chan))
+		{
+			if($isset(@%m_hChan{c}->$current()))
+				%chan = @%m_hChan{c}->$current()
+			else
+				return
+		}
+		%net = @%m_hNet{a}->$text
+		if($isempty(%net))
+			%net = $twins::autoop::core::guessnetmask(,%chan)
+
+		// If not found, add to cache and combos
+		// and set default status
+		if($isempty(@%m_aCache{%chan}{%net}))
+		{
+			if($isempty(@%m_aCache{%chan}))
+			{
+				@%m_hChan{c}->$insertitem(%chan,0)
+				@%m_hChan{c}->$setcurrentitem(0)
+			}
+			@%m_hNet{c}->$insertitem(%net,0)
+			@%m_hNet{c}->$setcurrentitem(0)
+			foreach(%action,op,voice,ban)
+				@%m_aCache{%chan}{%net}{%action}{status} = 1
+			@$loadCurrentChan()
+		}
+	}
+
+	delChan()
+	{
+		%chan = @%m_hChan{c}->$current
+		%net = @%m_hNet{c}->$current
+		if($isempty(%chan) || $isempty(%net))return
+		@%m_hChan{c}->$removeItem(@%m_hChan{c}->$currentitem())
+		@%m_hNet{c}->$removeItem(@%m_hNet{c}->$currentitem())
+		@%m_aCache{%chan}{%net} =
+		@$loadCurrentChan()
+	}
+
+	// Return the current action
+	action()
+	{
+		return $str.lowcase($str.replace(@%m_hAct{type}->$current,"","Auto"))
+	}
+
+	// Chan status has changed, so UPDATE CACHE
+	setActStatus()
+	{
+		%chan = @%m_hChan{c}->$current
+		%net = @%m_hNet{c}->$current
+		if($isempty(%chan) || $isempty(%net))return
+		%action = @$action
+		@%m_aCache{%chan}{%net}{%action}{status} = @%m_hAct{status}->$ischecked()
+	}
+
+
+	// Set the checkbox status and the icon for each registered user
+	setUserFlags()
+	{
+		#debug setUserFlags: nick = $0
+		%chan = @%m_hChan{c}->$current
+		%net = @%m_hNet{c}->$current
+		if($isempty(%chan) || $isempty(%net))return
+		%action = @$action
+		%lvi = @%m_hUsers{list}->$firstchild()
+		while(%lvi)
+		{
+			// Set from cache
+#			debug so \@\%m_aCache{%chan}{%net}{%action}{users}{%lvi->$text(2)} = @%m_aCache{%chan}{%net}{%action}{users}{%lvi->$text(2)}
+			if($isset(@%m_aCache{%chan}{%net}{%action}{users}{%lvi->$text(2)}))
+			{
+				%lvi->$setpixmap(1,@%m_hAct{icon}{%action})
+				%lvi->$setchecked(1)
+			} else {
+				%lvi->$setpixmap(1,0)
+				%lvi->$setchecked(0)
+			}
+			%lvi = %lvi->$nextsibling()
+		}
+	}
+
+	// Update the op/voice/ban icon of the current registered user
+	// and the cache according to the checkbox status
+	updateUser()
+	{
+		%chan = @%m_hChan{c}->$current
+		%net = @%m_hNet{c}->$current
+		if($isempty(%chan) || $isempty(%net))return
+		%action = @$action
+		%lvi = @%m_hUsers{list}->$currentItem()
+		if(%lvi)
+		{
+			%user = %lvi->$text(2)
+			if(%lvi->$ischecked)
+			{
+				%lvi->$setpixmap(1,@%m_hAct{icon}{%action})
+				@%m_aCache{%chan}{%net}{%action}{users}{%user} = 1
+			} else {
+				%lvi->$setpixmap(1,0)
+				@%m_aCache{%chan}{%net}{%action}{users}{%user} =
+			}
+		}
+	}
+
+	// Add a user using an external widget
+	addUser()
+	{
+		twins::autoop::set::user -a=@$action -c=@%m_hChan{c}->$current -n=@%m_hNet{c}->$current
+	}
+
+	ok()
+	{
+		if(!@$apply())	@$close
+	}
+
+	apply()
+	{
+	#debug "############################################################"
+
+		// At least one ban type is needed
+		if(!@%m_hMisc{bantypes}[0]->$ischecked() && !@%m_hMisc{bantypes}[1]->$ischecked())
+		{
+			dialog.message -b (TwinsAutoOp,$tr("You must choose at least one ban type",twinsautoop),$tr(Ok)){;}
+			return 1
+		}
+
+		// Channel and user databases
+		if($isset(@%m_aCache))
+		foreach(%chan,$keys(@%m_aCache))
+		foreach(%net,$keys(@%m_aCache{%chan}))
+		{
+		#debug "********************apply %chan %net"
+			if(!$regchan.find(%chan,%net))
+				regchan.add %chan %net
+			foreach(%action,op,voice,ban)
+			{
+				regchan.setproperty %chan %net auto%action:status \
+					@%m_aCache{%chan}{%net}{%action}{status}
+				%users = @%m_aCache{%chan}{%net}{%action}{users}
+				#debug keys $keys(@%m_aCache{%chan}{%net}{%action})
+				#debug $typeof(%users) users = %users
+				if($typeof(%users) == "hash")
+					regchan.setproperty %chan %net auto%action:users $keys(%users)
+				else
+					regchan.setproperty %chan %net auto%action:users ""
+			}
+		}
+
+		// General options
+		%TwinsAutoOp{status} = @%m_hMisc{status}->$ischecked()
+		%TwinsAutoOp{delay} = @%m_hMisc{delay}->$value()
+		%TwinsAutoOp{kickreason} = @%m_hMisc{kickreason}->$text()
+		%TwinsAutoOp{bantypes} = $(@%m_hMisc{bantypes}[0]->$ischecked() + 2 * @%m_hMisc{bantypes}[1]->$ischecked())
+		foreach(%action,op,voice,ban)
+			%TwinsAutoOp{recheck:%action} = @%m_hRechecks{%action}->$ischecked()
+		foreach(%type,console,log)
+			%TwinsAutoOp{%type} = @%m_hCons{%type}->$ischecked()
+
+		twins::autoop::core::config::save
+		twins::autoop::core::load -a
+	#debug "############################################################"
+	}
+
+	close()
+	{
+		delete $$
+	}
+
+
+}
+
+
+
+/////////////////////////////////////////////////////////////////////
+// Add a user
+/////////////////////////////////////////////////////////////////////
+
+objects.killclass -q twins::autoop::setuser
+class(twins::autoop::setuser,dialog)
+{
+	constructor()
+	{
+
+		// Setup
+//		twins::mediaplayer::core::config::load
+		%G_hTwinsAutoOp{adduser} = $$
+		$$->$setCaption($tr("TwinsAutoOp: SetUser",twinsautoop))
+		%ll = $new(layout,$$)
+		%ll->$setmargin(20)
+		%ll->$setspacing(20)
+
+		// Title
+		%title = $new(label,$$)
+		%title->$settext($tr(<center><h2>"Twins Auto Op: Set user properties"</h2></center>,twinsautoop))
+		%ll->$addmulticellwidget(%title,0,0,0,3)
+
+
+		// User name
+		%lUser = $new(label,$$)
+		%lUser->$settext($tr("Registration name:",twinsautoop))
+		%lUser->$setalignment(right)
+		@%m_hUser = $new(lineedit,$$)
+		%ll->$addwidget(%lUser,1,1)
+		%ll->$addwidget(@%m_hUser,1,2)
+		for(%i=0;%i<4;%i++)
+			%ll->$setcolstretch(%i,1)
+
+
+		// Tabs
+		%hTabs = $new(tabwidget,$$)
+		%ll->$addmulticellwidget(%hTabs,2,2,0,3)
+		%ll->$setrowstretch(2,3)
+
+
+		// Flag Tab
+		%hFlags{t} = $new(widget,$$)
+		%hTabs->$addtab(%hFlags{t},$tr("Flags",twinsautoop),34)
+		%hTabs->$settabtooltip(%hFlags{t},$tr("Op/voice/ban flags for a particular channel",twinsautoop))
+		%hFlags{l} = $new(layout,%hFlags{t})
+		%hFlags{l}->$setmargin(20)
+		%hFlags{l}->$setspacing(20)
+
+		// Box chan and net
+		%hCN{g} = $new(groupbox,%hFlags{t})
+		%hCN{g}->$settitle($tr("Where to act",twinsautoop))
+		%hFlags{l}->$addwidget(%hCN{g},0,0)
+		%hCN{l} = $new(layout,%hCN{g})
+		%hCN{l}->$setmargin(20)
+		%hCN{l}->$setspacing(20)
+
+		// Chan
+		%hChan = $new(label,%hCN{g})
+		%hChan->$settext($tr("Channel:",twinsautoop))
+		@%m_hChan = $new(lineedit,%hCN{g})
+		@%m_hChan->$settooltip($tr("Channel name",twinsautoop))
+		%hCN{l}->$addwidget(%hChan,0,0)
+		%hCN{l}->$addwidget(@%m_hChan,0,1)
+
+		// Net mask
+		%hNet = $new(label,%hCN{g})
+		%hNet->$settext($tr("Netmask:",twinsautoop))
+		@%m_hNet = $new(lineedit,%hCN{g})
+		@%m_hNet->$settooltip($tr("Network mask",twinsautoop))
+		%hCN{l}->$addwidget(%hNet,1,0)
+		%hCN{l}->$addwidget(@%m_hNet,1,1)
+
+		// Flags
+		%hFlags{g} = $new(groupbox,%hFlags{t})
+		%hFlags{g}->$settitle($tr("What to do",twinsautoop))
+		%hFlags{l}->$addwidget(%hFlags{g},0,1)
+		%hFlags{gl} = $new(layout,%hFlags{g})
+		%hFlags{gl}->$setmargin(20)
+		%hFlags{gl}->$setspacing(20)
+		%aFlags{icons} = $array(34,35,67)
+		%i = 0
+		foreach(%type,op,voice,ban)
+		{
+			@%m_hFlags{%type} = $new(checkbox,%hFlags{g})
+			@%m_hFlags{%type}->$settext(%type)
+			%hFlags{icons}{%type} = $new(label,%hFlags{g})
+			%hFlags{icons}{%type}->$setimage(%aFlags{icons}[%i])
+			%hFlags{gl}->$addwidget(@%m_hFlags{%type},%i,0)
+			%hFlags{gl}->$addwidget(%hFlags{icons}{%type},%i,1)
+			%i++
+		}
+
+
+		// Masks tab
+		%hMasks{t} = $new(widget,$$)
+		%hTabs->$addtab(%hMasks{t},$tr("Masks",twinsautoop),57)
+		%hTabs->$settabtooltip(%hMasks{t},$tr("Masks in case of registration of new user",twinsautoop))
+		%hMasks{l} = $new(layout,%hMasks{t})
+		%hMasks{l}->$setmargin(20)
+		%hMasks{l}->$setspacing(20)
+		%hMasks{l}->$setcolstretch(0,5)
+		%seps=$array("!","@")
+		for(%i=0;%i<2;%i++)
+		{
+			%j = 0
+			foreach(%ss,nick,username,hostname)
+			{
+				@%m_hMasks[%i]{%ss} = $new(lineedit,%hMasks{t})
+				%hMasks{l}->$addwidget(@%m_hMasks[%i]{%ss},%i,$(%j * 2))
+				if(%j<2)
+				{
+					%hMasks{s}[%i][%j] = $new(label,%hMasks{t})
+					%hMasks{s}[%i][%j]->$settext(%seps[%j])
+					%hMasks{l}->$addwidget(%hMasks{s}[%i][%j],%i,$((%j * 2) + 1))
+				}
+				%j++
+			}
+		}
+
+
+		// Ok
+		%ok = $new(button,$$)
+		%ok->$settext($tr(Ok))
+		%ll->$addmulticellwidget(%ok,3,3,0,1)
+		objects.connect %ok clicked $$ ok
+
+		// Close
+		%close = $new(button,$$)
+		%close->$settext($tr(Close))
+		%ll->$addmulticellwidget(%close,3,3,2,3)
+		objects.connect %close clicked $$ close
+
+		// Connect to the setuser dialog
+		if($objects.exists(%G_hTwinsAutoOp{config}))
+			objects.connect $$ okClicked %G_hTwinsAutoOp{config} load
+	}
+
+	setUser($0 = user name)
+	{
+		if($isset($0)) @%m_hUser->$settext($0)
+	}
+
+	setMasks($0 = mask list)
+	{
+		if($isempty($0)) return
+		%i = 0
+		foreach(%mask,$0)
+		{
+			%values = $str.split("[@!]",%mask,r)
+			%j=0
+			if($length(%values) == 3)
+			foreach(%type,nick,username,hostname)
+			{
+				@%m_hMasks[%i]{%type}->$settext(%values[%j])
+				%j++
+			}
+			%i++
+			if(%i == 2) return
+		}
+	}
+
+	setChannel($0 = channel name)
+	{
+		if($isset($0)) @%m_hChan->$settext($0)
+	}
+
+	setNetmask($0 = network mask)
+	{
+		@%m_hNet->$settext("$twins::autoop::core::guessnetmask($0,@%m_hChan->$text())")
+	}
+
+	setFlags($0 = hash of flags)
+	{
+		// Set specified flags
+		if($typeof($0) == "hash")
+			foreach(%type,$keys($0))
+				if($str.contains("op voice ban",%type))
+				{
+					%set{%type} = 1
+					@%m_hFlags{%type}->$setchecked($0{%type})
+				}
+
+		// Guess unspecified flags (if possible)
+		if($isset(@%m_hUser->$text()) && $isset($reguser.mask(@%m_hUser->$text())) && $isset(@%m_hChan->$text()))
+		{
+			if($isempty(@%m_hNet->$text())) @%m_hNet->$settext("*")
+			foreach(%type,op,voice,ban)
+				if($isempty(%set{%type}))
+					@%m_hFlags{%type}->$setchecked($str.containsnocase(\
+						",$regchan.property(@%m_hChan->$text(),@%m_hNet->$text(),auto%type:users),",",@%m_hUser->$text(),"))
+		}
+
+	}
+
+	close()
+	{
+		delete $$
+	}
+
+	ok()
+	{
+
+		// Registration name
+		%user = @%m_hUser->$text
+		if($isempty(%user))
+		{
+			dialog.message -b (AutoOp,$tr("You must specify a registration name",twinsautoop),\
+				warning,$tr(Ok)){;}
+			return
+		}
+		if($reguser.mask(%user)) %reguser = %user
+
+		// Mask
+		for(%i=0;%i<2;%i++)
+		{
+			%m = @%m_hMasks[%i]{nick}->$text()"!"@%m_hMasks[%i]{username}->$text()"@"@%m_hMasks[%i]{hostname}->$text()
+			if(%m != "!@")
+			{
+				foreach(%part,nick,username,hostname)
+					if(!$isset(@%m_hMasks[%i]{%part}->$text()))
+						@%m_hMasks[%i]{%part}->$settext("*")
+				%m = @%m_hMasks[%i]{nick}->$text()"!"@%m_hMasks[%i]{username}->$text()"@"@%m_hMasks[%i]{hostname}->$text()
+				%masks <+ %m
+			}
+		}
+		if($isempty(%reguser))
+		{
+			if(!$length(%masks))
+			{
+				dialog.message -b (AutoOp,$str.printf($tr("You have to specify at least one mask to register ?s.<br>By default, <b>?s!*@*</b> will be used.",twinsautoop),%user,%user),\
+					warning,$tr(Ok),$tr("Let me specify it",twinsautoop),,$$)
+				{
+					if($0)
+						return
+					else if($objects.exists($1))
+					{
+						$1->%m_hMasks[0]{nick}->$settext($1->%m_hUser->$text())
+						$1->%m_hMasks[0]{username}->$settext(*)
+						$1->%m_hMasks[0]{hostname}->$settext(*)
+						$1->$ok()
+					}
+				}
+				return
+			}
+			foreach(%mask,%masks)
+			{
+				%u = $reguser.match(%mask)
+				if($isset(%u))
+				{
+					if(!$str.equalnocase(%u,%user))
+					{
+						dialog.message -b (AutoOp,$tr("Mask",twinsautoop) %mask \
+							$str.printf($tr("already matches a registered user (?s). Please change this mask.",twinsautoop),%u),\
+							warning,$tr(Ok)){;}
+						return
+					}
+				}
+			}
+		}
+
+		// Basic registration
+		if($isset(%reguser))
+			foreach(%mask,%masks) reguser.addmask -q %user %mask
+		else
+		{
+			reguser.add %user %masks[0]
+			if($isset(%masks[1])) reguser.addmask -q %user %masks[1]
+		}
+
+		// Flags
+		%chan = @%m_hChan->$text
+		if($isset(%chan))
+		{
+			%net = @%m_hNet->$text
+			if(!$isset(%net)) %net = *
+			if(!$regchan.find(%chan,%net)) regchan.add -q %chan %net
+			foreach(%action,$keys(@%m_hFlags))
+			{
+				if(!$isset($regchan.property(%chan,%net,auto%action:status)))
+					regchan.setproperty %chan %net auto%action:status 1
+				%list = $regchan.property(%chan,%net,auto%action:users)
+				%bInList = $str.containsnocase(",%list,",",%user,")
+				if(@%m_hFlags{%action}->$ischecked)
+				{
+					if(!%bInList)
+					{
+						// Add user
+						%list <, %user
+						regchan.setproperty %chan %net auto%action:users %list
+					}
+				} else if(%bInList) {
+					// Remove user
+					foreach(%u,$str.split(",",%list))
+						if(!$str.equalnocase(%user,%u)) %newlist <, %u
+					regchan.setproperty %chan %net auto%action:users %newlist
+				}
+			}
+		}
+
+		// Load live cache and check
+		twins::autoop::core::load -a
+
+		@$emit("okClicked")
+		@$close()
+	}
+}
+
+
+

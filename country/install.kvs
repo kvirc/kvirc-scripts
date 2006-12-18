@@ -1,0 +1,1086 @@
+# Script to know where connection of an host came from
+# Written by HelLViS69 (2005)
+
+addon.register("HellCountry","0.1","Hell Country",$tr("A simple script to know an host come from"),"3.2.0.99")
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	# This is an automatically generated alias that will erase the installed files
+	alias(hell_country){}
+	delpopupitem -d -q channel 696968
+	# Done
+}
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+
+# then generate the uninstall alias
+# finally kill the installer helper
+delete %installer
+
+# Dictionaries files
+file.copy -o $extractPath($0)/locale/*.mo $file.localdir/locale/
+
+# Script Alias
+alias(hell_country)
+{
+	# Funzione per identificare la provenienza di un host
+	
+	if(!$0){
+		echo -w=$active $tr("Usage",country): /hell_country <nick>
+		echo -w=$active $tr("Usage",country): /hell_country r <code>
+		halt;
+	}
+	
+	switch($0){
+		case("r"){
+			if(!$1){
+				echo -w=$active $tr("Usage",country): /hell_country r <code>
+				halt;
+			}
+			
+			%dominio=$1
+			break;
+		}
+		default{
+			%nick=$0
+			%host=$hostname(%nick)
+			%dominio=$str.rightfromlast(%host,".")
+		}
+	}
+	
+	switch(%dominio){
+		case("ad"){
+			%country=$tr("Andorra",country)
+			break;
+		}
+		case("ae"){
+			%country=$tr("United Arab Emirates",country)
+			break;
+		}
+		case("af"){
+			%country=$tr("Afghanistan",country)
+			break;
+		}
+		case("ag"){
+			%country=$tr("Antigua and Barbuda",country)
+			break;
+		}
+		case("ai"){
+			%country=$tr("Anguilla",country)
+			break;
+		}
+		case("al"){
+			%country=$tr("Albania",country)
+			break;
+		}
+		case("am"){
+			%country=$tr("Armenia",country)
+			break;
+		}
+		case("an"){
+			%country=$tr("Netherlands Antilles",country)
+			break;
+		}
+		case("ao"){
+			%country=$tr("Angola",country)
+			break;
+		}
+		case("aq"){
+			%country=$tr("Antarctica",country)
+			break;
+		}
+		case("ar"){
+			%country=$tr("Argentina",country)
+			break;
+		}
+		case("as"){
+			%country=$tr("American Samoa",country)
+			break;
+		}
+		case("at"){
+			%country=$tr("Austria",country)
+			break;
+		}
+		case("au"){
+			%country=$tr("Australia",country)
+			break;
+		}
+		case("aw"){
+			%country=$tr("Aruba",country)
+			break;
+		}
+		case("az"){
+			%country=$tr("Azerbaijan",country)
+			break;
+		}
+		case("ba"){
+			%country=$tr("Bosnia and Herzegovina",country)
+			break;
+		}
+		case("bb"){
+			%country=$tr("Barbados",country)
+			break;
+		}
+		case("bd"){
+			%country=$tr("Bangladesh",country)
+			break;
+		}
+		case("be"){
+			%country=$tr("Belgium",country)
+			break;
+		}
+		case("bf"){
+			%country=$tr("Burkina Faso",country)
+			break;
+		}
+		case("bg"){
+			%country=$tr("Bulgaria",country)
+			break;
+		}
+		case("bh"){
+			%country=$tr("Bahrain",country)
+			break;
+		}
+		case("bi"){
+			%country=$tr("Burundi",country)
+			break;
+		}
+		case("bj"){
+			%country=$tr("Benin",country)
+			break;
+		}
+		case("bm"){
+			%country=$tr("Bermuda",country)
+			break;
+		}
+		case("bn"){
+			%country=$tr("Brunei Darussalam",country)
+			break;
+		}
+		case("bo"){
+			%country=$tr("Bolivia",country)
+			break;
+		}
+		case("br"){
+			%country=$tr("Brazil",country)
+			break;
+		}
+		case("bs"){
+			%country=$tr("Bahamas",country)
+			break;
+		}
+		case("bt"){
+			%country=$tr("Bhutan",country)
+			break;
+		}
+		case("bv"){
+			%country=$tr("Bouvet Island",country)
+			break;
+		}
+		case("bw"){
+			%country=$tr("Botswana",country)
+			break;
+		}
+		case("by"){
+			%country=$tr("Belarus",country)
+			break;
+		}
+		case("bz"){
+			%country=$tr("Belize",country)
+			break;
+		}
+		case("ca"){
+			%country=$tr("Canada",country)
+			break;
+		}
+		case("cc"){
+			%country=$tr("Cocos Islands",country)
+			break;
+		}
+		case("cf"){
+			%country=$tr("Central African Republic",country)
+			break;
+		}
+		case("cg"){
+			%country=$tr("Congo",country)
+			break;
+		}
+		case("ch"){
+			%country=$tr("Switzerland",country)
+			break;
+		}
+		case("ci"){
+			%country=$tr("Ivory Coast",country)
+			break;
+		}
+		case("ck"){
+			%country=$tr("Cook Islands",country)
+			break;
+		}
+		case("cl"){
+			%country=$tr("Chile",country)
+			break;
+		}
+		case("cm"){
+			%country=$tr("Cameroon",country)
+			break;
+		}
+		case("cn"){
+			%country=$tr("China",country)
+			break;
+		}
+		case("co"){
+			%country=$tr("Colombia",country)
+			break;
+		}
+		case("cr"){
+			%country=$tr("Costa Rica",country)
+			break;
+		}
+		case("cs"){
+			%country=$tr("Former Czechoslovakia",country)
+			break;
+		}
+		case("cu"){
+			%country=$tr("Cuba",country)
+			break;
+		}
+		case("cv"){
+			%country=$tr("Cape Verde",country)
+			break;
+		}
+		case("cx"){
+			%country=$tr("Christmas Island",country)
+			break;
+		}
+		case("cy"){
+			%country=$tr("Cyprus",country)
+			break;
+		}
+		case("cz"){
+			%country=$tr("Czech Republic",country)
+			break;
+		}
+		case("de"){
+			%country=$tr("Germany",country)
+			break;
+		}
+		case("dj"){
+			%country=$tr("Djibouti",country)
+			break;
+		}
+		case("dk"){
+			%country=$tr("Denmark",country)
+			break;
+		}
+		case("dm"){
+			%country=$tr("Dominica",country)
+			break;
+		}
+		case("do"){
+			%country=$tr("Dominican Republic",country)
+			break;
+		}
+		case("dz"){
+			%country=$tr("Algeria",country)
+			break;
+		}
+		case("ec"){
+			%country=$tr("Ecuador",country)
+			break;
+		}
+		case("ee"){
+			%country=$tr("Estonia",country)
+			break;
+		}
+		case("eg"){
+			%country=$tr("Egypt",country)
+			break;
+		}
+		case("eh"){
+			%country=$tr("Western Sahara",country)
+			break;
+		}
+		case("er"){
+			%country=$tr("Eritrea",country)
+			break;
+		}
+		case("es"){
+			%country=$tr("Spain",country)
+			break;
+		}
+		case("et"){
+			%country=$tr("Ethiopia",country)
+			break;
+		}
+		case("fi"){
+			%country=$tr("Finland",country)
+			break;
+		}
+		case("fj"){
+			%country=$tr("Fiji",country)
+			break;
+		}
+		case("fk"){
+			%country=$tr("Falkland Islands",country)
+			break;
+		}
+		case("fm"){
+			%country=$tr("Micronesia",country)
+			break;
+		}
+		case("fo"){
+			%country=$tr("Faroe Islands",country)
+			break;
+		}
+		case("fr"){
+			%country=$tr("France",country)
+			break;
+		}
+		case("fx"){
+			%country=$tr("France, Metropolitan",country)
+			break;
+		}
+		case("ga"){
+			%country=$tr("Gabon",country)
+			break;
+		}
+		case("gb"){
+			%country=$tr("Great Britain",country)
+			break;
+		}
+		case("gd"){
+			%country=$tr("Grenada",country)
+			break;
+		}
+		case("ge"){
+			%country=$tr("Georgia",country)
+			break;
+		}
+		case("gf"){
+			%country=$tr("French Guyana",country)
+			break;
+		}
+		case("gh"){
+			%country=$tr("Ghana",country)
+			break;
+		}
+		case("gi"){
+			%country=$tr("Gibraltar",country)
+			break;
+		}
+		case("gl"){
+			%country=$tr("Greenland",country)
+			break;
+		}
+		case("gm"){
+			%country=$tr("Gambia",country)
+			break;
+		}
+		case("gn"){
+			%country=$tr("Guinea",country)
+			break;
+		}
+		case("gp"){
+			%country=$tr("Guadeloupe",country)
+			break;
+		}
+		case("gq"){
+			%country=$tr("Equatorial Guinea",country)
+			break;
+		}
+		case("gr"){
+			%country=$tr("Greece",country)
+			break;
+		}
+		case("gs"){
+			%country=$tr("South Georgia / South Sandwich Islands",country)
+			break;
+		}
+		case("gt"){
+			%country=$tr("Guatemala",country)
+			break;
+		}
+		case("gu"){
+			%country=$tr("Guam",country)
+			break;
+		}
+		case("gw"){
+			%country=$tr("Guinea-Bissau",country)
+			break;
+		}
+		case("gy"){
+			%country=$tr("Guyana",country)
+			break;
+		}
+		case("hk"){
+			%country=$tr("Hong Kong",country)
+			break;
+		}
+		case("hm"){
+			%country=$tr("Heard and McDonald Islands",country)
+			break;
+		}
+		case("hn"){
+			%country=$tr("Honduras",country)
+			break;
+		}
+		case("hr"){
+			%country=$tr("Croatia",country)
+			break;
+		}
+		case("ht"){
+			%country=$tr("Haiti",country)
+			break;
+		}
+		case("hu"){
+			%country=$tr("Hungary",country)
+			break;
+		}
+		case("id"){
+			%country=$tr("Indonesia",country)
+			break;
+		}
+		case("ie"){
+			%country=$tr("Ireland",country)
+			break;
+		}
+		case("il"){
+			%country=$tr("Israel",country)
+			break;
+		}
+		case("in"){
+			%country=$tr("India",country)
+			break;
+		}
+		case("io"){
+			%country=$tr("British Indian Ocean Territory",country)
+			break;
+		}
+		case("iq"){
+			%country=$tr("Iraq",country)
+			break;
+		}
+		case("ir"){
+			%country=$tr("Iran",country)
+			break;
+		}
+		case("is"){
+			%country=$tr("Iceland",country)
+			break;
+		}
+		case("it"){
+			%country=$tr("Italy",country)
+			break;
+		}
+		case("jm"){
+			%country=$tr("Jamaica",country)
+			break;
+		}
+		case("jo"){
+			%country=$tr("Jordan",country)
+			break;
+		}
+		case("jp"){
+			%country=$tr("Japan",country)
+			break;
+		}
+		case("ke"){
+			%country=$tr("Kenya",country)
+			break;
+		}
+		case("kg"){
+			%country=$tr("Kyrgyzstan",country)
+			break;
+		}
+		case("kh"){
+			%country=$tr("Cambodia",country)
+			break;
+		}
+		case("ki"){
+			%country=$tr("Kiribati",country)
+			break;
+		}
+		case("km"){
+			%country=$tr("Comoros",country)
+			break;
+		}
+		case("kn"){
+			%country=$tr("Saint Kitts and Nevis",country)
+			break;
+		}
+		case("kp"){
+			%country=$tr("North Korea",country)
+			break;
+		}
+		case("kr"){
+			%country=$tr("South Korea",country)
+			break;
+		}
+		case("kw"){
+			%country=$tr("Kuwait",country)
+			break;
+		}
+		case("ky"){
+			%country=$tr("Cayman Islands",country)
+			break;
+		}
+		case("kz"){
+			%country=$tr("Kazakhstan",country)
+			break;
+		}
+		case("la"){
+			%country=$tr("Laos",country)
+			break;
+		}
+		case("lb"){
+			%country=$tr("Lebanon",country)
+			break;
+		}
+		case("lc"){
+			%country=$tr("Saint Lucia",country)
+			break;
+		}
+		case("li"){
+			%country=$tr("Liechtenstein",country)
+			break;
+		}
+		case("lk"){
+			%country=$tr("Sri Lanka",country)
+			break;
+		}
+		case("lr"){
+			%country=$tr("Liberia",country)
+			break;
+		}
+		case("ls"){
+			%country=$tr("Lesotho",country)
+			break;
+		}
+		case("lt"){
+			%country=$tr("Lithuania",country)
+			break;
+		}
+		case("lu"){
+			%country=$tr("Luxembourg",country)
+			break;
+		}
+		case("lv"){
+			%country=$tr("Latvia",country)
+			break;
+		}
+		case("ly"){
+			%country=$tr("Libya",country)
+			break;
+		}
+		case("ma"){
+			%country=$tr("Morocco",country)
+			break;
+		}
+		case("mc"){
+			%country=$tr("Monaco",country)
+			break;
+		}
+		case("md"){
+			%country=$tr("Moldova",country)
+			break;
+		}
+		case("mg"){
+			%country=$tr("Madagascar",country)
+			break;
+		}
+		case("mh"){
+			%country=$tr("Marshall Islands",country)
+			break;
+		}
+		case("mk"){
+			%country=$tr("Macedonia",country)
+			break;
+		}
+		case("ml"){
+			%country=$tr("Mali",country)
+			break;
+		}
+		case("mm"){
+			%country=$tr("Myanmar",country)
+			break;
+		}
+		case("mn"){
+			%country=$tr("Mongolia",country)
+			break;
+		}
+		case("mo"){
+			%country=$tr("Macau",country)
+			break;
+		}
+		case("mp"){
+			%country=$tr("Northern Mariana Islands",country)
+			break;
+		}
+		case("mq"){
+			%country=$tr("Martinique",country)
+			break;
+		}
+		case("mr"){
+			%country=$tr("Mauritania",country)
+			break;
+		}
+		case("ms"){
+			%country=$tr("Montserrat",country)
+			break;
+		}
+		case("mt"){
+			%country=$tr("Malta",country)
+			break;
+		}
+		case("mu"){
+			%country=$tr("Mauritius",country)
+			break;
+		}
+		case("mv"){
+			%country=$tr("Maldives",country)
+			break;
+		}
+		case("mw"){
+			%country=$tr("Malawi",country)
+			break;
+		}
+		case("mx"){
+			%country=$tr("Mexico",country)
+			break;
+		}
+		case("my"){
+			%country=$tr("Malaysia",country)
+			break;
+		}
+		case("mz"){
+			%country=$tr("Mozambique",country)
+			break;
+		}
+		case("na"){
+			%country=$tr("Namibia",country)
+			break;
+		}
+		case("nc"){
+			%country=$tr("New Caledonia",country)
+			break;
+		}
+		case("ne"){
+			%country=$tr("Niger",country)
+			break;
+		}
+		case("nf"){
+			%country=$tr("Norfolk Island",country)
+			break;
+		}
+		case("ng"){
+			%country=$tr("Nigeria",country)
+			break;
+		}
+		case("ni"){
+			%country=$tr("Nicaragua",country)
+			break;
+		}
+		case("nl"){
+			%country=$tr("Netherlands",country)
+			break;
+		}
+		case("no"){
+			%country=$tr("Norway",country)
+			break;
+		}
+		case("np"){
+			%country=$tr("Nepal",country)
+			break;
+		}
+		case("nr"){
+			%country=$tr("Nauru",country)
+			break;
+		}
+		case("nt"){
+			%country=$tr("Neutral Zone",country)
+			break;
+		}
+		case("nu"){
+			%country=$tr("Niue",country)
+			break;
+		}
+		case("nz"){
+			%country=$tr("New Zealand",country)
+			break;
+		}
+		case("om"){
+			%country=$tr("Oman",country)
+			break;
+		}
+		case("pa"){
+			%country=$tr("Panama",country)
+			break;
+		}
+		case("pe"){
+			%country=$tr("Peru",country)
+			break;
+		}
+		case("pf"){
+			%country=$tr("French Polynesia",country)
+			break;
+		}
+		case("pg"){
+			%country=$tr("Papua New Guinea",country)
+			break;
+		}
+		case("ph"){
+			%country=$tr("Philippines",country)
+			break;
+		}
+		case("pk"){
+			%country=$tr("Pakistan",country)
+			break;
+		}
+		case("pl"){
+			%country=$tr("Poland",country)
+			break;
+		}
+		case("pm"){
+			%country=$tr("St. Pierre and Miquelon",country)
+			break;
+		}
+		case("pn"){
+			%country=$tr("Pitcairn",country)
+			break;
+		}
+		case("pr"){
+			%country=$tr("Puerto Rico",country)
+			break;
+		}
+		case("pt"){
+			%country=$tr("Portugal",country)
+			break;
+		}
+		case("pw"){
+			%country=$tr("Palau",country)
+			break;
+		}
+		case("py"){
+			%country=$tr("Paraguay",country)
+			break;
+		}
+		case("qa"){
+			%country=$tr("Qatar",country)
+			break;
+		}
+		case("re"){
+			%country=$tr("Reunion",country)
+			break;
+		}
+		case("ro"){
+			%country=$tr("Romania",country)
+			break;
+		}
+		case("ru"){
+			%country=$tr("Russia",country)
+			break;
+		}
+		case("rw"){
+			%country=$tr("Rwanda",country)
+			break;
+		}
+		case("sa"){
+			%country=$tr("Saudi Arabia",country)
+			break;
+		}
+		case("sb"){
+			%country=$tr("Solomon Islands",country)
+			break;
+		}
+		case("sc"){
+			%country=$tr("Seychelles",country)
+			break;
+		}
+		case("sd"){
+			%country=$tr("Sudan",country)
+			break;
+		}
+		case("se"){
+			%country=$tr("Sweden",country)
+			break;
+		}
+		case("sg"){
+			%country=$tr("Singapore",country)
+			break;
+		}
+		case("sh"){
+			%country=$tr("St. Helena",country)
+			break;
+		}
+		case("si"){
+			%country=$tr("Slovenia",country)
+			break;
+		}
+		case("sj"){
+			%country=$tr("Svalbard and Jan Mayen Islands",country)
+			break;
+		}
+		case("sk"){
+			%country=$tr("Slovak Republic",country)
+			break;
+		}
+		case("sl"){
+			%country=$tr("Sierra Leone",country)
+			break;
+		}
+		case("sm"){
+			%country=$tr("San Marino",country)
+			break;
+		}
+		case("sn"){
+			%country=$tr("Senegal",country)
+			break;
+		}
+		case("so"){
+			%country=$tr("Somalia",country)
+			break;
+		}
+		case("sr"){
+			%country=$tr("Suriname",country)
+			break;
+		}
+		case("st"){
+			%country=$tr("Sao Tome and Principe",country)
+			break;
+		}
+		case("su"){
+			%country=$tr("U.S.S.R.",country)
+			break;
+		}
+		case("sv"){
+			%country=$tr("El Salvador",country)
+			break;
+		}
+		case("sy"){
+			%country=$tr("Syria",country)
+			break;
+		}
+		case("sz"){
+			%country=$tr("Swaziland",country)
+			break;
+		}
+		case("tc"){
+			%country=$tr("Turks and Caicos Islands",country)
+			break;
+		}
+		case("td"){
+			%country=$tr("Chad",country)
+			break;
+		}
+		case("tf"){
+			%country=$tr("French Southern Territories",country)
+			break;
+		}
+		case("tg"){
+			%country=$tr("Togo",country)
+			break;
+		}
+		case("th"){
+			%country=$tr("Thailand",country)
+			break;
+		}
+		case("tj"){
+			%country=$tr("Tajikistan",country)
+			break;
+		}
+		case("tk"){
+			%country=$tr("Tokelau",country)
+			break;
+		}
+		case("tm"){
+			%country=$tr("Turkmenistan",country)
+			break;
+		}
+		case("tn"){
+			%country=$tr("Tunisia",country)
+			break;
+		}
+		case("to"){
+			%country=$tr("Tonga",country)
+			break;
+		}
+		case("tp"){
+			%country=$tr("East Timor",country)
+			break;
+		}
+		case("tr"){
+			%country=$tr("Turkey",country)
+			break;
+		}
+		case("tt"){
+			%country=$tr("Trinidad and Tobago",country)
+			break;
+		}
+		case("tv"){
+			%country=$tr("Tuvalu",country)
+			break;
+		}
+		case("tw"){
+			%country=$tr("Taiwan",country)
+			break;
+		}
+		case("tz"){
+			%country=$tr("Tanzania",country)
+			break;
+		}
+		case("ua"){
+			%country=$tr("Ukraine",country)
+			break;
+		}
+		case("ug"){
+			%country=$tr("Uganda",country)
+			break;
+		}
+		case("uk"){
+			%country=$tr("United Kingdom")
+			break;
+		}
+		case("um"){
+			%country=$tr("U.S. Minor Outlying Islands",country)
+			break;
+		}
+		case("us"){
+			%country=$tr("United States",country)
+			break;
+		}
+		case("uy"){
+			%country=$tr("Uruguay",country)
+			break;
+		}
+		case("uz"){
+			%country=$tr("Uzbekistan",country)
+			break;
+		}
+		case("va"){
+			%country=$tr("Vatican City State",country)
+			break;
+		}
+		case("vc"){
+			%country=$tr("Saint Vincent and the Grenadines",country)
+			break;
+		}
+		case("ve"){
+			%country=$tr("Venezuela",country)
+			break;
+		}
+		case("vg"){
+			%country=$tr("British Virgin Islands",country)
+			break;
+		}
+		case("vi"){
+			%country=$tr("U.S. Virgin Islands",country)
+			break;
+		}
+		case("vn"){
+			%country=$tr("Vietnam",country)
+			break;
+		}
+		case("vu"){
+			%country=$tr("Vanuatu",country)
+			break;
+		}
+		case("wf"){
+			%country=$tr("Wallis and Futuna Islands",country)
+			break;
+		}
+		case("ws"){
+			%country=$tr("Samoa",country)
+			break;
+		}
+		case("ye"){
+			%country=$tr("Yemen",country)
+			break;
+		}
+		case("yt"){
+			%country=$tr("Mayotte",country)
+			break;
+		}
+		case("yu"){
+			%country=$tr("Yugoslavia",country)
+			break;
+		}
+		case("za"){
+			%country=$tr("South Africa",country)
+			break;
+		}
+		case("zm"){
+			%country=$tr("Zambia",country)
+			break;
+		}
+		case("zr"){
+			%country=$tr("Zaire",country)
+			break;
+		}
+		case("zw"){
+			%country=$tr("Zimbabwe",country)
+			break;
+		}
+		case("ato"){
+			%country=$tr("Nato Field",country)
+			break;
+		}
+		case("com"){
+			%country=$tr("Commercial",country)
+			break;
+		}
+		case("edu"){
+			%country=$tr("Educational",country)
+			break;
+		}
+		case("gov"){
+			%country=$tr("Government",country)
+			break;
+		}
+		case("info"){
+			%country=$tr("Information",country)
+			break;
+		}
+		case("int"){
+			%country=$tr("International",country)
+			break;
+		}
+		case("mil"){
+			%country=$tr("Military",country)
+			break;
+		}
+		case("net"){
+			%country=$tr("Network",country)
+			break;
+		}
+		case("org"){
+			%country=$tr("Organization",country)
+			break;
+		}
+		case("rpa"){
+			%country=$tr("Old Style Arpanet",country)
+			break;
+		}
+		default{
+			%country=$tr("Unknown",country)
+		}
+	}
+	
+	echo -w=$active $b $tr("Country",country):$o %country
+}
+
+# Script Popups
+defpopup-m ("channel"){
+	item($tr("From",country),"15"){
+		hell_country $0
+	}
+}

@@ -1,0 +1,128 @@
+// Create the subpopups
+// --------------------
+
+// Channel
+defpopup (twins::autoop::channel)
+{
+	prologue
+	{
+		if(%TwinsAutoOp{status})
+			foreach(%action,op,voice,ban)
+				%:tao{%action} = $regchan.property($chan.name,$my.network,auto%action:status)
+	}
+	label($tr("On",twinsautoop) $chan.name)
+	popup(Op,34) (%TwinsAutoOp{status})
+	{
+		item($tr("Enable",twinsautoop),43) (!%:tao{op})
+			twins::autoop::set::chan -o
+		item($tr("Disable",twinsautoop),44)(%:tao{op})
+			twins::autoop::set::chan -o=0
+		item($tr("Check",twinsautoop),36)(%:tao{op})
+			twins::autoop::set::check -q -o
+		separator
+		item($tr("Configure",twinsautoop),36)
+			twins::autoop::configure -o
+	}
+	popup(Voice,35) (%TwinsAutoOp{status})
+	{
+		item($tr("Enable",twinsautoop),43)(!%:tao{voice})
+			twins::autoop::set::chan -v
+		item($tr("Disable",twinsautoop),44)(%:tao{voice})
+			twins::autoop::set::chan -v=0
+		item($tr("Check",twinsautoop),36)(%:tao{voice})
+			twins::autoop::set::check -q -v
+		separator
+		item($tr("Configure",twinsautoop),36)
+			twins::autoop::configure -v
+	}
+	popup(Ban,67) (%TwinsAutoOp{status})
+	{
+		item($tr("Enable",twinsautoop),43)(!%:tao{ban})
+			twins::autoop::set::chan -b
+		item($tr("Disable",twinsautoop),44)(%:tao{ban})
+			twins::autoop::set::chan -b=0
+		item($tr("Check",twinsautoop),36)(%:tao{ban})
+			twins::autoop::set::check -q -b
+		separator
+		item($tr("Configure",twinsautoop),36)
+			twins::autoop::configure -b
+	}
+	item($tr("Check users now!",twinsautoop),36)(%TwinsAutoOp{status})
+		twins::autoop::set::check -q
+	item($tr("List users",twinsautoop),224)(%TwinsAutoOp{status})
+		Twins::autoop::listusers
+	separator
+	label($tr("Global settings"))
+	item($tr("Enable system",twinsautoop),43)(!%TwinsAutoOp{status})
+	{
+		%TwinsAutoOp{status} = 1
+		twins::autoop::core::config::save
+	}
+	item($tr("Disable system",twinsautoop),44)(%TwinsAutoOp{status})
+	{
+		%TwinsAutoOp{status} = 0
+		twins::autoop::core::config::save
+	}
+	item($tr("Configure",twinsautoop),36)
+		twins::autoop::configure -b
+}
+
+// User
+defpopup (twins::autoop::user)
+{
+	prologue
+	{
+		if(%TwinsAutoOp{status})
+		{
+			%:regnick = $reguser.match($mask($0))
+			if(!$isset(%:regnick))
+				%:reg = $tr("Register &&",twinsautoop)
+			else
+			foreach(%action,op,voice,ban)
+			{
+				%:tao{status}{%action} = $regchan.property($chan.name,$my.network,auto%action:status)
+				%:tao{isuser}{%action} = \
+					$str.containsnocase(",$regchan.property($chan.name,$my.network,auto%action:users),",\
+					",%:regnick,")
+			}
+			if($isempty(%:regnick)) %:regnick = $0
+		}
+	}
+	// Op
+	item(%:reg$tr("Add AutoOp",twinsautoop),34) (!%:tao{isuser}{op})
+		twins::autoop::set::user -o --no-gui %:regnick
+	item($tr("Remove AutoOp",twinsautoop),34)(%:tao{isuser}{op})
+		twins::autoop::set::user -o=0 --no-gui %:regnick
+	// Voice
+	item(%:reg$tr("Add AutoVoice",twinsautoop),35) (!%:tao{isuser}{voice})
+		twins::autoop::set::user -v --no-gui %:regnick
+	item($tr("Remove AutoVoice",twinsautoop),35)(%:tao{isuser}{voice})
+		twins::autoop::set::user -v=0 --no-gui %:regnick
+	// Ban
+	item(%:reg$tr("Add AutoBan",twinsautoop),67) (!%:tao{isuser}{ban})
+		twins::autoop::set::user -b --no-gui %:regnick
+	separator
+	item($tr("Remove AutoBan",twinsautoop),67)(%:tao{isuser}{ban})
+		twins::autoop::set::user -b=0 --no-gui %:regnick
+	item($tr("Edit user config",twinsautoop),36)
+		twins::autoop::setuser %:regnick
+	item($tr("Check user now!",twinsautoop),36)(%TwinsAutoOp{status})
+			twins::autoop::set::check -q $0
+}
+
+// Insert only when not in Twins
+// -----------------------------
+if(!$addon.exists(twins)) {
+	// Channel
+	delpopupitem -q -d channeltextview twins::autoop::channel
+	defpopup -m (channeltextview)
+	{
+		extpopup("Auto Op/Voice/Ban",twins::autoop::channel,twins/16x16/twins_autoop_16.png,twins::autoop::channel)
+	}
+	// user
+	delpopupitem -q -d channel twins::autoop::user
+	defpopup -m (channel)
+	{
+		extpopup("Auto Op/Voice/Ban",twins::autoop::user,twins/16x16/twins_autoop_16.png,twins::autoop::user)(!$str.contains($0,","))
+	}
+}

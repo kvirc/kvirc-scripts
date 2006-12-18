@@ -1,0 +1,81 @@
+alias(NGLfserv::config::save)
+{
+	%c = $config.open("NGLfserv.kvc","w")
+
+			config.setsection %c general
+			config.write %c MaxSends %MaxSends
+			config.write %c EachSends %EachSends
+			config.write %c MaxQueues %MaxQueues
+			config.write %c EachQueues %EachQueues
+			config.write %c FservActive %FservActive
+			config.write %c MaxShellLife %MaxShellLife
+			config.write %c MaxUserIdle %MaxUserIdle
+			config.write %c FindMsg %FindMsg
+			config.write %c DisplayNoOccurrenceFound %DisplayNoOccurrenceFound
+			config.write %c NGLc1 %NGLc1
+			config.write %c NGLc2 %NGLc2
+			config.write %c DccReverse %DccReverse
+			config.write %c MaxResends %MaxResends
+			config.write %c InstantSendSize %InstantSendSize
+			config.write %c ResendInterval %ResendInterval
+			config.write %c NGLdebug %G_NGLdebug
+			config.write %c PriorityType %PriorityType
+			config.write %c NGLSentBytes %NGLSentBytes
+			config.write %c NGLSentFiles %NGLSentFiles
+			config.write %c MaxSessions %MaxSessions
+			config.write %c QuickGet %B_quickget
+			config.write %c MultipleResultsPerLine %MultipleResultsPerLine
+			config.write %c UsePswd %UsePswd
+			config.write %c FindFilter %FindFilter
+			config.write %c CloneDetection %CloneDetection
+
+			config.write %c Triggersnumber $length(%Triggers{})
+
+			if (!$length(%Triggers{})) {
+				config.close %c
+				return
+			}
+
+			%j=0
+			%trig=0
+
+			foreach(%trigger,$keys(%Triggers{})) {
+				config.setsection %c general
+				config.write %c trigger%j %trigger
+				%j++
+				config.setsection %c TRIGGER%trig
+				%trig++
+				config.write %c triggername %trigger
+				if(%Triggers{%trigger}->%welcomeMessage) {
+					config.write %c welcomemessage %Triggers{%trigger}->%welcomeMessage
+				}
+				if(%Triggers{%trigger}->%password) {
+					config.write %c password %Triggers{%trigger}->%password
+				}
+				%i=0
+				if(%Triggers{%trigger}->%activeChannels{}# > 0) {
+					foreach(%ch,%Triggers{%trigger}->%activeChannels{}) {
+						config.write %c channel%i %ch->$getChannelName()
+						%i++
+						config.write %c %ch->$getChannelName()triggertype  %Triggers{%trigger}->%activeChannels{%ch->$getChannelName()}->$getTriggerType()
+						config.write %c %ch->$getChannelName()accesstype  %Triggers{%trigger}->%activeChannels{%ch->$getChannelName()}->$getAccessType()
+					}
+				}
+			}
+
+			config.setsection %c channelsgeneraloptions
+			if ($length(%FservChannels{})){
+				foreach(%channel,$keys(%FservChannels{})) {
+					config.write %c "%channel"respondtolist %FservChannels{%channel}->$getRespToList()
+					config.write %c "%channel"respondtofind %FservChannels{%channel}->$getRespToFind()
+					config.write %c "%channel"respondtomyqueues %FservChannels{%channel}->$getRespToMyQueues()
+					%FservChannels{%channel}->$cache()->$savecache()
+				}
+			}
+			config.close %c
+
+			NGLfserv::config::saveTree
+			//%G_cache->$saveCache()
+}
+
+

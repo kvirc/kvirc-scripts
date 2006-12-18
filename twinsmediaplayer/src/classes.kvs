@@ -1,0 +1,1115 @@
+# Hack for the xgettext: this code will never be executed, but will be added to the translation file
+if(0)
+{
+	#Year,Genre,Length,Frequency,Bitrate
+	$tr("Year",twinsmediaplayer)
+	$tr("Genre",twinsmediaplayer)
+	$tr("Length",twinsmediaplayer)
+	$tr("Frequency",twinsmediaplayer)
+	$tr("Bitrate",twinsmediaplayer)
+	$tr("Freq",twinsmediaplayer)
+	$tr("unknown",twinsmediaplayer)
+	$tr("stopped",twinsmediaplayer)
+	$tr("playing",twinsmediaplayer)
+	$tr("paused",twinsmediaplayer)
+}
+
+class(twins::mediaplayer::window,dockwindow)
+{
+
+	createToolButton($0 = $image)
+        {
+        	%tb = $new(toolbutton,@%m_hContainer)
+                %tb->$setImage($0)
+                %tb->$setUsesBigPixmap($false)
+                %tb->$setUsesTextLabel($false)
+                %tb->$setAutoRaise($true)
+                %tb->$setMaximumWidth(24)
+                %tb->$setMaximumHeight(24)
+                return %tb
+        }
+
+	constructor()
+	{
+
+		twins::mediaplayer::core::config::load
+		%TwinsMediaPlayer{laststartmode} = "on"
+		twins::mediaplayer::core::config::save
+
+		%G_hTwinsMediaPlayer{window} = $$
+		$$->$setCaption($str.printf($tr("Twins MediaPlayer-?s",twinsmediaplayer).$addon.version(twinsmediaplayer)))
+
+		@$setAllowedDockAreas("lrfm")
+		@$setResizeEnabled($true)
+
+		@%m_hContainer = $new(widget,$this)
+		%l = $new(layout,@%m_hContainer)
+
+		// Information
+		@%m_hTextBrowser = $new(textbrowser,@%m_hContainer)
+		%l->$addMultiCellWidget(@%m_hTextBrowser,0,0,0,6)
+
+
+		// ** newline **
+
+
+		// Back
+		@%m_hBack = $$->$createToolButton("twins/16x16/twins_player_back.png")
+		@%m_hBack->$settooltip($tr("Previous track","twinsmediaplayer"))
+		%l->$addWidget(@%m_hBack,1,0)
+		objects.connect @%m_hBack clicked $$ previous
+
+		// Rewind
+		@%m_hRew = $$->$createToolButton("twins/16x16/twins_player_rewind.png")
+		@%m_hRew->$settooltip($tr("Rewind","twinsmediaplayer"))
+		%l->$addWidget(@%m_hRew,1,1)
+		objects.connect @%m_hRew clicked $$ rew
+
+		// Stop
+		@%m_hStop = $$->$createToolButton("twins/16x16/twins_player_stop.png")
+		@%m_hStop->$settooltip($tr("Stop","twinsmediaplayer"))
+		%l->$addWidget(@%m_hStop,1,2)
+		objects.connect @%m_hStop clicked $$ stop
+
+		// Pause
+		@%m_hPause = $$->$createToolButton("twins/16x16/twins_player_pause.png")
+		@%m_hPause->$settooltip($tr("Pause","twinsmediaplayer"))
+		%l->$addWidget(@%m_hPause,1,3)
+		objects.connect @%m_hPause clicked $$ pause
+
+		// Play
+		@%m_hPlay = $$->$createToolButton("twins/16x16/twins_player_play.png")
+		@%m_hPlay->$settooltip($tr("Play","twinsmediaplayer"))
+		%l->$addWidget(@%m_hPlay,1,4)
+		objects.connect @%m_hPlay clicked $$ play
+
+		// Fast forward
+		@%m_hFwd = $$->$createToolButton("twins/16x16/twins_player_fastforward.png")
+		@%m_hFwd->$settooltip($tr("Fast forward","twinsmediaplayer"))
+		%l->$addWidget(@%m_hFwd,1,5)
+		objects.connect @%m_hFwd clicked $$ fwd
+
+		// Next
+		@%m_hNext = $$->$createToolButton("twins/16x16/twins_player_next.png")
+		@%m_hNext->$settooltip($tr("Next track","twinsmediaplayer"))
+		%l->$addWidget(@%m_hNext,1,6)
+		objects.connect @%m_hNext clicked $$ next
+
+
+		// ** newline **
+
+
+		// Time slider
+		@%m_hTime = $new(slider,@%m_hContainer)
+		@%m_hTime->%step=4
+		@%m_hTime->$setpagestep(@%m_hTime->%step)
+		@%m_hTime->$settracking(0)
+		@%m_hTime->$setorientation("Horizontal")
+		@%m_hTime->$setvalue($($mediaplayer.position / 1000))
+		%l->$addmulticellWidget(@%m_hTime,2,2,0,1)
+
+		// Time label
+		@%m_hTimeLabel = $new(label,@%m_hContainer)
+		@%m_hTimeLabel->$setfont(8,courrier,fixedpitch)
+		@%m_hTimeLabel->$setalignment(Right)
+		@%m_hTimeLabel->$setframestyle(Panel,Sunken)
+		@%m_hTimeLabel->$setmaximumheight(18)
+		%l->$addmulticellWidget(@%m_hTimeLabel,2,2,2,3)
+
+		// Shuffle
+		if($mediaplayer.getshuffle)
+			%pix = "twins/16x16/twins_player_random_on.png"
+		else
+			%pix = "twins/16x16/twins_player_random_off.png"
+		@%m_hShuffle = $$->$createToolButton(%pix)
+		@%m_hShuffle->$settooltip($tr("Shuffle","twinsmediaplayer"))
+		%l->$addWidget(@%m_hShuffle,2,4)
+		objects.connect @%m_hShuffle clicked $$ shuffle
+
+		// Repeat
+		if($mediaplayer.getrepeat)
+			%pix = "twins/16x16/twins_player_repeat_on.png"
+		else
+			%pix = "twins/16x16/twins_player_repeat_off.png"
+		@%m_hRepeat = $$->$createToolButton(%pix)
+		@%m_hRepeat->$settooltip($tr("Repeat current track","twinsmediaplayer"))
+		%l->$addWidget(@%m_hRepeat,2,5)
+		objects.connect @%m_hRepeat clicked $$ repeat
+
+		// Advertise
+		@%m_hAdv = $$->$createToolButton("twins/16x16/twins_player_say.png")
+		@%m_hAdv->$settooltip($tr("Advertise the current track on a channel or in a query","twinsmediaplayer"))
+		%l->$addWidget(@%m_hadv,2,6)
+		objects.connect @%m_hAdv clicked $$ advertise
+
+
+		// ** Newline **
+
+
+		// Configure
+		@%m_hConfig = $$->$createToolButton("twins/16x16/twins_player_configure.png")
+		@%m_hConfig->$settooltip($tr("Configure the media player","twinsmediaplayer"))
+		%l->$addWidget(@%m_hConfig,3,0)
+		objects.connect @%m_hConfig clicked $$ configure
+
+		// Volume slider
+		@%m_hVol = $new(slider,@%m_hContainer)
+		@%m_hVol->$settooltip($tr("Volume control","twinsmediaplayer"))
+		@%m_hVol->$setorientation("Horizontal")
+		@%m_hVol->$setminvalue(0)
+		@%m_hVol->$setmaxvalue(100)
+		@%m_hVol->%step=5
+		@%m_hVol->$setpagestep(@%m_hVol->%step)
+		@%m_hVol->$settracking(1)
+		@%m_hVol->$setTickInterval(10)
+		@%m_hVol->$setvalue($($mediaplayer.getvol * 100 / 255))
+		%l->$addmulticellWidget(@%m_hVol,3,3,1,2)
+		objects.connect @%m_hVol valueChanged $$ setVol
+
+		// Volume label
+		@%m_hVolLabel = $new(label,@%m_hContainer)
+		@%m_hVolLabel->$setfont(8,courrier,fixedpitch)
+		@%m_hVolLabel->$setalignment(Right)
+		@%m_hVolLabel->$settooltip($tr("Current volume","twinsmediaplayer"))
+//		@%m_hVolLabel->$setframestyle(Panel,Sunken)
+		@%m_hVolLabel->$setmaximumheight(18)
+		%l->$addWidget(@%m_hVolLabel,3,3)
+
+		// Volume icon
+		%hVol = $$->$createToolButton("twins/16x16/twins_player_volume.png")
+		%hVol->$settooltip($tr("Volume","twinsmediaplayer"))
+		%l->$addWidget(%hVol,3,4)
+
+		// Add to playlist
+		@%m_hPL = $$->$createToolButton("twins/16x16/twins_player_playlist.png")
+		@%m_hPL->$settooltip($tr("Open url or add files to playlist","twinsmediaplayer"))
+		%l->$addWidget(@%m_hPL,3,5)
+		objects.connect @%m_hPL clicked $$ playMrl
+
+		// Offer
+		@%m_hOffer = $$->$createToolButton("twins/16x16/twins_player_sayandshare.png")
+		@%m_hOffer->$settooltip($tr("Advertise and <i>offer</i> the current track on a channel or in a query","twinsmediaplayer"))
+		%l->$addWidget(@%m_hOffer,3,6)
+		objects.connect @%m_hOffer clicked $$ offer
+
+
+		// ** Newline **
+
+
+		// Close
+		@%m_hClose = $$->$createToolButton("twins/16x16/twins_player_close.png")
+		@%m_hClose->$settooltip($tr("Close the media player","twinsmediaplayer"))
+		%l->$addWidget(@%m_hClose,4,0)
+		objects.connect @%m_hClose clicked $$ close
+
+		// Show player
+		%show = @$createToolButton("twins/16x16/twins_player_show.png")
+		%show->$settooltip($tr("Show the player","twinsmediaplayer"))
+		%l->$addWidget(%show,4,1)
+		objects.connect %show clicked $$ showPlayer
+
+		// Hide player
+		%hide = @$createToolButton("twins/16x16/twins_player_hide.png")
+		%hide->$settooltip($tr("Hide the player","twinsmediaplayer"))
+		%l->$addWidget(%hide,4,2)
+		objects.connect %hide clicked $$ hidePlayer
+
+		// Status
+		@%m_hStatus = $new(label,@%m_hContainer)
+//		@%m_hStatus->$setfont(8,courrier,fixedpitch)
+		@%m_hVolLabel->$setalignment(Right)
+		%l->$addmulticellwidget(@%m_hStatus,4,4,3,6)
+
+
+		@$addWidget(@%m_hContainer)
+
+		@$displaystatus
+		@$checkbuttons()
+
+		@$timerEvent()
+		@$starttimer($(2000))
+
+	}
+
+	showPlayer()
+	{
+		mediaplayer.show -q
+	}
+
+	hidePlayer()
+	{
+		mediaplayer.hide -q
+	}
+
+	timerEvent()
+	{
+		// Update status
+		@$displaystatus()
+
+		// Update volume
+		@$updateVol(1)
+
+		// Update time position
+		@$updateTime
+
+		// Check button status
+		@$checkbuttons()
+
+		// Display information in main window and update time slider length
+		@$updateWindow(0)
+	}
+
+	updateVol($1 = do not send to player)
+	{
+		%iVol = $($mediaplayer.getvol * 100 / 255)
+		if(%iVol<0 || %iVol>100){
+			@%m_hVol->$setValue(50)
+			@%m_hVolLabel->$settext("---\%")
+		} else {
+			if($math.abs($(%iVol-@%m_hVol->$value))>=@%m_hVol->%step)
+				@%m_hVol->$setValue(%iVol)
+			if(%iVol<10)
+				%iVol="  %iVol"
+			elseif(%iVol<100)
+				%iVol=" %iVol"
+			@%m_hVolLabel->$settext("%iVol\%")
+		}
+	}
+
+	setVol()
+	{
+		if($mediaplayer.status != "unknown"){
+			mediaplayer.setvol -q $(@%m_hVol->$value * 255 / 100)
+			@$updateVol()
+		}
+	}
+
+	updateWindow($0 = force update?)
+	{
+		if(!$0)
+		{
+			// * shunt normal file
+			if( $mediaplayer.localfile && @%m_hOldSource == $mediaplayer.mrl)
+				return
+			// * shunt flux
+			elseif( !$mediaplayer.localfile && @%m_hOldSource == $mediaplayer.mrl && \
+				@%m_hOldPlay == $mediaplayer.nowplaying ) return
+		}
+		@%m_hOldSource = $mediaplayer.mrl
+		@%m_hOldPlay = $mediaplayer.nowplaying
+		// * ok do it if playing
+		if($str.contains(" unknown stopped "," $mediaplayer.status "))
+		{
+			%h = "<html><title>$0</title>"
+			%h .= "<body bgcolor=\""%TwinsMediaPlayer{color:bg:window}"\">"
+			%h .= $tr("No track being played",twinsmediaplayer)
+			%h .= "</body></html>"
+			@%m_hTextBrowser->$setText(%h)
+			@%m_hOldSource = ""
+			@%m_hOldPlay = ""
+		} else {
+			%info = @$getinfo
+			@$display(%info{title},%info{artist},%info{album},@$getTech(%info,html))
+			@%m_hTime->$setmaxvalue($($mediaplayer.length / 1000))
+			@%m_hTime->$settickinterval($(@%m_hTime->$maxvalue / 4))
+		}
+	}
+
+	updateTime($0 = time)
+	{
+		if(!@%m_hTime->$maxvalue || $str.contains(" unknown stopped "," $mediaplayer.status "))
+		{
+			@%m_hTimeLabel->$settext("--:--:--")
+			@%m_hTime->$setvalue(0)
+			return
+		}
+		if($isset($0))
+			%iTime = $0
+		else
+			%iTime = $mediaplayer.position
+		@%m_hTime->$setvalue($(%iTime / 1000))
+		@%m_hTimeLabel->$settext(@$formatTime(%iTime))
+	}
+
+	rew()
+	{
+		if(!$str.contains(" unknown stopped "," $mediaplayer.status ")){
+			%iPos = $($mediaplayer.position - 5000)
+			if(%iPos < 0) %iPos = 0
+			mediaplayer.jumpto -q %iPos
+			@$updateTime(%iPos)
+		}
+	}
+
+	fwd()
+	{
+		if(!$str.contains(" unknown stopped "," $mediaplayer.status ")){
+			%iPos = $($mediaplayer.position + 5000)
+			if(%iPos > $mediaplayer.length) %iPos = $mediaplayer.length
+			mediaplayer.jumpto -q %iPos
+			@$updateTime(%iPos)
+		}
+	}
+
+	formatTime($0 = time in ms)
+	{
+		if($str.isunsignednumber($0))
+		{
+			%lh = $($0 / 3600000)
+			%lm = $(($0 % 3600000) / 60000)
+			%ls = $(($0 % 60000) / 1000)
+			if(%lh > 0)%r .= %lh"h"
+			if(%lm < 10)%r .= "0"%lm"m"
+			else %r .= %lm"m"
+			if(%ls < 10)%r .= "0"%ls\s
+			else %r .= %ls\s
+			return %r
+		}
+	}
+
+	playMrl()
+	{
+		if(!$objects.exists(%G_hTwinsMediaPlayer{playmrl}))
+			%G_hTwinsMediaPlayer{playmrl} = $new(twins::mediaplayer::mrldialog,$$)
+		%G_hTwinsMediaPlayer{playmrl}->$show
+	}
+
+	offer()
+	{
+		@$advertise(1)
+	}
+
+	advertise($0 = offer?)
+	{
+		%w = $active
+		%info = @$getinfo
+		if($isset(%info{artist})) %s << "%info{artist} -"
+		%s << %info{title}
+		if(%TwinsMediaPlayer{showalbum}&&%info{album}) %s << " (%info{album})"
+		if($0)
+		{
+			%file = $mediaplayer.localfile
+			if(!%file) %share=$mediaplayer.mrl
+			else
+			{
+				if(!$isset(%TwinsMediaPlayer.sharecount))
+					%TwinsMediaPlayer.sharecount=1
+				%nowplaying=$mediaplayer.nowplaying
+				for(%i=0;%i<%TwinsMediaPlayer{maxoffernamelength};%i++)
+				{
+					if(%i==$str.length(%nowplaying))break
+					%c=$str.mid(%nowplaying,%i,1)
+					if($str.contains("()[]  ",%c))%c="_"
+					%name .= %c
+				}
+				%name .= _%TwinsMediaPlayer.sharecount
+				%TwinsMediaPlayer.sharecount++
+				sharedfile.add -t=$(%TwinsMediaPlayer{sharetimeout} * 60) -n=%name %file
+				%size = $file.size(%file)
+				%onemeg = $(1024 * 1024)
+				if(%size > %onemeg)
+				{
+					%mb = $(%size / %onemeg)
+					%rest = $((%size % %onemeg) / 10240)
+					%size = %mb"."$(%rest / 10)$(%rest % 10)"Mb"
+				} else {
+					%size = %size"bytes"
+				}
+
+				%share = "$b/ctcp $me xdcc get %name$b (%size)"
+			}
+			%s .= @$gettech(%info,linear,%share)
+		} else %s .= @$gettech(%info,linear)
+		me -r=%w %TwinsMediaPlayer{announce} %s
+	}
+
+	getInfo()
+	{
+		%r{artist} = $mediaplayer.artist
+		%r{title} = $mediaplayer.title
+		if(%r{artist} == "" || %r{title} == "")
+		{
+			%r{artist} =
+			%r{title} = $mediaplayer.nowplaying
+		}
+		%r{album} = $mediaplayer.album
+		if($str.equal(%r{album},"Other"))%r{album} =
+		%length = $mediaplayer.length
+		if(%length) %r{length} = @$formatTime(%length)
+		%r{year} = $mediaplayer.year
+		if(%r{year}=="0")%r{year}=
+		%bitrate = $mediaplayer.bitrate
+		if($str.isunsignednumber(%bitrate)) %r{bitrate} = "%bitrate Kbit/s"
+		%freq = $mediaplayer.samplerate
+		if($str.isunsignednumber(%freq)) %r{frequency} = "$(%freq / 1000) kHz"
+		%r{file} = $mediaplayer.localfile
+		%r{genre} = $mediaplayer.genre
+		if($str.containsnocase(" other unknown "," %r{genre} "))%r{genre}=
+
+		return %r
+	}
+
+
+	display($0 = title and big header, $1 = top header,$2 = bottom header,$3 = technical informations)
+	{
+		%h = "<html><title>$0</title>"
+//		%h .= "<body bgcolor=\""%TwinsMediaPlayer{color:bg:window}"\" text=\""%TwinsMediaPlayer{color:fg:window}"\">"
+		%h .= "<body bgcolor=\""%TwinsMediaPlayer{color:bg:window}"\">"
+		%h .= "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"1\" border=\"0\">"
+		if($1)%h .=  "<tr><td colspan=2 bgcolor=\""%TwinsMediaPlayer{color:bg:artist}"\"><font color=\""%TwinsMediaPlayer{color:fg:artist}"\" style=\"font-size:10pt;\">"<b>$1</b>"</font></td></tr>"
+		%h .=  "<tr><td colspan=2 bgcolor=\""%TwinsMediaPlayer{color:bg:title}"\"><font color=\""%TwinsMediaPlayer{color:fg:title}"\" style=\"font-size:12pt;\"><b>"<i>$0</i>"</b></font></td></tr>"
+		if($2)%h .= "<tr><td colspan=2 bgcolor=\""%TwinsMediaPlayer{color:bg:album}"\"><font color=\""%TwinsMediaPlayer{color:fg:album}"\" style=\"font-size:9pt;\">"$2"</font></td></tr>"
+		if($3)%h .= $3
+		%h .= "</table>"
+		%h .= "</body></html>"
+
+		@%m_hTextBrowser->$setText(%h)
+	}
+
+	getTech($0 = hash of info,$1 = "html" or "linear",$2 = string to insert at the end)
+	{
+		%lTags = $array(Year,Genre,Length,Frequency,Bitrate)
+		foreach(%tag,year,genre,length,freq,bitrate)
+		if($isset($0{%tag}))
+		{
+			if($1 == "html")
+			{
+				%tag = $str.upcase($str.left(%tag,1))$str.right(%tag,$($str.len(%tag)-1))
+				%h .= "<tr><th><font color=\""%TwinsMediaPlayer{color:fg:window}"\" style=\"font-size:8pt;\">%tag:</font></th>"
+				%h .= "<td><font color=\""%TwinsMediaPlayer{color:fg:window}"\" style=\"font-size:8pt;\">$0{%tag}</font></td></tr>"
+			} elseif(%TwinsMediaPlayer{show%tag})%hh <+ $str.replace($0{%tag},""," ")
+		}
+		if($1 == "linear")
+		{
+			if($2)%hh <+ $2
+			if($isset(%hh))%h = " ["$str.join(%TwinsMediaPlayer{separator},%hh)"]"
+		}
+		return %h
+	}
+
+	displayStatus()
+	{
+		@%m_hStatus->$settext($tr("Status:",twinsmediaplayer)" $tr($mediaplayer.status,twinsmediaplayer)")
+	}
+
+	play()
+	{
+		mediaplayer.play
+	}
+
+	stop()
+	{
+		mediaplayer.stop
+	}
+
+	pause()
+	{
+		mediaplayer.pause
+	}
+
+	previous()
+	{
+		mediaplayer.prev
+	}
+
+	next()
+	{
+		mediaplayer.next
+	}
+
+	repeat()
+	{
+		mediaplayer.setRepeat $(1-$mediaplayer.getrepeat)
+		@$checkButtons
+	}
+
+	shuffle()
+	{
+		mediaplayer.setShuffle $(1-$mediaplayer.getshuffle)
+		@$checkButtons
+	}
+
+	checkButtons()
+	{
+		%status = $mediaplayer.status
+		%bUnknown = $(%status == "unknown")
+		%bStopped = $(%status == "stopped")
+		%bPlaying = $(%status == "playing")
+		%bPaused = $(%status == "paused")
+		%bAdv = $str.contains(" query channel "," $window.type($active) ")
+		%bLength = $mediaplayer.length
+		// play: not playing
+		// next & previous: always
+		// stop: not stopped
+		// pause: playing
+		// advertise: playing & (channel or query)
+		@%m_hPlay->$setenabled($(!%bPlaying))
+		@%m_hPause->$setenabled(%bPlaying)
+		@%m_hStop->$setenabled($(!%bStopped))
+		@%m_hOffer->$setenabled($((%bPlaying || %bPaused) && %bAdv))
+		@%m_hAdv->$setenabled($((%bPlaying || %bPaused) && %bAdv))
+		@%m_hRew->$setenabled($(%bLength && (%bPlaying || %bPaused)))
+		@%m_hFwd->$setenabled($(%bLength && (%bPlaying || %bPaused)))
+		if($mediaplayer.getshuffle)
+			%pix = "twins/16x16/twins_player_random_on.png"
+		else
+			%pix = "twins/16x16/twins_player_random_off.png"
+		@%m_hShuffle->$setImage(%pix)
+		if($mediaplayer.getrepeat)
+			%pix = "twins/16x16/twins_player_repeat_on.png"
+		else
+			%pix = "twins/16x16/twins_player_repeat_off.png"
+		@%m_hRepeat->$setImage(%pix)
+	}
+
+	configure()
+	{
+		twins::mediaplayer::configure
+	}
+
+	close()
+	{
+		if(!%TwinsMediaPlayer{confirmbeforequit})
+		{
+			@$quit()
+			return
+		}
+		if(!$objects.exists(%G_hTwinsMediaPlayer{quit}))
+			%G_hTwinsMediaPlayer{quit} = $new(twins::mediaplayer::confirmbeforequit,$$)
+		%G_hTwinsMediaPlayer{quit}->$show
+		objects.connect %G_hTwinsMediaPlayer{quit} quit $$ quit
+	}
+	quit()
+	{
+		%TwinsMediaPlayer{laststartmode} = "off"
+		twins::mediaplayer::core::config::save
+		delete $$
+	}
+	destructor()
+	{
+		%G_hTwinsMediaPlayer{window}=
+
+	}
+}
+
+// Play an mrl
+class(twins::mediaplayer::mrldialog,dialog)
+{
+	constructor()
+	{
+
+		%l = $new(layout,$$)
+		%l->$setspacing(10)
+		%l->$setmargin(20)
+
+		%title = $new(label,$$)
+		%title->$settext(<center><b><h3>$tr("Choose a file or an Mrl to play","twinsmediaplayer")</h3></b></center><br>)
+		%l->$addmulticellwidget(%title,0,0,0,1)
+
+		%tracks = $new(button,$$)
+		%tracks->$settext($tr("Choose a file ","twinsmediaplayer"))
+		%l->$addmulticellwidget(%tracks,1,1,0,1)
+		objects.connect %tracks clicked $$ chooseFile
+
+		%lmrl = $new(label,$$)
+		%lmrl->$settext($tr("Play an mrl (ex.: http://..., or dvd://...):","twinsmediaplayer"))
+		@%m_hMrl=$new(lineedit,$$)
+		%vmrl=$new(button,$$)
+		%vmrl->$settext($tr("Ok","twinsmediaplayer"))
+		%l->$addmulticellwidget(%lmrl,2,2,0,1)
+		%l->$addwidget(@%m_hMrl,3,0)
+		%l->$addwidget(%vmrl,3,1)
+		objects.connect %vmrl clicked $$ playMrl
+		@%m_hMrl->$setenabled($str.equal($system.ostype,windows))
+		%vmrl->$setenabled($str.equal($system.ostype,windows))
+
+		%close = $new(button,$$)
+		%close->$settext($tr(close))
+		%l->$addmulticellwidget(%close,5,5,0,1)
+		objects.connect %close clicked $$ close
+
+	}
+	playMrl()
+	{
+		if(!$isset(@%m_hMrl->$text))
+			dialog.message($tr("Play Mrl","twinsmediaplayer"),$tr("Your Mrl is empty!","twinsmediaplayer"),warning){;}
+		else mediaplayer.playmrl @%m_hMrl->$text
+	}
+	chooseFile()
+	{
+		dialog.file (open,$tr("Add File",twinsmediaplayer))
+		{
+			if($isset($0))mediaplayer.playmrl "file://$0"
+		}
+	}
+	close()
+	{
+		delete $$
+	}
+}
+
+// Confirm before quit
+class(twins::mediaplayer::confirmbeforequit,dialog)
+{
+	constructor()
+	{
+		%G_hTwinsMediaPlayer{quit} = $$
+		$$->$setcaption($tr("Confirm Quit",twinsmediaplayer))
+
+		%l = $new(layout,$$)
+		%l->$setmargin(20)
+		%l->$setspacing(20)
+
+		%label = $new(label,$$)
+		%label->$settext($tr("Do you really want to close the Twins media Player?",twinsmediaplayer))
+		%l->$addmulticellwidget(%label,0,0,0,1)
+
+		@%m_hRemember = $new(checkbox,$$)
+		@%m_hRemember->$settext($tr("Remember this choice?",twinsmediaplayer))
+		%l->$addmulticellwidget(@%m_hRemember,1,1,0,1)
+
+		%yes = $new(button,$$)
+		%yes->$settext($tr(Yes))
+		objects.connect %yes clicked $$ yes
+		%l->$addwidget(%yes,2,0)
+
+		%no = $new(button,$$)
+		%no->$settext($tr(no))
+		objects.connect %no clicked $$ no
+		%l->$addwidget(%no,2,1)
+	}
+	destructor()
+	{
+		%G_hTwinsMediaPlayer{quit} =
+	}
+	yes()
+	{
+		if(@%m_hRemember->$ischecked())
+		{
+			%TwinsMediaPlayer{confirmbeforequit} = 0
+			twins::mediaplayer::core::config::save
+		}
+		@$emit(quit)
+		delete $$
+	}
+	no()
+	{
+		if(@%m_hRemember->$ischecked())
+		{
+			%TwinsMediaPlayer{confirmbeforequit} = 1
+			twins::mediaplayer::core::config::save
+		}
+		delete $$
+	}
+}
+
+
+
+// Configuration
+class(twins::mediaplayer::config,dialog)
+{
+	constructor()
+	{
+		twins::mediaplayer::core::config::load
+
+		%G_hTwinsMediaPlayer{config} = $$
+		$$->$setcaption($tr("Twins Media Player Configuration",twinsmediaplayer))
+		%ll = $new(layout,$$)
+		%ll->$setmargin(20)
+		%ll->$setspacing(20)
+		@%m_hTabs = $new(tabwidget,$$)
+		%ll->$addmulticellwidget(@%m_hTabs,0,0,0,2)
+		%ll->$setrowstretch(0,10)
+
+		//////////// First page: advertising
+		%hTab{advert} = $new(widget,@%m_hTabs)
+		%l{advert} = $new(layout,%hTab{advert})
+		%l{advert}->$setmargin(10)
+		%l{advert}->$setspacing(20)
+		@%m_hTabs->$addtab(%hTab{advert},$tr("Advertising",twinsmediaplayer),"twins/16x16/twins_player_sayandshare.png")
+
+		// Selection of technical information
+		%techTitle = $new(label,%hTab{advert})
+		%techTitle->$settext($tr("Choose the technical information you want to advertise",twinsmediaplayer))
+		%l{advert}->$addmulticellwidget(%techTitle,0,0,0,2)
+		%ic = 0
+		%ir = 1
+		@%m_aTags = $array(Album,Genre,Year,Length,Bitrate,Freq)
+		foreach(%tag,@%m_aTags)
+		{
+			@%m_hTag{%tag} = $new(checkbox,%hTab{advert})
+			@%m_hTag{%tag}->$setchecked(%TwinsMediaPlayer{show%tag})
+			@%m_hTag{%tag}->$settext($tr(%tag,twinsmediaplayer))
+			objects.connect @%m_hTag{%tag} toggled $$ updateSample
+
+			%l{advert}->$addwidget(@%m_hTag{%tag},%ir,%ic)
+			%ic++
+			if(%ic>2)
+			{
+				%ic = 0
+				%ir++
+			}
+		}
+
+		// Announcement string
+		%lAnnounce = $new(label,%hTab{advert})
+		%lAnnounce->$settext($tr("Announcement string",twinsmediaplayer))
+		@%m_hAnnounce = $new(lineedit,%hTab{advert})
+		@%m_hAnnounce->$settext(%TwinsMediaPlayer{announce})
+		%l{advert}->$addmulticellwidget(%lAnnounce,%ir,%ir,0,1)
+		%l{advert}->$addwidget(@%m_hAnnounce,%ir,2)
+		objects.connect @%m_hAnnounce textchanged $$ updateSample
+		%ir++
+
+		// Separator of technical information
+		%lSep = $new(label,%hTab{advert})
+		%lSep->$settext($tr("Separator string between tecnhical information",twinsmediaplayer))
+		%l{advert}->$addmulticellwidget(%lSep,%ir,%ir,0,1)
+		@%m_hSep = $new(lineedit,%hTab{advert})
+		@%m_hSep->$settext(%TwinsMediaPlayer{separator})
+		objects.connect @%m_hSep textchanged $$ updateSample
+		%l{advert}->$addwidget(@%m_hSep,%ir,2)
+		%ir++
+
+		// Sample
+		@%m_hSample = $new(label,%hTab{advert})
+		@%m_hSample->$setframestyle(Panel,Sunken)
+		@%m_hSample->$setbackgroundcolor(ffffff)
+		@%m_hSample->$setforegroundcolor(ff00ff)
+		%l{advert}->$addmulticellwidget(@%m_hSample,%ir,%ir,0,2)
+		@$updateSample()
+		%ir++
+
+		// Share timeout
+		%lShareTimeout = $new(label,%hTab{advert})
+		%lShareTimeout->$settext($tr("Timeout of file offers",twinsmediaplayer))
+		@%m_hShareTimeout = $new(spinbox,%hTab{advert})
+		@%m_hShareTimeout->$setminvalue(1)
+		@%m_hShareTimeout->$setmaxvalue(60)
+		@%m_hShareTimeout->$setsuffix(mn)
+		@%m_hShareTimeout->$setvalue(%TwinsMediaPlayer{sharetimeout})
+		%l{advert}->$addmulticellwidget(%lShareTimeout,%ir,%ir,0,1)
+		%l{advert}->$addwidget(@%m_hShareTimeout,%ir,2)
+		%ir++
+
+		// Max length of offered file names
+		%lFileNameLength = $new(label,%hTab{advert})
+		%lFileNameLength->$settext($tr("Max length of offered file names",twinsmediaplayer))
+		@%m_hFileNameLength = $new(spinbox,%hTab{advert})
+		@%m_hFileNameLength->$setminvalue(1)
+		@%m_hFileNameLength->$setmaxvalue(300)
+		@%m_hFileNameLength->$setvalue(%TwinsMediaPlayer{maxoffernamelength})
+		%l{advert}->$addmulticellwidget(%lFileNameLength,%ir,%ir,0,1)
+		%l{advert}->$addwidget(@%m_hFileNameLength,%ir,2)
+
+
+		//////////// Second page: look
+		@%m_hTab{look} = $new(widget,@%m_hTabs)
+		%l{look} = $new(layout,@%m_hTab{look})
+		%l{look}->$setmargin(10)
+		%l{look}->$setspacing(5)
+		@%m_hTabs->$addtab(@%m_hTab{look},$tr("Look",twinsmediaplayer),149)
+
+		// Colors
+		%g = @$addColorBox(window,$tr("Window",twinsmediaplayer))
+		%l{look}->$addwidget(%g,0,0)
+		%g = @$addColorBox(artist,$tr("Artist",twinsmediaplayer))
+		%l{look}->$addwidget(%g,1,0)
+		%g = @$addColorBox(title,$tr("Title",twinsmediaplayer))
+		%l{look}->$addwidget(%g,2,0)
+		%g = @$addColorBox(album,$tr("Album",twinsmediaplayer))
+		%l{look}->$addwidget(%g,2,1)
+
+		// Sample
+		@%m_hWindowSample = $new(textbrowser,@%m_hTab{look})
+		%l{look}->$addmulticellwidget(@%m_hWindowSample,0,1,1,1)
+		@$updateWindowSample()
+
+
+		//////////// Third page: the player
+		%hTab{player} = $new(widget,@%m_hTabs)
+		%l{player} = $new(layout,%hTab{player})
+		%l{player}->$setmargin(10)
+		%l{player}->$setspacing(10)
+		@%m_hTabs->$addtab(%hTab{player},$tr("Player",twinsmediaplayer),167)
+
+		// Choose
+		switch($str.lowcase($system.osname)){
+			case(linux)@%m_aPlayers = $array(amarok,xmms,juk)
+			case(windows)@%m_aPlayers = $array(winamp)
+			default:@%m_aPlayers = $array(amarok,xmms,juk,winamp)
+		}
+		%lChoose = $new(label,%hTab{player})
+		%lChoose->$settext($tr("Choose your player",twinsmediaplayer))
+		@%m_hChoose = $new(combobox,%hTab{player})
+		foreach(%player,@%m_aPlayers)@%m_hChoose->$insertitem(%player)
+		%okChosen = $new(button,%hTab{player})
+		%okChosen->$settext($tr(Ok))
+		objects.connect %okChosen clicked $$ chosen
+		@$updatePlayer()
+
+		// Detect
+		%detect = $new(button, %hTab{player})
+		%detect->$settext($tr("Auto-detect",twinsmediaplayer))
+		objects.connect %detect  clicked $$ detect
+		@%m_hDetect = $new(label,%hTab{player})
+		@%m_hDetect->$setframestyle(Box,Sunken)
+
+		// Layout
+		%l{player}->$addwidget(%lChoose,0,0)
+		%l{player}->$addwidget(@%m_hChoose,1,0)
+		%l{player}->$addwidget(%okChosen,2,0)
+		%l{player}->$addwidget(%detect,1,1)
+		%l{player}->$addwidget(@%m_hDetect,2,1)
+		%l{player}->$setrowstretch(1,5)
+		%l{player}->$setrowstretch(2,5)
+
+
+		/////////// Last page: Start and Quit
+		%hTab{sq} = $new(widget,@%m_hTabs)
+		%l{sq} = $new(layout,%hTab{sq})
+		%l{sq}->$setmargin(10)
+		%l{sq}->$setspacing(10)
+		@%m_hTabs->$addtab(%hTab{sq},$tr("Start && Quit",twinsmediaplayer),145)
+
+		// Restart Group
+		%hStart = $new(groupbox,%hTab{sq})
+		%hStart->$settitle($tr("Start mode",twinsmediaplayer))
+		%lStart = $new(layout,%hStart)
+		%lStart->$setmargin(20)
+		%lStart->$setspacing(10)
+		%l{sq}->$addwidget(%hStart,0,0)
+		// Setup
+		@%m_szStartMode = %TwinsMediaPlayer{startmode}
+		foreach(%state,on,off,remember)
+		{
+			@%m_hStart{%state} = $new(checkbox,%hStart)
+			@%m_hStart{%state}->$setchecked($(%TwinsMediaPlayer{startmode}==%state))
+			objects.connect @%m_hStart{%state} toggled $$ toggleStart%state
+		}
+		// Text
+		@%m_hStart{on}->$settext($tr("Always start the media player with KVIrc",twinsmediaplayer))
+		@%m_hStart{off}->$settext($tr("Let the user to manually start the media player",twinsmediaplayer))
+		@%m_hStart{remember}->$settext($tr("Remember the media player state of the last KVIrc session",twinsmediaplayer))
+		// Layout
+		%lStart->$addwidget(@%m_hStart{on},0,0)
+		%lStart->$addwidget(@%m_hStart{off},1,0)
+		%lStart->$addwidget(@%m_hStart{remember},2,0)
+
+		// Confirm before quit
+		@%m_hConfirm = $new(checkbox,%hTab{sq})
+		@%m_hConfirm->$settext($tr("Confirm before quit",twinsmediaplayer))
+		@%m_hConfirm->$setchecked(%TwinsMediaPlayer{confirmbeforequit})
+		%l{sq}->$addwidget(@%m_hConfirm,1,0)
+
+
+
+		// Ok
+		%ok = $new(button,$$)
+		%ok->$settext($tr(Ok))
+		objects.connect %ok clicked $$ ok
+		%ll->$addwidget(%ok,1,0)
+
+
+		// Apply
+		%apply = $new(button,$$)
+		%apply->$settext($tr(Apply))
+		objects.connect %apply clicked $$ apply
+		%ll->$addwidget(%apply,1,1)
+
+
+		// Close
+		%close = $new(button,$$)
+		%close->$settext($tr(Close))
+		objects.connect %close clicked $$ close
+		%ll->$addwidget(%close,1,2)
+
+	}
+
+	addColorBox($0 = name,$1 = label)
+	{
+		%g = $new(groupbox,@%m_hTab{look})
+		%g->$settitle($1)
+		%l = $new(layout,%g)
+		%l->$setspacing(5)
+		%l->$setmargin(15)
+
+		%labelfg = $new(label,%g)
+		%labelfg->$settext($tr("Foreground",twinsmediaplayer))
+
+		@%m_hColors{fg:$0} = $new(lineedit,%g)
+		@%m_hColors{fg:$0}->$settext(%TwinsMediaPlayer{color:fg:$0})
+		@%m_hColors{fg:$0}->$settooltip($tr("Enter an html color code like <b>white</b> or <b>#ffffff</b>",twinsmediaplayer))
+		objects.connect @%m_hColors{fg:$0} textchanged $$ updateWindowSample
+
+		%labelbg = $new(label,%g)
+		%labelbg->$settext($tr("Background",twinsmediaplayer))
+
+		@%m_hColors{bg:$0} = $new(lineedit,%g)
+		@%m_hColors{bg:$0}->$settext(%TwinsMediaPlayer{color:bg:$0})
+		@%m_hColors{bg:$0}->$settooltip($tr("Enter an html color code like <b>white</b> or <b>#ffffff</b>",twinsmediaplayer))
+		objects.connect @%m_hColors{bg:$0} textchanged $$ updateWindowSample
+
+		%l->$addwidget(%labelfg,0,0)
+		%l->$addwidget(@%m_hColors{fg:$0},0,1)
+		%l->$addwidget(%labelbg,1,0)
+		%l->$addwidget(@%m_hColors{bg:$0},1,1)
+
+		return %g
+	}
+
+	updateWindowSample()
+	{
+		%h = "<body bgcolor=\""@%m_hColors{bg:window}->$text()"\">"
+		%h .= "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"1\" border=\"0\">"
+		%h .= "<tr><td colspan=2 bgcolor=\""@%m_hColors{bg:artist}->$text()"\">"
+		%h .= "	<font color=\""@%m_hColors{fg:artist}->$text()"\" style=\"font-size:10pt;\">"<b>Radiohead</b>"</font></td></tr>"
+		%h .= "<tr><td colspan=2 bgcolor=\""@%m_hColors{bg:title}->$text()"\">"
+		%h .= "	<font color=\""@%m_hColors{fg:title}->$text()"\" style=\"font-size:12pt;\"><b>"<i>Pyramid Song</i>"</b></font></td></tr>"
+		%h .= "<tr><td colspan=2 bgcolor=\""@%m_hColors{bg:album}->$text()"\">"
+		%h .= "	<font color=\""@%m_hColors{fg:album}->$text()"\" style=\"font-size:9pt;\">"Amnesiac"</font></td></tr>"
+		%h .= "<tr><th><font color=\""@%m_hColors{fg:window}->$text()"\" style=\"font-size:8pt;\">"$tr("Genre:",twinsmediaplayer)"</font></th>"
+		%h .= "	<td><font color=\""@%m_hColors{fg:window}->$text()"\" style=\"font-size:8pt;\">Brit Pop</font></td></tr>"
+		%h .= "<tr><th><font color=\""@%m_hColors{fg:window}->$text()"\" style=\"font-size:8pt;\">"$tr("Length:",twinsmediaplayer)"</font></th>"
+		%h .= "	<td><font color=\""@%m_hColors{fg:window}->$text()"\" style=\"font-size:8pt;\">04m49s</font></td></tr>"
+		%h .= "<tr><th><font color=\""@%m_hColors{fg:window}->$text()"\" style=\"font-size:8pt;\">"$tr("Bitrate:",twinsmediaplayer)"</font></th>"
+		%h .= "	<td><font color=\""@%m_hColors{fg:window}->$text()"\" style=\"font-size:8pt;\">128 Kbit/s</font></td></tr>"
+		%h .= "</table></font></body></html>"
+
+		@%m_hWindowSample->$setText(%h)
+
+	}
+
+	updateSample()
+	{
+		if($ic&&$isset($me))%nick=$me
+		else %nick=My_Nick
+		%s = "* %nick "@%m_hAnnounce->$text()" Radiohead - Pyramid song"
+		if(@%m_hTag{album}->$ischecked)%s << "(Amnesiac)"
+		if(@%m_hTag{genre}->$ischecked) %t <+ Rock
+		if(@%m_hTag{year}->$ischecked) %t <+ 2001
+		if(@%m_hTag{length}->$ischecked) %t <+ "04m49s"
+		if(@%m_hTag{bitrate}->$ischecked) %t <+ "128Kbit/s"
+		if(@%m_hTag{freq}->$ischecked) %t <+ "44kHz"
+		if($isset(%t)) %s << "["$str.join(@%m_hSep->$text,%t)"]"
+		%s = $str.replace(%s,"&lt;","<")
+		%s = $str.replace(%s,"&gt;",">")
+		@%m_hSample->$settext("<font size=-1>%s</font>")
+	}
+
+	detect()
+	{
+		mediaplayer.detect
+		%result = $mediaplayer.player
+		if($str.isempty(%result))%result = $tr("none",twinsmediaplayer)
+		@%m_hDetect->$settext($tr("Found:",twinsmediaplayer) %result)
+		@$updatePlayer()
+	}
+
+	updatePlayer()
+	{
+		if(!$isset($mediaplayer.player))return
+		%i=0
+		foreach(%player,@%m_aPlayers)
+		{
+			if($str.equal($mediaplayer.player,@%m_hChoose->$textat(%i)))
+			{
+				@%m_hChoose->$setcurrentitem(%i)
+				return
+			}
+			%i++
+		}
+	}
+
+	chosen()
+	{
+		mediaplayer.setPlayer @%m_hChoose->$current()
+	}
+
+	toggleStartOn()
+	{
+		@$toggleStart(on)
+	}
+
+	toggleStartOff()
+	{
+		@$toggleStart(off)
+	}
+
+	toggleStartRemember()
+	{
+		@$toggleStart(remember)
+	}
+	toggleStart($0 = state type)
+	{
+		if($0 == @%m_szStartMode)
+		{
+			@%m_hStart{$0}->$setchecked(1)
+		} elseif(@%m_hStart{$0}->$ischecked)
+		{
+				%old = @%m_szStartMode
+				@%m_szStartMode = $0
+				@%m_hStart{%old}->$setchecked(0)
+		}
+	}
+	ok()
+	{
+		@$apply()
+		@$close()
+	}
+
+	apply()
+	{
+		%TwinsMediaPlayer{sharetimeout} = @%m_hShareTimeout->$value()
+		%TwinsMediaPlayer{confirmbeforequit} = @%m_hConfirm->$ischecked()
+		%TwinsMediaPlayer{separator} = @%m_hSep->$text()
+		%TwinsMediaPlayer{announce} = @%m_hAnnounce->$text()
+
+		foreach(%tag,@%m_aTags)
+			%TwinsMediaPlayer{show%tag} = @%m_hTag{%tag}->$ischecked()
+
+		foreach(%tag,window,artist,title,album)
+		foreach(%bg,fg,bg)
+		%TwinsMediaPlayer{color:%bg:%tag} = @%m_hColors{%bg:%tag}->$text()
+
+		if($isset(@%m_hChoose->$current()))
+			mediaplayer.setPlayer @%m_hChoose->$current()
+
+		foreach(%state,on,off,remember)
+		if(@%m_hStart{%state}->$ischecked())
+		{
+			%TwinsMediaPlayer{startmode} = %state
+			break
+		}
+
+		twins::mediaplayer::core::config::save
+
+		// Update the player look now
+		if($objects.exists(%G_hTwinsMediaPlayer{window}))
+			%G_hTwinsMediaPlayer{window}->$updateWindow(1)
+	}
+
+	close()
+	{
+		delete $$
+	}
+
+	destructor()
+	{
+		%G_hTwinsMediaPlayer{config} =
+	}
+}
+
+
+/*
+twins::admin::reguninstall --class=$array(twins::mediaplayer::window,\
+	twins::mediaplayer::confirmbeforequit,\
+	twins::mediaplayer::config,twins::mediaplayer::mrldialog)
+*/
+
+
+
+
+
+
+

@@ -1,0 +1,14 @@
+alias(NGLfserv::classes::customwidgets::button)
+{
+	class(NGLfserv::classes::customwidgets::btn,button)
+	{
+		setImage()
+		{
+			%img=%G_icons->$getIcon($0)
+			if (!%img) $$->$button::setImage($0)
+			else $$->$button::setImage(%img)
+		}
+	}
+}
+
+

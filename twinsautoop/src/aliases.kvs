@@ -1,0 +1,677 @@
+#####################################################################
+
+alias(twins::autoop::core::config::load)
+{
+	%c = $config.open(twinsautoop.kvc,r)
+
+	%TwinsAutoOp{status} = $config.read(%c,status,1)
+	%TwinsAutoOp{delay} = $config.read(%c,delay,10)
+	%TwinsAutoOp{kickreason} = $config.read(%c,kickreason,$tr("You're not welcome here, sorry",twinsautoop))
+	%TwinsAutoOp{bantypes} = $config.read(%c,bantypes,3)
+	%TwinsAutoOp{console} = $config.read(%c,console,1)
+	%TwinsAutoOp{log} = $config.read(%c,log,1)
+	foreach(%action,op,voice,ban)
+		%TwinsAutoOp{recheck:%action} = $config.read(%c,recheck:%action,1)
+
+	config.close %c
+}
+
+#####################################################################
+
+alias(twins::autoop::core::config::save)
+{
+	%c = $config.open(twinsautoop.kvc,w)
+
+	foreach(%tag,$keys(%TwinsAutoOp))
+	config.write %c %tag %TwinsAutoOp{%tag}
+
+	config.close %c
+}
+
+#####################################################################
+
+alias(twins::autoop::configure)
+{
+	# @title:
+	#	Configuration center of the Twins AutoOp addon
+
+	if(!$objects.exists(%G_hTwinsAutoOp{config}))
+		%G_hTwinsAutoOp{config} = $new(twins::autoop::config)
+	%G_hTwinsAutoOp{config}->$setModal(1)
+	%G_hTwinsAutoOp{config}->$show
+}
+
+#####################################################################
+
+alias(twins::autoop::set::delay)
+{
+	# @title:
+	#	Show or set the delay for auto op/voice after join
+	%usage = "twins::autoop::set::delay [<delay:seconds>]"
+	# @description:
+	#	This delay forces the script to wait before attempting
+	# any autoop or autovoice. It is used mainly for security
+	# reason (as with eggdrops).
+
+	if($sw(help)||$sw(usage)){ echo %usage; return; }
+
+	if(!$isset($0))
+	{
+		twins::autoop::core::config::load
+		echo -i=17 [AutoOp] $tr("Current delay before auto op/voice:",twinsautoop)$k(12) %TwinsAutoOp{delay}
+	} elseif($str.isunsignednumber($0)) {
+		echo -i=17 [AutoOp] $tr("The delay must be an unsigned integer",twinsautoop)
+		return
+	} else {
+		%TwinsAutoOp{delay} = $0
+		twins::autoop::core::config::save
+		echo -i=17 [AutoOp] $tr("Current delay before auto op/voice is now set to",twinsautoop)$k(12) $0
+	}
+}
+
+#####################################################################
+
+alias(twins::autoop::set::kickreason)
+{
+	# @Title:
+	#	Show or set the kick reason for auto kick/bans
+	%usage = "twins::autoop::set::kickreason [<reason:string>]"
+
+	if($sw(help)||$sw(usage)){ echo %usage; return; }
+
+	if(!$isset($0))
+	{
+		twins::autoop::core::config::load
+		foreach(%action,op,voice,ban)
+		echo -i=17 [AutoOp] $tr("Current kick reason for auto kicbans:",twinsautoop) \"%TwinsAutoOp{delay}\"
+	} else {
+		%TwinsAutoOp{kickreason} = $0
+		twins::autoop::core::config::save
+		echo -i=17 [AutoOp] $tr("Current kick reason for auto kicbans is now set to",twinsautoop)$k(12) $0
+	}
+}
+
+#####################################################################
+
+alias(twins::autoop::set::recheck)
+{
+	# @Title:
+	#	Set or show status for rechecking
+	%usage = "twins::autoop::set::recheck [--op/-o[=0/1]] [--voice/-v[=0/1]] [--ban/-b[=0/1]]"
+	# @switches:
+	#	-[-]o[p]/v[oice]/b[an]: Select which actions are concerned
+	# @description:
+	#	Perform checking when a user get deoped, devoiced or
+	#	when a ban is removed.
+
+	if($sw(help)||$sw(usage)){ echo %usage; return; }
+
+	// Specific action or just show?
+	foreach(%action,ban,op,voice)
+	{
+		%a = $sw(%action)
+		if($isempty(%a)) %a = $sw($str.left(%action,1))
+		if($isset(%a) && %a) %actions <+ %action
+	}
+
+	twins::autoop::core::config::load
+	%enabled = $array($k(04)$tr("disabled",twinsautoop)$o,$k(03)$tr("enabled",twinsautoop)$o)
+	if(!$isset(%actions))
+	{
+		foreach(%action,ban,op,voice)
+			echo -i=17 [AutoOp] $tr("Recheck for auto",twinsautoop) %acion \
+				$tr("is",twinsautoop) %enabled[%TwinsAutoOp{recheck:%action}]
+	} else foreach(%action,%actions){
+		if(%TwinsAutoOp{recheck:%action} == $sw(%action))
+			echo -i=17 [AutoOp] $tr("Recheck for auto",twinsautoop) %acion \
+					$tr("is already",twinsautoop) %enabled[%TwinsAutoOp{recheck:%action}]
+		else {
+			%TwinsAutoOp{recheck:%action} = $sw(%action)
+			twins::autoop::core::config::save
+			echo -i=17 [AutoOp] $tr("Recheck for auto",twinsautoop) %acion \
+					$tr("is now",twinsautoop) %enabled[%TwinsAutoOp{recheck:%action}]
+		}
+	}
+}
+
+#####################################################################
+
+alias(twins::autoop::set::chan)
+{
+	# @title:
+	#	Activate/deactivate auto actions or show status on a channel
+	%usage = "twins::autoop::set::chan [--op/-o[=0/1]] [--voice/-v[=0/1]] [--ban/-b[=0/1]] [<chan>[@<network>]"
+	# @switches:
+	#	-[-]o[p]/v[oice]/b[an]: Select which flags and what to do
+
+	if($sw(usage)||$sw(help)){ echo -i=17 %usage; return; }
+
+	// Guess the channel
+	if($sw(c))
+		%chan = $str.lefttofirst($sw(c),@)
+	else if($ic && $server && $channel)
+		%chan = $chan.name
+	if($isempty(%chan))
+	{
+		echo -i=17 $tr("Usage:",twinsautoop) %usage
+		echo [twins::autoop::set::chan] $tr("You must specify a channel name")
+		return
+	}
+
+	// Guess netmask
+	%net = $twins::autoop::core::guessnetmask($str.rightfromfirst($sw(c),@),%chan)
+
+	// Actions
+	foreach(%action,op,voice,ban)
+	{
+		// Which one?
+		%a = $sw(%action)
+		if($isempty(%a)) %a = $sw($str.left(%action,1))
+		if($isset(%a)) %actions{%action} = %a
+	}
+
+	// None, so we just list
+	%cn = $regchan.list(%chan,%net)
+	%enabled = $array($b$tr("Disabled",twinsautoop)$o,$b$tr("Enabled",twinsautoop)$o)
+	if($isempty(%actions))
+	{
+		if($isempty(%cn))
+			echo -i=17 [AutoOp] $tr("No auto actions is enabled on",twinsautoop) %chan [netmask: \@%net]
+		else foreach(%action,op,voice,ban)
+		{
+			%s = $regchan.property(%chan,%net,auto%action:status)
+			if($isempty(%s))%s = 0
+			echo -i=17 $twins::autoop::core::tag(%action) %enabled[%s] $tr("on",twinsautoop) %chan [netmask: \@%net]
+		}
+		#/parse install.kvs
+
+	// We enable/disable actions
+	} else foreach(%action,$keys(%actions)) {
+		if($isempty(%cn))
+			regchan.add %chan %net
+		else {
+		echo -i=17 \%s = $regchan.property(%chan,%net,auto%action:status)
+			%s = $regchan.property(%chan,%net,auto%action:status)
+		}
+
+		if($isempty(%s))%s = 0
+		if($str.equal(%s,%actions{%action}))
+			echo -i=17 $twins::autoop::core::tag(%action) $tr("Already",twinsautoop) $str.lowcase(%enabled[%s]) $tr("on",twinsautoop) %chan [netmask: \@%net]
+		else {
+			regchan.setproperty %chan %net auto%action:status %actions{%action}
+			echo -i=17 $twins::autoop::core::tag(%action) $tr("Now",twinsautoop) $str.lowcase(%enabled[%actions{%action}]) $tr("on",twinsautoop) %chan [netmask: \@%net]
+		}
+	}
+
+	// Reload
+	twins::autoop::core::load
+}
+
+
+#####################################################################
+
+alias(twins::autoop::set::user)
+{
+	# @title:
+	#	Set/unset autoop/voice/ban for a user on a channel
+	%usage = "twins::autoop::set::user [--op/-o[=0/1]] [--voice/-v[=0/1]] [--ban/-b[=0/1]] [-c=<chan>] [-n=<net>] [-m=<masks>] [--no-gui] [<user>]"
+	# @switches:
+	#	-[-]o[p]/v[oice]/b[an]: Select which flags and what to do
+	#	-c: Channel name
+	#	-n: Network mask
+	#	-m: Array of masks for registration (maximum 2)
+	#	--no-gui: Do not open the dialog
+
+	if($sw(usage)||$sw(help)){ echo -i=17 %usage; return; }
+
+	// Guess the channel
+	if($sw(c))
+		%chan = $sw(c)
+	else if($ic && $server && $channel)
+		%chan = $chan.name
+
+	// Guess the netmask
+	%net = $twins::autoop::core::guessnetmask($sw(n),%chan)
+
+	// Guess registered name and registration ircmask if needed
+	if($isset($sw(m)))
+		if($typeof($sw(m)) != "array")
+			%masks <+ $sw(m)
+		else
+			%masks = $sw(m)
+
+	// If nick is not registered
+	%nick = $0
+	if($isset(%nick) && !$reguser.mask(%nick))
+	{
+		// We have a wellknown nick so we can guess the registered nick
+		if($iswellknown(%nick) && $reguser.match($mask(%nick)))
+			%nick = $reguser.match($mask(%nick))
+		// Not a registered nick
+		else if(!$isset(%masks)) {
+			// Well known, so it's easy
+			if($iswellknown(%nick))
+				%masks <+ $mask(%nick,1)
+			else
+				%masks <+ "%nick!*@*"
+		}
+	}
+
+	if(!$sw(no-gui))
+	{
+
+		// Graphical user interface
+		if(!$objects.exists(%G_hTwinsAutoOp{setuser}))
+		{
+			if($objects.exists(%G_hTwinsAutoOp{config}))
+				%G_hTwinsAutoOp{setuser} = $new(twins::autoop::setuser,%G_hTwinsAutoOp{config})
+			else
+				%G_hTwinsAutoOp{setuser} = $new(twins::autoop::setuser)
+		}
+		%G_hTwinsAutoOp{setuser}->$setModal(1)
+		%G_hTwinsAutoOp{setuser}->$setUser(%nick)
+		%G_hTwinsAutoOp{setuser}->$setMasks(%masks)
+		%G_hTwinsAutoOp{setuser}->$setChannel(%chan)
+		%G_hTwinsAutoOp{setuser}->$setNetmask(%net)
+		foreach(%action,voice,ban,op)
+		{
+			%a = $sw(%action)
+			if(!$isset(%a)) %a = $sw($str.left(%action,1))
+			if($isset(%a) && $str.isunsignednumber(%a))
+				%actions{%action} = %a
+		}
+		%G_hTwinsAutoOp{setuser}->$setFlags(%actions)
+		%G_hTwinsAutoOp{setuser}->$show
+
+	} else {
+
+		// Command line
+		if(!$isset(%nick))
+		{
+			echo -i=17 $tr("Usage:",twinsautoop) %usage
+			echo $tr("You must specify a nick or registration name",twinsautoop)
+			return
+		}
+		if(!$reguser.mask(%nick))
+		{
+			if(!$isset(%masks))
+			{
+				echo -i=17 $tr("Usage:",twinsautoop) %usage
+				echo $tr("You must specify at least one mask to register",twinsautoop) %nick
+				return
+			}
+			reguser.add %nick %masks[0]
+			if($isset(%masks[1])) reguser.addmask -q %nick %masks[1]
+		}
+		if(!$isset(%chan))
+		{
+			echo -i=17 $tr("Usage:",twinsautoop) %usage
+			echo $tr("You must specify a channel name",twinsautoop)
+			return
+		}
+		if(!$regchan.find(%chan,%net))
+			regchan.add %chan %net
+		foreach(%action,voice,ban,op)
+		{
+			%a = $sw(%action)
+			if($isempty(%a))%a=$sw($str.left(%action,1))
+			if(!$isset(%ok) && !$isset(%a) && %action == "op") %a = 1
+			if($isset(%a))
+			{
+				if(!$isset($regchan.property(%chan,%net,auto%action:status)))
+					regchan.setproperty %chan %net auto%action:status 1
+				%users = $regchan.property(%chan,%net,auto%action:users)
+				if(%a)
+				{
+					if(!$str.containsnocase(",%users,",",%nick,"))
+					{
+						%users <, %nick
+						regchan.setproperty %chan %net auto%action:users %users
+						echo -i=17 $tr("Auto",twinsautoop)%action $tr("set for") %nick $tr("on",twinsautoop) %chan [%net]
+					} else
+						echo -i=17 %nick $tr("already has an auto",twinsautoop)%action $tr("on",twinsautoop) %chan [%net]
+					%ok = 1
+				} else {
+					if($str.containsnocase(",%users,",",%nick,"))
+					{
+						foreach(%u,$str.split(",",%users))
+							if(!$str.equalnocase(%nick,%u)) %newusers <, %u
+						regchan.setproperty %chan %net auto%action:users %newusers
+						echo -i=17 $tr("Auto",twinsautoop)%action $tr("removed for") %nick $tr("on",twinsautoop) %chan [%net]
+					} else
+						echo -i=17 %nick $tr("has no auto",twinsautoop)%action $tr("on",twinsautoop) %chan [%net]
+					%ok = 1
+				}
+			}
+		}
+		twins::autoop::core::load -a
+	}
+}
+
+#####################################################################
+
+alias(twins::autoop::help)
+{
+	# @Title:
+	#	Show help of the Twins AutoOp addon
+	help.open twins/autoop.html
+}
+
+#####################################################################
+
+alias(twins::autoop::core::load)
+{
+	# Load the cache for one or all channel
+	# Usage: twins::autoop::core::load [-a] [-n]
+	if(!%TwinsAutoOp{status}) return
+
+	if(!$sw(a))
+	{
+		if(!$channel) return
+		%chans <+ $channel
+	} else
+		foreach(%id,$window.list(channel,all))
+			%chans <+ %id
+
+	if($isset(%chans))
+		foreach(%id,%chans)
+		{
+			rebind %id
+			foreach(%action,op,voice,ban)
+				if($regchan.property($chan.name,$my.network,auto%action:status))
+				{
+					%TAO{%id}{%action} =
+					foreach(%user,$str.split(",",$regchan.property($chan.name,$my.network,auto%action:users)))if(%user){
+						%TAO{%id}{%action}{%user} = 1
+						debug [twins::autoop::core::load] %user loaded on $chan.name
+					}
+				}
+			if(!$sw(n)) twins::autoop::check -q
+		}
+}
+
+#####################################################################
+
+alias(twins::autoop::core::unload)
+{
+	# Unload the cache for channels
+	# Usage: twins::autoop::core::unload [-a] [-u] [-i]
+	# -a: all channels
+	# -i: all channels of a specific irc context
+	# -u: a psecific user
+	if($sw(a))
+	{
+		if($sw(u))
+		{
+			foreach(%id,$keys(%TAO))
+				foreach(%action,op,voice,ban)
+					%TAO{%ic}{%action}{$sw(u)} =
+		} else
+			unset %TAO
+	} else if($sw(i))
+		foreach(%id,$window.list(channel,$ic))
+			if($sw(u))
+				foreach(%action,op,voice,ban)
+					%TAO{%id}{%action}{$sw(u)} =
+			else
+				%TAO{%id} =
+	else if($server && $channel)
+	{
+		if($sw(u))
+			foreach(%action,op,voice,ban)
+				%TAO{$channel}{%action}{$sw(u)} =
+		else
+			%TAO{$channel} =
+	}
+}
+
+#####################################################################
+
+alias(twins::autoop::check)
+{
+	# @title:
+	#	Check if auto actions must be performed on the current channel
+	%usage = "twins::autoop::check [-q] [--op/-o[=0/1]] [--voice/-v[=0/1]] [--ban/-b[=0/1]] [<nick>]"
+	# @switches:
+	#	-q: quiet mode
+	#	-[-]o[p]/v[oice]/b[an]: Select which actions are concerned
+	# @description:
+	#	Perfom all auto op, voice or kickbans that are pending on
+	#	the current channel. If <nick> is not given, all appropriate
+	#	nicks currently on the channel are checked.
+	#	If no actions are specified, all are concerned.
+
+	if($sw(help)||$sw(usage)){echo -i=17 $tr("Usage:",twinsautoop) %usage; return;}
+
+	// Is the system ON?
+	if(!%TwinsAutoOp{status})
+	{
+		if(!$sw(q)) echo $tr("The AutOp system is not enabled. Check you configuration with /twins::autoop::configure",twinsautoop)
+		return
+	}
+
+	// We must be on a channel!
+	if(!$server || !$channel)
+	{
+		if(!$sw(q)) echo [twins::autoop::core::do] $tr("You must be on a channel to use this command",twinsautoop)
+		return
+	}
+
+	// Quick check
+	if($isempty(%TAO{$channel}))
+	{
+		if(!$sw(q)) echo -i=17 [AutOp] $tr("Nothing to perform on",twinsautoop) $chan.name
+		return
+	}
+
+	// Specific action or all of them?
+	foreach(%action,ban,op,voice)
+	{
+		%a = $sw(%action)
+		if($isempty(%a)) %a = $sw($str.left(%action,1))
+		if($isset(%a) && %a) %actions <+ %action
+	}
+	if($isempty(%actions)) %actions = $array(op,voice,ban)
+
+	// Ok scan
+	%bans =
+	foreach(%action,%actions)
+		if($isset(%TAO{$channel}{%action}))
+		{
+			%masks =
+			if($isempty($0))
+				switch(%action)
+				{
+					case(op) %masks = $chan.users(,,nvhm)
+					case(voice) %masks = $chan.users(,,nvohm)
+					case(ban) %masks = $chan.users(,,m)
+				}
+			else
+				switch(%action)
+				{
+					case(op) if(!$chan.isop($0))%masks <+ $mask($0)
+					case(voice) if(!$chan.isvoice($0))%masks <+ $mask($0)
+					case(ban) %masks <+ $mask($0)
+				}
+			debug $chan.name: action=%action masks=%masks
+
+			%nicks =
+			if($isset(%masks))
+			foreach(%mask,%masks)
+			{
+				%regnick = $reguser.match(%mask)
+				if($isset(%regnick) && %TAO{$channel}{%action}{%regnick})
+				{
+					if(%action == "ban")
+					{
+						%nicks <+ $mask.nick(%mask)
+						if(%TwinsAutoOp{bantypes} > 1)
+							%bans <+ $reguser.mask(%regnick)
+						if(%TwinsAutoOp{bantypes} == 1 || %TwinsAutoOp{bantypes} == 3)
+							%bans <+ $mask($mask.nick(%mask),$option(uintDefaultBanType))
+						%banned{%regnick} = 1
+					} else if($isempty(%banned{%regnick}))
+						%nicks <+ $mask.nick(%mask)
+				}
+			}
+
+			if($isset(%nicks))
+			switch(%action)
+			{
+				case(ban)
+				{
+					%done = 1
+					twins::autoop::core::report $twins::autoop::core::tag(ban) $chan.name: $str.printf($tr("On",twinsautoop),%TwinsAutoOp{delay}) %nicks
+					ban %bans
+					kick %nicks
+				}
+				case(op)
+				{
+					%done = 1
+					twins::autoop::core::report $twins::autoop::core::tag(op) $chan.name: \
+						$str.printf($tr("In ?ss for",twinsautoop),%TwinsAutoOp{delay}) %nicks
+					timer -s (twins::autoop::op::%action,"%TwinsAutoOp{delay}000",%nicks){
+						op $0
+					}
+				}
+				case(voice)
+				{
+					%done = 1
+					twins::autoop::core::report $twins::autoop::core::tag(voice) $chan.name: \
+						$str.printf($tr("In ?ss for",twinsautoop),%TwinsAutoOp{delay}) %nicks
+					timer -s (twins::autoop::voice::%action,"%TwinsAutoOp{delay}000",%nicks){
+						voice %nicks
+					}
+				}
+			}
+		}
+}
+
+#####################################################################
+
+alias(twins::autoop::listusers)
+{
+	# @title:
+	#	List users for each flag (op,voice,ban) for the current channel or all registered channels
+	%usage = "twins::autoop::listusers [-a] [--op/-o[=0/1]] [--voice/-v[=0/1]] [--ban/-b[=0/1]]"
+	# @switches:
+	#	-a: List for all channel. this option us assumed when not on a channel.
+	#	-[-]o[p]/v[oice]/b[an]: Select which actions are concerned
+
+	if($sw(help)||$sw(usage)){ echo -i=17 $tr("Usage:",twinautoop) %usage; return;}
+
+	if($sw(a)||!$channel)
+		%chans = $regchan.list
+	else
+		%chans <+ $chan.name\@$twins::autoop::core::guessnetmask(,$chan.name)
+	if($isempty(%chans))
+	{
+		echo -i=17 [AutoOp] $tr("No flags are set nowhere",twinautoop)
+		return
+	}
+
+	// Specific action or all of them?
+	foreach(%action,Ban,Op,Voice)
+	{
+		%laction = $str.lowcase(%action)
+		%a = $sw(%laction)
+		if($isempty(%a)) %a = $sw($str.left(%laction,1))
+		if($isset(%a) && %a) %actions <+ %action
+	}
+	if($isempty(%actions)) %actions = $array(Op,Voice,Ban)
+
+	foreach(%cn,%chans)
+	{
+		%chan = $str.lefttofirst(%cn,@)
+		%net = $str.rightfromfirst(%cn,@)
+		if($regchan.find(%chan,%net))
+		{
+			echo -i=113 $u$tr("Listing for channel",twinsautoop) $k(03)%chan$k() [netmask: %net]$u
+			foreach(%action,%actions)
+			{
+				%users =
+				foreach(%user,$str.split(",",$regchan.property(%chan,%net,auto$str.lowcase(%action):users)))
+					if($reguser.mask(%user))
+						%users <+ "%user $k(14)($reguser.mask(%user))$o"
+				if($isempty(%users))
+					%users = * $tr("No users",twinsautoop) *
+				else
+					%users = $str.join(", ",%users)
+				echo $twins::autoop::core::tag(%action) %users
+			}
+		}
+	}
+}
+
+#####################################################################
+
+alias(twins::autoop::core::report)
+{
+        // Use the console?
+        if(!%TwinsAutoOp{console})return
+
+        // Open it if necessary
+        if(!$window.exists(%TAO.console{$ic})){
+                %TAO.console{$ic} = $window.open(mq,$tr("AutOp",twinsautoop),$ic,34)
+                if(%TwinsAutoOp{log}) log.start -p -w=%TAO.console{$ic}
+        }
+
+        // Which icon and prefix?
+        if($sw(o)||$sw(op))
+        {
+                %i = 38
+                %p = "[Op] $chan.name: "
+        } elseif($sw(v)||$sw(voice)) {
+                %i = 40
+                %p = Voice
+                %p = "[Voice] $chan.name: "
+        } elseif($sw(b)||$sw(ban)) {
+                %i = 45
+                %p = Ban
+                %p = "[Ban] $chan.name: "
+        } else
+                %i = 0
+
+        // Let's go
+        echo -i=%i -w=%TAO.console{$ic} %p$0-
+}
+
+#####################################################################
+
+alias(twins::autoop::core::tag)
+{
+	switch($str.lowcase($0))
+	{
+		case(op) 	%cc = $k(04)Op
+		break
+		case(voice) %cc = $k(12)Voice
+		break
+		case(ban)	%cc = $b()Ban
+		break
+		default:	%cc = Op
+	}
+	return [Auto%cc$o]
+}
+
+#####################################################################
+
+alias(twins::autoop::core::guessnetmask)
+{
+	if($isset($0))
+		%net = $0
+	else if($ic && $server) {
+		if($isset($1) && $length($regchan.list($1,$my.network)))
+			// Guess the mask from the database
+			%net = $str.rightfromfirst($regchan.list($1,$my.network)[0],@)
+		else
+			// Not in database, so mask = current network
+			%net = $my.network
+	}
+	// Last try
+	if($isset($1) && $isempty(%net) && $length($regchan.list($1,*)))
+		%net = $str.rightfromfirst($regchan.list($1,*)[0],@)
+	// Ok, ok...
+	if($isempty(%net)) %net = *
+	return %net
+}
+

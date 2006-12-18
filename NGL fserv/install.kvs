@@ -1,0 +1,221 @@
+# NGL File Server for KVIrc
+# Written by LoSko, Noldor, Grifisx (2006)
+
+# register the script: this must be the first instruction executed
+# since it will abort with an error when a greater version is already installed
+addon.register("NGLfserv","1.0.0",%NGLlogo,$tr("Written by: Noldor\, Grifisx\, LoSko","NGLfserv"),"3.2.2",NGLfserv_32.png)
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	NGLfserv::uninstall::uninstall
+}
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# get the installer helper class (this is pretty standard and included in the distro)
+include "utils/installer.kvs"
+
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+# copy files in each subdirectory
+# the pics
+%installer->$copyFiles("%mypath/pics/","*.png",$file.localdir("pics/NGLfserv"))
+%installer->$copyFiles("%mypath/pics/","NGLfserv_32.png",$file.localdir("pics/"))
+
+# the translations
+#%installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
+# the documentation
+#%installer->$copyFiles("%mypath/help/en/NGL_FServer/","*.html",$file.localdir("help/en/NGL_FServer"))
+# then generate the uninstall alias
+
+%installer->$generateUninstallAlias("NGLfserv::uninstall::uninstallfiles");
+# finally kill the installer helper
+delete %installer
+
+# fetch the complete script
+include "main.kvs" %mypath
+
+# make sure any previous instance is closed
+# ______::close
+# show it up :)
+#________::show
+
+# File Server Initialization
+
+NGLfserv::classes::register
+NGLfserv::events::init
+NGLfserv::config::load
+NGLfserv::config::save
+
+
+defpopup("NGLfserv")
+{
+	prologue{
+		if(%FservActive=="OFF") {
+			%:labelText = File server is OFF
+			%:status = ON
+			%:icon = 167
+		}
+		else {
+			%:labelText = File server is ON
+			%:status = OFF
+			%:icon = 8
+		}
+	}
+
+	label(%:labelText)
+
+	item($tr("Options"),20)
+	{
+		NGLfserv::gui::gui
+	}
+
+	item($tr("Monitor","NGLfserv"),171)
+	{
+		if ($objects.exists(%NGLmonitor)) {
+			%NGLmonitor->$show()
+			%NGLmonitor->$raise()
+		}
+		else{
+			%NGLmonitor=$new(NGLfserv::classes::guimonitor)
+			%NGLmonitor->$show()
+		}
+	}
+
+	item($tr("Save configuration","NGLfserv"),10)
+	{
+		NGLfserv::config::save
+	}
+
+	separator
+
+	item($tr("Turn fileserver %:status","NGLfserv"),%:icon)
+	{
+		if(%FservActive=="OFF") {
+			%FservActive="ON"
+			NGLfserv::events::eventshandler ENABLE
+		}
+		else {
+			%FservActive="OFF"
+			NGLfserv::events::eventshandler DISABLE
+		}
+	}
+}
+
+setmenu -q -i=7 %NGLlogo NGLfserv
+
+/*addon.setconfigurecallback("NGLfserv")
+{
+	NGLfserv::gui::gui
+}*/
+
+defpopup(NGLfserv_channel)
+{
+	item($tr("Display ads","NGLfserv"),180)
+	{
+		if(%FservChannels{$chan.name}->%rootFolders{}#>0)
+		{
+			%normalAdsPrefix = $k(%NGLc1)"["$k(%NGLc2)Fserve active$k(%NGLc1)"] - Triggers:["
+			%normalAdsCount=0
+			%normalAdsRowCount=0
+			%normalAds[0] = %normalAdsPrefix
+
+			// %TDCCAdsPrefix = $k(%NGLc1)"["$k(%NGLc2)TDCC active$k(%NGLc1)"] - Triggers:["
+
+			#-------Gives a shape to the trigger notice
+			foreach(%tr,%FservChannels{$chan.name}->%rootFolders{}) {
+				if($str.contains(%Triggers{%tr->$triggerName()}->%activeChannels{$chan.name}->$getTriggerType(),0)) {
+					%token = "$k(%NGLc2)/ctcp $me %tr->$triggerName() $k(%NGLc1)& "
+					if($($str.len(%normalAds[%normalAdsRowCount]) + $str.len(%token)) <= 350) {
+						%normalAds[%normalAdsRowCount] .= %token
+					}
+					else {
+						%normalAdsRowCount++
+						%normalAds[%normalAdsRowCount] = %normalAdsPrefix
+						%normalAds[%normalAdsRowCount] .= %token
+					}
+					%normalAdsCount++
+				}
+				if($str.contains(%Triggers{%tr->$triggerName()}->%activeChannels{$chan.name}->$getTriggerType(),1)) {
+					%token = "$k(%NGLc2)%tr->$triggerName() $k(%NGLc1)& "
+					if($($str.len(%normalAds[%normalAdsRowCount]) + $str.len(%token)) <= 350) {
+						%normalAds[%normalAdsRowCount] .= %token
+					}
+					else {
+						%normalAdsRowCount++
+						%normalAds[%normalAdsRowCount] = %normalAdsPrefix
+						%normalAds[%normalAdsRowCount] .= %token
+					}
+					%normalAdsCount++
+				}
+			}
+			if(!%Send) %sends = 0
+			else %sends = %Send->$count()
+			if(!%Queues) %queues = 0
+			else %queues = %Queues->$count()
+			if(%normalAdsCount>0) {
+				for(%i=0; %i<=%normalAdsRowCount; %i++) {
+					%normalAds[%i]=$str.lefttolast(%normalAds,&)
+					%normalAds[%i]=$str.lefttolast(%normalAds," ")
+					%normalAds[%i] .= $k(%NGLc1)] - Users:[$k(%NGLc2)$r$r%Session{}#$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxSessions$k(%NGLc1)] - Sends:[$k(%NGLc2)$r$r%sends$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxSends$k(%NGLc1)] - Queues:[$k(%NGLc2)$r$r%queues$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxQueues$k(%NGLc1)] -$k(%NGLc2) %NGLlogo
+					say %normalAds[%i]
+				}
+			}
+		}
+	}
+
+	separator
+
+	item($tr("Show sends","NGLfserv"),77)
+	{
+		if(!$objects.exists(%Send)) %sends = 0
+		else %sends = %Send->$count()
+		say $k(%NGLc1)"Total Number Of Sends Currently: ["$k(%NGLc2)$r$r%sends$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxSends$k(%NGLc1)"]"$k(%NGLc2) %NGLlogo
+		for(%i=0;%i!=%Send->$count();%i++) {
+			%id=%Send->$at(%i)->%dcc_id
+			if(%id) {
+				%a=$($dcc.transferredBytes(%id)/100)
+				%b=$($dcc.localFileSize(%id)/100)
+				%percent=$(100*%a/%b)\%
+			}
+			else %percent=Waiting
+			say $k(%NGLc1)#$(%i+1) $k(%NGLc2)%Send->$at(%i)->%file$k(%NGLc1), to $k(%NGLc2)%Send->$at(%i)->%nick$k(%NGLc1), done at $k(%NGLc2)$r$r%percent$k(%NGLc1), size: $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc(%Send->$at(%i)->%size)
+		}
+	}
+
+	item($tr("Show queues","NGLfserv"),78)
+	{
+		if(!$objects.exists(%Queues)) %queues = 0
+		else %queues = %Queues->$count()
+		say $k(%NGLc1)"Total Number Of Queues Currently: ["$k(%NGLc2)$r$r%queues$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxQueues$k(%NGLc1)"]"$k(%NGLc2) %NGLlogo
+		for(%i=0; %i!=%Queues->$count(); %i++)
+			say $k(%NGLc1)#$(%i+1) $k(%NGLc2)%Queues->$at(%i)->%file$k(%NGLc1), for $k(%NGLc2)%Queues->$at(%i)->%nick$k(%NGLc1), size: $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc(%Queues->$at(%i)->%size)
+	}
+
+	separator
+
+	item($tr("Show statistics","NGLfserv"),119)
+	{
+		%bytesSent = $NGLfserv::corefunctions::calc(%NGLSentBytes)
+		%vect[] = $str.split(" ",%bytesSent)
+		%vect[0] = $str.left(%vect[0],$($str.len(%vect[0])-4))
+		if($str.right(%vect[0],1) == 0) {
+			%vect[0] = $str.left(%vect[0],$($str.len(%vect[0])-1))
+			if($str.right(%vect[0],1) == 0) %vect[0] = $str.left(%vect[0],$($str.len(%vect[0])-1))
+		}
+		say $k(%NGLc1)"["$k(%NGLc2)File Server statistics$k(%NGLc1)"] Bytes sent:["$k(%NGLc2)$r$r%vect[0]" "%vect[1]$k(%NGLc1)"] - Files sent:["$k(%NGLc2)$r$r%NGLSentFiles$k(%NGLc1)"] - "$k(%NGLc2)%NGLlogo
+	}
+}
+
+defpopup -m (channeltextview)
+{
+	extpopup(%NGLlogo,NGLfserv_channel,13,NGLfserv.menu) (%FservChannels{$chan.name})
+}
+
+option uintDccSocketTimeout 10
+option boolCreateMinimizedDccChat 1
+option boolAutoAcceptDccChat 1
+option boolAutoAcceptDccSend 1
+option boolShowMinimizedDebugWindow 1

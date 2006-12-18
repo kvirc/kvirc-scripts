@@ -1,0 +1,32 @@
+/////////////////////////////////////////////////////////////////////
+// Configuration dialog
+/////////////////////////////////////////////////////////////////////
+objects.killclass -q twins::quotes::config
+class(twins::quotes::config,dialog)
+{
+	constructor()
+	{
+
+		// Setup
+		twins::quotes::core::config::load
+		%G_hTwinsquotes{config} = $$
+		$$->$setCaption($tr("Twins Auto Op",twinsquotes))
+
+		// Layout
+		%lll = $new(layout,$$)
+		%lll->$setspacing(20)
+		%lll->$setmargin(20)
+
+		// Title
+		%title = $new(label,$$)
+		%title->$settext(<center><h2>$tr("Twins quotes System",twinsquotes)</h2></center>)
+		%lll->$addmulticellwidget(%title,0,0,0,2)
+
+	// Add new quote
+	@%m_hAddText = $new(lineedit,$$)
+	
+
+
+	}
+
+}

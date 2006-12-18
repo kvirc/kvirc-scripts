@@ -1,0 +1,121 @@
+event(OnCTCPRequest,Forza4)
+{
+# - Forza4 - #
+# by Noldor & Grifisx & Pragma 2005
+#
+if($4 != "FORZA4")return
+
+switch($str.section($5," ",0,0))
+{
+	case("NEWGAMEREQUEST")
+        {
+		if (!$classDefined(forzaquattro))
+		{
+			wrapKvirc
+			Forza4_classesdefinitions
+			%Forza4Handler=$new(forza4handler)
+		}
+		if (%Forza4Handler->$InstanceExists($query($0)))
+		{
+	    		dialog.message("Forza4",$tr("<b>$0 :<\b><br>Warning, another game session is active. Do you want to drop it and open a new game?"),"","Yes","No","",$0)
+   			{
+				if ($0==0)
+				{
+					%Forza4Handler->$forza4deleteInstance($query($1))
+					query $1
+					%Forza4Handler->$forza4CreateInstance("0",$1,$query($1))
+					ctcp $1 FORZA4 NEWGAMEREQUESTACCEPT
+				}                
+				else ctcp $1 FORZA4 NEWGAMEREQUESTDROP
+			}
+		}
+		else		
+		dialog.message("Forza4",$tr("<b>$0 :<\b><br>Do you want to game with me?"),"","Yes","No","",$0)
+		{
+			if($0==0)
+			{
+				query $1
+				%Forza4Handler->$forza4CreateInstance("0",$1,$query($1))
+				ctcp $1 FORZA4 NEWGAMEREQUESTACCEPT                
+			}
+			else
+			{
+				ctcp $1 FORZA4 NEWGAMEREQUESTDROP
+			}
+		}
+		break;
+	}
+        case("SENDMOVE")
+        {
+                %move = $str.section($5," ",1,1)
+                %Forza4Handler->$dropEnemyChips(%move,$query($0))
+                break;
+        }
+        case("STOPGAMEREQUEST")
+        {  
+                break;    
+        }
+        case("NEWGAMEREQUESTDROP")
+        {  
+	 break;
+        }
+        case("NEWGAMEREQUESTACCEPT")
+        {
+	if (!%Forza4Handler->$InstanceExists($query($0)))
+	{
+		%Forza4Handler->$forza4CreateInstance("1",$0,$query($0))
+  	}                
+	else
+	{
+	%Forza4Handler->$forza4deleteInstance($query($0))
+				query $0
+				%Forza4Handler->$forza4CreateInstance("1",$0,$query($0))
+	}		
+}
+        case("RESTART")
+        {
+		dialog.message("Forza4",$tr("<b>$0 :<\b><br>Do you want to game with me?"),"","Yes","No","",$0)
+		{
+			if($0==0)
+			{
+				%Forza4Handler->$restart(0,$query($1));
+				ctcp $1 FORZA4 RESTARTCONFIRM  1              
+			}
+			else
+			{
+				ctcp $1 FORZA4 RESTARTDENIED
+				%Forza4Handler->$forza4DeleteInstance($1)
+			}
+		}
+		break;
+        }
+        case("RESTARTCONFIRM")
+        {
+         	%Forza4Handler->$restart(1,$query($0));
+	 	%Forza4Handler->$instance($query($0))->$repaint(0);
+                break;
+        }
+        case("RESTARTDENIED")
+        {
+		dialog.message("Forza4",$tr("<b>$0 <\b><br> have denied your request"),"","OK","","",$0)
+		{
+			%Forza4Handler->$forza4DeleteInstance($1);
+        }
+		break;
+        }
+        default:
+	return;
+	}
+        halt;
+}
+
+event(OnKVIrcStartup,Forza4)
+{
+	# - Forza4 - #
+	# by Noldor, Grifisx & Pragma 2005
+	#
+	#
+	wrapKVIrc
+	Forza4_classesdefinitions
+	%Forza4Handler=$new(forza4handler)
+}

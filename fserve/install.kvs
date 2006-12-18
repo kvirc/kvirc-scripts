@@ -1,0 +1,315 @@
+event(OnKVIrcStartup,FileserverConfig)
+{
+	#colors
+	#nickcolor is printed each time we say a users nickname
+	%NICKCOLOR = 12
+	#accesscolor is printed in FS_reporter each time a user is accessing the server
+	%ACCESSCOLOR = 9
+	#servinginfo is printed each time we refer in a serving action (sending files,saying what we share, etc)
+	%SERVINGINFO = 3
+	
+	
+	
+	#assigning an access trigger for the fileserver
+	%TRIGGER = @assassin_21
+	%FSVersion = "Unstable/Broken Version"
+	#saying where and what to serve ("server"@"#channel"="path","server"@"#channel"="path")
+	%SERVINGCHANNELS = $ARRAY("mike.scifi-fans.net@#books=/home/my_files","mike.scifi-fans.net@#RPG-books=/home/my_RPGfiles")
+	#Printing in the reporter window the serving info
+	foreach(%y,%SERVINGCHANNELS[])
+	{
+		#trimming the strings
+		%server = $str.lefttolast(%y,@)
+		%filepath = $str.rightfromfirst(%y,=)
+		%channel = $str.rightfromfirst($str.lefttolast(%y,=),@)
+		$fsrep($K%SERVINGINFO"[SERVING]" $K%filepath inside %channel at %server); 
+	}
+}
+
+event(OnChannelMessage,AccessRequestTrigger)
+{
+	#here we will initiate the access trigger in the channel
+	#validate trigger in channel msg(not channel specific yeat)
+	if ($3==%TRIGGER){
+	#opening dcc chat in the nickname that requested with a valid trigger
+	dcc.chat $0
+	#reporting the above action
+	$fsrep
+	echo -w=%FSREP $K%ACCESSCOLOR"[ACCESS]"$K$K%NICKCOLOR $0$K ($1@$2)is trying to access the server
+	}
+}
+
+alias(fsrep)
+{
+	#just to print easier stuff in fs-reporter (we dont need all the time writing the below line)
+	#can be used also for opening the window only > $fsrep
+	if ($window.exists(%FSREP) == 0) %FSREP = $window.open("m","FS_Reporter")
+	echo -w=%FSREP $0
+}
+
+alias(fsgui)
+{
+	##make main window
+		%FileserverMainScreen = $new(widget,0,FileserverMainScreen)
+	##make button "Exit"
+		%CmdExit = $new(button,%FileserverMainScreen,Exit)
+		%CmdExit->$setGeometry(500,350,80,25)
+		%CmdExit->$settext("Exit")
+	##make label "Version"
+		%LblVersion = $new(label,%FileserverMainScreen,versionlabel)
+		%LblVersion->$setGeometry(470,380,150,25)
+		%LblVersion->$settext(%FSVersion)
+	##make label "Server"
+		%LblServer = $new(label,%FileserverMainScreen,Serverlabel)
+		%LblServer->$setGeometry(20,10,150,25)
+		%LblServer->$settext("Select Server")
+	##make textbox for Server
+		%TxtServerName = $new(lineedit,%FileserverMainScreen,ServerText)
+		%TxtServerName->$setGeometry(10,30,150,20)
+		%TxtServerName->$setText("$0")
+	##make label "Server"
+		%LblChannel = $new(label,%FileserverMainScreen,Channellabel)
+		%LblChannel->$setGeometry(20,50,150,25)
+		%LblChannel->$settext("Select Channel")
+	##make textbox for Channel
+		%TxtChannelName = $new(lineedit,%FileserverMainScreen,ChannelText)
+		%TxtChannelName->$setGeometry(10,70,150,20)
+		%TxtChannelName->$setText("$0")
+	##make label "Path"
+		%LblPath = $new(label,%FileserverMainScreen,Pathlabel)
+		%LblPath->$setGeometry(20,90,150,25)
+		%LblPath->$settext("Path")
+	##make textbox for Path
+		%TxtPathName = $new(lineedit,%FileserverMainScreen,PathText)
+		%TxtPathName->$setGeometry(10,110,150,20)
+		%TxtPathName->$setText("$0")
+	#mouse press event kills window (press at ur own risk :D)
+		privateimpl(%CmdExit,mousePressEvent)
+		{
+		delete %FileserverMainScreen
+		$fsrep("MainScreen Collapsed")
+		}
+	#Showing Screen
+	%FileserverMainScreen->$show()
+	$fsrep("MainScreen Initiated")
+}
+
+defpopup(Fileserver)
+{
+	item(Launch Server Configuration,9)
+	{
+		$fsgui()
+	}
+}
+
+defpopup(channel)
+{
+	prologue
+	{
+		# we use the extended scope variables: they are visible in the entire defpopup scope
+		# %:visible is the string that we will "show to the user" in the popup widget
+		# for multiple users the string might become long so we are going to change it in "multiple users"
+		%:visible = $0
+		# %:multiple is an internal flag: set to 1 if the parameter passed to the popup contains a list
+		# of multiple nicknames rather than a single nick
+		%:multiple = 0
+		# finally , set these variables
+		%:itemBanName = $tr("Ban")
+		if($str.findfirst(%:visible,",") != -1)
+		{
+			# found a comma in the $0 parameter...we have multiple nicknames
+			%:visible = "("$tr("Multiple Users")")"
+			%:multiple = 1
+			%:itemBanMask = "*!user@*.host.tld"
+			%:itemBanNick = "nick"
+		} else {
+			%:itemBanMask = $mask(%:visible,$option(uintDefaultBanType))
+			if("%:itemBanMask" == "*!*@*")%:itemBanName = $tr("&Ban")
+			%:itemBanNick = %:visible
+		}
+		# speed it up
+		
+		%:isMeHalfOp = $chan.isMeHalfOp()
+		%:isMeOp = $chan.isMeOp()
+		%:isMeOwner = $chan.isMeOwner()
+		%:isMeAdmin = $chan.isMeAdmin()
+		%:bCanKB = 0;
+		
+		if(%:isMeHalfOp)
+		{
+			foreach(%nick,$split(",",$0))
+			{
+				if($chan.usermodelevel(%nick) <= $chan.usermodelevel($me))
+				{
+					%:bCanKB = 1;
+					break;
+				}
+			}
+		}
+	}
+	
+	item("/WHOIS" %:visible "("$tr("idle time")")",75)
+	{
+		foreach(%i,$split(",",$0))
+			whois %i %i
+	}
+	
+	separator
+	
+	popup($tr("&Information"),49)
+	{
+		item("/WHOIS" %:visible,75)
+		{
+			whois $0
+		}
+		
+		item(/WHOWAS %:visible,92)
+		{
+			whowas $0
+		}
+		
+		item(/WHO %:visible,75)
+		{
+			who $0
+		}
+		
+		separator
+		
+		item($tr("DNS for") %:visible,75)
+		{
+			foreach(%i,$split(",",$0))dns %i
+		}
+		
+		item($tr("Mask for") %:visible,75) (!%:multiple)
+		{
+			echo $mask($0,11)
+		}
+	}
+	
+	popup($tr("&Control"),9) (%:isMeHalfOp)
+	{
+		label($usermodename($me()))
+		
+		item($tr("O&wner") %:visible,260) (%:isMeOwner)
+		{
+			chanowner $0
+		}
+		
+		item($tr("&Deowner") %:visible,261) (%:isMeOwner)
+		{
+			dechanowner $0
+		}
+		
+		item($tr("&Administrator") %:visible,242) (%:isMeAdmin)
+		{
+			chanadmin $0
+		}
+		
+		item($tr("&Deadministrator") %:visible,243) (%:isMeAdmin)
+		{
+			dechanadmin $0
+		}
+		
+		item($tr("&Op") %:visible,34) (%:isMeOp)
+		{
+			op $0
+		}
+		
+		item($tr("&Deop") %:visible,62) (%:isMeOp)
+		{
+			deop $0
+		}
+		
+		item($tr("&Halfop") %:visible,174) (%:isMeOp)
+		{
+			halfop $0
+		}
+		
+		item($tr("&Dehalfop") %:visible,175) (%:isMeOp)
+		{
+			dehalfop $0
+		}
+		
+		item($tr("&Voice") %:visible,35) (%:isMeHalfOp)
+		{
+			voice $0
+		}
+		
+		item($tr("D&evoice") %:visible,63) (%:isMeHalfOp)
+		{
+			devoice $0
+		}
+		
+		separator
+		
+		item($tr("&Kick") %:visible,110) (%:bCanKB)
+		{
+			foreach(%i,$split(",",$0))kick %i
+		}
+		
+		item($tr("K&ick") %:visible $tr("With..."),110) (%:bCanKB)
+		{
+			dialog.textinput -d="$me" -i=110 ($tr("Kick Reason"),$tr("Enter a kick reason"),$tr("&Kick"),$tr("Cancel"),,$0)
+			{
+				if($0 == 0)
+				{
+					foreach(%i,$split(",",$2))kick %i $1
+				}
+			}
+		}
+		
+		item($tr("&Ban") %:visible "("%:itemBanMask")",67) (("%:itemBanMask" != "*!*@*") && %:bCanKB)
+		{
+			ban $mask($0,$option(uintDefaultBanType))
+		}
+		
+		item(%:itemBanName %:visible "("%:itemBanNick!*@*")",67) (%:bCanKB)
+		{
+			ban $0
+		}
+		
+		item($tr("Kick/Ban") %:visible,110) (%:bCanKB)
+		{
+			kb $0
+		}
+		
+		item($tr("Kick/Ban") %:visible $tr("With..."),110) (%:bCanKB)
+		{
+			dialog.textinput -d="$me" -i=110 ($tr("Kick/Ban Reason"),$tr("Enter a kick/ban reason"),$tr("&Kick/Ban"),$tr("Cancel"),,$0)
+			{
+				if($0 == 0)
+				{
+					kb $2 $1
+				}
+			}
+		}
+	}
+	
+	separator
+	
+	item($tr("&Query") %:visible,47)
+	{
+		query $0
+	}
+	
+	separator
+	
+	extpopup(C&TCP,ctcp,51)
+	
+	extpopup(&DCC,dcc,77) (!%:multiple)
+	
+	extpopup(FileServer,Fileserver,7)
+	
+	separator
+	
+	extpopup($tr("&Registration"),registration,111) (!%:multiple)
+	
+	extpopup($tr("&Highlight"),highlight,181) (!%:multiple)
+	
+	extpopup($tr("Ig&nore"),ignore,203) (!%:multiple)
+	
+	item($tr("Notify Avatar"),57)
+	{
+		avatar.notify $0
+	}
+}

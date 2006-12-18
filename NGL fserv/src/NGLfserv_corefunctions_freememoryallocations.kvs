@@ -1,0 +1,43 @@
+alias(NGLfserv::corefunctions::freememoryallocations)
+{
+	// free objects allocation
+	for (%i=0;%i<$length(%G_objectsarray[]);%i++) 
+		if ($objects.exists(%G_objectsarray[%i])) delete %G_objectsarray[%i]
+	if ($objects.exists(%G_guiTabwidget)) delete %G_guiTabwidget
+		
+	
+	if ($objects.exists(%NGLmonitor)) delete %NGLmonitor
+	
+	if ($objects.exists(%Queues))
+	{
+		for (%i=0;%i<%Queues->$count();%i++) 
+			if ($objects.exists(%Queues->$at(%i)))  delete %Queues->$at(%i)
+		delete %Queues
+	}
+	if ($objects.exists(%Send))
+	{
+		for (%i=0;%i<%Send->$count();%i++) 
+			if ($objects.exists(%Send->$at(%i))) delete %Send->$at(%i)
+		delete %Send
+	}
+	if ($objects.exists(%Virtualtree)) delete %Virtualtree
+	//if ($objects.exists(%G_cache)) delete %G_cache
+	if ($objects.exists(%G_icons)) delete %G_icons
+	
+	// free var
+	unset %Virtualtree %Queues %Send %G_icons 
+	unset %FservActive %MaxSends %EachSends %MaxQueues %EachQueues %MaxSessions
+	unset %Max_shell_life %FindMsg %NGLlogo %NGLc1 %NGLc2 %DisplayNoOccurrenceFound %DccReverse %MaxResends
+	unset %B_quickget
+	
+	// and dict
+	%Nick_nr_queues{}=""
+	%Nick_nr_sends{}=""
+	%Triggers{}=""
+	%Channels{}=""
+	%FservChannels{}=""
+	%Session{}=""
+	%Trig{}=""
+}
+
+

@@ -1,0 +1,71 @@
+/*
+	Quote system by Ahinu (2006)
+*/
+
+# register the script: this must be the first instruction executed
+# since it will abort with an error when a greater version is already installed
+addon.register(\
+	"twinsquotes",\
+	"1.0",\
+	$tr("The Twins Quote System",twinsquotes),\
+	$tr("A simple addon for managing quotes",twinsquotes),\
+	"3.2.5",\
+	twins/32x32/twins_quotes_32.png)
+{
+	// Automatic part
+	twins::quotes::core::uninstall
+
+	// Manual part
+	/*if($file.exists($file.localdir(config/scripts/twins.kvc)) && $addon.exists(twins))
+		delpopupitem -q -d twins::chanops twinsquotes::channel
+	else
+		delpopupitem -q -d channeltextview twinsquotes::channel*/
+}
+
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# get the installer helper class (this is pretty standard and included in the distro)
+#include $file.globaldir(defscript/installer.kvs)
+include utils/installer.kvs
+
+# Get the path that this script was launched from
+//%mypath = $file.extractPath($0)
+%mypath = $str.lefttolast($0,/)
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+
+
+# includes sources files
+%installer->$includeFiles("%mypath/src/","*.kvs")
+
+# copy files in each subdirectory
+# the pics
+foreach(%subdir,16x16,22x22,32x32,48x48)
+	%installer->$copyFiles("%mypath/pics/twins/"%subdir,"twins_*.png",$file.localdir("pics/twins/%subdir"))
+# help file
+%installer->$copyFiles("%mypath/help/en/twins/","*.html",$file.localdir("help/en/twins"))
+# the translations
+%installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
+
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("twins::quotes::core::uninstall")
+
+# set the script's configuration callback
+# so it can be invoked via GUI from the Addon Management dialog
+# and via addon.configure
+addon.setconfigurecallback("twinsquotes")
+{
+        twins::quotes::configure
+}
+# help
+addon.sethelpcallback("twinsquotes")
+{
+        twins::quotes::help
+}
+
+
+# Initialise the configuration
+//twins::quotes::core::config::load
+

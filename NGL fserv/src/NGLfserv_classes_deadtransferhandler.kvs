@@ -1,0 +1,74 @@
+alias(NGLfserv::classes::deadtransferhandler)
+{
+	class(NGLfserv::classes::deadtransferhandler,object)
+		{
+			constructor()	{
+				$$->%sendsImage = $new(list)
+			}
+	
+			function update() {
+				$$->%sendsImage->$clear()
+				for(%i=0; %i < %Send->$count(); %i++) {
+					$$->%sendsImage->$append(%Send->$at(%i))
+					if(!$dcc.isFileTransfer(%Send->$at(%i)->%dcc_id)) {
+						$$->%sendsImage->$at(%i)->%transfered = "notactive"
+					} else {
+						$$->%sendsImage->$at(%i)->%transfered = $dcc.transferredBytes(%Send->$at(%i)->%dcc_id)
+					}
+				}
+			}
+	
+			function run() {
+				return
+				NGLfserv::corefunctions::ngldebug deadTransferFinder: Started
+				%interval = $(%ResendInterval + 1000)
+				if(%interval < 5000) %interval = 5000
+				timer -p (deadTransferFinder,%interval,$$) {
+					if(!$objects.exists(%Send) || %Send->$count() == 0) {
+						$0->$stop()
+						return
+					}
+					if($0->%sendsImage->$count() == 0) {
+						NGLfserv::corefunctions::ngldebug deadTransferFinder: No sends image found, update
+						$0->$update()
+						return
+					}
+					for(%i=0; %i < %Send->$count(); %i++) {
+						for(%j=0; %j<$0->%sendsImage->$count(); %j++) {
+							if(%Send->$at(%i)->%nick == $0->%sendsImage->$at(%j)->%nick && %Send->$at(%i)->%file == $0->%sendsImage->$at(%j)->%file) {
+								%dcc_id = %Send->$at(%i)->%dcc_id
+								if(!$dcc.isFileTransfer(%dcc_id)) {
+									if($0->%sendsImage->$at(%j)->%transfered == "notactive") {
+										NGLfserv::corefunctions::ngldebug deadTransferFinder: Removing notactive: %Send->$at(%i)->%file to %Send->$at(%i)->%nick
+										%Nick_nr_sends{%Send->$at(%i)->%nick}--
+										%Send->$remove(%i)
+										if($objects.exists(%NGLmonitor)) {
+											%NGLmonitor->$showSends()
+										}
+									}
+									return
+								} else {
+									%transferedLastTime = $0->%sendsImage->$at(%j)->%transfered
+									%transferedNow = $dcc.transferredBytes(%dcc_id)
+									if(%transferedNow <= %transferedLastTime) {
+										NGLfserv::corefunctions::ngldebug deadTransferFinder: Aborting %Send->$at(%i)->%file to %Send->$at(%i)->%nick
+										dcc.abort %Send->$at(%i)->%dcc_id
+										%i--
+									}
+								}
+							}
+						}
+					}
+				$0->$update()
+				}
+			}
+	
+			function stop() {
+				killtimer deadTransferFinder
+				NGLfserv::corefunctions::ngldebug deadTransferFinder: Stopped
+				$$->%sendsImage->$clear()
+			}
+		}
+}
+
+

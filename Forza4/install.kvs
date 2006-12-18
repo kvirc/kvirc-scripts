@@ -1,0 +1,90 @@
+	addon.register("Forza4","0.9",$tr("Forza 4","F4"),$tr("A simple one o one game","F4"),"3.2.0","F4/F4_32.png")
+	{
+		# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+		
+		# This is an automatically generated alias that will erase the installed files
+		Forza4_uninstallfiles
+		alias(Forza4_classesdefinitions){}
+		#alias(Forza4_uninstallfiles){}
+		alias(Forza4_config){}
+		event(onCTCPRequest,forza4){}
+		defpopup("forza4"){}
+		delpopupitem -d -q querytextview 696900
+		delpopupitem -d -q querytextview 696901
+		delpopupitem -d -q querytextview 696902		
+		file.rmdir $file.localdir("pics/Forza4")
+	
+		# Done
+	}
+	
+	# Ok, addon.register succeeded. We can go on with the installation.
+	
+	# Get the path that this script was launched from
+	%mypath = $file.extractPath($0)
+	
+	# get the installer helper class (this is pretty standard and included in the distro)
+	parse %mypath/utils/installer.kvs
+	
+	# The installer will copy our files and generate automatically
+	# an uninstallation alias for them
+	%installer = $new(installer,0,myinstaller)
+	# copy files in each subdirectory
+	# the pics
+	%installer->$copyFiles("%mypath/pics/","*.png",$file.localdir("pics/Forza4"))
+	# the translations
+	%installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
+	# the documentation
+	%installer->$copyFiles("%mypath/help/en/Forza4/","*.html",$file.localdir("help/en/Forza4"))
+	# the configuration files
+	%installer->$copyFiles("%mypath/config/","*.txt",$file.localdir("config/scripts/Forza4"))
+	%installer->$copyFiles("%mypath/config/","*.conf",$file.localdir("config/scripts/Forza4"))
+	
+	# then generate the uninstall alias
+	%installer->$generateUninstallAlias("Forza4_uninstallfiles")
+	# finally kill the installer helper
+	delete %installer
+	%id=$config.open($file.localdir(config/Forza4/Forza4.conf))
+	config.setsection %id Prefs
+	config.write %id Player1 0
+	config.write %id Player2 1
+	config.flush %id
+	config.close %id
+	parse %mypath/files/Forza4events.kvs
+	parse %mypath/libraries/wrapKVIrc.kvs
+	parse %mypath/files/Forza4.kvs
+defpopup -m ("querytextview")
+{
+	separator("696900")
+	
+	extpopup("$tr("Forza4")","forza4","269","696901")
+	
+	separator("696902")
+}
+
+defpopup("forza4")
+{
+	prologue
+	{
+	}
+	
+	item("$tr("Configure Forza4")","269")
+	{
+		forza4_config
+	}
+	
+	item("$tr("Invite $0 to play Forza4")","269")
+	{
+
+	if (!$classDefined(forzaquattro))
+		{
+			wrapKvirc
+			Forza4_classesdefinitions
+			%Forza4Handler=$new(forza4handler)
+		}
+	 ctcp $0 FORZA4 NEWGAMEREQUEST
+	}
+}
+wrapKVIrc
+Forza4_classesdefinitions
+%Forza4Handler=$new(forza4handler)
+

@@ -1,0 +1,6 @@
+alias(NGLfserv::corefunctions::ngldebug)
+{
+	if (%G_NGLdebug) debug $0-
+}
+
+

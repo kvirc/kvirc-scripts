@@ -1,0 +1,33 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: EZBounce Script for KVIrc\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2004-12-18 05:00+0100\n"
+"PO-Revision-Date: 2004-12-18 04:58+0100\n"
+"Last-Translator: Szymon Stefanek <pragma at kvirc dot net>\n"
+"Language-Team: Italiano <IT@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../ezbounce.kvs:61
+msgid "Requests EZBounce statistics"
+msgstr "Richiede le statistiche a EZBounce"
+
+#: ../ezbounce.kvs:66
+msgid "Requests EZBounce to quit the current connection"
+msgstr "Richiede la chiusura della connessione a EZBounce"
+
+#: ../ezbounce.kvs:71
+msgid "Requests EZBounce to detach the current connection"
+msgstr "Richiede il 'detach' della connessione corrente a EZBounce"
+
+#: ../ezbounce.kvs:77
+msgid "EZ-Bounce utilities"
+msgstr "Utilità per EZ-Bounce"

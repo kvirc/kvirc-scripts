@@ -1,0 +1,6 @@
+event(OnKVIrcStartup,twins::quotes)
+{
+	twins::quotes::core::config::load
+}
+
+

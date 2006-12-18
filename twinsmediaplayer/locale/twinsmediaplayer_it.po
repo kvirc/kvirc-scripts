@@ -1,0 +1,324 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-06-26 19:18+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../src/actions.kvs:1
+msgid "Twins: Show Mediaplayer"
+msgstr ""
+
+#: ../src/actions.kvs:1
+msgid "Show the mediaplayer of the Twins script"
+msgstr ""
+
+#: ../src/aliases.kvs:15
+msgid "is listening to"
+msgstr ""
+
+#: ../src/aliases.kvs:89
+msgid ""
+"It is the 3rd time we attempt to start amarok. If you want to try again, "
+"type $b/\\%TwinsMediaPlayer.try=0$b before."
+msgstr ""
+
+#: ../src/aliases.kvs:96
+#, c-format
+msgid "Starting Twins Media Player in$k(12) %iTime$k()s"
+msgstr ""
+
+#: ../src/classes.kvs:5
+msgid "Year"
+msgstr ""
+
+#: ../src/classes.kvs:6
+msgid "Genre"
+msgstr ""
+
+#: ../src/classes.kvs:7
+msgid "Length"
+msgstr ""
+
+#: ../src/classes.kvs:8
+msgid "Frequency"
+msgstr ""
+
+#: ../src/classes.kvs:9
+msgid "Bitrate"
+msgstr ""
+
+#: ../src/classes.kvs:10
+msgid "Freq"
+msgstr ""
+
+#: ../src/classes.kvs:11
+msgid "unknown"
+msgstr ""
+
+#: ../src/classes.kvs:12
+msgid "stopped"
+msgstr ""
+
+#: ../src/classes.kvs:13
+msgid "playing"
+msgstr ""
+
+#: ../src/classes.kvs:14
+msgid "paused"
+msgstr ""
+
+#: ../src/classes.kvs:40
+msgid "Twins Media Player"
+msgstr ""
+
+#: ../src/classes.kvs:58
+msgid "Previous track"
+msgstr ""
+
+#: ../src/classes.kvs:64
+msgid "Rewind"
+msgstr ""
+
+#: ../src/classes.kvs:70
+msgid "Stop"
+msgstr ""
+
+#: ../src/classes.kvs:76
+msgid "Pause"
+msgstr ""
+
+#: ../src/classes.kvs:82
+msgid "Play"
+msgstr ""
+
+#: ../src/classes.kvs:88
+msgid "Fast forward"
+msgstr ""
+
+#: ../src/classes.kvs:94
+msgid "Next track"
+msgstr ""
+
+#: ../src/classes.kvs:125
+msgid "Shuffle"
+msgstr ""
+
+#: ../src/classes.kvs:135
+msgid "Repeat current track"
+msgstr ""
+
+#: ../src/classes.kvs:141
+msgid "Advertise the current track on a channel or in a query"
+msgstr ""
+
+#: ../src/classes.kvs:151
+msgid "Configure the media player"
+msgstr ""
+
+#: ../src/classes.kvs:157
+msgid "Volume control"
+msgstr ""
+
+#: ../src/classes.kvs:173
+msgid "Current volume"
+msgstr ""
+
+#: ../src/classes.kvs:180
+msgid "Volume"
+msgstr ""
+
+#: ../src/classes.kvs:185
+msgid "Open url or add files to playlist"
+msgstr ""
+
+#: ../src/classes.kvs:191
+msgid "Advertise and <i>offer</i> the current track on a channel or in a query"
+msgstr ""
+
+#: ../src/classes.kvs:201
+msgid "Close the media player"
+msgstr ""
+
+#: ../src/classes.kvs:207
+msgid "Show the player"
+msgstr ""
+
+#: ../src/classes.kvs:213
+msgid "Hide the player"
+msgstr ""
+
+#: ../src/classes.kvs:305
+msgid "No track being played"
+msgstr ""
+
+#: ../src/classes.kvs:492
+msgid "Status:"
+msgstr ""
+
+#: ../src/classes.kvs:606
+msgid "Choose a file or an Mrl to play"
+msgstr ""
+
+#: ../src/classes.kvs:610
+msgid "Choose a file "
+msgstr ""
+
+#: ../src/classes.kvs:615
+msgid "Play an mrl (ex.: http://..., or dvd://...):"
+msgstr ""
+
+#: ../src/classes.kvs:618
+msgid "Ok"
+msgstr ""
+
+#: ../src/classes.kvs:635
+msgid "Play Mrl"
+msgstr ""
+
+#: ../src/classes.kvs:635
+msgid "Your Mrl is empty!"
+msgstr ""
+
+#: ../src/classes.kvs:640
+msgid "Add File"
+msgstr ""
+
+#: ../src/classes.kvs:657
+msgid "Confirm Quit"
+msgstr ""
+
+#: ../src/classes.kvs:664
+msgid "Do you really want to close the Twins media Player?"
+msgstr ""
+
+#: ../src/classes.kvs:668
+msgid "Remember this choice?"
+msgstr ""
+
+#: ../src/classes.kvs:716
+msgid "Twins Media Player Configuration"
+msgstr ""
+
+#: ../src/classes.kvs:729
+msgid "Advertising"
+msgstr ""
+
+#: ../src/classes.kvs:733
+msgid "Choose the technical information you want to advertise"
+msgstr ""
+
+#: ../src/classes.kvs:756
+msgid "Announcement string"
+msgstr ""
+
+#: ../src/classes.kvs:766
+msgid "Separator string between tecnhical information"
+msgstr ""
+
+#: ../src/classes.kvs:785
+msgid "Timeout of file offers"
+msgstr ""
+
+#: ../src/classes.kvs:797
+msgid "Max length of offered file names"
+msgstr ""
+
+#: ../src/classes.kvs:811
+msgid "Look"
+msgstr ""
+
+#: ../src/classes.kvs:814
+msgid "Window"
+msgstr ""
+
+#: ../src/classes.kvs:816
+msgid "Artist"
+msgstr ""
+
+#: ../src/classes.kvs:818
+msgid "Title"
+msgstr ""
+
+#: ../src/classes.kvs:820
+msgid "Album"
+msgstr ""
+
+#: ../src/classes.kvs:834
+msgid "Player"
+msgstr ""
+
+#: ../src/classes.kvs:843
+msgid "Choose your player"
+msgstr ""
+
+#: ../src/classes.kvs:853
+msgid "Auto-detect"
+msgstr ""
+
+#: ../src/classes.kvs:873
+msgid "Start && Quit"
+msgstr ""
+
+#: ../src/classes.kvs:877
+msgid "Start mode"
+msgstr ""
+
+#: ../src/classes.kvs:891
+msgid "Always start the media player with KVIrc"
+msgstr ""
+
+#: ../src/classes.kvs:892
+msgid "Let the user to manually start the media player"
+msgstr ""
+
+#: ../src/classes.kvs:893
+msgid "Remember the media player state of the last KVIrc session"
+msgstr ""
+
+#: ../src/classes.kvs:901
+msgid "Confirm before quit"
+msgstr ""
+
+#: ../src/classes.kvs:938
+msgid "Foreground"
+msgstr ""
+
+#: ../src/classes.kvs:942 ../src/classes.kvs:950
+msgid "Enter an html color code like <b>white</b> or <b>#ffffff</b>"
+msgstr ""
+
+#: ../src/classes.kvs:946
+msgid "Background"
+msgstr ""
+
+#: ../src/classes.kvs:971
+msgid "Genre:"
+msgstr ""
+
+#: ../src/classes.kvs:973
+msgid "Length:"
+msgstr ""
+
+#: ../src/classes.kvs:975
+msgid "Bitrate:"
+msgstr ""
+
+#: ../src/classes.kvs:1004
+msgid "none"
+msgstr ""
+
+#: ../src/classes.kvs:1005
+msgid "Found:"
+msgstr ""

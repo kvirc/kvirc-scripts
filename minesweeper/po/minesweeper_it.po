@@ -1,0 +1,37 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Minesweeper 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-01-28 00:02+0100\n"
+"PO-Revision-Date: 2005-01-28 00:02+0100\n"
+"Last-Translator: Szymon Stefanek <pragma at kvirc dot net>\n"
+"Language-Team: Italian <it@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../minesweeper.kvs:187
+msgid "New Game"
+msgstr "Nuova Partita"
+
+#: ../minesweeper.kvs:214
+msgid "Premi \"Nuova Partita\" per iniziare a giocare"
+msgstr ""
+
+#: ../minesweeper.kvs:251
+msgid "cells to go"
+msgstr "celle alla fine"
+
+#: ../minesweeper.kvs:259
+msgid "Well done!"
+msgstr "Ben Fatto!"
+
+#: ../minesweeper.kvs:261
+msgid "Game Over :/"
+msgstr "Fine del gioco :/"

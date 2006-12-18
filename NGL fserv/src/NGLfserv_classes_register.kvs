@@ -1,0 +1,34 @@
+alias(NGLfserv::classes::register)
+{
+	%classes[]=$array(\
+			NGLfserv::classes::customwidgets::box,\
+			NGLfserv::classes::customwidgets::checkbox,\
+			NGLfserv::classes::customwidgets::button,\
+			NGLfserv::classes::customwidgets::groupbox,\
+			NGLfserv::classes::optionstriggers,\
+			NGLfserv::classes::optionssharedfiles,\
+			NGLfserv::classes::optionschannels,\
+			NGLfserv::classes::optionssendqueue,\
+			NGLfserv::classes::optionsother,\
+			NGLfserv::classes::optionsshell,\
+			NGLfserv::classes::optionsrestrictedaccess,\
+			NGLfserv::classes::guimonitor,\
+			NGLfserv::classes::chanGeneralProperties,\
+			NGLfserv::classes::chanTriggerProperties,\
+			NGLfserv::classes::sendsAndQueueView,\
+			NGLfserv::classes::dirview,\
+			NGLfserv::classes::find,\
+			NGLfserv::classes::cache,\
+			NGLfserv::classes::icon,\
+			NGLfserv::classes::shell,\
+			NGLfserv::classes::trigger,\
+			NGLfserv::classes::asynchIOoperations,\
+			NGLfserv::classes::deadtransferhandler)
+			
+	for (%i=0;%i<$length(%classes[]);%i++;){
+		if ($classDefined("%classes[%i]")) objects.killclass %classes[%i]
+		eval %classes[%i]
+	}
+}
+
+

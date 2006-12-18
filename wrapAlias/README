@@ -1,0 +1,45 @@
+#######################################################
+#			wrapKVIrc			
+# 		       +---------+			
+# Using this class you'll be able to hook all KVIrc's	 
+# visual objects like statusbar, menubar etc. etc.	
+# The usage is really simple like the example below: 		
+# 							
+# ES:
+# wrapKVIrc							
+# %HOOK = $new(hookKVIrc)				
+# %HookedObject = %HOOK->hookBackGround( myobj )	
+# %MyButton =$new(button,%HookedObject)			
+# %MyButton->$show()					
+#							
+# The example above create a new button 
+# in KVIrc's Background.
+#							
+# EnJoY!
+########################################################
+#							
+# Available functions:					
+#							
+# -$hookMainFrame(<objectname>)				
+# -$hookBackGround(<objectname>)			
+# -$hookForeGround(<objectname>)			
+# -$hookStatusBar(<objectname>)				
+# -$hookMenuBar(<objectname>)				
+# -$hookToolBar(<objectname>)				
+# -$hookMainRightSplitter(<objectname>)			
+# -$hookTreeViewWidget(<objectname>)			
+# -$hookChannelWindow(<objectname>,<#channel>)		
+# -$hookChannelIputLineEdit(<objectname>,<#channel>)	
+# -$hookChannelRightSplitter(<objectname>,<#channel>)	
+# -$hookChannelHoriziontaSplitter(<objectname>,<#channel>)
+# -$hookChannelInputLineButtons(<objectname>,<#channel>)
+# -$hookChannelTitleBar(<objectname>,<#channel>)	
+# -$hookQueryWindow(<objectname>,<#nick>)		
+# -$hookQueryInputLineEdit(<objectname>,<#nick>)	
+# -$hookQueryRightSplitter(<objectname>,<#nick>)	
+# -$hookQueryTitleBar(<objectname>,<#nick>)		
+# -$hookQueryInputLineButtons(<objectname>,<#nick>)	
+#							
+########################################################
+Grifisx & Noldor 2005 (.:mDm:.Team)
+

@@ -1,0 +1,138 @@
+alias(NGLfserv::corefunctions::send)
+{
+	%type = $0
+
+	%fl_send = $new(object)
+	%fl_send->%nick = $1
+	%fl_send->%nickStatus = $2
+	%fl_send->%completepath = $3
+	%fl_send->%size = $4
+	%fl_send->%ircContext = $5
+	%fl_send->%triggerName= $6
+
+	%shell = $7
+
+	%fl_send->%file = $file.extractfilename(%fl_send->%completepath)
+	%fl_send->%retries = 0
+	%fl_send->%initialNick = %fl_send->%nick
+
+	#-----Checks if the user is a clone of anyone in sends or queue
+	if(%CloneDetection) {
+		%winid = %shell->%shellwindow
+		rebind %fl_send->%ircContext
+		if(%Nick_nr_sends{}#>0) {
+			foreach(%k,$keys(%Nick_nr_sends{})) {
+				if($mask(%k,9) == $mask(%fl_send->%nick,9) && %Nick_nr_sends{%k} && %k != %fl_send->%nick) {
+					%fl_send->%nick = %k
+					if(%type == "shell") %shell->$msg("You've been detected as a clone of "%k)
+					else notice -q %fl_send->%nick "You've been detected as a clone of "%k
+					break
+				}
+			}
+		}
+		if(%Nick_nr_queues{}#>0) {
+			foreach(%k,$keys(%Nick_nr_queues{})) {
+				if($mask(%k,9) == $mask(%fl_send->%nick,9) && %Nick_nr_queues{%k} && %k != %fl_send->%nick) {
+					%fl_send->%nick = %k
+					if(%type == "shell") %shell->$msg("You've been detected as a clone of "%k)
+					else notice -q %fl_send->%nick "You've been detected as a clone of "%k
+					break
+				}
+			}
+		}
+		rebind %winid
+	}
+
+	#-----Checks if the file is already queued/sending
+	%retvalue=$NGLfserv::corefunctions::queues("c","null",%fl_send->%nick,%fl_send->%file)
+	if(%retvalue==1) {
+		if(%type == "shell") %shell->$msg($k(%NGLc1)"That file is already sending!")
+		else notice -q %fl_send->%nick $k(%NGLc1)"That file is already sending!"
+		return
+	}
+	if(%retvalue==2) {
+	    // That file has already been queued in slot 1!
+		if(%type == "shell") %shell->$msg("That file is already queued!")
+		else notice -q %fl_send->%nick "That file is already queued!"
+		return
+	}
+	if(%fl_send->%size <= %InstantSendSize) {
+		if(%type == "shell") %shell->$msg($k(%NGLc1)"Sending File.")
+		else notice -q %fl_send->%nick $k(%NGLc1)"Sending File."
+		if($NGLfserv::corefunctions::dccStartSend(%fl_send->%ircContext, %fl_send->%nick, %fl_send->%completepath)) {
+			%Send->$append(%fl_send)
+			if(!%Nick_nr_sends{%fl_send->%nick}) %Nick_nr_sends{%fl_send->%nick}=0
+			%Nick_nr_sends{%fl_send->%nick}++
+			if(%Send->$count() == 1) %DeadTransferHandler->$run()
+		}
+		return
+	}
+	if(%Send->$count()<%MaxSends){
+		if(!%Nick_nr_sends{%fl_send->%nick}) %Nick_nr_sends{%fl_send->%nick}=0
+		if (%Nick_nr_sends{%fl_send->%nick} < %EachSends) {
+			if(%type == "shell") %shell->$msg($k(%NGLc1)"Sending File.")
+			else notice -q %fl_send->%nick $k(%NGLc1)"Sending File."
+			if($NGLfserv::corefunctions::dccStartSend(%fl_send->%ircContext, %fl_send->%nick, %fl_send->%completepath)) {
+				%Send->$append(%fl_send)
+				%Nick_nr_sends{%fl_send->%nick}++
+				if(%Send->$count() == 1) %DeadTransferHandler->$run()
+			}
+			return
+		}
+	}
+	if (%Queues->$count()==%MaxQueues) {
+		if(%type == "shell") %shell->$msg("Sorry, queue is full")
+		else notice -q %fl_send->%nick "Sorry, queue is full"
+		return
+	}
+	if(!%Nick_nr_queues{%fl_send->%nick}) %Nick_nr_queues{%fl_send->%nick}=0
+	if (%Nick_nr_queues{%fl_send->%nick}<%EachQueues){
+		switch(%PriorityType) {
+			case(0) {
+				%queuePosition = %Queues->$count()
+				%Queues->$append(%fl_send)
+				break
+			}
+			case(1) {
+				%queuePosition = $(%Queues->$count() - 1)
+				if(%fl_send->%nickStatus == "op") {
+					while(%queuePosition >= 0) {
+						if(%Queues->$at(%queuePosition)->%nickStatus == "op")
+						break
+						%queuePosition--
+					}
+				}
+				%queuePosition++
+				%Queues->$insert(%queuePosition, %fl_send)
+				break
+			}
+			case(2) {
+				%queuePosition = $(%Queues->$count() - 1)
+				if(%fl_send->%nickStatus == "op") {
+					while(%queuePosition >= 0) {
+						if(%Queues->$at(%queuePosition)->%nickStatus == "op")
+						break
+						%queuePosition--
+					}
+				}
+				else if(%fl_send->%nickStatus == "voice") {
+					while(%queuePosition >= 0) {
+						if(%Queues->$at(%queuePosition)->%nickStatus == "op" || %Queues->$at(%queuePosition)->%nickStatus == "voice")
+						break
+						%queuePosition--
+					}
+				}
+					%queuePosition++
+					%Queues->$insert(%queuePosition, %fl_send)
+			}
+		}
+		%Nick_nr_queues{%fl_send->%nick}++
+		if(%type=="shell") %shell->$msg($k(%NGLc1)"Adding your file to queue slot "$k(%NGLc2)$r$r$(%queuePosition + 1)$k(%NGLc1)". The file will send when the next send slot is open.")
+		else notice -q %fl_send->%nick $k(%NGLc1)"Adding your file to queue slot "$k(%NGLc2)$r$r$(%queuePosition + 1)$k(%NGLc1)". The file will send when the next send slot is open."
+		if($objects.exists(%NGLmonitor)) %NGLmonitor->$showQueues()
+	}
+	else {
+		if(%type=="shell") %shell->$msg($k(%NGLc1)"Sorry, all of your queue slots are full.")
+		else notice -q %fl_send->%nick $k(%NGLc1)"Sorry, all of your queue slots are full."
+	}
+}

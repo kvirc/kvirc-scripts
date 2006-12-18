@@ -1,0 +1,37 @@
+alias(twins::inputcolor::configure)
+{
+	# @title:
+	#	Configuration of the Twins Inputcolor addon
+	if(!$objects.exists(%G_hTIC)){
+		%G_hTIC = $new(twins::inputcolor::configure,0)
+		%G_hTIC->$setModal(1)
+	}
+	%G_hTIC->$show
+}
+
+alias(twins::inputcolor::core::config::load)
+{
+	# LOADS CONFIGURATION OF INPUTCOLOR ADDON
+	# =======================================
+
+	%id=$config.open(twinsinputcolor.kvc)
+	foreach(%varname,where,code,status,stop)
+	%TwinsInputColor{%varname} = $config.read(%id,%varname)
+	config.close %id
+
+}
+
+alias(twins::inputcolor::core::config::save)
+{
+	# SAVES CONFIGURATION OF INPUTCOLOR ADDON
+	# =======================================
+
+	%id=$config.open(twinsinputcolor.kvc)
+	foreach(%varname,where,code,status,stop)
+	config.write %id %varname %TwinsInputColor{%varname}
+	config.close %id
+
+}
+
+
+

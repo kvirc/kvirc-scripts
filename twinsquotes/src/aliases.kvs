@@ -1,0 +1,206 @@
+/////////////////////////////////
+// Commandline management
+////////////////////////////////
+
+alias(twins::quotes::add)
+{
+	# @title:
+	#	Add a quote
+	# @usage:
+	%usage = "twins::quotes::add <text>"
+
+	if(!$0||$sw(usage)||$sw(help)){echo %usage; return;}
+
+	%f = $config.open(twinsquotes.kvc)
+	
+	%id = 1
+	while($config.hassection(%f,%id)) %id++
+
+	config.setsection %f %id
+	config.write %f text $0-
+	config.write %f date $unixtime
+
+	config.close %f
+	
+	%title = $str.printf($tr("Added quote ?s:",twinsquotes),$k(04)$b$b%id$o)
+	%text = $0-
+	echo -i=17 %title
+	echo %text
+	%TwinsQuotes{publicreportadd} = 1
+	if(%TwinsQuotes{publicreportadd} && $str.contains(" channel dccchat query "," $window.type "))
+	{
+		say %title
+		say %text
+	}	
+
+}
+
+alias(twins::quotes::search)
+{
+	# @title:
+	#	Search for quotes
+	# @usage:
+	%usage = "twins::quotes::search [--date=<pattern:dd/mm/yy>] [-d=<pattern:day>] [-m=<pattern:month>] [-y=<pattern:year>] [-n=<number>] [<pattern:text>]"
+	# @switches:
+	#	--date: pattern to match quote dates in the form "dd/mm/yy"
+	#	-d: same for matching days of month (1-31)
+	#	-m: same for matching numerical months (1-12)
+	#	-y: same for matching last two digits of year (0-99)
+	#	-n: maximum number of quotes to display 
+	# @description:
+	#	You can search for in you database using wildcards.
+	#	Wildcar * automatically encloses your pattern.
+	#	You can also search within days, months and years using numerical patterns.
+	#	Search within dates is against "dd/mm/yy".
+	# @example:
+	#	twins::quotes::search -m=8 -d=2* my*text
+	
+	if(($isset($sw(n))&&!$str.isunsignednumber($sw(n))) \
+		||$sw(usage)||$sw(help)) {echo %usage; return;}
+
+	if($isset($0))
+		%textpattern = $0-
+	else
+		%textpattern = *
+
+	echo -i=113 $tr("$u$b\List of quotes:$u",twinsquotes)
+
+	%n = 0
+	%TwinsQuotes{nmaxsearch} = 50
+	%nmax= %TwinsQuotes{nmaxsearch}
+	%f = $config.open(twinsquotes.kvc)
+	foreach(%section,$config.sectionlist(%f))
+	if($str.isunsignednumber(%section))
+	{
+		config.setsection %f %section
+		%text = $config.read(%f,text)
+		%date = $config.read(%f,date)
+		if( $str.matchnocase(%textpattern,%text) && \
+		    ($isempty($sw(d)) || $str.match($sw(d),$int($date(d,%date)))) && \
+		    ($isempty($sw(m)) || $str.match($sw(m),$int($date(m,%date)))) && \
+		    ($isempty($sw(y)) || $str.match($sw(y),$int($date(y,%date)))) && \
+		    ($isempty($sw(h)) || $str.match($sw(h),$int($date(H,%date)))) && \
+		    ($isempty($sw(date)) || $str.match($sw(date),$date(d/m/y,%date))) )
+		{
+			echo $b\[quote $o$k(12)$b$b%section$o$b]$b $str.printf($tr("On ?s at ?s:",twinsquotes),\
+				$date(d/m/y,%date),$str.replace($date(H:M,%date),"h",":"))
+			echo "   $k(04)>$o %text"
+			%n++
+			if(%n==%nmax||($isset($sw(n))&&%n==$sw(n))) break
+		}
+	}
+	if(!%n)
+		echo $b$k(14)*** $tr("No quotes found matching your search",twinsquotes) ***
+	else if(%n==%nmax)
+		echo $b$k(14)*** $str.printf($tr("Found at least ?s quotes. Please refine your search.",twinsquotes),$k(12)$b$b%n$k(14)) ***
+	else if($isset($sw(n)) && %n==$sw(n))
+		echo $b$k(14)*** $str.printf($tr("First ?s quote(s) found",twinsquotes),$k(12)$b$b%n$k(14))
+	else
+		echo $b$k(14)*** $str.printf($tr("Found ?s quotes",twinsquotes),$k(12)$b$b%n$k(14)) ***
+	config.close %f
+}
+
+alias(twins::quotes::del)
+{
+	# @title:
+	#	Delete a quote
+	# @usage:
+	%usage = "twins::quotes::del <id>"
+
+	if(!$str.isunsignednumber($0)||$sw(usage)||$sw(help)) {echo %usage; return;}
+	
+	%f = $config.open(twinsquotes.kvc)
+	if($config.hassection(%f,$0))
+	{
+		config.clearsection %f $0
+		config.close %f
+		echo -i=17 $str.printf($tr("Quote ?s deleted",twinsquotes),$k(12)$b$b$0$o)
+		return
+	}
+	config.close %f
+	echo -i=17 $str.printf($tr("Quote ?s not found!",twinsquotes),$k(12)$b$b$0$o)
+}
+
+alias(twins::quotes::say)
+{
+	# @title:
+	#	Say a quote
+	%usage = "twins::quotes::say <id>"
+	if(!$str.isunsignednumber($0)||$sw(usage)||$sw(help)) {echo %usage; return;}
+
+	if(!$str.contains(" channel dccchat query "," $window.type "))
+	{
+		echo [twins::quotes::say] $tr("You must be on a channel or in a query or a dcc chat to use this command.",twinsquotes)
+		return
+	}
+	
+	%f = $config.open(twinsquotes.kvc)
+	if($config.hassection(%f,$0))
+	{
+		config.setsection %f $0
+		%date = $config.read(%f,date)
+		%text = $config.read(%f,text)
+		say $u$str.printf($tr("Quote dating from ?s at ?s:",twinsquotes),$date(d/m/y,%date),$date(H:M,%date))
+		say %text
+		return
+	}
+	config.close %f
+	echo -i=17 $str.printf($tr("Quote ?s not found!",twinsquotes),$k(12)$b$b$0$o)
+
+}
+
+alias(twins::quotes::help)
+{
+	if($sw(text))
+	{
+		echo $tr("For each command, use --help for help",twinsquotes)
+		echo -i=113 $tr("twins::quotes:: ...",twinsquotes)
+		echo $tr("      ... say: say a quote",twinsquotes)
+		echo $tr("      ... add: add a quote",twinsquotes)
+		echo $tr("      ... del: delete a quote",twinsquotes)
+		echo $tr("      ... search: list or search for quotes",twinsquotes)
+		//echo $tr("      ... show: the the graphical user interface",twinsquotes)
+	}
+}
+
+////////////////////////////////
+// Core
+////////////////////////////////
+
+alias(twins::quotes::config::load)
+{
+	%c = $config.open(twinsquotes.kvc,r)
+	%TwinsQuotes{publicreportadd} = $config.read(%c,publicreportadd,1)
+	%TwinsQuotes{maxnsearch} = $config.read(%c,maxnsearch,10)
+	config.close %c
+}
+
+alias(twins::autoop::core::config::save)
+{
+	%c = $config.open(twinsquotes.kvc,w)
+	foreach(%tag,$keys(%TwinsQuotes))
+	config.write %c %tag %TwinsQuotes{%tag}
+	config.close %c
+}
+
+alias(twins::quotes::core::cc)
+{
+	if($isempty($0))return
+	%text = $0-
+	if($1)
+	{
+		%text =~ s/\\\$b\\\(\\\)/$b/g
+		%text =~ s/\\\$b\\\(\\\)/$u/\g
+		%text =~ s/\\\$b\\\(\\\)/$r/g
+		%text =~ s/\\\$b\\\(\\\)/$o/g
+		%text =~ s/\\\$b\\\(\\\)/$k/g
+	} else {
+		%text =~ s/$char(2)/\$b()/g
+		%text =~ s/$char(37)/\$u()/g
+		%text =~ s/$char(26)/\$r()/g
+		%text =~ s/$char(17)/\$o()/g
+		%text =~ s/$char(3)/\$k()/g
+	}
+	return %text
+}
+

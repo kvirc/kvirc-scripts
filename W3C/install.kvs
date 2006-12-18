@@ -1,0 +1,122 @@
+# W3C Parsing System
+# Written by HelLViS69 (2006)
+# The purpose of this script is to verify the correct source code of a web page or stylesheet.
+# It download the result of W3C's validators, check the results and print 'em out to the user
+
+# This addon is pretty simple. It does a single thing and it attempts
+# to do it really well. With the comments, the script structure
+# should be really straightforward.
+
+# register the script: this must be the first instruction executed
+# since it will abort with an error when a greater version is already installed
+addon.register("w3c","1.0.0",$tr("W3C validator","w3c"),$tr("It download the result of W3C's validators, check the results and print 'em out to the user","w3c"),"3.2.1")
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	
+	# This is an automatically generated alias that will erase the installed files
+	hell_w3c::uninstallfiles
+
+	# Kill all our aliases
+	alias(hell_w3c){}
+
+	# Done
+}
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+# copy files in each subdirectory
+# the pics
+%installer->$copyFiles("%mypath/pics/","*.png",$file.localdir("pics"))
+# the translations
+%installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
+# the documentation
+%installer->$copyFiles("%mypath/help/en/w3c/","*.html",$file.localdir("help/en/w3c"))
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("hell_w3c::uninstallfiles")
+# finally kill the installer helper
+delete %installer
+
+
+# Now time to define our real aliases
+
+alias(hell_w3c)
+{
+	class(hell_w3c,object){
+		constructor(){
+			$$->%validCss="http://jigsaw.w3.org/css-validator/validator?profile=css2&warning=2&uri="
+			$$->%validHtml="http://validator.w3.org/check?uri="
+		}
+	
+		selectValidator($0=page){
+			%m_page=$0
+	
+			# Check filetype to validate
+			if($str.equal($str.right(%m_page,"4"),".css")==1){
+				http.get -e=o -w=h -q $$->%validCss%m_page $file.localdir("tmp.html")
+				$$->$pageReceived(%m_page,css)
+			} else {
+				http.get -e=o -w=h -q $$->%validHtml%m_page $file.localdir("tmp.html")
+				$$->$pageReceived(%m_page,html)
+			}
+		}
+	
+		pageReceived($0=page,$1=type){
+			%m_page=$0
+			%m_file=$file.read($file.localdir("tmp.html"))
+	
+			switch($1){
+				case("html"){
+					# Strip all tags until we have the right result
+					%m_tmp=$str.section(%m_file,"Result:",1,1)
+					%m_tmp=$str.section(%m_tmp,"</td>",0,0)
+					%m_tmp=$str.section(%m_tmp,">",2,2)
+					%m_tmp=$str.stripright($str.stripleft(%m_tmp))
+					
+					# Check the result
+					echo -w=$active %m_tmp
+					if(%m_tmp!="Passed validation")
+						echo Check $$->%validHtml%m_page for details
+					
+					break
+				}
+				
+				case("css"){
+					# Stripp all tags until we have the right result
+					%m_tmp=$str.section(%m_file,"<h2>",1,2)
+					%m_tmp=$str.section(%m_tmp,"</h2>",0,0)
+	
+					# Check the result
+	
+					if(%m_tmp=="Congratulations!")
+						echo -w=$active Passed validation
+					else {
+						echo -w=$active Failed validation
+						echo Check $$->%validCss%m_page for details
+					}
+					
+					break
+				}
+				
+				default{
+					# Just for sanity check
+					echo "Type unrecognized"
+					break
+				}
+			}
+	
+			file.remove -q $file.localdir("tmp.html")
+		}
+	}
+	
+	%w3c=$new(hell_w3c)
+	%w3c->$selectValidator($0)
+}

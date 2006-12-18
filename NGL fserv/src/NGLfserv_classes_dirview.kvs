@@ -1,0 +1,455 @@
+alias(NGLfserv::classes::dirview)
+{
+	class(NGLfserv::classes::dirview,listview)
+		{
+			function constructor()
+			{
+				$$->%pix_folder=$new(pixmap)
+				$$->%pix_folder->$load(%G_icons->$getIcon(folder))
+				$$->%pix_folder_open=$new(pixmap)
+				$$->%pix_folder_open->$load(%G_icons->$getIcon(folderopen))
+				$$->%pix_redfolder=$new(pixmap)
+				$$->%pix_redfolder->$load(%G_icons->$getIcon(redfolder))
+				$$->%pix_redfolder_open=$new(pixmap)
+				$$->%pix_redfolder_open->$load(%G_icons->$getIcon(redfolderopen))
+				$$->%pix_image_file=$new(pixmap)
+				$$->%pix_image_file->$load(%G_icons->$getIcon(image))
+				$$->%pix_audio_file=$new(pixmap)
+				$$->%pix_audio_file->$load(%G_icons->$getIcon(sound))
+				$$->%pix_video_file=$new(pixmap)
+				$$->%pix_video_file->$load(%G_icons->$getIcon(video))
+				$$->%pix_default_file=$new(pixmap)
+				$$->%pix_default_file->$load(%G_icons->$getIcon(default))
+				$$->$addColumn(Shared,-1)
+				$$->$addColumn(Size or Dir,-1)
+				$$->$setRootIsDecorated(1)
+				$$->$setSelectionMode("Single")
+				$$->$setSorting(-1,$false)
+			}
+			
+			newView()
+			{
+				$$->$setTree($0)
+				$$->$setTreeMode($1,$0)
+				$$->$showTree()
+				$$->$setEnabled($2)
+			}
+			function showTree()
+			{
+				if ($$->%trigger->%noNode) {
+					NGLfserv::corefunctions::ngldebug empty TREE 
+					$$->%nodata=$true
+					return $true
+				}
+				$$->$deleteNode($$)
+				$$->$showNode($$)
+			}
+			currentChangedEvent()
+			{
+				if ($objects.exists($0)) $$->%item_clicked=$0
+				else $$->%item_clicked=$$
+			}
+			function clear()
+			{
+				%children[]=$$->$children()
+				for (%i=0;%i<$length(%children[]);%i++) delete %children[%i]
+			}
+			function setTree()
+			{
+				$$->%virtual_node=$0->$firstNode()
+				$$->%trigger=$0
+				objects.connect $0 scancompleted $$ refreshView
+			}
+			function setWidgetOutput()
+			{
+				$$->%info_widget=$0
+			}
+			function check()
+			{
+				if ($0==$$) return $true
+				else return $0->$isChecked()
+			}
+			function showNode()
+			{
+				%folder[]=$0->%virtual_node->$children()
+				%virtual_node=$0->%virtual_node
+				$$->%trigger->$setNode(%virtual_node)
+				%listviewitem_node=$0
+				 // show sub-dir
+				%length_folder=$length(%folder[])
+				for (%i=0;%i!=%length_folder;%i++)
+				{
+						%item=$new(listviewitem,%listviewitem_node)
+						%item->$setCheckable($true)
+						if (%folder[%i]->%dirNotShared || !$$->$check(%listviewitem_node) || %folder[%i]->$parent()->%dirNotShared) %item->$setChecked($false)
+						else %item->$setChecked($true)
+						%item->$setText(0,$$->%trigger->$text(%folder[%i]))				
+						%item->$setText(1,"Dir")
+						if (%folder[%i]->%realRootFolder)
+							%item->$setPixmap(0,$$->%pix_redfolder)
+						else
+							%item->$setPixmap(0,$$->%pix_folder)
+						%item->%virtual_node=%folder[%i]
+						%item_fake_child=$new(listviewitem,%item)
+						%item->%fake_child=%item_fake_child
+				}
+				// show files
+				%i=0
+				
+				%len=$$->%trigger->$filesCount()
+				for (%i=0;%i<%len;%i++)
+				{
+						%item_file=$new(listviewitem,%listviewitem_node)
+						%item_file->$setCheckable($true)
+						if ($$->%trigger->$isFileNotShared(%i) || !$$->$check(%listviewitem_node)) %item_file->$setChecked($false)
+						else %item_file->$setChecked($true);
+				
+						%item_file->$setText(0,$$->%trigger->$fileAt(%i))
+						%item_file->$setText(1,$NGLfserv::corefunctions::calc($$->%trigger->$fileSizeAt(%i)))
+							
+						switch($str.right($$->%trigger->$fileAt(%i),3))
+						{
+							case (jpg)
+							{
+								%pix=$$->%pix_image_file
+								break
+							}
+							case (png)
+							{
+								%pix=$$->%pix_image_file
+								break
+							}
+							case (gif)
+							{
+								%pix=$$->%pix_image_file
+								break
+							}
+							case (avi)
+							{
+								%pix=$$->%pix_video_file
+								break
+							}
+							case (mpg)
+							{
+								%pix=$$->%pix_video_file
+								break
+							}
+							case (mov)
+							{
+								%pix=$$->%pix_video_file
+								break
+							}
+							case (".rm")
+							{
+								%pix=$$->%pix_video_file
+								break
+							}
+							case (mp3)
+							{
+								%pix=$$->%pix_audio_file
+								break
+							}
+							case (".ra")
+							{
+								%pix=$$->%pix_audio_file
+								break
+							}
+							case (wav)
+							{
+								%pix=$$->%pix_audio_file
+								break
+							}
+							default
+							{
+								%pix=$$->%pix_default_file
+							}
+						}
+						%item_file->$setPixmap(0,%pix);
+				 }
+			}
+			function deleteNode()
+			{
+				%node=$0
+				%children[]=%node->$children()
+				%len=$length(%children[])
+				for (%i=0;%i<%len;%i++) delete %children[%i]
+			}
+			function selectionChangedEvent()
+			{
+				if ($objects.exists($0))%item_clicked=$0
+			}
+			internal function rightButtonClickedEvent()
+			{
+				NGLfserv::corefunctions::ngldebug trigger right
+				if ($$->%nodata) return
+				if ($objects.exists($0)) $$->%item_clicked=$0
+				else $$->%item_clicked=$$
+				%popup=$new(popupmenu)
+				$$->%id_add=%popup->$insertItem($tr("Add folder"))
+				if ($$->%item_clicked!=$$) $$->%id_remove=%popup->$insertItem($tr("Remove ")$$->%item_clicked->$text(0))
+				$$->%id_properties=%popup->$insertItem($tr("Properties"))
+				objects.connect %popup activated $$ popuphandler
+			 	%popup->$exec()
+				delete %popup
+			}
+			function output()
+			{
+				if ($objects.exists($$->%info_widget)) $$->%info_widget->$append($0)
+				else echo $0
+			}
+			
+			function popuphandler()
+			{
+				switch ($0)
+				{
+					case ($$->%id_add)
+					{
+						 $$->$addTo($$->%item_clicked)
+						 break
+					}
+					case ($$->%id_open)
+					{
+						$$->$openFile()
+						break
+					}
+					case ($$->%id_remove)
+					{
+						$$->$remove($$->%item_clicked)
+						break
+					}
+					case ($$->%id_properties)
+					{
+						$$->$properties($$->%item_clicked)
+						break
+					}
+					case ($$->%id_trigger)
+					{
+						$$->$setTrigger()
+						break
+					}
+			
+				}
+	
+			}
+		
+			function properties()
+			{
+				$$->$output("---------------------------------------")
+				$$->$output($tr("properties:"))
+				%node=$$->$getParentNode()
+				%info=$$->%trigger->$getNodeInfo(%node->%virtual_node)
+				$$->$output($tr("Node total number of bytes") %info->%node_bytes)
+				$$->$output($tr("Folder total number of bytes") %info->%folder_bytes)
+				$$->$output($tr("Total node Folders:") %info->%folders)
+				$$->$output($tr("Total node Files:") %info->%files)
+				delete %info
+			}
+			function getParentNode()
+			{
+				if ($$->%item_clicked->%virtual_node) return $$->%item_clicked
+				else return $$->%item_clicked->$parent()
+			}
+			function addTo()
+			{
+				//%parent=$$->$getParentNode()
+				dialog.file(dir,%NGLlogo,,,$$,$0)
+				{
+					if (!$0) $1->$returnFromDialog($false)
+					else
+					{
+						%path=$0
+						$1->$fileDroppedEvent($2,%path)
+					}
+				}
+			}
+			function returnFromDialog()
+			{
+				if (!$0) return
+				%parent=$$->$getParentNode()
+				$$->$showNode(%parent)
+			}
+		 	function remove()
+			{
+				if ($$->%item_clicked->%virtual_node)
+				{
+					if($dialog.yesno("NGL File Server",$tr("Do you want to remove $$->%item_clicked->$text(0)<br> with all its subfolders?"))){
+				 		$$->%trigger->$removeNode($$->%item_clicked->%virtual_node)
+				 		$$->%trigger->$setChanged($true)
+						delete $$->%item_clicked
+					}
+				}
+				else
+				{
+					if($dialog.yesno("NGL File Server",$tr("Do you want to remove $$->%item_clicked->$text(0)?"))){
+						$$->%item_clicked->$parent()->%virtual_node->$removeFile($$->%item_clicked->$text(0))
+						$$->%trigger->$setChanged($true)
+						delete $$->%item_clicked
+					}
+				}
+	
+			 }
+	
+			internal function itemCollapsedEvent()
+			{
+				$$->$deleteNode($0)
+				$new(listviewitem,$0)
+				if ($0->%virtual_node->%realRootFolder)
+					$0->$setPixmap(0,$$->%pix_redfolder)
+				else
+					$0->$setPixmap(0,$$->%pix_folder)
+			}
+	
+			 internal function itemExpandedEvent()
+			{
+				delete $0->$firstChild()
+				if ($0->%virtual_node->%realRootFolder)
+					$0->$setPixmap(0,$$->%pix_redfolder_open)
+				else
+					$0->$setPixmap(0,$$->%pix_folder_open)
+				$$->$showNode($0)
+			}
+	
+			function fileDroppedEvent()
+			{	
+				if (!$objects.exists($0)) %node=$$
+				else %node=$0
+				%path=$str.replace($1,"\/","\\")
+				if (%node->%virtual_node){
+					%parent=%node
+				}
+				else
+				 	%parent=%node->$parent()
+				if ($file.type($1)!="d") NGLfserv::corefunctions::nglwarning "You can add only folders!"
+				else{
+					%check=$$->%trigger->$addFolder(%path,%parent->%virtual_node)
+					NGLfserv::corefunctions::ngldebug check %check
+					 if ($typeof(%check)=="hobject")
+						$$->%trigger->$setChanged($true)
+					else
+					if (!%check)  NGLfserv::corefunctions::nglwarning "Folder already present!"
+					
+				}
+		 	}
+		 	function deleteChildren()
+		 	{
+		 		%children[]=$0->$children()
+				for (%i=0;%i<$length(%children[]);%i++) {delete %children[%i];}		
+			}
+		 	function refreshView()
+		 	{
+		 		if ($0==$$->%trigger->$firstNode() || $0==$$->%trigger){
+		 			$$->$deleteChildren($$)
+		 			$$->%virtual_node=$$->%trigger->$firstNode()
+		 			$$->$showNode($$)
+		 		}	 		
+		 		else{
+		 			%listviewnode=$$->$getNode($$,$0)
+		 			if (!%listviewnode) return
+		 			$$->$deleteNode(%listviewnode)
+		 			$$->$itemExpandedEvent(%listviewnode)
+		 		}
+		 		
+		 		
+		 	}
+		 	function itemClickedEvent()
+		 	{
+		 		if ($objects.exists($0)){
+		 			if ($0->%virtual_node){
+		 			  	$$->$setChildrenShared($0,$0->$isChecked)
+		 			  	if (!$0->$isChecked){ 
+		 			  		%i=$0
+		 			  		while(%i!=$$){ 
+		 			  			%i->$setChecked($false)
+		 			  			%i->%virtual_node->%dirNotShared=$true
+		 			  		 	if (!$$->%trigger->$checkChildrenNotShared(%i->%virtual_node->$parent())){
+		 			  		 		$$->%trigger->$setFoldersNotShared(%i->%virtual_node)
+		 			  		 	 	break
+		 			  			}
+		 			  			else{
+		 			  			 	%i=%i->$parent()
+		 			  			}
+		 			  		 }
+		 			  	}
+		 			  	else { 
+		 			  		$0->%virtual_node->%dirNotShared=
+		 			  		$$->%trigger->$setFoldersShared($0->%virtual_node)
+							$$->$setParentChecked($0)
+						}
+		 			  }
+		 			else{
+		 				$$->%trigger->%node=$0->$parent()->%virtual_node
+		  				if (!$0->$isChecked){ 
+		  					$$->%trigger->$setFileNotShared($0->$text(0))
+		  					%i=$0->$parent()
+		  					while (%i !=$$){
+		  						 if ($$->%trigger->$checkChildrenNotShared(%i->%virtual_node)){
+		  						 	%i->$setChecked($false)
+		  						 	%i->%virtual_node->%dirNotShared=$true
+		 			  			 	%i=%i->$parent()
+		 			  			 }
+		 			  		 	else {
+		 			    		 		break
+		 			  		 	}
+		 			  		 }
+		 			  	}
+		 			  	else { 
+		 			  		$$->%trigger->$setFileShared($0->$text(0))
+		 			  		%i=$0->$parent()
+		 			  		%i->$setChecked($true)
+		 			  		%i->%virtual_node->%dirNotShared=
+		 			  		$$->$setParentChecked(%i)
+		 			  	}
+		 			  }
+		 		}	
+		 		
+		 	}
+		 	function setParentChecked
+		 	{
+		 		%i=$0->$parent
+		 		%this=$0
+		 		while(%i!=$$){
+		 			if (%i->%virtual_node->%dirNotShared){
+		 				%i->%virtual_node->%dirNotShared=
+		 				%i->$setChecked($true)
+		 				$$->$setChildrenNotShared(%i->%virtual_node,%this->%virtual_node)
+		 				%this=%i
+		 				%i=%i->$parent()
+		 			}
+		 			else break
+		 		}		
+		 	}
+		 	function setChildrenNotShared()
+		 	{
+		 		NGLfserv::corefunctions::ngldebug setting true
+		 		%exception=$1
+		 		%node=$0
+		 		%children[]=%node->$children()
+		 		NGLfserv::corefunctions::ngldebug numero figli %children[]#
+		 		for(%i=0;%i<$length(%children[]);%i++;){
+		 			if (%children[%i]!=%exception) {NGLfserv::corefunctions::ngldebug child %children[%i]->%text non sharato;%children[%i]->%dirNotShared=$true;}
+		 		}
+		 	}
+		 	function setChildrenShared()
+		 	{
+		 		$0->$setChecked($1)
+		 		%folders[]=$0->$children()
+		 		%len=%folders[]#
+		 		for(%i=0;%i<%len;%i++) $$->$setChildrenShared(%folders[%i],$1)
+			}
+		 	function getNode()
+		 	{
+		 		if ($0->%virtual_node==$1) return $0
+		 		%nodes[]=$0->$children()
+		 		%len=$length(%nodes[])
+		 		for (%i=0;%i<%len;%i++){
+		 			if ($$->$getNode(%nodes[%i],$1)){
+		 				%fl=$true
+		 				break
+		 			}
+		 		}
+		 		if (%fl) return %nodes[%i]
+		 	}	 			
+		}
+}
+
+

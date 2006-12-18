@@ -1,0 +1,915 @@
+#chanstats script for KVIrc 3.2.0.99
+#author: g00dsP33D ( gspeed@gmx.net )
+#version: 2.0.0 ( new KVS )
+
+addon.register("chanstats","2.0.0",$tr("Channel Statistics","chanstats"),$tr("Shows Statistics for a joined channel.","chanstats"),"3.2.0.99",chanstats_32.png)
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	
+	# call the uninstaller-function
+	chanstats_uninstallfiles
+	
+	alias(chanstats){}
+	alias(chanstats_uninstallfiles){}
+	event(OnChannelSync,chanstats){}
+	event(OnMePart,chanstats){}
+	event(OnIRC,chanstats){}
+	event(OnJoin,chanstats){}
+	# Done
+}
+
+
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+
+# copy files in each subdirectory
+# the pics
+%installer->$copyFiles("%mypath/pics/","*.png","$str.replace($file.localdir("pics"),"/","\\")")
+# the translations
+%installer->$copyFiles("%mypath/locale/","*.mo","$str.replace($file.localdir("locale"),"/","\\")")
+# the documentation
+%installer->$copyFiles("%mypath/help/en/chanstats/","*.html","$str.replace($file.localdir("help/en/chanstats"),"/","\\")")
+%installer->$copyFiles("%mypath/help/de/chanstats/","*.html","$str.replace($file.localdir("help/de/chanstats"),"/","\\")")
+
+
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("chanstats_uninstallfiles")
+
+# finally kill the installer helper
+delete %installer
+
+# set the script's configure callback
+# so it can be invoked via GUI from the Addon Management dialog
+# and via addon.configure
+addon.setconfigurecallback("chanstats")
+{
+	chanstats config
+}
+
+# set the script's help callback
+# so it can be invoked via GUI from the Addon Management dialog
+# and via addon.help
+addon.sethelpcallback("chanstats")
+{
+	%tmp[] = $split("_",$system.getenv(LANG))
+	%localized_helpfile = %tmp\[0\]"/chanstats/index.html"
+	if ( $file.exists($str.replace($file.localdir("help/"%localized_helpfile),"/","\\")) )
+	{
+		help.open %localized_helpfile
+	} else {
+		help.open "chanstats/index.html"
+	}
+}
+
+
+# define our real aliases	
+alias(chanstats)
+{
+	
+	## ** CONFIGURATION ** ##
+	
+	#string which will be prepended to output
+	%Script_tag = "$k(8)\[$k(0)$b()chanstats$b()$k(8)\]$k(0)"
+	
+	## ** CONFIG CLASS ** ##
+	class(chanstats_config,dialog)
+	{
+		constructor()
+		{
+			##load config-values from config-file
+			$$->$configLoad()
+			
+			# set caption and icon
+			$$->$setCaption($tr("Chanstats Config","chanstats"))
+			$$->$setIcon(chanstats_16.png)
+			
+
+			# then the main layout
+			$$->%l = $new(layout,$$);
+			$$->%l->$setMargin(10)
+			$$->%l->$setSpacing(3)	
+			$$->%l->$setResizeMode(Fixed)	
+
+			##cleanup options
+			#create control
+
+	    $$->%GrpBoxCleanup=$new(groupbox, $$, GrpBoxCleanup)
+	    $$->%GrpBoxCleanup->$setTitle($tr("cleanup options","chanstats"))
+	    $$->%l_GrpBoxCleanup=$new(layout,$$->%GrpBoxCleanup)
+			$$->%l_GrpBoxCleanup->$setMargin(15)
+	    $$->%l_GrpBoxCleanup->$setSpacing(3)
+	    				
+				#create control
+		    $$->%CleanupEnabled=$new(checkbox,$$->%GrpBoxCleanup);
+		    $$->%CleanupEnabled->$setText($tr("remove channels from the regchan-module after :","chanstats"));
+				$$->%CleanupEnabled->$setChecked($$->%optCleanupEnabled)
+				#add control to layout
+			  $$->%l_GrpBoxCleanup->$addWidget($$->%CleanupEnabled,0,0)	 				
+ 				#bind event
+ 				objects.connect $$->%CleanupEnabled "toggled" $$ "cleanupenabledToggled"
+ 		
+		    $$->%CleanupExpiredays=$new(spinbox,$$->%GrpBoxCleanup);
+		    $$->%CleanupExpiredays->$setMinValue(1)
+		    $$->%CleanupExpiredays->$setMaxValue(90)
+			  $$->%CleanupExpiredays->$setMaximumWidth(30);
+			  $$->%CleanupExpiredays->$setMaximumHeight(20);
+				$$->%CleanupExpiredays->$setValue($$->%optCleanupExpiredays)
+				$$->%CleanupExpiredays->$setEnabled($$->%CleanupEnabled->$isChecked())
+				#add control to layout
+			  $$->%l_GrpBoxCleanup->$addWidget($$->%CleanupExpiredays,0,1)	 				
+
+		    $$->%CleanupExpiredaysHelper=$new(label, $$->%GrpBoxCleanup)
+		    $$->%CleanupExpiredaysHelper->$setText($tr("days without ChanStats.","chanstats"))
+				#add control to layout
+			  $$->%l_GrpBoxCleanup->$addWidget($$->%CleanupExpiredaysHelper,0,2)
+	
+	    #add control to layout
+	    $$->%l->$addMultiCellWidget($$->%GrpBoxCleanup,0,0,0,5)	
+			
+	    ##display options
+	    #create control
+	    $$->%GrpBoxDisplay=$new(groupbox, $$, GrpBoxDisplay)
+	    $$->%GrpBoxDisplay->$setTitle($tr("display options","chanstats"))
+	    $$->%l_GrpBoxDisplay=$new(layout,$$->%GrpBoxDisplay)
+			$$->%l_GrpBoxDisplay->$setMargin(15)
+			$$->%l_GrpBoxDisplay->$setSpacing(3)
+			$$->%l_GrpBoxDisplay->$setResizeMode(Minimum)			
+	    	
+	    	#create control
+		    $$->%DisplayPercent=$new(checkbox,$$->%GrpBoxDisplay);
+		    $$->%DisplayPercent->$setText($tr("display user-percentages","chanstats"));
+		    $$->%DisplayPercent->$setChecked($$->%optDisplayPercent)
+				#add control to layout
+		    $$->%l_GrpBoxDisplay->$addWidget($$->%DisplayPercent,0,0)	
+				#bind event
+		    objects.connect $$->%DisplayPercent "toggled" $$ "displaypercentToggled"
+		
+				$$->%p_DisplayPercent = $new(widget,$$->%GrpBoxDisplay)
+				#$$->%p_DisplayPercent->$setAlignment("Left")
+				
+				$$->%l_p_DisplayPercent = $new(layout,$$->%p_DisplayPercent)
+				$$->%l_p_DisplayPercent->$setMargin(5)
+				$$->%l_p_DisplayPercent->$setSpacing(3)
+				#$$->%l_p_DisplayPercent->$setResizeMode(Minimum)		
+					
+					#create control
+			    $$->%DisplayPercentBar=$new(checkbox,$$->%p_DisplayPercent);
+			    $$->%DisplayPercentBar->$setText($tr("enable percentage-bars, drawn with char :","chanstats"));
+			    $$->%DisplayPercentBar->$setChecked($$->%optDisplayPercentBar)
+					$$->%DisplayPercentBar->$setEnabled($$->%DisplayPercent->$isChecked())
+					#add control to layout
+			    $$->%l_p_DisplayPercent->$addMultiCellWidget($$->%DisplayPercentBar,0,0,0,0)	
+					#bind event
+					objects.connect $$->%DisplayPercentBar "toggled" $$ "displaypercentbarToggled"
+			    
+			    #create control
+			    $$->%PercentBarChar=$new(lineedit,$$->%p_DisplayPercent);
+			    $$->%PercentBarChar->$setMaximumWidth(15);
+			    $$->%PercentBarChar->$setMaximumHeight(20);
+			    $$->%PercentBarChar->$setMaxLength(1);
+			    $$->%PercentBarChar->$setText($$->%optPercentBarChar);
+					$$->%PercentBarChar->$setEnabled($$->%DisplayPercentBar->$isChecked())
+					#add control to layout
+			    $$->%l_p_DisplayPercent->$addMultiCellWidget($$->%PercentBarChar,0,0,1,2)
+					
+					#create control
+			    $$->%DisplayPercentTrend=$new(checkbox,$$->%p_DisplayPercent);
+			    $$->%DisplayPercentTrend->$setText($tr("enable developments","chanstats"));
+			    $$->%DisplayPercentTrend->$setChecked($$->%optDisplayPercentTrend)
+					$$->%DisplayPercentTrend->$setEnabled($$->%DisplayPercent->$isChecked())
+					#add control to layout
+			    $$->%l_p_DisplayPercent->$addWidget($$->%DisplayPercentTrend,1,0)	
+
+					$$->%l_GrpBoxDisplay->$addMultiCellWidget($$->%p_DisplayPercent,1,1,0,0)
+
+					#create control
+			   	$$->%DisplayPeak=$new(checkbox,$$->%GrpBoxDisplay,DisplayPeak);
+			    $$->%DisplayPeak->$setText($tr("display user-peak","chanstats"));
+					$$->%DisplayPeak->$setChecked($$->%optDisplayPeak)
+					#add control to layout
+			    $$->%l_GrpBoxDisplay->$addWidget($$->%DisplayPeak,2,0)	
+					
+					#create control
+			    $$->%DisplayLastvisit=$new(checkbox,$$->%GrpBoxDisplay,DisplayLastvisit);
+			    $$->%DisplayLastvisit->$setText($tr("display last visit","chanstats"));
+			    $$->%DisplayLastvisit->$setChecked($$->%optDisplayLastvisit)
+					#add control to layout
+			    $$->%l_GrpBoxDisplay->$addWidget($$->%DisplayLastvisit,3,0)	
+	    
+	    #add control to layout
+	    $$->%l->$addMultiCellWidget($$->%GrpBoxDisplay,1,1,0,5)	
+
+
+			##notification options
+	    #create control
+	    $$->%GrpBoxAnnounce=$new(groupbox, $$)
+	    $$->%GrpBoxAnnounce->$setTitle($tr("notification options","chanstats"))
+	    #grpbox layout
+	    $$->%l_GrpBoxAnnounce=$new(layout,$$->%GrpBoxAnnounce)
+			$$->%l_GrpBoxAnnounce->$setMargin(15)
+			$$->%l_GrpBoxAnnounce->$setSpacing(3)	
+				
+				#create control
+		    $$->%AnnouncePeak=$new(checkbox,$$->%GrpBoxAnnounce);
+		    $$->%AnnouncePeak->$setText($tr("show new user-peaks","chanstats"));
+				$$->%AnnouncePeak->$setChecked($$->%optAnnouncePeak)
+				#add control to layout
+			  $$->%l_GrpBoxAnnounce->$addWidget($$->%AnnouncePeak,0,0)				
+				
+				#create control
+		    $$->%AnnounceCleanup=$new(checkbox,$$->%GrpBoxAnnounce);
+		    $$->%AnnounceCleanup->$setText($tr("show removed channels by cleanup \[console-window\]","chanstats"));
+		    $$->%AnnounceCleanup->$setChecked($$->%optAnnounceCleanup)
+				$$->%AnnounceCleanup->$setEnabled($$->%CleanupEnabled->$isChecked())
+				#add control to layout
+			  $$->%l_GrpBoxAnnounce->$addWidget($$->%AnnounceCleanup,1,0)
+
+	    #add grpbox to main layout
+	    $$->%l->$addMultiCellWidget($$->%GrpBoxAnnounce,2,2,0,5)
+
+			
+			##buttons
+	    #create control
+	    $$->%Okaybutton=$new(button,$$,Okaybutton);
+	    $$->%Okaybutton->$setText($tr("OK"));
+			$$->%Okaybutton->$setMinimumWidth(80);
+			#add control to layout
+			$$->%l->$addWidget($$->%Okaybutton,20,0)			
+			#bind event
+			objects.connect $$->%Okaybutton "clicked" $$ "okClicked"
+			
+			#create control
+	    $$->%Applybutton=$new(button,$$,Applybutton);
+	    $$->%Applybutton->$settext($tr("Apply"));
+			$$->%Applybutton->$setMinimumWidth(80);
+			#add control to layout
+			$$->%l->$addWidget($$->%Applybutton,20,1)			
+	    #bind event
+	    objects.connect $$->%Applybutton "clicked" $$ "applyClicked"
+	
+	    #create control
+	    $$->%Cancelbutton=$new(button,$$,Cancelbutton);
+	    $$->%Cancelbutton->$setText($tr("Cancel"));
+	    $$->%Cancelbutton->$setMinimumWidth(80);
+			#add control to layout
+	    $$->%l->$addWidget($$->%Cancelbutton,20,5)			
+	    #bind event
+	    objects.connect $$->%Cancelbutton "clicked" $$ "cancelClicked"
+	
+
+		}
+
+		showDialog()
+		{
+		   	$$->$centerToScreen()
+		    $$->$setModal(1)
+		    $$->$show()
+		}
+
+		okClicked()
+		{
+			$$->$configSave()
+			delete $$
+		} 
+		
+		applyClicked()
+		{
+			$$->$configSave()
+		}
+		
+		cancelClicked()
+		{
+			delete $$			
+		}
+
+		displaypercentToggled()
+		{
+			$$->%DisplayPercentBar->$setEnabled($$->%DisplayPercent->$isChecked())
+			$$->%PercentBarChar->$setEnabled($$->%DisplayPercent->$isChecked())
+			$$->%DisplayPercentTrend->$setEnabled($$->%DisplayPercent->$isChecked())
+		}
+	
+		displaypercentbarToggled()
+		{
+			$$->%PercentBarChar->$setEnabled($$->%DisplayPercentBar->$isChecked())
+		}
+
+		cleanupenabledToggled()
+		{
+			if (!$$->%CleanupEnabled->$isChecked())
+			{
+				$$->%CleanupExpiredays->$setEnabled(0)
+				$$->%AnnounceCleanup->$setEnabled(0)
+			} else {
+				$$->%CleanupExpiredays->$setEnabled(1)
+				$$->%AnnounceCleanup->$setEnabled(1)
+			}
+		}
+
+		configLoad()
+		{
+			%cfg=$config.open($file.localdir/config/chanstats.kvc)
+			
+			config.setsection %cfg "display"
+			$$->%optDisplayPercent 			= $config.read(%cfg,DisplayPercent,1)
+			$$->%optDisplayPercentBar 	= $config.read(%cfg,DisplayPercentBar,1)
+			$$->%optPercentBarChar			= $config.read(%cfg,PercentBarChar,l)
+			$$->%optDisplayPercentTrend = $config.read(%cfg,DisplayPercentTrend,1)
+			$$->%optDisplayPeak 				= $config.read(%cfg,DisplayPeak,1)
+			$$->%optDisplayLastvisit 		= $config.read(%cfg,DisplayLastvisit,1)
+			
+			config.setsection %cfg "announcement"
+			$$->%optAnnouncePeak 				= $config.read(%cfg,AnnouncePeak,1)
+			$$->%optAnnounceCleanup 		= $config.read(%cfg,AnnounceCleanup,1)
+			
+			config.setsection %cfg "cleanup"
+			$$->%optCleanupEnabled 				= $config.read(%cfg,CleanupEnabled,1)
+			$$->%optCleanupExpiredays 		= $config.read(%cfg,CleanupExpiredays,30)			
+			
+			config.close %cfg
+		}
+	
+		configSave()
+		{
+			%cfg=$config.open($file.localdir/config/chanstats.kvc)
+			
+			config.setsection %cfg "display"
+			config.write %cfg DisplayPercent $$->%DisplayPercent->$isChecked()
+			config.write %cfg DisplayPercentBar $$->%DisplayPercentBar->$isChecked()
+			config.write %cfg PercentBarChar $$->%PercentBarChar->$text()
+			config.write %cfg DisplayPercentTrend $$->%DisplayPercentTrend->$isChecked()
+			config.write %cfg DisplayPeak $$->%DisplayPeak->$isChecked()
+			config.write %cfg DisplayLastvisit $$->%DisplayLastvisit->$isChecked()
+			
+			config.setsection %cfg "announcement"
+			config.write %cfg AnnouncePeak $$->%AnnouncePeak->$isChecked()
+			config.write %cfg AnnounceCleanup $$->%AnnounceCleanup->$isChecked()
+			
+			config.setsection %cfg "cleanup"
+			config.write %cfg CleanupEnabled $$->%CleanupEnabled->$isChecked()
+			config.write %cfg CleanupExpiredays $$->%CleanupExpiredays->$value()
+			
+			config.close %cfg			
+		}
+
+	}
+
+
+	## ** WORKER CLASS ** ##
+	class(chanstats_worker,object)
+	{
+	
+		constructor()
+		{
+			%ChanstatsWorker = $$
+			#load config
+			%ChanstatsConfig = $new(chanstats_config)
+
+		} # -- end function
+		
+		destructor()
+		{
+			%ChanstatsWorker = ""
+		} # -- end function
+
+		#count current users on channel
+		usercountsupdate()
+		{
+			#reset usercounts
+			$$->%cur_users_all 		= 0
+			$$->%cur_users_op 		= 0
+			$$->%cur_users_halfop = 0
+			$$->%cur_users_voice 	= 0
+			$$->%cur_users_peon 	= 0
+
+			#get new usercounts
+			$$->%cur_users_all = $chan.usercount
+			%userlist[] = $chan.users
+			foreach(%chanuser, %userlist[])
+			{
+				#user is op
+				if ($chan.isop(%chanuser))
+				{
+					$$->%cur_users_op++
+				} else {
+					#user is halfop
+					if ($chan.ishalfop(%chanuser))
+					{
+						$$->%cur_users_halfop++
+					} else {
+						#user is voice
+						if ($chan.isvoice(%chanuser))
+						{
+							$$->%cur_users_voice++
+						#user is peon
+						} else {
+							$$->%cur_users_peon++
+						}
+					}
+				}
+			}	
+				
+		} # -- end function
+
+		#load last usercounts from the regchan-module
+		regchanloadusercounts
+		{
+			$$->%last_users_utc = $regchan.property($chan.name,$my.network,chanstats_utc)
+			if ($$->%last_users_utc)
+			{
+				$$->%last_users_all 		= $regchan.property($chan.name,$my.network,chanstats_users_all)
+				$$->%last_users_op 			= $regchan.property($chan.name,$my.network,chanstats_users_op)
+				$$->%last_users_halfop 	= $regchan.property($chan.name,$my.network,chanstats_users_halfop)
+				$$->%last_users_voice 	= $regchan.property($chan.name,$my.network,chanstats_users_voice)
+				$$->%last_users_peon 		= $regchan.property($chan.name,$my.network,chanstats_users_peon)
+				$$->%last_peak_users 		= $regchan.property($chan.name,$my.network,chanstats_peak_users)
+				$$->%last_peak_utc 			= $regchan.property($chan.name,$my.network,chanstats_peak_utc)
+			} else {
+				$$->%last_users_utc			= 0
+				$$->%last_users_all 		= 0
+				$$->%last_users_op 			= 0
+				$$->%last_users_halfop 	= 0
+				$$->%last_users_voice 	= 0
+				$$->%last_users_peon 		= 0
+				$$->%last_peak_users 		= 0
+				$$->%last_peak_utc 			= 0
+			}
+		} # -- end function
+		
+		#save usercounts to the regchan-module
+		regchansaveusercounts()
+		{
+			$$->$usercountsupdate()
+			
+			%chanisregistered = $regchan.find($chan.name,$my.network)
+			if (!%chanisregistered)
+			{
+				regchan.add $chan.name $my.network
+			}
+			
+			regchan.setproperty $chan.name $my.network chanstats_utc $unixtime
+			regchan.setproperty $chan.name $my.network chanstats_users_all $$->%cur_users_all
+			regchan.setproperty $chan.name $my.network chanstats_users_op $$->%cur_users_op
+			regchan.setproperty $chan.name $my.network chanstats_users_halfop $$->%cur_users_halfop
+			regchan.setproperty $chan.name $my.network chanstats_users_voice $$->%cur_users_voice
+			regchan.setproperty $chan.name $my.network chanstats_users_peon $$->%cur_users_peon
+			
+		} # -- end function
+		
+		#reset usercounts & peak
+		regchanresetchannel()
+		{
+			%chanisregistered = $regchan.find($chan.name,$my.network)
+			if (!%chanisregistered)
+			{
+				regchan.add $chan.name $my.network
+			}
+			
+			regchan.setproperty $chan.name $my.network chanstats_utc 
+			regchan.setproperty $chan.name $my.network chanstats_users_all
+			regchan.setproperty $chan.name $my.network chanstats_users_op
+			regchan.setproperty $chan.name $my.network chanstats_users_halfop
+			regchan.setproperty $chan.name $my.network chanstats_users_voice
+			regchan.setproperty $chan.name $my.network chanstats_users_peon	
+			regchan.setproperty $chan.name $my.network chanstats_peak_users
+			regchan.setproperty $chan.name $my.network chanstats_peak_utc
+			
+			echo -i=$msgtype(Who) %Script_tag $tr("channel-data for","chanstats") $b()$chan.name$b() $tr("has been removed from regchan-module.","chanstats")
+		}
+		
+		#remove channel from the regchan-module if no chanstats were
+		#called since the amount of expire-days set in the options.
+		regchancleanupchannels()
+		{
+			if (%ChanstatsConfig->%optCleanupEnabled)
+			{
+				%cfg = $config.open($file.localdir/config/regchan.kvc)
+				%sections[] = $config.sectionlist(%cfg)
+				
+				%expire_seconds = $(%ChanstatsConfig->%optCleanupExpiredays * 24 * 60 * 60)
+				%expired_channels = 0
+				
+				if (%sections[]# > 0) 
+				{
+					foreach(%section_name,%sections[])
+					{
+						#split section_name to get channel and network					
+						%tmp[] = $split("@",%section_name)
+						%chan_name = %tmp\[0\]						
+						%network_name = %tmp\[1\]
+			
+						%last_utc = $regchan.property(%chan_name,%network_name,chanstats_utc)
+	
+						if (%last_utc) 
+						{
+							config.setsection %cfg %regged_chan
+							%keys[] = $config.keylist(%cfg)
+							%utc_diff = $($unixtime - %last_utc)
+	
+							if (%utc_diff > %expire_seconds ) 
+							{
+								%expired_channels++
+								if (%keys[]# > 1) 
+								{
+									#unset chanstats-properties
+									regchan.setproperty %chan_name %network_name chanstats_utc $unixtime
+									regchan.setproperty %chan_name %network_name chanstats_peak_users
+									regchan.setproperty %chan_name %network_name chanstats_peak_utc
+									regchan.setproperty %chan_name %network_name chanstats_users_all
+									regchan.setproperty %chan_name %network_name chanstats_users_op
+									regchan.setproperty %chan_name %network_name chanstats_users_halfop
+									regchan.setproperty %chan_name %network_name chanstats_users_voice
+									regchan.setproperty %chan_name %network_name chanstats_users_peon
+										
+								}
+								if (%keys[]# == 1)
+								{
+									#remove channel from regchan
+									regchan.remove %chan_name %network_name
+								}
+							}
+							
+						}
+							
+					}
+				}	
+				config.close -q %cfg
+			
+				if (%ChanstatsConfig->%optAnnounceCleanup && %expired_channels)
+				{
+					echo -i=$msgtype(Who) %Script_tag $b()%expired_channels$b() $tr("channels have been removed from the regchan-module.","chanstats")
+				}
+			}
+		} # -- end function
+		
+		#calculate percentages for each user-"class"
+		calcpercentages()
+		{
+			#calculate percentages
+			$$->%cur_users_op_percent = $( (100 * $$->%cur_users_op) / $$->%cur_users_all)
+			$$->%cur_users_halfop_percent = $( (100 * $$->%cur_users_halfop) / $$->%cur_users_all)
+			$$->%cur_users_voice_percent = $( (100 * $$->%cur_users_voice) / $$->%cur_users_all)
+			$$->%cur_users_peon_percent = $( (100 * $$->%cur_users_peon) / $$->%cur_users_all)
+			
+			#do some workaround to simulate the missing calculation of floats/decimals
+			#to avoid the 99%-thingy :/ - should be unnescessary with the new KVS
+			if ($str.right($( (10000 * $$->%cur_users_op) / $$->%cur_users_all), 2) >= 50)
+			{
+				$$->%cur_users_op_percent++
+			}
+			if ($str.right($( (10000 * $$->%cur_users_halfop) / $$->%cur_users_all), 2) >= 50)
+			{
+				$$->%cur_users_halfop_percent++
+			}
+			if ($str.right($( (10000 * $$->%cur_users_voice) / $$->%cur_users_all), 2) >= 50)
+			{
+				$$->%cur_users_voice_percent++
+			}		
+			if ($str.right($( (10000 * $$->%cur_users_peon) / $$->%cur_users_all), 2) >= 50)
+			{
+				$$->%cur_users_peon_percent++
+			}	
+
+		}	# -- end function
+		
+		#compare actual usercount with the last known user-peak,
+		#if new peak is found :
+		#update regchan and output msg if flag 'peak_announce' is set to 1 in the options 
+		calcpeak()
+		{
+			$$->%new_peak = 0
+											
+			#get new usercounts
+			$$->$usercountsupdate()
+	
+			#get old usercounts
+			%ChanstatsWorker->$regchanloadusercounts()
+					
+			if ($$->%last_peak_users == 0 || $$->%last_peak_users < $$->%cur_users_all)
+			{
+				$$->%new_peak = 1
+			}
+				
+			if ($$->%new_peak)
+			{
+				$$->%last_peak_users 	= $$->%cur_users_all
+				$$->%last_peak_utc 		= $unixtime
+				
+				if (%ChanstatsConfig->%optAnnouncePeak && $0)
+				{					
+					echo -i=$msgtype(Who) %Script_tag $tr("New user peak for channel","chanstats") $chan.name \[ $b()$$->%cur_users_all$b() $tr("user(s)","chanstats")) \]
+				}
+	
+				#check if channel is known
+				%chanisregistered = $regchan.find($chan.name,$my.network)
+				if (!%chanisregistered)
+				{
+					regchan.add $chan.name $my.network
+				}
+				
+				#update regchan-data
+				regchan.setproperty $chan.name $my.network chanstats_peak_users $$->%cur_users_all
+				regchan.setproperty $chan.name $my.network chanstats_peak_utc $unixtime
+			}	
+		} # -- end function
+
+		#helper to build the percentage-bars
+		#$0 = percentage-value to display
+		outputstrbar($0 = percent_val)
+		{
+			%barchar 	= %ChanstatsConfig->%optPercentBarChar
+			%pro_00 	= "$k(4)\[$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(4)\]$k(0)"
+			%pro_10 	= "$k(4)\[$k(9)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(4)\]$k(0)"
+			%pro_20 	= "$k(4)\[$k(9)%barchar$k(9)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(4)\]$k(0)"
+			%pro_30 	= "$k(4)\[$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(4)\]$k(0)"
+			%pro_40 	= "$k(4)\[$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(4)\]$k(0)"
+			%pro_50 	= "$k(4)\[$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(4)\]$k(0)"
+			%pro_60 	= "$k(4)\[$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(4)\]$k(0)"
+			%pro_70 	= "$k(4)\[$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(3)%barchar$k(3)%barchar$k(3)%barchar$k(4)\]$k(0)"
+			%pro_80 	= "$k(4)\[$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(3)%barchar$k(3)%barchar$k(4)\]$k(0)"
+			%pro_90 	= "$k(4)\[$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(3)%barchar$k(4)\]$k(0)"
+			%pro_100 	= "$k(4)\[$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(9)%barchar$k(4)\]$k(0)"
+		
+			if($0 <= 0) {return %pro_00;}
+			if($0 <= 10) {return %pro_10;}
+			if($0 <= 20) {return %pro_20;}
+			if($0 <= 30) {return %pro_30;}
+			if($0 <= 40) {return %pro_40;}
+			if($0 <= 50) {return %pro_50;}
+			if($0 <= 60) {return %pro_60;}
+			if($0 <= 70) {return %pro_70;}
+			if($0 <= 80) {return %pro_80;}
+			if($0 <= 90) {return %pro_90;}
+			if($0 <= 100) {return %pro_100;}
+		}	# -- end function
+
+		#helper to get trend-str
+		#$0 = new value
+		#$1 = old value
+		outputstrtrend($0 = new_val, $1 = old_val)
+		{
+			if ($0 == $1)
+			{ 
+				return "\[$k(7)o$k(0)\]";
+			}
+			
+			if ($0 > $1) 
+			{ 
+				return "\[$k(9)+$k(0)\]";
+			}
+			
+			if ($0 < $1) 
+			{ 
+				return "\[$k(4)-$k(0)\]";
+			}
+		} # -- end function
+
+
+		#helper to get whitespaces ( pseudo-tabstops )
+		#$0 = percentage-value to display
+		outputstrspaces($0 = percent_val)
+		{
+			if ($0 < 10) 
+			{ 
+				return "    ";
+			} else {
+				if ($0 == 100)
+				{
+					return "";
+				} else {
+					return "  ";
+				}
+			}
+		} # -- end function
+		
+		#prepare strings for output	
+		outputbuildstrings()
+		{
+			if (%ChanstatsConfig->%optDisplayPercent)
+			{
+				#percentage-bars
+				if (%ChanstatsConfig->%optDisplayPercentBar)
+				{
+					$$->%percent_bar_op 		= $$->$outputstrbar($$->%cur_users_op_percent)
+					$$->%percent_bar_halfop = $$->$outputstrbar($$->%cur_users_halfop_percent)
+					$$->%percent_bar_voice 	= $$->$outputstrbar($$->%cur_users_voice_percent)
+					$$->%percent_bar_peon 	= $$->$outputstrbar($$->%cur_users_peon_percent)		
+				} else {
+					$$->%percent_bar_op 		= ""
+					$$->%percent_bar_halfop = ""
+					$$->%percent_bar_voice 	= ""
+					$$->%percent_bar_peon 	= ""				
+				}
+				
+				#trends
+				if (%ChanstatsConfig->%optDisplayPercentTrend && $$->%last_users_utc)
+				{
+					$$->%trend_sign_all 		= $$->$outputstrtrend($$->%cur_users_all,$$->%last_users_all)
+					$$->%trend_sign_op 			= $$->$outputstrtrend($$->%cur_users_op,$$->%last_users_op)
+					$$->%trend_sign_halfop 	= $$->$outputstrtrend($$->%cur_users_halfop,$$->%last_users_halfop)
+					$$->%trend_sign_voice 	= $$->$outputstrtrend($$->%cur_users_voice,$$->%last_users_voice)
+					$$->%trend_sign_peon 		= $$->$outputstrtrend($$->%cur_users_peon,$$->%last_users_peon)				
+				} else {
+					$$->%trend_sign_all 		= ""
+					$$->%trend_sign_op 			= ""
+					$$->%trend_sign_halfop 	= ""
+					$$->%trend_sign_voice 	= ""
+					$$->%trend_sign_peon 		= ""				
+				}
+				
+			}
+	
+		
+		} # -- end function
+
+	} # -- end class
+	
+	## ** START ** ##
+				
+	#init helper-classes
+	%ChanstatsWorker = $new(chanstats_worker)	
+	%ChanstatsConfig = $new(chanstats_config)
+	
+	# using a switch to see what option has been selected
+	switch($0)
+	{
+		case(config)
+		{
+			%ChanstatsConfig->$showDialog();
+		}	
+		break;			
+
+		#cleanup regchan
+		case(cleanup)
+		{
+			%ChanstatsWorker->$regchancleanupchannels()
+		} # -- end case
+		break
+
+		#reset usercounts
+		case(reset)
+		{
+			if ($window.type == channel)
+			{
+				%ChanstatsWorker->$regchanresetchannel()
+			}
+		} # -- end case
+		break
+	
+		#store usercounts to regchan
+		case(store)
+		{
+			if ($window.type == channel)
+			{
+				%ChanstatsWorker->$regchansaveusercounts()
+			}
+		} # -- end case
+		break
+
+		#check/store userpeak to regchan
+		case(peak)
+		{
+			if ($window.type == channel)
+			{
+				%ChanstatsWorker->$calcpeak(1)
+			}
+		} # -- end case
+		break
+
+		# help
+		case(help)
+		{
+			echo -i=$msgtype(Who) %Script_tag $tr("usage: /chanstats <option>","chanstats")
+			echo -i=$msgtype(Who) %Script_tag 
+			echo -i=$msgtype(Who) %Script_tag $tr("possible options:","chanstats")
+			echo -i=$msgtype(Who) %Script_tag config "                                       " $tr("configure ChanStats-script","chanstats")
+			echo -i=$msgtype(Who) %Script_tag display "                                      " $tr("displays usercounts,peak-data and time of last visit","chanstats")
+			echo -i=$msgtype(Who) %Script_tag reset "                                         " $tr("resets channel-data in the regchan-module","chanstats")
+			echo -i=$msgtype(Who) %Script_tag help "                                           " $tr("you were just reading the results ;)","chanstats")
+		}
+		break
+		
+		# display stats
+		case(display)
+		{
+		}
+		default:
+		{
+			if ($window.type == channel)
+			{
+				
+				if(%ChanstatsConfig->%optDisplayPercent || %ChanstatsConfig->%optDisplayPeak || %ChanstatsConfig->%optDisplayLastVisit)
+				{
+
+					#get new usercounts
+					%ChanstatsWorker->$usercountsupdate()
+		
+					#calculate percentages
+					%ChanstatsWorker->$calcpercentages()
+								
+					#get old usercounts
+					%ChanstatsWorker->$regchanloadusercounts()
+					if (%ChanstatsWorker->%last_users_utc)
+					{
+						%last_str = $time(%ChanstatsWorker->%last_users_utc)
+					} else {
+						%last_str = ""
+					}
+					
+					#store new usercounts
+					%ChanstatsWorker->$regchansaveusercounts()
+		
+					#build output-strings
+					%ChanstatsWorker->$outputbuildstrings()
+					
+					#show output
+					echo -i=$msgtype(Who) %Script_tag $b()$chan.name$b() \[ %ChanstatsWorker->%cur_users_all $tr("user(s)","chanstats") \]%ChanstatsWorker->%trend_sign_all
+					
+					#show percentages
+					if (%ChanstatsConfig->%optDisplayPercent)
+					{
+						%spacer = %ChanstatsWorker->$outputstrspaces(%ChanstatsWorker->%cur_users_op_percent)
+						echo -i=$msgtype(Who) %Script_tag %ChanstatsWorker->%percent_bar_op \[%spacer %ChanstatsWorker->%cur_users_op_percent\% \]%ChanstatsWorker->%trend_sign_op %ChanstatsWorker->%cur_users_op $tr("OP(s)","chanstats")
+						
+						%spacer = %ChanstatsWorker->$outputstrspaces(%ChanstatsWorker->%cur_users_halfop_percent)
+						echo -i=$msgtype(Who) %Script_tag %ChanstatsWorker->%percent_bar_halfop \[%spacer %ChanstatsWorker->%cur_users_halfop_percent\% \]%ChanstatsWorker->%trend_sign_halfop %ChanstatsWorker->%cur_users_halfop $tr("half-OP(s)","chanstats")
+						
+						%spacer = %ChanstatsWorker->$outputstrspaces(%ChanstatsWorker->%cur_users_voice_percent)
+						echo -i=$msgtype(Who) %Script_tag %ChanstatsWorker->%percent_bar_voice \[%spacer %ChanstatsWorker->%cur_users_voice_percent\% \]%ChanstatsWorker->%trend_sign_voice %ChanstatsWorker->%cur_users_voice $tr("voice(s)","chanstats")
+						
+						%spacer = %ChanstatsWorker->$outputstrspaces(%ChanstatsWorker->%cur_users_peon_percent)
+						echo -i=$msgtype(Who) %Script_tag %ChanstatsWorker->%percent_bar_peon \[%spacer %ChanstatsWorker->%cur_users_peon_percent\% \]%ChanstatsWorker->%trend_sign_peon %ChanstatsWorker->%cur_users_peon $tr("peon(s)","chanstats")
+					}
+					
+					#show peak
+					%ChanstatsWorker->$calcpeak(0)
+					if (%ChanstatsConfig->%optDisplayPeak && %ChanstatsWorker->%last_peak_users > 0)
+					{
+						##echo -i=$msgtype(Who) "%Script_tag $tr("user peak","chanstats"): %ChanstatsWorker->%last_peak_users $tr("user(s)","chanstats") \[ $time(%ChanstatsWorker->%last_peak_utc) \]"
+						echo -i=$msgtype(Who) %Script_tag $tr("user peak","chanstats"): %ChanstatsWorker->%last_peak_users $tr("user(s)","chanstats") - $time(%ChanstatsWorker->%last_peak_utc)
+					}
+		
+					#show last visit
+					if (%ChanstatsConfig->%optDisplayLastvisit && %last_str != "")
+					{
+						echo -i=$msgtype(Who) %Script_tag $tr("last visit","chanstats"): %last_str
+					}
+				}
+			} else {
+				echo -i=$msgtype(Who) %Script_tag *** $b()$tr("ERROR","chanstats"):$b() $tr("chanstats are only available in channel windows","chanstats") ***
+			}
+		} # -- end case
+		break 
+	} # -- end switch
+
+} # -- end alias
+
+
+# add event-handler to show stats after join
+event(OnChannelSync,chanstats)
+{
+	# show channel-statistics
+	chanstats display
+}
+
+# add event-handler to store usercounts before leaving
+event(OnMePart,chanstats)
+{
+	# show channel-statistics
+	chanstats store
+}
+
+# add event-handler to perform a cleanup at startup
+event(OnIRC,chanstats)
+{
+	# cleanup expired channels
+	chanstats cleanup
+}
+
+# add event-handler to perform a check for user-peaks
+event(OnJoin,chanstats)
+{
+	#check/store new user-peak
+	chanstats peak
+}
+
+# blabla :)
+echo -i=$msgtype(Who) ""
+echo -i=$msgtype(Who) $tr("installation of the chanstats script was succesful,","chanstats")
+echo -i=$msgtype(Who) $tr("configure ChanStats by using '/chanstats config'.","chanstats")
+echo -i=$msgtype(Who) $tr("perform a '/chanstats help' to see possible actions.","chanstats")
+echo -i=$msgtype(Who) $tr("you can always uninstall ChanStats by using 'Manage Addons ...' from the settings menu","chanstats")
+echo -i=$msgtype(Who) "---"
+echo -i=$msgtype(Who) ""
+
+#thx goes to the mailinglist and Neur0 ...

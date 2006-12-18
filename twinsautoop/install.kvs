@@ -1,0 +1,70 @@
+/*
+	Autoop of the Twins script.
+	Written by Ahinu (2006)
+*/
+
+# register the script: this must be the first instruction executed
+# since it will abort with an error when a greater version is already installed
+addon.register(\
+	"twinsautoop",\
+	"1.1",\
+	$tr("The Twins Autop System",twinsautoop),\
+	$tr("A simple autoop and autovoice system",twinsautoop),\
+	"3.2.3",\
+	twins/32x32/twins_autoop_32.png)
+{
+	// Automatic part
+	twins::autoop::core::uninstall
+
+	// Manual part
+	if($file.exists($file.localdir(config/scripts/twins.kvc)) && $addon.exists(twins))
+		delpopupitem -q -d twins::chanops twinsautoop::channel
+	else
+		delpopupitem -q -d channeltextview twinsautoop::channel
+}
+
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# get the installer helper class (this is pretty standard and included in the distro)
+#include $file.globaldir(defscript/installer.kvs)
+include utils/installer.kvs
+
+# Get the path that this script was launched from
+//%mypath = $file.extractPath($0)
+%mypath = $str.lefttolast($0,/)
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+# copy files in each subdirectory
+# the pics
+foreach(%subdir,16x16,22x22,32x32,48x48)
+	%installer->$copyFiles("%mypath/pics/twins/"%subdir,"twins_*.png",$file.localdir("pics/twins/%subdir"))
+# help file
+%installer->$copyFiles("%mypath/help/en/twins/","*.html",$file.localdir("help/en/twins"))
+# the translations
+%installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
+
+# includes sources files
+%installer->$includeFiles("%mypath/src/","*.kvs")
+
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("twins::autoop::core::uninstall")
+
+# set the script's configuration callback
+# so it can be invoked via GUI from the Addon Management dialog
+# and via addon.configure
+addon.setconfigurecallback("twinsautoop")
+{
+        twins::autoop::configure
+}
+# help
+addon.sethelpcallback("twinsautoop")
+{
+        twins::autoop::help
+}
+
+
+# Initialise the configuration
+twins::autoop::core::config::load
+

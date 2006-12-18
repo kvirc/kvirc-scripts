@@ -1,0 +1,154 @@
+alias(NGLfserv::classes::customwidgets::box)
+{
+	class(NGLfserv::classes::customwidgets::box,object)
+		{
+			function constructor()
+			{
+				if ($0=="vertical") %class="vbox"
+				else %class="hbox"
+				$$->%widget=$new(%class,$$->$parent(),box)
+				}
+			internal function create()
+			{
+				if ($0=="button") %widget=$new(NGLfserv::classes::customwidgets::btn,$$->%widget)
+				else %widget=$new($0,$$->%widget)
+				//%widget->$setProperty("backgroundOrigin","parentOrigin")
+				switch ($0)
+				{
+					case ("label")
+					{
+						%widget->$setText($tr($1))
+						%widget->$setAutoresize($true)
+						if ($2) %widget->$setMaximumWidth($2)
+						break
+					}
+					case ("button")
+					{
+						%widget->$setText($tr($1))
+						if ($2) %widget->$setImage($2)
+						//bug btn $2 icon $3 enab
+						// ($3) %widget->$setEnabled($3)
+						break
+					}
+					case ("lineedit")
+					{
+						if ($1){
+							if ($str.isnumber($1) || ($str.left($1,1)!="%")) %widget->$setText($1);
+							else
+							{
+	
+								%tmp=\%text\=$1
+								eval %tmp
+								//if ($str.isnumber(%text)) %widget->$setInputMask("9999999")
+								%widget->$setText(%text)
+								%widget->%pointer=$1
+								privateimpl(%widget,textChangedEvent){
+									eval $$->%pointer\=$0
+								}
+	
+							}
+						}
+	
+						if ($2) %widget->$setMaximumWidth($2)
+						break
+					}
+					case ("spinbox")
+					{
+						if ($1){
+							if ($3)	%widget->$setMaxValue($3)
+							if ($str.isnumber($1) || ($str.left($1,1)!="%")) %widget->$setValue($1);
+							else	{
+	
+								%tmp=\%text\=$1
+								eval %tmp
+								%widget->$setValue(%text)
+								%widget->%pointer=$1
+								privateimpl(%widget,valueChangedEvent){
+									eval $$->%pointer\=$0
+								}
+	
+							}
+						}
+						if ($2) %widget->$setMaximumWidth($2)
+						break
+					}
+					case ("multilineedit")
+					{
+						%widget->$setText($tr($1))
+						//%widget->$setBackGroundImage(ok2.png)
+						break
+					}
+					case ("checkbox")
+					{
+						%widget->$setText($tr($1))
+						if (!$2) break
+						if ($str.left($2,1)!="%") {%widget->$setChecked($2);break;}
+						%widget->%pointer=$2
+						privateimpl(%widget,toggleEvent){
+							eval $$->%pointer\=$0
+							$$->$emit(toggled)
+						}
+						%tmp=\%check\=$2
+						eval %tmp
+						%widget->$setChecked(%check)
+					}
+					case ("combobox")
+					{
+						foreach(%cl,$1)
+						%widget->$insertItem(%cl)
+						if ($2) %widget->$setMaximumWidth($2)
+						break
+					}
+	
+				}
+				return %widget
+			}
+			addHline()
+			{
+				%hline=$new(label,$$->%widget)
+				%hline->$setFrameStyle("Hline","Sunken")
+				%hline->$setMaximumWidth($0)
+			}
+			addSpacer()
+			{
+				%widget=$new(widget,$$->%widget)
+				$$->%widget->$setStretchFactor(%widget,1)
+			}
+			function widget()
+			{
+				return $$->%widget
+			}
+			function setSpacing()
+			{
+				$$->%widget->$setSpacing($0)
+			}
+			function setMargin()
+			{
+				$$->%widget->$setMargin($0)
+			}
+			function setEnabled()
+			{
+				$$->%widget->$setEnabled($0)
+			}
+	
+			function setStretchFactor()
+			{
+				$$->%widget->$setStretchFactor($0,$1)
+			}
+			function addWidget()
+			{
+				// (!$2) %par=0
+				//se %par=$2
+				%widget=$$->$create($0,$1,$2,$3)
+				return %widget
+	
+			}
+			function addGroup()
+			{
+				%params[]=$1
+				for (%i=0;%i<$length(%params[]);%i++)  $$->$create($0,%params[%i],$2)
+			}
+		}
+}
+
+

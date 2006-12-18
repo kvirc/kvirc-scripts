@@ -1,0 +1,23 @@
+alias(NGLfserv::classes::customwidgets::checkbox)
+{
+	class(NGLfserv::classes::customwidgets::checkbox,checkbox)
+	{
+		constructor()
+		{
+			$$->$setText($tr($0))
+			if ($str.left($1,1)!="%") {$$->$setChecked($1);return;}
+			$$->%pointer=$1
+			%tmp=\%check\=$1
+			eval %tmp
+			$$->$setChecked(%check)
+		}
+		toggleEvent()
+		{
+			if ($$->%pointer==1 || !$$->%pointer) {$$->$emit(toggled,$0);return;}
+			eval $$->%pointer\=$0
+			$$->$emit(toggled,$0)
+		}
+	}
+}
+
+

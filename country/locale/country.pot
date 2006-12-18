@@ -1,0 +1,1049 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-08-03 03:03+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../install.kvs:4
+msgid "A simple script to know an host come from"
+msgstr ""
+
+#: ../install.kvs:33 ../install.kvs:34 ../install.kvs:41
+msgid "Usage"
+msgstr ""
+
+#: ../install.kvs:57
+msgid "Andorra"
+msgstr ""
+
+#: ../install.kvs:61
+msgid "United Arab Emirates"
+msgstr ""
+
+#: ../install.kvs:65
+msgid "Afghanistan"
+msgstr ""
+
+#: ../install.kvs:69
+msgid "Antigua and Barbuda"
+msgstr ""
+
+#: ../install.kvs:73
+msgid "Anguilla"
+msgstr ""
+
+#: ../install.kvs:77
+msgid "Albania"
+msgstr ""
+
+#: ../install.kvs:81
+msgid "Armenia"
+msgstr ""
+
+#: ../install.kvs:85
+msgid "Netherlands Antilles"
+msgstr ""
+
+#: ../install.kvs:89
+msgid "Angola"
+msgstr ""
+
+#: ../install.kvs:93
+msgid "Antarctica"
+msgstr ""
+
+#: ../install.kvs:97
+msgid "Argentina"
+msgstr ""
+
+#: ../install.kvs:101
+msgid "American Samoa"
+msgstr ""
+
+#: ../install.kvs:105
+msgid "Austria"
+msgstr ""
+
+#: ../install.kvs:109
+msgid "Australia"
+msgstr ""
+
+#: ../install.kvs:113
+msgid "Aruba"
+msgstr ""
+
+#: ../install.kvs:117
+msgid "Azerbaijan"
+msgstr ""
+
+#: ../install.kvs:121
+msgid "Bosnia and Herzegovina"
+msgstr ""
+
+#: ../install.kvs:125
+msgid "Barbados"
+msgstr ""
+
+#: ../install.kvs:129
+msgid "Bangladesh"
+msgstr ""
+
+#: ../install.kvs:133
+msgid "Belgium"
+msgstr ""
+
+#: ../install.kvs:137
+msgid "Burkina Faso"
+msgstr ""
+
+#: ../install.kvs:141
+msgid "Bulgaria"
+msgstr ""
+
+#: ../install.kvs:145
+msgid "Bahrain"
+msgstr ""
+
+#: ../install.kvs:149
+msgid "Burundi"
+msgstr ""
+
+#: ../install.kvs:153
+msgid "Benin"
+msgstr ""
+
+#: ../install.kvs:157
+msgid "Bermuda"
+msgstr ""
+
+#: ../install.kvs:161
+msgid "Brunei Darussalam"
+msgstr ""
+
+#: ../install.kvs:165
+msgid "Bolivia"
+msgstr ""
+
+#: ../install.kvs:169
+msgid "Brazil"
+msgstr ""
+
+#: ../install.kvs:173
+msgid "Bahamas"
+msgstr ""
+
+#: ../install.kvs:177
+msgid "Bhutan"
+msgstr ""
+
+#: ../install.kvs:181
+msgid "Bouvet Island"
+msgstr ""
+
+#: ../install.kvs:185
+msgid "Botswana"
+msgstr ""
+
+#: ../install.kvs:189
+msgid "Belarus"
+msgstr ""
+
+#: ../install.kvs:193
+msgid "Belize"
+msgstr ""
+
+#: ../install.kvs:197
+msgid "Canada"
+msgstr ""
+
+#: ../install.kvs:201
+msgid "Cocos Islands"
+msgstr ""
+
+#: ../install.kvs:205
+msgid "Central African Republic"
+msgstr ""
+
+#: ../install.kvs:209
+msgid "Congo"
+msgstr ""
+
+#: ../install.kvs:213
+msgid "Switzerland"
+msgstr ""
+
+#: ../install.kvs:217
+msgid "Ivory Coast"
+msgstr ""
+
+#: ../install.kvs:221
+msgid "Cook Islands"
+msgstr ""
+
+#: ../install.kvs:225
+msgid "Chile"
+msgstr ""
+
+#: ../install.kvs:229
+msgid "Cameroon"
+msgstr ""
+
+#: ../install.kvs:233
+msgid "China"
+msgstr ""
+
+#: ../install.kvs:237
+msgid "Colombia"
+msgstr ""
+
+#: ../install.kvs:241
+msgid "Costa Rica"
+msgstr ""
+
+#: ../install.kvs:245
+msgid "Former Czechoslovakia"
+msgstr ""
+
+#: ../install.kvs:249
+msgid "Cuba"
+msgstr ""
+
+#: ../install.kvs:253
+msgid "Cape Verde"
+msgstr ""
+
+#: ../install.kvs:257
+msgid "Christmas Island"
+msgstr ""
+
+#: ../install.kvs:261
+msgid "Cyprus"
+msgstr ""
+
+#: ../install.kvs:265
+msgid "Czech Republic"
+msgstr ""
+
+#: ../install.kvs:269
+msgid "Germany"
+msgstr ""
+
+#: ../install.kvs:273
+msgid "Djibouti"
+msgstr ""
+
+#: ../install.kvs:277
+msgid "Denmark"
+msgstr ""
+
+#: ../install.kvs:281
+msgid "Dominica"
+msgstr ""
+
+#: ../install.kvs:285
+msgid "Dominican Republic"
+msgstr ""
+
+#: ../install.kvs:289
+msgid "Algeria"
+msgstr ""
+
+#: ../install.kvs:293
+msgid "Ecuador"
+msgstr ""
+
+#: ../install.kvs:297
+msgid "Estonia"
+msgstr ""
+
+#: ../install.kvs:301
+msgid "Egypt"
+msgstr ""
+
+#: ../install.kvs:305
+msgid "Western Sahara"
+msgstr ""
+
+#: ../install.kvs:309
+msgid "Eritrea"
+msgstr ""
+
+#: ../install.kvs:313
+msgid "Spain"
+msgstr ""
+
+#: ../install.kvs:317
+msgid "Ethiopia"
+msgstr ""
+
+#: ../install.kvs:321
+msgid "Finland"
+msgstr ""
+
+#: ../install.kvs:325
+msgid "Fiji"
+msgstr ""
+
+#: ../install.kvs:329
+msgid "Falkland Islands"
+msgstr ""
+
+#: ../install.kvs:333
+msgid "Micronesia"
+msgstr ""
+
+#: ../install.kvs:337
+msgid "Faroe Islands"
+msgstr ""
+
+#: ../install.kvs:341
+msgid "France"
+msgstr ""
+
+#: ../install.kvs:345
+msgid "France, Metropolitan"
+msgstr ""
+
+#: ../install.kvs:349
+msgid "Gabon"
+msgstr ""
+
+#: ../install.kvs:353
+msgid "Great Britain"
+msgstr ""
+
+#: ../install.kvs:357
+msgid "Grenada"
+msgstr ""
+
+#: ../install.kvs:361
+msgid "Georgia"
+msgstr ""
+
+#: ../install.kvs:365
+msgid "French Guiana"
+msgstr ""
+
+#: ../install.kvs:369
+msgid "Ghana"
+msgstr ""
+
+#: ../install.kvs:373
+msgid "Gibraltar"
+msgstr ""
+
+#: ../install.kvs:377
+msgid "Greenland"
+msgstr ""
+
+#: ../install.kvs:381
+msgid "Gambia"
+msgstr ""
+
+#: ../install.kvs:385
+msgid "Guinea"
+msgstr ""
+
+#: ../install.kvs:389
+msgid "Guadeloupe"
+msgstr ""
+
+#: ../install.kvs:393
+msgid "Equatorial Guinea"
+msgstr ""
+
+#: ../install.kvs:397
+msgid "Greece"
+msgstr ""
+
+#: ../install.kvs:401
+msgid "South Georgia / South Sandwich Islands"
+msgstr ""
+
+#: ../install.kvs:405
+msgid "Guatemala"
+msgstr ""
+
+#: ../install.kvs:409
+msgid "Guam"
+msgstr ""
+
+#: ../install.kvs:413
+msgid "Guinea-Bissau"
+msgstr ""
+
+#: ../install.kvs:417
+msgid "Guyana"
+msgstr ""
+
+#: ../install.kvs:421
+msgid "Hong Kong"
+msgstr ""
+
+#: ../install.kvs:425
+msgid "Heard and McDonald Islands"
+msgstr ""
+
+#: ../install.kvs:429
+msgid "Honduras"
+msgstr ""
+
+#: ../install.kvs:433
+msgid "Croatia"
+msgstr ""
+
+#: ../install.kvs:437
+msgid "Haiti"
+msgstr ""
+
+#: ../install.kvs:441
+msgid "Hungary"
+msgstr ""
+
+#: ../install.kvs:445
+msgid "Indonesia"
+msgstr ""
+
+#: ../install.kvs:449
+msgid "Ireland"
+msgstr ""
+
+#: ../install.kvs:453
+msgid "Israel"
+msgstr ""
+
+#: ../install.kvs:457
+msgid "India"
+msgstr ""
+
+#: ../install.kvs:461
+msgid "British Indian Ocean Territory"
+msgstr ""
+
+#: ../install.kvs:465
+msgid "Iraq"
+msgstr ""
+
+#: ../install.kvs:469
+msgid "Iran"
+msgstr ""
+
+#: ../install.kvs:473
+msgid "Iceland"
+msgstr ""
+
+#: ../install.kvs:477
+msgid "Italy"
+msgstr ""
+
+#: ../install.kvs:481
+msgid "Jamaica"
+msgstr ""
+
+#: ../install.kvs:485
+msgid "Jordan"
+msgstr ""
+
+#: ../install.kvs:489
+msgid "Japan"
+msgstr ""
+
+#: ../install.kvs:493
+msgid "Kenya"
+msgstr ""
+
+#: ../install.kvs:497
+msgid "Kyrgyzstan"
+msgstr ""
+
+#: ../install.kvs:501
+msgid "Cambodia"
+msgstr ""
+
+#: ../install.kvs:505
+msgid "Kiribati"
+msgstr ""
+
+#: ../install.kvs:509
+msgid "Comoros"
+msgstr ""
+
+#: ../install.kvs:513
+msgid "Saint Kitts and Nevis"
+msgstr ""
+
+#: ../install.kvs:517
+msgid "North Korea"
+msgstr ""
+
+#: ../install.kvs:521
+msgid "South Korea"
+msgstr ""
+
+#: ../install.kvs:525
+msgid "Kuwait"
+msgstr ""
+
+#: ../install.kvs:529
+msgid "Cayman Islands"
+msgstr ""
+
+#: ../install.kvs:533
+msgid "Kazakhstan"
+msgstr ""
+
+#: ../install.kvs:537
+msgid "Laos"
+msgstr ""
+
+#: ../install.kvs:541
+msgid "Lebanon"
+msgstr ""
+
+#: ../install.kvs:545
+msgid "Saint Lucia"
+msgstr ""
+
+#: ../install.kvs:549
+msgid "Liechtenstein"
+msgstr ""
+
+#: ../install.kvs:553
+msgid "Sri Lanka"
+msgstr ""
+
+#: ../install.kvs:557
+msgid "Liberia"
+msgstr ""
+
+#: ../install.kvs:561
+msgid "Lesotho"
+msgstr ""
+
+#: ../install.kvs:565
+msgid "Lithuania"
+msgstr ""
+
+#: ../install.kvs:569
+msgid "Luxembourg"
+msgstr ""
+
+#: ../install.kvs:573
+msgid "Latvia"
+msgstr ""
+
+#: ../install.kvs:577
+msgid "Libya"
+msgstr ""
+
+#: ../install.kvs:581
+msgid "Morocco"
+msgstr ""
+
+#: ../install.kvs:585
+msgid "Monaco"
+msgstr ""
+
+#: ../install.kvs:589
+msgid "Moldova"
+msgstr ""
+
+#: ../install.kvs:593
+msgid "Madagascar"
+msgstr ""
+
+#: ../install.kvs:597
+msgid "Marshall Islands"
+msgstr ""
+
+#: ../install.kvs:601
+msgid "Macedonia"
+msgstr ""
+
+#: ../install.kvs:605
+msgid "Mali"
+msgstr ""
+
+#: ../install.kvs:609
+msgid "Myanmar"
+msgstr ""
+
+#: ../install.kvs:613
+msgid "Mongolia"
+msgstr ""
+
+#: ../install.kvs:617
+msgid "Macau"
+msgstr ""
+
+#: ../install.kvs:621
+msgid "Northern Mariana Islands"
+msgstr ""
+
+#: ../install.kvs:625
+msgid "Martinique"
+msgstr ""
+
+#: ../install.kvs:629
+msgid "Mauritania"
+msgstr ""
+
+#: ../install.kvs:633
+msgid "Montserrat"
+msgstr ""
+
+#: ../install.kvs:637
+msgid "Malta"
+msgstr ""
+
+#: ../install.kvs:641
+msgid "Mauritius"
+msgstr ""
+
+#: ../install.kvs:645
+msgid "Maldives"
+msgstr ""
+
+#: ../install.kvs:649
+msgid "Malawi"
+msgstr ""
+
+#: ../install.kvs:653
+msgid "Mexico"
+msgstr ""
+
+#: ../install.kvs:657
+msgid "Malaysia"
+msgstr ""
+
+#: ../install.kvs:661
+msgid "Mozambique"
+msgstr ""
+
+#: ../install.kvs:665
+msgid "Namibia"
+msgstr ""
+
+#: ../install.kvs:669
+msgid "New Caledonia"
+msgstr ""
+
+#: ../install.kvs:673
+msgid "Niger"
+msgstr ""
+
+#: ../install.kvs:677
+msgid "Norfolk Island"
+msgstr ""
+
+#: ../install.kvs:681
+msgid "Nigeria"
+msgstr ""
+
+#: ../install.kvs:685
+msgid "Nicaragua"
+msgstr ""
+
+#: ../install.kvs:689
+msgid "Netherlands"
+msgstr ""
+
+#: ../install.kvs:693
+msgid "Norway"
+msgstr ""
+
+#: ../install.kvs:697
+msgid "Nepal"
+msgstr ""
+
+#: ../install.kvs:701
+msgid "Nauru"
+msgstr ""
+
+#: ../install.kvs:705
+msgid "Neutral Zone"
+msgstr ""
+
+#: ../install.kvs:709
+msgid "Niue"
+msgstr ""
+
+#: ../install.kvs:713
+msgid "New Zealand"
+msgstr ""
+
+#: ../install.kvs:717
+msgid "Oman"
+msgstr ""
+
+#: ../install.kvs:721
+msgid "Panama"
+msgstr ""
+
+#: ../install.kvs:725
+msgid "Peru"
+msgstr ""
+
+#: ../install.kvs:729
+msgid "French Polynesia"
+msgstr ""
+
+#: ../install.kvs:733
+msgid "Papua New Guinea"
+msgstr ""
+
+#: ../install.kvs:737
+msgid "Philippines"
+msgstr ""
+
+#: ../install.kvs:741
+msgid "Pakistan"
+msgstr ""
+
+#: ../install.kvs:745
+msgid "Poland"
+msgstr ""
+
+#: ../install.kvs:749
+msgid "St. Pierre and Miquelon"
+msgstr ""
+
+#: ../install.kvs:753
+msgid "Pitcairn"
+msgstr ""
+
+#: ../install.kvs:757
+msgid "Puerto Rico"
+msgstr ""
+
+#: ../install.kvs:761
+msgid "Portugal"
+msgstr ""
+
+#: ../install.kvs:765
+msgid "Palau"
+msgstr ""
+
+#: ../install.kvs:769
+msgid "Paraguay"
+msgstr ""
+
+#: ../install.kvs:773
+msgid "Qatar"
+msgstr ""
+
+#: ../install.kvs:777
+msgid "Reunion"
+msgstr ""
+
+#: ../install.kvs:781
+msgid "Romania"
+msgstr ""
+
+#: ../install.kvs:785
+msgid "Russia"
+msgstr ""
+
+#: ../install.kvs:789
+msgid "Rwanda"
+msgstr ""
+
+#: ../install.kvs:793
+msgid "Saudi Arabia"
+msgstr ""
+
+#: ../install.kvs:797
+msgid "Solomon Islands"
+msgstr ""
+
+#: ../install.kvs:801
+msgid "Seychelles"
+msgstr ""
+
+#: ../install.kvs:805
+msgid "Sudan"
+msgstr ""
+
+#: ../install.kvs:809
+msgid "Sweden"
+msgstr ""
+
+#: ../install.kvs:813
+msgid "Singapore"
+msgstr ""
+
+#: ../install.kvs:817
+msgid "St. Helena"
+msgstr ""
+
+#: ../install.kvs:821
+msgid "Slovenia"
+msgstr ""
+
+#: ../install.kvs:825
+msgid "Svalbard and Jan Mayen Islands"
+msgstr ""
+
+#: ../install.kvs:829
+msgid "Slovak Republic"
+msgstr ""
+
+#: ../install.kvs:833
+msgid "Sierra Leone"
+msgstr ""
+
+#: ../install.kvs:837
+msgid "San Marino"
+msgstr ""
+
+#: ../install.kvs:841
+msgid "Senegal"
+msgstr ""
+
+#: ../install.kvs:845
+msgid "Somalia"
+msgstr ""
+
+#: ../install.kvs:849
+msgid "Suriname"
+msgstr ""
+
+#: ../install.kvs:853
+msgid "Sao Tome and Principe"
+msgstr ""
+
+#: ../install.kvs:857
+msgid "U.S.S.R."
+msgstr ""
+
+#: ../install.kvs:861
+msgid "El Salvador"
+msgstr ""
+
+#: ../install.kvs:865
+msgid "Syria"
+msgstr ""
+
+#: ../install.kvs:869
+msgid "Swaziland"
+msgstr ""
+
+#: ../install.kvs:873
+msgid "Turks and Caicos Islands"
+msgstr ""
+
+#: ../install.kvs:877
+msgid "Chad"
+msgstr ""
+
+#: ../install.kvs:881
+msgid "French Southern Territories"
+msgstr ""
+
+#: ../install.kvs:885
+msgid "Togo"
+msgstr ""
+
+#: ../install.kvs:889
+msgid "Thailand"
+msgstr ""
+
+#: ../install.kvs:893
+msgid "Tajikistan"
+msgstr ""
+
+#: ../install.kvs:897
+msgid "Tokelau"
+msgstr ""
+
+#: ../install.kvs:901
+msgid "Turkmenistan"
+msgstr ""
+
+#: ../install.kvs:905
+msgid "Tunisia"
+msgstr ""
+
+#: ../install.kvs:909
+msgid "Tonga"
+msgstr ""
+
+#: ../install.kvs:913
+msgid "East Timor"
+msgstr ""
+
+#: ../install.kvs:917
+msgid "Turkey"
+msgstr ""
+
+#: ../install.kvs:921
+msgid "Trinidad and Tobago"
+msgstr ""
+
+#: ../install.kvs:925
+msgid "Tuvalu"
+msgstr ""
+
+#: ../install.kvs:929
+msgid "Taiwan"
+msgstr ""
+
+#: ../install.kvs:933
+msgid "Tanzania"
+msgstr ""
+
+#: ../install.kvs:937
+msgid "Ukraine"
+msgstr ""
+
+#: ../install.kvs:941
+msgid "Uganda"
+msgstr ""
+
+#: ../install.kvs:945
+msgid "United Kingdom"
+msgstr ""
+
+#: ../install.kvs:949
+msgid "U.S. Minor Outlying Islands"
+msgstr ""
+
+#: ../install.kvs:953
+msgid "United States"
+msgstr ""
+
+#: ../install.kvs:957
+msgid "Uruguay"
+msgstr ""
+
+#: ../install.kvs:961
+msgid "Uzbekistan"
+msgstr ""
+
+#: ../install.kvs:965
+msgid "Vatican City State"
+msgstr ""
+
+#: ../install.kvs:969
+msgid "Saint Vincent and the Grenadines"
+msgstr ""
+
+#: ../install.kvs:973
+msgid "Venezuela"
+msgstr ""
+
+#: ../install.kvs:977
+msgid "British Virgin Islands"
+msgstr ""
+
+#: ../install.kvs:981
+msgid "U.S. Virgin Islands"
+msgstr ""
+
+#: ../install.kvs:985
+msgid "Vietnam"
+msgstr ""
+
+#: ../install.kvs:989
+msgid "Vanuatu"
+msgstr ""
+
+#: ../install.kvs:993
+msgid "Wallis and Futuna Islands"
+msgstr ""
+
+#: ../install.kvs:997
+msgid "Samoa"
+msgstr ""
+
+#: ../install.kvs:1001
+msgid "Yemen"
+msgstr ""
+
+#: ../install.kvs:1005
+msgid "Mayotte"
+msgstr ""
+
+#: ../install.kvs:1009
+msgid "Yugoslavia"
+msgstr ""
+
+#: ../install.kvs:1013
+msgid "South Africa"
+msgstr ""
+
+#: ../install.kvs:1017
+msgid "Zambia"
+msgstr ""
+
+#: ../install.kvs:1021
+msgid "Zaire"
+msgstr ""
+
+#: ../install.kvs:1025
+msgid "Zimbabwe"
+msgstr ""
+
+#: ../install.kvs:1029
+msgid "Nato Field"
+msgstr ""
+
+#: ../install.kvs:1033
+msgid "Commercial"
+msgstr ""
+
+#: ../install.kvs:1037
+msgid "Educational"
+msgstr ""
+
+#: ../install.kvs:1041
+msgid "Government"
+msgstr ""
+
+#: ../install.kvs:1045
+msgid "Information"
+msgstr ""
+
+#: ../install.kvs:1049
+msgid "International"
+msgstr ""
+
+#: ../install.kvs:1053
+msgid "Military"
+msgstr ""
+
+#: ../install.kvs:1057
+msgid "Network"
+msgstr ""
+
+#: ../install.kvs:1061
+msgid "Organization"
+msgstr ""
+
+#: ../install.kvs:1065
+msgid "Old Style Arpanet"
+msgstr ""
+
+#: ../install.kvs:1069
+msgid "Unknown"
+msgstr ""
+
+#: ../install.kvs:1073
+msgid "Country"
+msgstr ""
+
+#: ../install.kvs:1078
+msgid "From"
+msgstr ""

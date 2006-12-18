@@ -1,0 +1,116 @@
+alias(twins::mediaplayer::core::config::load)
+{
+	%c = $config.open(twinsmediaplayer.kvc,r)
+
+	%TwinsMediaPlayer{sharetimeout} = $config.read(%c,sharetimeout,10)
+	%TwinsMediaPlayer{confirmbeforequit} = $config.read(%c,confirmbeforequit,1)
+
+	config.setsection %c advertise
+	%TwinsMediaPlayer{showalbum} = $config.read(%c,showalbum,0)
+	%TwinsMediaPlayer{showgenre} = $config.read(%c,showgenre,1)
+	%TwinsMediaPlayer{showbitrate} = $config.read(%c,showbitrate,1)
+	%TwinsMediaPlayer{showfreq} = $config.read(%c,showfreq,1)
+	%TwinsMediaPlayer{showyear} = $config.read(%c,showyear,1)
+	%TwinsMediaPlayer{separator} = $config.read(%c,separator,",")
+	%TwinsMediaPlayer{announce} = $config.read(%c,announce,$tr("is listening to",twinsmediaplayer))
+	%TwinsMediaPlayer{maxoffernamelength} = $config.read(%c,maxoffernamelength,20)
+
+	config.setsection %c look
+	%TwinsMediaPlayer{color:bg:window} = $config.read(%c,color:bg:window,white)
+	%TwinsMediaPlayer{color:fg:window} = $config.read(%c,color:fg:window,black)
+	%TwinsMediaPlayer{color:bg:artist} = $config.read(%c,color:bg:artist,"#aaaaaa")
+	%TwinsMediaPlayer{color:fg:artist} = $config.read(%c,color:fg:artist,"#007e7e")
+	%TwinsMediaPlayer{color:bg:title} = $config.read(%c,color:bg:title,"#007e7e")
+	%TwinsMediaPlayer{color:fg:title} = $config.read(%c,color:fg:title,"#ffffff")
+	%TwinsMediaPlayer{color:bg:album} = $config.read(%c,color:bg:album,"#f0f0f0")
+	%TwinsMediaPlayer{color:fg:album} = $config.read(%c,color:fg:album,"#909090")
+
+	config.setsection %c startmode
+	%TwinsMediaPlayer{startmode} = $config.read(%c,mode,remember)
+	%TwinsMediaPlayer{laststartmode} = $config.read(%c,last,on)
+
+	config.close %c
+}
+
+
+alias(twins::mediaplayer::core::config::save)
+{
+	%c = $config.open(twinsmediaplayer.kvc,w)
+
+	foreach(%tag,confirmbeforequit,sharetimeout)
+	config.write %c %tag %TwinsMediaPlayer{%tag}
+
+	config.setsection %c advertise
+	foreach(%tag,showalbum,showgenre,showbitrate,showfreq,showyear,separator,announce,maxoffernamelength)
+	config.write %c %tag %TwinsMediaPlayer{%tag}
+
+	config.setsection %c look
+	foreach(%tag,window,artist,title,album)
+	foreach(%bg,fg,bg)
+	config.write %c color:%bg:%tag %TwinsMediaPlayer{color:%bg:%tag}
+
+	config.setsection %c startmode
+	config.write %c mode %TwinsMediaPlayer{startmode}
+	config.write %c last %TwinsMediaPlayer{laststartmode}
+
+	config.close %c
+}
+
+
+alias(twins::mediaplayer::close)
+{
+	# @title:
+	#	Close the Twins Media Player
+	if($objects.exists(%G_hTwinsMediaPlayer{window}))
+		%G_hTwinsMediaPlayer{window}->$quit()
+}
+
+
+alias(twins::mediaplayer::configure)
+{
+	# @title:
+	#	Configure the Twins MediaPlayer addon
+	if(!$objects.exists(%G_hTwinsMediaPlayer{config}))
+		%G_hTwinsMediaPlayer{config}=$new(twins::mediaplayer::config)
+	%G_hTwinsMediaPlayer{config}->$setModal(1)
+	%G_hTwinsMediaPlayer{config}->$show
+}
+
+
+alias(twins::mediaplayer::show)
+{
+	# @title:
+	#	Show the Twins Media Player
+	if(!$isset($mediaplayer.player))mediaplayer.detect
+	if(!$isset($mediaplayer.player)){
+		dialog.message("Twins Media Player","Impossible to find a valid media player!",error){;}
+		halt
+	}
+
+
+	// Hack for amarok
+	if(!$isset(%TwinsMediaPlayer.try)) %TwinsMediaPlayer.try=0
+	if($isset(%TwinsMediaPlayer.try) && %TwinsMediaPlayer.try > 2)
+	{
+		echo $tr("It is the 3rd time we attempt to start amarok. If you want to try again, type $b/\%TwinsMediaPlayer.try=0$b before.",twinsmediaplayer)
+		return
+	}
+	if($mediaplayer.player == "amarok" && $mediaplayer.status == "unknown")
+	{
+		%iTime=15
+		%TwinsMediaPlayer.try++
+		echo $tr("Starting Twins Media Player in$k(12) %iTime$k()s",twinsmediaplayer)
+		timer -s (twinsmediaplayerstart,%iTime"000")
+		{
+			twins::mediaplayer::show
+		}
+		return
+	}
+	if(!$objects.exists(%G_hTwinsMediaPlayer{window}))
+		%G_hTwinsMediaPlayer{window}=$new(twins::mediaplayer::window)
+
+	%G_hTwinsMediaPlayer{window}->$dock(l)
+	%G_hTwinsMediaPlayer{window}->$show
+}
+
+

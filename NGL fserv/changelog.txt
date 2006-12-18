@@ -1,0 +1,5 @@
+Changes since version 1.0aplha
+
+- Fixed welcome message displaying in shell
+- Fixed dcc-chat shell clonescanner
+- More integration with other fileserver's browsers

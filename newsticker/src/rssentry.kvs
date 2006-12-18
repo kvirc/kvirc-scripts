@@ -1,0 +1,107 @@
+class(newsticker::rss::entry,object)
+{
+	// var %m_szTitle
+	// var %m_szLink
+	// var %m_szDescription
+	// var %m_szDate
+	// var %m_szSource
+	// var %m_bUnread
+	// var %m_bNotified
+
+	isUnread()
+	{
+		return @%m_bUnread
+	}
+
+	isNotified()
+	{
+		return @%m_bNotified
+	}
+
+	setUnread($0 = bUnread)
+	{
+		@%m_bUnread = $0
+	}
+
+	setNotified($0 = bNotified)
+	{
+		@%m_bNotified = $0
+	}
+
+	setSource($0 = source)
+	{
+		@%m_szSource = $0
+	}
+
+	setDate($0 = date)
+	{
+		@%m_szDate = $0
+	}
+	
+	setTitle($0 = title)
+	{
+		@%m_szTitle = $0
+	}
+	
+	setLink($0 = link)
+	{
+		@%m_szLink = $0
+	}
+	
+	setDescription($0 = description)
+	{
+		@%m_szDescription = $0
+	}
+
+	set($0 = title,$1 = link,$2 = description,$3 = date,$4 = source,$5 = unread,$6 = notified)
+	{
+		@%m_szTitle = $0
+		@%m_szLink = $1
+		@%m_szDescription = $2
+		@%m_szDate = $3
+		@%m_szSource = $4
+		@%m_bUnread = $5
+		@%m_bNotified = $6
+	}
+
+	copyFrom($0 = other rssentry)
+	{
+		if($0 == $null)
+			$$->$set("","","","","",$false)
+		else
+			$$->$set($0->$title(),$0->$link(),$0->$description(),$0->$date(),$0->$source(),$0->$isUnread(),$0->$isNotified())
+	}
+	
+	source()
+	{
+		return @%m_szSource
+	}
+	
+	title()
+	{
+		return @%m_szTitle
+	}
+	
+	link()
+	{
+		return @%m_szLink
+	}
+	
+	description()
+	{
+		return @%m_szDescription
+	}
+
+	date()
+	{
+		return @%m_szDate
+	}
+
+	dump()
+	{
+		# debug "TITLE:" @%m_szTitle
+		# debug "LINK:" @%m_szLink
+		# debug "DESCRIPTION:" @%m_szDescription
+	}
+}
+

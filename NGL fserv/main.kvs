@@ -1,0 +1,16 @@
+%files[]=$file.ls($file.extractpath($0)/src,f)
+%alias  = "alias (NGLfserv::uninstall::uninstallaliases)"
+%alias .= "{$lf"
+
+
+for (%i=0;%i<$length(%files[]);%i++)
+{
+ 	include $file.extractpath($0)/src/%files[%i]
+	%flt=$str.left(%files[%i],$($str.len(%files[%i])-4))
+	%file=$str.replace(%flt,"::","_")
+	%alias  .= "alias (%file){};$lf"
+	
+}
+%alias  .= "alias (NGLfserv::uninstall::uninstallaliases){};$lf"
+%alias .= "}"
+eval %alias

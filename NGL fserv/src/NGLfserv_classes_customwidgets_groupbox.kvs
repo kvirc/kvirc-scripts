@@ -1,0 +1,16 @@
+alias(NGLfserv::classes::customwidgets::groupbox)
+{
+	class(NGLfserv::classes::customwidgets::groupbox,groupbox)
+	{
+		constructor()
+		{
+			$$->$setTitle($0)
+			$$->$setInsideSpacing($1)
+			$$->$setInsideMargin($2)
+			if ($3)
+			$$->$setColumnLayout(1,$3)
+		}
+	}
+}
+
+

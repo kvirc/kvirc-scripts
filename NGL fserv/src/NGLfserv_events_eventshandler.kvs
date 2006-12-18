@@ -1,0 +1,72 @@
+alias(NGLfserv::events::eventshandler)
+{
+	switch($0)
+	{
+		case ("ENABLE")
+	 	{
+			eventctl --enable OnChannelMessage NGLfserv_!list
+			eventctl --enable OnChannelMessage NGLfserv_@find
+			eventctl --enable OnChannelMessage NGLfserv_!trigger
+			eventctl --enable OnChannelMessage NGLfserv_!myqueues
+			eventctl --enable OnCtcpRequest NGLfserv_trigger
+			eventctl --enable OnCtcpRequest NGLfserv_qget
+			eventctl --enable OnDCCChatConnectionInProgress NGLfserv
+			eventctl --enable OnDccChatConnected NGLfserv
+			eventctl --enable OnDCCChatDisconnected NGLfserv
+			eventctl --enable OnDCCChatError NGLfserv
+			eventctl --enable OnDCCFileTransferBegin NGLfserv
+			eventctl --enable OnDCCFileTransferFailed NGLfserv
+			eventctl --enable OnDCCFileTransferSuccess NGLfserv
+			eventctl --enable OnDCCChatMessage NGLfserv
+			eventctl --enable OnNickChange NGLfserv
+			eventctl --enable OnPart NGLfserv
+			eventctl --enable OnQuit NGLfserv
+			eventctl --enable OnDCCChatWindowClosing NGLfserv
+		}
+		case ("DISABLE")
+		{
+			eventctl --disable OnChannelMessage NGLfserv_!list
+			eventctl --disable OnChannelMessage NGLfserv_@find
+			eventctl --disable OnChannelMessage NGLfserv_!trigger
+			eventctl --disable OnChannelMessage NGLfserv_!myqueues
+			eventctl --disable OnCtcpRequest NGLfserv_trigger
+			eventctl --disable OnCtcpRequest NGLfserv_qget
+			eventctl --disable OnDCCChatConnectionInProgress NGLfserv
+			eventctl --disable OnDccChatConnected NGLfserv
+			eventctl --disable OnDCCChatDisconnected NGLfserv
+			eventctl --disable OnDCCChatError NGLfserv
+			eventctl --disable OnDCCFileTransferBegin NGLfserv
+			eventctl --disable OnDCCFileTransferFailed NGLfserv
+			eventctl --disable OnDCCFileTransferSuccess NGLfserv
+			eventctl --disable OnDCCChatMessage NGLfserv
+			eventctl --disable OnNickChange NGLfserv
+			eventctl --disable OnPart NGLfserv
+			eventctl --disable OnQuit NGLfserv
+			eventctl --disable OnDCCChatWindowClosing NGLfserv
+		}
+		case ("UNINSTALL")
+		{
+			eventctl --unregister OnChannelMessage NGLfserv_!list
+			eventctl --unregister OnChannelMessage NGLfserv_@find
+			eventctl --unregister OnChannelMessage NGLfserv_!trigger
+			eventctl --unregister OnChannelMessage NGLfserv_!myqueues
+			eventctl --unregister OnCtcpRequest NGLfserv_trigger
+			eventctl --unregister OnCtcpRequest NGLfserv_qget
+			eventctl --unregister OnDCCChatConnectionInProgress NGLfserv
+			eventctl --unregister OnDccChatConnected NGLfserv
+			eventctl --unregister OnDCCChatDisconnected NGLfserv
+			eventctl --unregister OnDCCChatError NGLfserv
+			eventctl --unregister OnDCCFileTransferBegin NGLfserv
+			eventctl --unregister OnDCCFileTransferFailed NGLfserv
+			eventctl --unregister OnDCCFileTransferSuccess NGLfserv
+			eventctl --unregister OnDCCChatMessage NGLfserv
+			eventctl --unregister OnKVIrcStartup NGLfserv
+			eventctl --unregister OnNickChange NGLfserv
+			eventctl --unregister OnPart NGLfserv
+			eventctl --unregister OnQuit NGLfserv
+			eventctl --unregister OnDCCChatWindowClosing NGLfserv
+		}
+	}
+}
+
+

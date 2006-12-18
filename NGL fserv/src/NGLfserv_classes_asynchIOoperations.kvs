@@ -1,0 +1,113 @@
+alias(NGLfserv::classes::asynchIOoperations)
+{
+	class(NGLfserv::classes::asynchLoad,object)
+	{
+	 
+	 	function constructor()
+		{
+			$$->%instances=$new(list,$$)
+	
+		}
+		function start()
+		{
+			$$->%instances->$moveFirst()
+			$$->%instances->$item(0)->$item(0)->%trigger->$updateStart($$->%instances->$item(0))
+		}
+		function addInstance()
+		{
+			$$->%instances->$append($0)
+			$$->%c=$1
+			objects.connect $0->$item(0)->%trigger scancompleted $$ nexttrigger
+			$$->%trigger=$0->$item(0)->%trigger
+		}
+		function nextTrigger()
+		{
+			objects.disconnect $$->%trigger scancompleted $$ nexttrigger
+			$$->$loadNotShared($$->%trigger)
+			$$->%instances->$moveNext()
+			if ($$->%instances->$current){
+				objects.connect $$->%instances->$current->$item(0)->%trigger scancompleted $$ nexttrigger
+				$$->%trigger=$$->%instances->$current->$item(0)->%trigger
+				$$->%instances->$current()->$item(0)->%trigger->$updateStart($$->%instances->$current())
+			}
+			else{
+				NGLfserv::corefunctions::ngldebug loading complete
+				delete $$
+				halt
+			}
+		}
+		function loadNotShared()
+		{
+			config.setsection $$->%c general
+			%len=$config.read($$->%c,notshared)
+			%lenf=%len
+			%i=0
+			%count=0
+			while(%count<%len){
+				if ($config.hasSection($$->%c,notshared%i)){
+					%filetmp=""
+					%missing=$false
+					%count++
+					config.setsection $$->%c notshared%i
+					%fl=$config.read($$->%c,files,"")
+					if (%fl) %files[]=$str.split("|",%fl)	
+					%node=$$->%trigger->$getFolderObjFromPath($config.read($$->%c,pathfromtrigger))
+					if (%node){
+						%rrf=$$->%trigger->$getRealPath(%node)
+						if (!%fl)	%node->%dirNotShared=$true
+						else {
+							foreach(%file,%files[]){
+								if (%file){
+									if ($file.exists(%rrf/%file)) {
+						 			%node->%filesNotShared{%file}=$true
+						 			%filetmp=%filetmp%file|
+						 			}
+						 			else %missing=$true
+						 		}
+							}
+							if (%missing){
+								if(%filetmp)
+								 	config.write $$->%c files %filetmp
+								 else{
+								 	%item=%node
+									while (%item !=$$->%trigger->$firstNode()){
+	  						 			if ($$->%trigger->$checkChildrenNotShared(%item)){
+	  						 				%item=%item->$parent()
+	 			  			 			}
+	 			  			 			else{
+	 			  			 				%item->%dirNotShared=$true
+	 			  			 				$$->%trigger->%node=%item
+											config.write $$->%c pathfromtrigger $$->%trigger->$getLocalTriggerPath()
+											config.write $$->%c files ""
+	 			  			 				%changed=$true
+	 			  			 				break
+	 			  			 			}
+	 			  			 		}
+	 			  			 		if (!%changed && %node!=$$->%trigger->$firstNode()){
+	 			  			 			%node->%dirNotShared=$true
+	 			  			 			$$->%trigger->%node=%node
+	 			  			 			config.write $$->%c pathfromtrigger $$->%trigger->$getLocalTriggerPath()
+										config.write $$->%c files ""
+	 			  			 		}
+	 			  			 		%changed=$false  			 		
+	 			  				 }
+	 			  		 	}
+						}
+					}
+					else{
+						config.clearsection $$->%c notshared%i
+						%lenf--
+					}
+				}
+				%i++
+			}
+			if (%len!=%lenf) {
+				config.setsection $$->%c general
+				config.write $$->%c notshared %lenf
+			}
+			//config.close $$->%c
+		}		
+	}
+}
+
+

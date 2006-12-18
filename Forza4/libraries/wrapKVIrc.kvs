@@ -1,0 +1,246 @@
+alias(wrapKVIrc)
+{
+	#######################################################
+	#			wrapKVIrc			
+	# 		       +---------+			
+	# Using this class you'll be able to hook all KVIrc's	 
+	# visual objects like statusbar, menubar etc. etc.	
+	# The usage is really simple like the example below: 		
+	# 							
+	# ES:
+	      # wrapKVIrc							
+	# %HOOK = $new(hookKVIrc)				
+	# %HookedObject = %HOOK->hookBackGround( myobj )	
+	# %MyButton =$new(button,%HookedObject)			
+	# %MyButton->$show()					
+	#							
+	# The example above create a new button 
+	# in KVIrc's Background.
+	#							
+	# EnJoY!						
+	# Grifisx & Noldor 2005 (.:mDm:.Team)			
+	########################################################
+	#							
+	# Available functions:
+	#
+	# -$hookMainFrame(<objectname>)
+	# -$hookBackGround(<objectname>)
+	# -$hookForeGround(<objectname>)
+	# -$hookStatusBar(<objectname>)
+	# -$hookMenuBar(<objectname>)
+	# -$hookToolBar(<objectname>)
+	# -$hookMainRightSplitter(<objectname>)
+	# -$hookTreeViewWidget(<objectname>)
+	# -$hookChannelWindow(<objectname>,<channel>)
+	# -$hookChannelIputLineEdit(<objectname>,<#channel>)
+	# -$hookChannelRightSplitter(<objectname>,<#channel>)
+	# -$hookChannelHoriziontaSplitter(<objectname>,<#channel>)
+	# -$hookChannelInputLineButtons(<objectname>,<#channel>)
+	# -$hookChannelTitleBar(<objectname>,<#channel>)
+	# -$hookQueryWindow(<objectname>,<nick)
+	# -$hookQueryInputLineEdit(<objectname>,<nick>)
+	# -$hookQueryRightSplitter(<objectname>,<nick>)
+	# -$hookQueryTitleBar(<objectname>,<nick>)
+	# -$hookQueryInputLineButtons(<objectname>,<nick>)
+	# -$hookWindow(<objectname>,<win_id>)
+	# -$hookWindowRightSplitter(<objectname>,<win_id>)
+	#							
+	########################################################
+		
+	class(hookKVIrc,object)
+	{
+			hookMainFrame()
+			{
+				if(!$0)
+				{
+		 			echo $k(4) $tr(\[Error\]: you must give the name parameter like: $k(10)\$hookMainFrame\(myname\))
+					return
+				}
+				return $new(wrapper,0,$0,KviDockWidget::dock_widget)
+			}
+			hookBackGround()
+			{
+				if(!$0)
+				{
+		 			echo $k(4) $tr(\[Error\]: you must give the name parameter like: $k(10)\$hookBackGround\(myname\))
+					return
+				}
+				return $new(wrapper,0,$0,KviFrame::kvirc_frame,QSplitter::main_splitter,KviMdiManager::mdi_manager,QViewportWidget::qt_viewport)
+			}
+			hookForeGround()
+			{
+				if(!$0)
+				{
+		 			echo $k(4) $tr(\[Error\]: you must give the name parameter like: $k(10)\$hookForeGround\(myname\))
+					return
+				}
+				return $new(wrapper,0,$0,KviFrame::kvirc_frame,QSplitter::main_splitter,KviMdiManager::mdi_manager)
+			}
+			hookStatusBar()
+			{
+				if(!$0)
+				{
+		 			echo $k(4) $tr(\[Error\]: you must give the name parameter like: $k(10)\$hookStatusBar\(myname\))
+					return
+				}
+				return $new(wrapper,0,$0,KviFrame::kvirc_frame,KviStatusBar::statusbar)
+			}
+			hookMenuBar()
+			{
+				if(!$0)
+				{
+		 			echo $k(4) $tr(\[Error\]: you must give the name parameter like: $k(10)\$hookMenuBar\(myname\))
+					return
+				}
+				return $new(wrapper,0,$0,KviFrame::kvirc_frame,KviMenuBar::main_menu_bar)
+			}
+			hookToolBar()
+			{
+				if(!$0)
+				{
+		 			echo $k(4) $tr(\[Error\]: you must give the name parameter like: $k(10)\$hookToolBar\(myname\))
+					return
+				}
+				return $new(wrapper,0,$0,KviFrame::kvirc_frame,QDockArea::qt_top_dock)
+			}
+			hookMainRightSplitter()
+			{
+				if(!$0)
+				{
+		 			echo $k(4) $tr(\[Error\]: you must give the name parameter like: $k(10)\$hookMainRightSplitter\(myname\))
+					return
+				}
+				return $new(wrapper,0,$0,KviFrame::kvirc_frame,QSplitter::main_splitter)
+			}
+			hookTreeViewWidget()
+			{		
+				if(!$0)
+				{
+		 			echo $k(4) $tr(\[Error\]: you must give the name parameter like: $k(10)\$hookTreeViewWidget\(myname\))
+					return
+				}
+				return $new(wrapper,0,kvirctreelistview,KviFrame::kvirc_frame,QDockArea::qt_left_dock,KviTreeTaskBar::taskbar,KviTreeTaskBarListView::ttblistview)
+			}
+			hookChannelWindow()
+			{
+				if(!$0 || !$1)
+				{
+		 			echo $k(4) $tr(\[Error\]: missing parameters: $k(10)\$hookChannelWindow\(myname\,\#chanName\))
+					return
+				}
+				%tmp = $1
+				return $new(wrapper,0,kvircchannelwindow,KviFrame::kvirc_frame,QSplitter::main_splitter,KviMdiManager::mdi_manager,QViewportWidget::qt_viewport,KviMdiChild::mdi_child_%tmp,KviChannel::%tmp)
+			}
+			hookChannelIputLineEdit()
+			{
+				if(!$0 || !$1)
+				{
+		 			echo $k(4) $tr(\[Error\]:  missing parameters Es: $k(10)\$hookChannelIputLineEdit\(myname\,\#chanName\))
+					return 
+				}
+				%tmp = $1
+				return $new(wrapper,0,kvircchannelinputlineedit,KviFrame::kvirc_frame,QSplitter::main_splitter,KviMdiManager::mdi_manager,QViewportWidget::qt_viewport,KviMdiChild::mdi_child_%tmp,KviChannel::%tmp,KviInput::input)
+			}
+			hookChannelRightSplitter()
+			{
+				if(!$0 || !$1)
+				{
+		 			echo $k(4) $tr(\[Error\]: missing parameters Es: $k(10)\$hookChannelRightSplitter\(myname\,\#chanName\))
+					return
+				}
+				%tmp = $1
+				return $new(wrapper,0,$0,KviFrame::kvirc_frame,QSplitter::main_splitter,KviMdiManager::mdi_manager,QViewportWidget::qt_viewport,KviMdiChild::mdi_child_%tmp,KviChannel::%tmp,QSplitter::main_splitter)
+			}
+			hookChannelHoriziontaSplitter()
+			{
+				if(!$0 || !$1)
+				{
+		 			echo $k(4) $tr(\[Error\]:  missing parameters Es: $k(10)\$hookChannelHoriziontaSplitter\(myname\,\#chanName\))
+					return
+				}
+				%tmp = $1
+				return $new(wrapper,0,$0,KviFrame::kvirc_frame,QSplitter::main_splitter,KviMdiManager::mdi_manager,QViewportWidget::qt_viewport,KviMdiChild::mdi_child_%tmp,KviChannel::%tmp,QSplitter::main_splitter,QSplitter::vertical_splitter)
+			}
+			hookChannelInputLineButtons()
+			{
+				if(!$0 || !$1)
+				{
+		 			echo $k(4) $tr(\[Error\]:  missing parameters Es: $k(10)\$hookChannelInputLineButtons\(myname\,\#chanName\))
+					return
+				}
+				%tmp = $1
+				return $new(wrapper,0,$0,KviFrame::kvirc_frame,QSplitter::main_splitter,KviMdiManager::mdi_manager,QViewportWidget::qt_viewport,KviMdiChild::mdi_child_%tmp,KviChannel::%tmp,QHBox::button_box)
+			}
+			hookChannelTitleBar()
+			{
+				if(!$0 || !$1)
+				{
+		 			echo $k(4) $tr(\[Error\]:  missing parameters Es: $k(10)\$hookChannelTitleBar\(myname\,\#chanName\))
+					return
+				}
+				%tmp = $1
+				return $new(wrapper,0,$0,KviFrame::kvirc_frame,QSplitter::main_splitter,KviMdiManager::mdi_manager,QViewportWidget::qt_viewport,KviMdiChild::mdi_child_%tmp,KviMdiCaption::mdi_caption)
+			}
+			hookQueryWindow()
+			{
+				if(!$0 || !$1)
+				{
+		 			echo $k(4) $tr(\[Error\]:  missing parameters Es: $k(10)\$hookQueryWindow\(myname\,\#NickName\))
+					return
+				}
+				%tmp = $1
+				return $new(wrapper,0,$0,KviFrame::kvirc_frame,QSplitter::main_splitter,KviMdiManager::mdi_manager,QViewportWidget::qt_viewport,KviMdiChild::mdi_child_%tmp)
+			}
+			hookQueryInputLineEdit()
+			{
+				if(!$0 || !$1)
+				{
+		 			echo $k(4) $tr(\[Error\]:  missing parameters Es: $k(10)\$hookQueryInputLineEdit\(myname\,\#NickName\))
+					return
+				}
+				%tmp = $1
+				return $new(wrapper,0,$0,KviFrame::kvirc_frame,QSplitter::main_splitter,KviMdiManager::mdi_manager,QViewportWidget::qt_viewport,KviMdiChild::mdi_child_%tmp,KviQuery::%tmp,KviInput::input)
+			}
+			hookQueryRightSplitter()
+			{
+				if(!$0 || !$1)
+				{
+		 			echo $k(4) $tr(\[Error\]:  missing parameters Es: $k(10)\$hookQueryRightSplitter\(myname\,\#NickName\))
+					return
+				}
+				%tmp = $1
+				return $new(wrapper,0,$0,KviFrame::kvirc_frame,QSplitter::main_splitter,KviMdiManager::mdi_manager,QViewportWidget::qt_viewport,KviMdiChild::mdi_child_%tmp,KviQuery::%tmp,QSplitter::main_splitter)
+			}
+			hookQueryTitleBar()
+			{
+				if(!$0 || !$1)
+				{
+		 			echo $k(4) $tr(\[Error\]:  missing parameters Es: $k(10)\$hookQueryTitleBar\(myname\,\#NickName\))
+					return
+				}
+				%tmp = $1
+				return $new(wrapper,0,$0,KviFrame::kvirc_frame,QSplitter::main_splitter,KviMdiManager::mdi_manager,QViewportWidget::qt_viewport,KviMdiChild::mdi_child_%tmp,KviMdiCaption::mdi_caption)
+			}
+			hookQueryInputLineButtons()
+			{
+				if(!$0 || !$1)
+				{
+		 			echo $k(4) $tr(\[Error\]:  missing parameters Es: $k(10)\$hookQueryInputLineButtons\(myname\,\#NickName\))
+					return
+				}
+				%tmp = $1
+				return $new(wrapper,0,$0,KviFrame::kvirc_frame,QSplitter::main_splitter,KviMdiManager::mdi_manager,QViewportWidget::qt_viewport,KviMdiChild::mdi_child_%tmp,KviQuery::%tmp,QHBox::button_box)
+			}
+			hookWindowRightSplitter()
+			{
+				if(!$0 || !$1)
+				{
+		 			echo $k(4) $tr(\[Error\]:  missing parameters Es: $k(10)\$hookWindowRightSplitter\(myname,win_id\))
+					return
+				}
+				return $new(wrapper,0,$0,WinId::$1,QSplitter::main_splitter)
+			}
+		}
+}
+
+

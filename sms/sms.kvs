@@ -1,0 +1,1322 @@
+alias(class_addProvider)
+{
+	class (addProvider,widget)
+	{
+		constructor()
+		{
+			%provid[]=$file.ls($file.localdir("config/scripts/sms"),f,*.conf)
+			if (!%provid[]#)
+			{
+				echo "Fatal Error : Cannot find a provider config"
+				break
+			}
+			$$->%m_pGui=$4
+		 	%lay=$new(layout,$$)
+			%lay->$setspacing(10)
+			%lay->$setmargin(10)
+	
+			%lay->$addwidget($new(mylabel,$$,,"Account"),0,0)
+			%lay->$addwidget($new(mylabel,$$,,"User"),1,0)
+			%lay->$addwidget($new(mylabel,$$,,"Pass"),2,0)
+			
+			%btn_add=$new(mybtn,$$,,"Add")
+			%btn_save=$new(mybtn,$$,,"Close")
+		
+			objects.connect %btn_add clicked $$  subAdd
+			objects.connect %btn_save clicked $$  subClose
+	
+			%lay->$addwidget(%btn_add,3,1)
+			%lay->$addwidget(%btn_save,3,2)
+		
+			$$->%ledit_account=$new(lineedit,$$)
+			$$->%combo_provider=$new(combobox,$$)
+			%i=0
+			while (%i != %provid[]#)
+			{
+				$$->%combo_provider->$insertitem($str.lefttofirst(%provid[%i],".conf"))
+				%i ++;
+			}
+			$$->%ledit_user=$new(lineedit,$$)
+			$$->%ledit_pass=$new(lineedit,$$)
+			$$->%ledit_pass->$setechomode(password)
+				
+			%lay->$addwidget($$->%combo_provider,0,3)
+			%lay->$addmulticellwidget($$->%ledit_account,0,0,1,2)
+			%lay->$addmulticellwidget($$->%ledit_user,1,1,1,2)
+			%lay->$addmulticellwidget($$->%ledit_pass,2,2,1,2)
+		
+			$$->$move($($0+($2/2)),$($1+($3/2)))
+			$$->$resize(100,100)
+			$$->$setWFlags(Customize,StaysOnTop,Title,Sysmenu)
+			$$->$show()
+		}
+		subAdd
+		{
+			$$->%id=$config.open($file.localdir("config/scripts/sms/smsconfig.mdm"))
+			config.setsection $$->%id general
+			if (!$config.read($$->%id,"accounts")) $$->%accounts=0
+			else $$->%accounts=$config.read($$->%id,"accounts")
+			if ($config.hassection($$->%id,$$->%ledit_account->$text()))
+			{
+				dialog.message("Account","Account" $$->%ledit_account->$text() already exists\,overwrite\?,49,"Ok","No","",$$)
+				{
+					if ($0 == 0)
+					{
+						$1->$writeToConfig(1)
+						echo "Account writed"
+					}
+					else 
+					echo operation aborted
+				}
+			}
+			else
+			{
+				$$->%accounts ++;
+				config.write $$->%id accounts $$->%accounts
+				$$->$writeToConfig(0)
+				echo "Account writed"
+			}
+		}		
+		writeToConfig
+		{
+			echo "Writing to config $config.filename($$->%id)"
+			if (!$0)
+			{
+				config.setsection $$->%id accounts
+				config.write $$->%id account$$->%accounts $$->%ledit_account->$text()
+				 $$->%m_pGui->%combo_provider->$insertitem($$->%ledit_account->$text())
+			}
+			config.setsection $$->%id $$->%ledit_account->$text()
+			%maxsmschar= $$->%m_pGui->$getMaxSmsChar($$->%combo_provider->$current())
+			config.write $$->%id accountuser  $$->%ledit_user->$text()
+			config.write $$->%id accountpass  $$->%ledit_pass->$text()
+			config.write $$->%id accountprovider $$->%combo_provider->$current()
+			config.write $$->%id MaxSmsChar %maxsmschar
+			$$->%m_pGui->%MaxCharSms{$$->%ledit_account->$text()} =  %maxsmschar
+			config.close $$->%id
+			echo "Written to config $config.filename($$->%id)"
+		}
+		subClose()
+		{
+			$$->$emit(close)
+			$$->$hide()
+		}
+	}
+}
+
+
+alias(class_addToRubrica)
+{
+	class (addToRubrica,widget)
+	{
+		constructor
+		{
+			$$->%m_pGui=$4
+		 	%lay=$new(layout,$$)
+			%lay->$setspacing(10)
+			%lay->$setmargin(10)
+			%lay->$addwidget($new(mylabel,$$,,"Nome"),0,0)
+			%lay->$addwidget($new(mylabel,$$,,"Telefono"),1,0)
+			%btn_add=$new(mybtn,$$,,"Aggiungi")
+			%btn_save=$new(mybtn,$$,,"Salva")
+		
+			objects.connect %btn_add clicked $$  subAdd
+			objects.connect %btn_save clicked $$  subSave
+		
+			%lay->$addwidget(%btn_add,2,1)
+			%lay->$addwidget(%btn_save,2,2)
+	
+			$$->%ledit_name=$new(lineedit,$$)
+			$$->%ledit_nrcell=$new(lineedit,$$)
+	
+			%lay->$addmulticellwidget($$->%ledit_name,0,0,1,3)
+			%lay->$addmulticellwidget($$->%ledit_nrcell,1,1,1,3)
+	
+			$$->$move($($0+($2/2)),$($1+($3/2)))
+			$$->$resize(100,100)
+			$$->$setWFlags(Customize,StaysOnTop,Title,Sysmenu)
+			$$->$show()
+		}
+		subAdd()
+		{
+			$$->%m_pGui->%rubrica->%list_rubrica->$append($$->%ledit_name->$text())
+			%Tel{$$->%ledit_name->$text()}=$$->%ledit_nrcell->$text()
+			$$->%ledit_name->$settext("")
+			$$->%ledit_name->$setfocus()
+			$$->%ledit_nrcell->$settext("")
+			$$->%m_pGui->%mdm->$setStatus("aggiunto alla rubrica")
+		}
+		subSave()
+		{
+			%i=0
+			%tmp_file=""
+			while(%i<$$->%m_pGui->%rubrica->%list_rubrica->$count())
+			{
+				%tmp_file=%tmp_file$$->%m_pGui->%rubrica->%list_rubrica->$at(%i)"="%Tel{$$->%m_pGui->%rubrica->%list_rubrica->$at(%i)}","
+				%i++;
+			}
+			file.write $file.localdir("config/scripts/sms/rubrica.mdm") %tmp_file
+			$$->%m_pGui->%mdm->$setStatus("rubrica salvata")
+			delete $$
+		}
+	}
+}
+
+
+alias(class_debug)
+{
+	class_widgets
+	class (debug,widget)
+	{
+		constructor()
+		{
+			
+			$$->%start=65
+			$$->%row=0
+			$$->%outputOnWidget=$0
+			
+			$$->$setCaption("Sms sender - Debug")
+			$$->%lay_debug=$new(layout,$$)
+			
+			$$->%widget_fake=$new(widget,$$)
+			$$->%lay_fake=$new(layout,$$->%widget_fake)
+	
+			$$->%mle_debugHttpRequest=$new(multilineedit,$$,"output debug")
+			$$->%mle_debugHttpRequest->$setReadOnly(1)
+	
+			$$->%mle_debugLog=$new(multilineedit,$$->%widget_fake,"output log")
+			$$->%mle_debugLog->$setReadOnly(1)
+			$$->%mle_debugLog->$setBackgroundColor(ffffff)
+			$$->%mle_debugLog->$setTextFormat(RichText)
+			
+			$$->%mle_debugProviderConfig=$new(multilineedit,$$->%widget_fake)
+			$$->%mle_debugProviderConfig->$setReadOnly(1)
+		
+			$$->%lay_fake->$addwidget($$->%mle_debugLog,0,0)
+			$$->%lay_fake->$addwidget($new(mylabel,$$->%widget_fake,,"Provider Config","HCenter"),1,0)
+			$$->%lay_fake->$addwidget($$->%mle_debugProviderConfig,2,0)
+			
+			$$->%listview_debug=$new(listview,$$)
+			$$->%listview_debug->$addColumn("Request",-1)
+			$$->%listview_debug->$setRootIsDecorated(1)
+			$$->%listview_debug->$setSorting(0,1)
+	
+			privateimpl($$->%listview_debug,selectionChangedEvent)
+			{
+				if (!$0) return
+				$$->$parent()->%mle_debugHttpRequest->$clear()
+				$$->$parent()->%mle_debugHttpRequest->$append($0->%content)
+			}
+			
+			$$->%lay_debug->$addwidget($new(mylabel,$$,,"Http request"),0,0)
+			$$->%lay_debug->$addwidget($new(mylabel,$$,,"Http Server Comunication Output","HCenter"),0,1)
+			$$->%lay_debug->$addwidget($new(mylabel,$$,,"Log","HCenter"),0,2)
+			
+			$$->%lay_debug->$addwidget($$->%listview_debug,1,0)
+			$$->%lay_debug->$addwidget($$->%widget_fake,1,2)
+			$$->%lay_debug->$addWidget($$->%mle_debugHttpRequest,1,1)
+			
+			$$->%lay_debug->$setColStretch(0,30)
+			$$->%lay_debug->$setColStretch(1,60)
+			$$->%lay_debug->$setColStretch(2,30)
+	
+			$$->$resize(800,600)
+			$$->$show()
+		}
+		slotDebug(class,metod,<param,......,param>)
+		{
+		# colori
+		# 787896 
+		# c8c8c8
+		# b4b400
+		# ffff00
+		# 007800
+		# 64ff00
+		%class=$0
+		%metod=<font color=\"64ff00\"><b>$1</b></font>
+		%action=<font color=\"#ff0000\"><b>$2</b></font>
+		%param=$3
+		if ($1=="disconnectEvent") return $$->$httpRequest($1,%param,$4)
+		if ($1=="connectEvent")
+		{
+		%tmp=<font color=\"ff0000\"><b>$3" "$4</b></font> "HTTP/1.0"$lf\
+			"Content-Type: application/x-www-form-urlencoded"$lf\
+			"User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)"$lf\
+			"Host: "<font color=\"#ff0000\"><b>$6":"$7</b></font>$lf\
+			"Content-Lenght:"$str.len($8)$lf\
+			"Connection:close"\
+			"Cookie: "$9\
+			"Pragma: no-cache"$lf$lf\
+			<font color=\"#ff0000\"><b>$8</b></font>;
+	
+		return $$->$httpRequest($1,%tmp,$3)
+		}
+			
+				#if ($$->%Referer != "") $$->$write("Referer:" $$->%Referer"\r\n")
+			#	if ($$->%Metod == "POST") $$->$write("Content-Length: "$str.len($$->%Parameters)"\r\n")
+			
+			#	$$->$write($$->%Parameters"\r\n") $8
+	
+		
+		%output=%class "::"%metod "::" %action ":" %param
+		$$->%mle_debugLog->$append([$$->$getTime\]%output)
+	#\[$$->$getTime\]%output)
+	
+		}
+		getTime()
+		{
+		return $str.mid($time,11,8)
+		}
+		httpRequest()
+		{
+		if ($0 == "disconnectEvent")
+		{
+			$$->%child=$new(listviewitem,$$->%father)
+			$$->%child->$setText(0,$2)
+			$$->%child->%content=$1
+		}	
+		else
+		{	
+			$$->%father=$new(listviewitem,$$->%listview_debug)
+			$$->%father->$setText(0,$char($$->%start)"->"$2)
+			$$->%start ++;
+			$$->%father->%content=$1
+		}
+			$$->%mle_debugHttpRequest->$clear()
+			$$->%mle_debugHttpRequest->$append($1)
+		
+		}
+		
+	}
+	return
+	%Test=$new(debug,0,,1)
+	%i=0
+	while (%i != 100)
+	{
+	%Test->$slotDebug("Test","funzione","provo i colori","della pisella")
+	%i++
+	}
+}
+
+
+alias(class_gui)
+{
+	class (gui,widget)
+	{
+		constructor()
+		{
+			$$->$resize(290,233)
+		#	$$->$setWFlags(Customize,StaysOnTop,Title,Sysmenu)
+			$$->%layout=$new(mylayout,$$,,5,15)
+			$$->%layout->$addwidget($new(mylabel,$$,,"Pref. int"),0,0)
+			$$->%layout->$addwidget($new(mylabel,$$,,"Nr. cell."),0,1)
+			$$->%layout->$addwidget($new(mylabel,$$,,"Testo:"),2,0)
+			$$->%layout->$addwidget($new(mylabel,$$,,"Status:"),2,1)
+		
+			$$->%line_prefint=$new(lineedit,$$)
+			$$->%line_prefint->$setmaximumwidth(30)
+			$$->%line_prefint->$settext(39)
+	
+			$$->%line_nrcell=$new(lineedit,$$)
+			$$->%line_nrcell->$setProperty(focusPolicy,StrongFocus)
+			$$->%line_nrcell->$setfocus()
+			
+	
+			$$->%line_smstext=$new(lineedit,$$)	
+			$$->%line_smstext->$settext(" ")
+			$$->%line_smstext->$settext("")
+	
+			$$->%layout->$addwidget($$->%line_prefint,1,0)
+			$$->%layout->$addmulticellwidget($$->%line_nrcell,1,1,1,2)
+			$$->%layout->$addmulticellwidget($$->%line_smstext,3,3,0,5)
+	
+			$$->%combo_provider=$new(combobox,$$)
+			
+			$$->%layout->$addmulticellwidget($$->%combo_provider,4,4,0,1)
+			$$->%label_status=$new(label,$$)
+			$$->%label_status->$settext("...waiting for input")
+			$$->%layout->$addmulticellwidget($$->%label_status,2,2,2,4)
+		
+			$$->%label_charsleft=$new(mylabel,$$,,"Chars Left:")
+			$$->%layout->$addmulticellwidget($$->%label_charsleft,4,4,2,3)
+	
+			$$->%btn_send=$new(mybtn,$$,,"Invia")
+			$$->%btn_send->$setmaximumwidth(40)
+			$$->%layout->$addwidget($$->%btn_send,1,4)
+	
+			%logo=$new(label,$$)
+			%logo->$setimage("sms/mdm22.png")
+			$$->%layout->$addwidget(%logo,0,5)
+		
+			$$->%progbar=$new(progressbar,$$)
+			$$->%progbar->$setPercentageVisible(1)
+			$$->%progbar->$setCenterIndicator(1)
+			$$->%progbar->$setMaximumWidth(60)
+			$$->%layout->$addwidget($$->%progbar,4,5)
+		
+			$$->%mdm=$new(mdm,$$)
+			$$->%layout->$addmulticellWidget($$->%mdm,5,10,0,7)
+			$$->%rubrica=$new(rubrica,$$)
+			$$->%rubrica->$setProperty(focusPolicy,StrongFocus)
+			$$->%rubrica->$hide()
+			$$->%idx_section=0
+			$$->%array_startCursorSection[0]=0
+			$$->%idx_multiSms=0
+	
+			objects.connect $$->%line_nrcell textChanged  $$->%rubrica updateRubrica
+		
+			privateimpl($$->%line_nrcell,keyPressEvent)
+			{
+				if (($$->$parent->%rubrica->$isVisible != 0) && ($0=="Down"))
+				{
+					$$->$parent->%rubrica->$setSelected(0,1)
+					$$->$parent->%rubrica->$setFocus() 
+				}
+			$$->$parent->$manageMultiSend($0)
+			}
+			$$->%popupmenu_options=$new(mypopup,$$)
+		}
+		mousePressEvent()
+		{
+			if ($0 == 1) $$->%popupmenu_options->$exec()
+		}	
+		resizeEvent()
+		{
+			return
+			if ($$->%rubrica->$isVisible == 0) return
+			%x1=$$->%line_nrcell->$x()
+			%y1=$($$->%line_nrcell->$y()+3+$$->%line_nrcell->$fontMetricsHeight())
+			$$->%rubrica->$move(%x1,%y1)
+			$$->%rubrica->$resize($$->%nrcell->$width(),100)
+		}
+		manageMultiSend()
+		{
+			if ($0 == "\,")	 return $$->$virgola();
+			if (($0 == "Backspace") || ($0 == "Left") ) return $$->$left();
+			if ($0 == "right")	 return $$->$right()
+		}
+		virgola()
+		{
+			$$->%idx_section ++;
+			$$->%array_startCursorSection[$$->%idx_section]=$$->%line_nrcell->$cursorPosition();
+			if ($$->%idx_section > 1) %offset=1
+			else %offset=0
+			echo section  $$->%idx_section
+			echo cursor start $$->%array_startCursorSection[$$->%idx_section] $$->%array_startCursorSection[$($$->%idx_section-1)]
+			%nrcell=$str.mid($$->%line_nrcell->$text(),$($$->%array_startCursorSection[$($$->%idx_section-1)]+%offset),$$->%line_nrcell->$cursorPosition())
+			echo next section $$->%idx_section ++
+			$$->%rubrica->$addToQueue(%nrcell)
+		}
+		left()
+		{
+			if ($$->%line_nrcell->$cursorPosition() ==0) return
+			echo sezione $$->%idx_section
+			if ($$->%line_nrcell->$cursorPosition() < $$->%array_startCursorSection[$$->%idx_section]) $$->%idx_section --;
+		}
+		right
+		{
+			
+			if ($$->%line_nrcell->$cursorPosition() == $str.len($$->%line_nrcell->$text())) return
+			echo $$->%array_startCursorSection[$($$->%idx_section+1)] attuale $$->%line_nrcell->$cursorPosition()
+			if ($$->%line_nrcell->$cursorPosition() >= $$->%array_startCursorSection[$($$->%idx_section+1)]) $$->%idx_section ++;
+		}
+		getMaxSmsChar()
+		{
+			%index = 0
+			%tmp[]=$split($cr$lf,$file.read($file.localdir("config/scripts/sms/$0.conf")))
+			while ($str.left(%tmp[%index],10) != "MaxSmsChar")
+			{
+				if (%tmp[%index] == "}") return 0
+				if (%index == 20)
+				{
+					echo mi sto inlooppando
+					break
+				}
+				%index++;
+			}
+			return $str.rightfromfirst(%tmp[%index],"=")
+		}
+	
+		configureGuiAccount()
+		{
+			%id=$0
+			config.setsection %id accounts
+			%i=1
+			while ($config.read(%id,"account"%i))
+			{
+				%account=$config.read(%id,"account"%i)
+				$$->%combo_provider->$insertitem(%account)
+				config.setsection %id %account
+				$$->%MaxCharSms{%account}=$config.read(%id,MaxSmsChar)
+				config.setsection %id accounts
+				%i++
+			}
+			$$->%label_charsleft->$settext("Chars Left:"$$->%MaxCharSms{$$->%combo_provider->$current()});
+			$$->%line_smstext->$setMaxLength($$->%MaxCharSms{$$->%combo_provider->$current()})
+		}
+	}
+}
+
+
+alias(class_mdm)
+{
+	class (mdm,widget)
+	{
+		constructor
+		{
+			%temp[]=$split(" ",$file.read($file.localdir("config/scripts/sms/testo.txt")))
+			$$->%Story[]=""
+			%i=0
+			%story_index=0
+			while (%i != %temp[]#)
+			{
+				%x=$$->$fontMetricsWidth($$->%Story[%story_index])
+				if ($str.findfirst(%temp[%i],$) != -1)
+				{
+					%story_index ++;
+					$$->%Story[%story_index]=%temp[%i];
+					%story_index ++;
+					%i++;
+				}
+				else
+				{
+					if  (%temp[%i] == "") %i++;
+					else
+					{
+						if (%x<85)
+						{
+							$$->%Story[%story_index]=$$->%Story[%story_index]%temp[%i]" ";
+							%i++;
+						}
+						else  %story_index ++;
+					}		
+				}
+			}
+			
+			$$->%ystart=100
+			$$->$starttimer(40)
+			$$->%Aletoni=$new(pixmap)
+			$$->%Aletoni->$load($file.localdir("pics/sms/aletoni.png"))
+		
+			$$->%Mdmlogo=$new(pixmap)
+			$$->%Mdmlogo->$load($file.localdir("pics/sms/mdm22.png"))
+			$$->%Kvirclogo=$new(pixmap)
+			$$->%Kvirclogo->$load($file.localdir("pics/sms/kvirc.png"))
+			$$->%Griflogo=$new(pixmap)
+			$$->%Griflogo->$load($file.localdir("pics/sms/grif.png"))
+			$$->%Noldlogo=$new(pixmap)
+			$$->%Noldlogo->$load($file.localdir("pics/sms/nold.png"))
+			$$->%Back=$new(pixmap)
+			$$->%Back->$load($file.localdir("pics/sms/back.png"))
+			$$->%Back1=$new(pixmap)
+			$$->%Back1->$load($file.localdir("pics/sms/back1.png"))
+			$$->%Divider=$new(pixmap)
+			$$->%Divider->$load($file.localdir("pics/sms/divider.png"))
+			$$->%Bg=$new(pixmap)
+			$$->%Bg->$load($file.localdir("pics/sms/a1.png"))
+			$$->$resize(200,400)
+	
+			$$->%div=130
+			$$->%divoffset= -5
+			$$->%z=11
+			$$->%x=0
+			$$->%welcome=1
+			$$->%origin = 2
+			$$->%Zoomindex=11
+			# intro anim part 1
+			$$->%fadepart1 = 0
+			$$->%fade = 255
+			$$->%delayfadefirstanim = 20
+			$$->%xx = 0;
+			#intro anim part 2
+			$$->%fade2 = 255
+			$$->%fade3 = 0
+			$$->%delayfadesecondanim = 20
+			$$->%showpart2 = 0
+			
+			$$->%xpos_AnimPart2FrameLeft[0] = 150,5
+			$$->%xpos_AnimPart2FrameLeft[1] = 5,-5
+			$$->%xpos_AnimPart2FrameLeft[2]= 15,5
+			
+			$$->%x_startFL = -30;
+			$$->%idx_FL = 0
+	
+			$$->%xpos_AnimPart2FrameRight[0] = 50,-5
+			$$->%xpos_AnimPart2FrameRight[1] = 150,+5
+			$$->%xpos_AnimPart2FrameRight[2]= 95,-5
+	
+			$$->%x_startFR = 300;
+			$$->%idx_FR = 0
+			#intro anim part 3
+			$$->%moveup = 35
+			$$->%delay111=1
+			$$->%showpart3 = 0
+			$$->%delay3 = 20
+			$$->%fade4=255
+			$$->%delay_animpart2=20
+		}
+	
+		setStatus
+		{
+		$$->%message=$0
+		}
+		showIntroAnim()
+		{
+			if ($$->%showpart2) return $$->$showIntroAnimPart2()
+			if ($$->%Zoomindex<99) %P->$scale(0.$$->%Zoomindex,0.$$->%Zoomindex)
+	 	     	if ($$->%Zoomindex < 99)
+			{
+				$$->%Zoomindex += 3;
+				$$->%xx ++;
+			}
+			else
+			{
+				$$->%Zoomindex=99
+				$$->%fadepart1=1
+			}
+			%P->$setPen($$->%fade,$$->%fade,$$->%fade)
+			%P->$setFont(28,"times",bold);  
+			%P->$translate($(36-$$->%xx),50)
+			%P->$drawText(0,0,"Welcome To The",-1,Auto)	
+			%P->$reset()
+			if ($$->%fadepart1)
+			{
+				$$->%delayfadefirstanim --;
+				if ($$->%delayfadefirstanim>0) break
+				else
+				{
+					$$->%xx +=5
+					$$->%fade -= 5
+					if ($$->%fade <= 0)
+					{
+						$$->%fade=0
+						$$->%showpart2 = 1
+					}
+				}
+			}
+		
+		}
+		showIntroAnimPart2
+		{
+			if (!$$->%showPart3)
+			{
+			if ($$->%xpos_AnimPart2FrameLeft[$$->%idx_FL] == "")  $$->%x_startFL=$$->%x_lastFL	
+			if ($$->%xpos_AnimPart2FrameRight[$$->%idx_FR] == "") $$->%x_startFR=$$->%x_lastFR
+		
+			%tmp_left[]=$split("\,",$$->%xpos_AnimPart2FrameLeft[$$->%idx_FL])
+			%tmp_right[]=$split("\,",$$->%xpos_AnimPart2FrameRight[$$->%idx_FR])
+	
+			%P->$setPen($$->%fade2,$$->%fade2,$$->%fade2)
+			%P->$setFont(28,"times",bold);  
+			%P->$drawText($$->%x_startFL,50,"Next",-1,Auto)
+			%P->$drawText($$->%x_startFR,50,"Generation",-1,Auto)
+			if ($$->%xpos_AnimPart2FrameLeft[$$->%idx_FL] != "") 
+			{
+				$$->%x_startFL += %tmp_left[1];
+				$$->%x_lastFL = $$->%x_startFL
+				if ($$->%x_startFL == %tmp_left[0]) $$->%idx_FL ++;
+			}
+			if ($$->%xpos_AnimPart2FrameRight[$$->%idx_FR] != "") 
+			{
+				$$->%x_startFR += %tmp_right[1];
+				$$->%x_lastFR = $$->%x_startFR
+				if ($$->%x_startFR == %tmp_right[0]) $$->%idx_FR ++;
+			}
+			if (($$->%xpos_AnimPart2FrameLeft[$$->%idx_FL] != "") || ($$->%xpos_AnimPart2FrameRight[$$->%idx_FR]!="")) return
+			$$->%delayfadesecondanim --;
+			if ($$->%delayfadesecondanim>0) return;
+			}
+			%P->$setFont(28,"times",bold);  
+			%P->$setPen($$->%fade3,$$->%fade3,$$->%fade3)
+			%x1=%P->$fontMetricsWidth("Of")
+			%x=$(($$->$width()-%x1)/2)
+			%P->$drawText(%x,$$->%moveup,"Of",-1,Auto)
+			%x1=%P->$fontMetricsWidth("Irc\/Sms script By")
+			%x=$(($$->$width()-%x1)/2)
+	
+			%P->$drawText(%x,$($$->%moveup+35),"Irc\/Sms script By",-1,Auto)
+	
+			$$->%fade2 -= 5
+			if ($$->%fade2 <= 0) $$->%showPart3=1
+			$$->%fade3 += 5
+			if ($$->%fade2 <= 0) $$->%fade2 = 0
+			if ($$->%fade3 >= 255) $$->%fade3 = 255
+			if (($$->%fade2!=0) || ($$->%fade3!=255)) return
+	
+			$$->%delay3 --;
+			if ($$->%delay3 >= 0) return
+			$$->%delay3= 0;
+			%P->$setPen($$->%fade4,$$->%fade4,$$->%fade4)
+		
+			%P->$setFont(22,"times",bold);  
+			%x1=%P->$fontMetricsWidth("By")
+			%x=$(($$->$width()-%x1)/2)
+	
+			%x1=%P->$fontMetricsWidth("Noldor and Grifisx")
+			%x=$(($$->$width()-%x1)/2)
+	
+			%P->$drawText(7,$($$->%moveup+110),"Grifisx",-1,Auto)
+			%P->$drawText(195,$($$->%moveup+110),"Noldor",-1,Auto)
+		
+			if ($$->%moveup == -50)%P->$drawPixmap(100,15,$$->%Aletoni,0,0,-1,-1)
+			if ($$->%moveup != -50) $$->%moveup--;
+			else
+				if (!$$->%delay_animpart2)  $$->%delay_animpart2 --;
+					else $$->%fade4 -= 3;
+				if ($$->%fade4<=0) $$->%welcome=0;
+		}	
+		showMain()
+		{
+			%Pix->$fill($$,0,0)
+			%P->$setpen(125,250,150)
+			if ($$->%x >= 360) $$->%x=0
+			%P->$drawPixmap(0,0,$$->%Back1,0,0,$$->%div,-1)
+			%P->$drawPixmap($$->%div,0,$$->%Back,$$->%div,0,$(280-$$->%div),-1)
+			%P->$drawPixmap($$->%div,0,$$->%Divider,0,0,5,-1)
+			$$->$scroll()
+			$$->%ystart -= 1;
+			if ($$->%ystart == -280) $$->%ystart=90
+		}
+		paintEvent
+		{
+			%P=$new(painter)
+			%Pix=$new(pixmap)
+			%Pix->$resize(300,100)
+			%P->$begin(%Pix)
+			%P->$drawPixmap(0,0,$$->%Bg,0,0,-1,-1)
+			if ($$->%welcome) $$->$showIntroAnim()
+			else $$->$showMain()
+			%P->$setFont(8,"times",bold);        
+			%P->$drawText($($$->%div+5),10,$$->%message,-1,Auto)
+			%P->$end
+			objects.bitBlt $$ 0 0 %Pix
+			delete %Pix
+			delete %P
+		}
+		mousemoveevent
+		{
+		if (($1 <= ($($$->%div+5))) && ($1 >= ($($$->%div-55)))) $$->%div=$1
+		if ($$->%div >=120) $$->%origin=2
+		else
+		$$->%origin = $($$->%div-120)
+		return
+		}
+		timerEvent
+		{
+		$$->%delay111 --
+		if ($$->%delay111  > 0) return
+			if ($$->$isvisible())  $$->$repaint(0)
+		}
+		scroll
+		{
+			%i=0
+			%y=10
+			while (%i != $$->%Story[]#)
+			{
+				%str=$$->%Story[%i] 
+				switch (%str)
+				{
+				case (\$logo) {
+				%P->$drawPixmap($$->%origin,$(%y+$$->%ystart),$$->%Kvirclogo,0,0,-1,-1)
+				%y +=70;	
+				break
+				 }
+				case (\$grif) {
+				%P->$drawPixmap($$->%origin,$(%y+$$->%ystart),$$->%Griflogo,0,0,-1,-1)
+				%y +=70;
+				break
+				}
+				case (\$nold) {
+				%P->$drawPixmap($$->%origin,$(%y+$$->%ystart),$$->%Noldlogo,0,0,-1,-1)
+				%y +=70;
+				break
+				}
+				default:
+				{
+				%P->$drawText($$->%origin,$(%y+$$->%ystart),%str,-1,Auto)
+				%y += 10;
+				}
+				}
+			%i++;
+			}
+		}
+	}
+}
+
+
+alias(class_rubrica)
+{
+	class (rubrica,listbox)
+	{
+		constructor
+		{
+			$$->%list_rubrica=$new(list)
+			if (!$file.exists($file.localdir("config/scripts/sms/rubrica.mdm"))) return
+			%tmp_rubrica[]=$split(",",$file.read($file.localdir("config/scripts/sms/rubrica.mdm")))
+			%i=0
+			while(%tmp_rubrica[%i])
+			{
+				%tmp=%tmp_rubrica[%i]
+				$$->%list_rubrica->$append($str.section(%tmp,"=",0,0))
+				%Tel{$str.section(%tmp,"=",0,0)}= $str.section(%tmp,"=",1,1)
+				%i ++;
+				if (%i == 20)
+				{
+					echo mi sto inloppando
+					break
+				}
+			}
+		}
+		mouseDoubleClickEvent
+		{
+			%pos=$$->$parent->%array_startCursorSection[$$->$parent->%idx_section]
+			$$->$parent->%idx_section ++;
+			$$->$parent->%array_startCursorSection[$$->$parent->%idx_section]=$(%pos+1+$str.len($$->$currenttext()));
+			$$->$addToQueue($$->$currenttext())
+			%tmp=$$->$parent->%line_nrcell->$text()"\,"
+			$$->$parent->%line_nrcell->$setText(%tmp)
+			$$->$parent->%line_nrcell->$setfocus();
+		}
+		addToQueue()
+		{
+			%tmp_stringnumcell[]=$split(",",$$->$parent->%line_nrcell->$text)
+			%tmp_stringnumcell[$($$->$parent->%idx_section -1)]=$0
+			$$->%str=%tmp_stringnumcell[]
+			$$->$parent->%line_nrcell->$setText($$->%str)
+			%i=0
+			%tmp=""
+			while (%i != %tmp_stringnumcell[]#)
+			{
+				if (%Tel{%tmp_stringnumcell[%i]} == "")  %tmp=%tmp%tmp_stringnumcell[%i]
+				else %tmp=%tmp%Tel{%tmp_stringnumcell[%i]}
+				%i ++;
+				if (%i != %tmp_stringnumcell[]#) %tmp=%tmp"\,"
+			}
+			$$->$parent->%line_nrcell->$setTooltip(%tmp)
+			$$->$hide()
+		}
+		updateRubrica()
+		{
+			%tmp_cellstring[]=$split("\,",$$->$parent->%line_nrcell->$text())
+			%str=%tmp_cellstring[$$->$parent->%idx_section]
+			%len=$str.len(%str)
+			if ((%len  == 0) || ($str.isnumber(%str) == 1)) return $$->$hide()
+			%x1=$$->$parent->%line_nrcell->$x()
+			%y1=$($$->$parent->%line_nrcell->$y()+3+$$->$parent->%line_nrcell->$fontMetricsHeight())
+			$$->$clear()
+			%i=0
+			while (%i <= $($$->%list_rubrica->$count()-1))
+			{
+				if ($str.left($$->%list_rubrica->$at(%i),%len) == %str) $$->$insertitem($$->%list_rubrica->$at(%i))
+				%i ++;
+			}
+			$$->$resize($$->$parent->%line_nrcell->$width(),100)
+			$$->$move(%x1,%y1)
+			if ($$->$count() == 0) return $$->$hide()
+				$$->$show()
+		}
+		keyPressEvent()
+		{
+			if (($$->$currentItem==0) && ($0=="Up"))
+			{
+		 		$$->$parent->%line_nrcell->$setFocus() 
+				return $$->$setSelected(0,0)
+			}
+			if (($0 == "Return") || ($0 == "Enter")) $$->$mouseDoubleClickEvent()
+		}
+	}
+}
+
+
+alias(class_sms)
+{
+	class (sms,socket)
+		{
+			constructor
+			{
+			$$->%debug=1
+			$$->%prefint=$0
+			$$->%prefcell=$1
+			$$->%cellnumber=$2
+			$$->%smsbody=$3
+			$$->%username=$4
+			$$->%password=$5
+			$$->%Indexdb=0
+			$$->%section=1
+			$$->%indexconfig=0
+			$$->%id_sms=$config.open($6,r)
+			config.setsection $$->%id_sms general
+			$$->%maxsmschars=$config.read($$->%id_sms,MaxSmsChar)
+			$$->%sections=$config.read($$->%id_sms,Sections)
+			$$->%stringuserpasserror=$config.read($$->%id_sms,userpasserror)
+			$$->%stringsmssendedok=$config.read($$->%id_sms,stringsmsok)
+			$$->%section = 1	
+			%I=0
+			}
+			connectEvent
+			{
+				if ($$->%debug)
+				{
+					$$->$emit("Debug","sms","connectEvent","write",$$->%Metod,$$->%Page,$$->%Referer,$$->%Host,$$->%Port,$$->%Parameters,$$->%Cookies)
+				}
+				$$->$write($$->%Metod" "$$->%Page" HTTP/1.0\r\n")
+				if ($$->%Referer != "") $$->$write("Referer:" $$->%Referer"\r\n")
+				$$->$write("Content-Type: application/x-www-form-urlencoded\r\n")
+				$$->$write("User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)\r\n")
+				$$->$write("Host: "$$->%Host":"$$->%Port"\r\n")
+				if ($$->%Metod == "POST") $$->$write("Content-Length: "$str.len($$->%Parameters)"\r\n")
+				$$->$write("Connection:close\r\n")
+				if ($$->%Cookies != "") $$->$write("Cookie: "$$->%Cookies"\r\n")
+				$$->$write("Pragma: no-cache\r\n\r\n")
+				if ($$->%Metod  != "POST") return
+				$$->$write($$->%Parameters"\r\n")
+			}
+			dataAvailableEvent
+			{
+				$$->%Page1 = $$->%Page1$$->$read()
+			}
+			disconnectEvent
+			{
+				$$->$emit("Debug","sms","disconnectEvent","Page Loaded",$$->%Page1,$$->%Host)
+				$$->$nextpage()
+			}	
+			 connectFailedEvent
+			{
+				$$->$emit("sended","...connection failed!")
+				$$->$emit("Debug","connectFailedEvent","connection failed",$$->%Page1)
+			}
+			send
+			{
+				config.setsection $$->%id_sms section$$->%section
+				$$->%Metod=$config.read($$->%id_sms,Metod)
+				if ($$->%Metod == "POST")	
+				{
+					$$->%Parameters=$config.read($$->%id_sms,Parameters)
+					$$->%Parameters=$str.replace($$->%Parameters,$$->%cellnumber,<cellnum>)
+					$$->%Parameters=$str.replace($$->%Parameters,$$->%prefint,<prefint>)
+					$$->%Parameters=$str.replace($$->%Parameters,$$->%prefcell,<prefcell>)
+					$$->%Parameters=$str.replace($$->%Parameters,$$->%smsbody,<smsbody>)
+					$$->%Parameters=$str.replace($$->%Parameters,$$->%username,<username>)
+					$$->%Parameters=$str.replace($$->%Parameters,$$->%password,<password>)
+					$$->%Parameters=$str.replace($$->%Parameters,"\%2B","\+")
+					$$->%Parameters=$str.replace($$->%Parameters,$($$->%maxsmschars-$str.len($$->%smsbody)),<charleft>)
+					%i=0
+					While ($$->%Find[%i] != "")
+					{
+						$$->%Parameters=$str.replace($$->%Parameters,$$->%Find{$$->%Find[%i]},"<value"%i">")
+						%i ++;
+					}
+				}
+				$$->%Find=$config.read($$->%id_sms,Find)
+				if ($$->%Find != "0") $$->%Find[]=$split(",",$$->%Find)
+		 		$$->%Page=$config.read($$->%id_sms,Page)
+				$$->%Page=$str.replace($$->%Page,$$->%username,"<username>")
+				$$->%Host=$config.read($$->%id_sms,Host)
+				$$->%Port=$config.read($$->%id_sms,Port)
+				$$->$emit(progress,$$->%section)
+				if($$->%debug) $$->$emit("Debug","Sms","nextPage","Connect to ",$$->%Host\:$$->%Port)
+				$$->$connect($$->%Host,$$->%Port)
+			}
+			nextPage()
+			{
+				$$->$close()
+				if ($str.findfirstnocase($$->%Page1,$$->%stringuserpasserror) != -1)
+				{
+					
+				if($$->%debug) $$->$emit("Debug","Sms","nextPage","Sms sended:","wrong user/pass")
+					$$->$emit(sended,"probabilmente user/pass sbagliati")
+					break
+				}
+				if (($str.findfirst($$->%Page1,"HTTP\/1\.0 302") != -1) || ($str.findfirst($$->%Page1,"HTTP\/1\.1 302") != -1)) $$->$redirect	
+				$$->$getCookies()
+				if ($$->%redirect == 1)
+				{
+					$$->%redirect = 0
+					$$->%Page1= ""
+					$$->%Metod="GET"
+					if($$->%debug) $$->$emit("Debug","Sms","nextPage","Redirect to ",$$->%Host\:$$->%Port)
+					$$->$connect($$->%Host,$$->%Port)
+				}
+				else
+				{
+					$$->$emit(progress,$$->%section)
+					if ($$->%Find != "0") $$->$find()
+					$$->%section ++;
+					if($$->%debug) $$->$emit("Debug","Sms","nextPage","reading section ", $$->%section)
+					$$->%Referer=$$->%Host$$->%Page
+					if ($$->%section > $$->%sections) 
+					{
+					if($$->%debug) $$->$emit("Debug","Sms","nextPage","end of sections")
+					if ($str.findfirstnocase($$->%Page1,$$->%stringsmssendedok) != -1) %string="sms inviato correttamente"	
+			 			else %string="Errore nell'invio"	
+					$$->$emit(sended,%string)
+					if($$->%debug) $$->$emit("Debug","Sms","nextPage","Operation response",%string)
+					break
+					}
+					$$->%Page1= ""
+					$$->$send
+				}
+			}
+			getLine
+			{
+				 return $str.lefttofirst($str.mid($0,$1,$($str.len($0)-$1)),$cr$lf)
+			}		
+			getCookies()
+			{
+				%nrc=1
+				While ($str.find($$->%Page1,"Set-Cookie",%nrc) != -1)
+				{
+					%start = $($str.find($$->%Page1,"Set-Cookie",%nrc)+12);
+					%work=$$->$getLine($$->%Page1,%start)
+					%work=$str.section(%work,";",0,0)
+					%nomecookie=$str.section(%work,"=",0,0)
+					%contenutocookie = "="$str.section(%work,"=",1,1)
+					if ($$->%Databasecookies{%nomecookie} == "")
+					{
+						$$->%Nomecookie[$$->%Indexdb] = %nomecookie
+						 $$->%Indexdb ++ 
+					}
+					$$->%Databasecookies{%nomecookie} = %contenutocookie
+					%nrc ++
+				}
+				%i = 0
+				while ($$->%Nomecookie[%i] != "")
+				{
+					%cookies = %cookies$$->%Nomecookie[%i]$$->%Databasecookies{$$->%Nomecookie[%i]}"\;"
+					%i ++
+				}
+				$$->%Cookies=%cookies
+			}
+			redirect()
+		
+			{
+				$$->$emit(progress,$$->%section)
+				%rdr = $($str.findfirst($$->%Page1,"Location:")+17)
+				%redirectadr=$$->$getLine($$->%Page1,%rdr)
+				$$->%Host = $str.lefttofirst(%redirectadr,"/")
+				$$->%Page="/"$str.rightfromfirst(%redirectadr,"/")  
+				$$->%redirect=1
+			}
+			find()
+			{
+				%i=0;
+				While ($$->%Find[%i] != "")
+				{
+					%a = $($str.findfirst($$->%Page1,$$->%Find[%i])+9+$str.len($$->%Find[%i]))
+					%b=$str.findfirst($$->%Page1,$$->%Find[%i])
+					%work=$$->$getLine($$->%Page1,%a)
+					%sost=$str.section(%work,"\"",0,0)
+					$$->%Find{$$->%Find[%i]}=%sost
+					%i ++;
+				}
+			}
+		}
+}
+
+
+alias(class_smskernel)
+{
+	class(smskernel,object)
+	{
+		constructor()
+		{
+			$$->%btn_flag=1
+			%tmp=$0
+			if (%tmp == "statusbar")
+			{	
+				$$->%gui=$new(statusbar)
+				$$->%flag_gui=0
+				$$->%flag_multisend=0
+			}
+			else
+			{
+				
+				$$->%gui=$new(gui)
+				$$->%flag_multisend=1
+				$$->%flag_gui=1
+			}
+			objects.connect $$->%gui->%combo_provider activated $$ charsleft
+			objects.connect $$->%gui->%line_smstext textChanged $$ charsleft
+			objects.connect $$->%gui->%btn_send clicked $$ manageclick
+		
+			%id=$config.open($file.localdir("config/scripts/sms/smsconfig.mdm"))
+	
+			if(!$config.hassection(%id,accounts))
+			{
+				config.write %id "dummy" "1"
+				$$->$firstTimeDialog()
+			} else {
+				$$->%gui->$configureGuiAccount(%id)
+				$$->%gui->$show()
+			}
+	
+			config.close %id
+		}
+		manageclick()
+		{
+			if ($$->%btn_flag == 1) $$->$send()
+			else $$->$slotStopsms
+		}
+		send()
+		{
+			$$->%btn_flag=0
+			$$->%debug=$new(debug,0,,1)
+			%id=$config.open($file.localdir("config/scripts/sms/smsconfig.mdm"))
+			config.setsection %id $$->%gui->%combo_provider->$current()
+			if ($$->%flag_gui ==1) $$->%gui->%rubrica->$hide()
+	
+			$$->%user=$config.read(%id,accountuser)
+			$$->%pass=$config.read(%id,accountpass)
+			$$->%config=$file.localdir(config/scripts/sms/$config.read(%id,accountprovider)".conf")
+			$$->%debug->%mle_debugProviderConfig->$insertLine($$->%config,0)
+			$$->%tmp=$$->%gui->%line_nrcell->$text()
+			if ($str.contains($$->%tmp,"\,") == 1) $$->%tmp[]=$split(",",$$->%tmp)
+			else $$->%tmp[0]=$$->%tmp
+			$$->%destinations_array[] = ""
+			$$->%destinations_index = 0
+			$$->%nnrr_sms = 0
+			$$->%gui->%mdm->$setStatus("...sending")
+			while($$->%nnrr_sms != $$->%tmp[]#)
+			{
+				if ($str.isnumber($$->%tmp[$$->%nnrr_sms]) != 1)
+				{
+					$$->%destinations_array[$$->%nnrr_sms]=%Tel{$$->%tmp[$$->%nnrr_sms]}
+					if ($$->%destinations_array[$$->%nnrr_sms] == "") return $$->%gui->%label_status->$settext(Nr non in rubrica!)
+				}
+				else
+				{
+					$$->%destinations_array[$$->%nnrr_sms]=$$->%tmp[$$->%nnrr_sms]
+				}
+				$$->%nnrr_sms ++;
+			}
+			$$->%actual =1;
+			$$->$start($$->%destinations_array[0])
+		}
+		start()
+		{
+			$$->%gui->%btn_send->$setText("Stop")
+			$$->%timer=$$->$starttimer(120000)
+			%prefcell=$str.left($0,3)
+			%nrcell=$str.mid($0,3,$($str.len($0-3)))
+			if ($$->%nnrr_sms != 1) %stat=$$->%actual"\/"$$->%nnrr_sms 
+			else %stat=""
+			$$->%gui->%mdm->$setStatus("Invio " %stat "al" %prefcell%nrcell)
+			$$->%sms=$new(sms,0,,"39",%prefcell,%nrcell,$$->%gui->%line_smstext->$text(),$$->%user,$$->%pass,$$->%config)
+			objects.connect $$->%sms debug $$->%debug slotDebug
+			#if ($$->%sms->%error == "Fatal error")
+			#{
+			#	echo "Fatal error:cannot find the config about "$$->%config " provider."
+			#}
+			$$->%gui->%progbar->$settotalsteps($$->%sms->%sections)
+			objects.connect $$->%sms sended $$ slotSmsSendResponse  
+			objects.connect $$->%sms progress $$ slotProgress
+			$$->%sms->$send()
+		}
+		charsleft()
+		{
+			%len=$str.len($$->%gui->%line_smstext->$text())
+			$$->%gui->%label_charsleft->$settext("Chars Left:"$($$->%gui->%MaxCharSms{$$->%gui->%combo_provider->$current()}-%len));
+			$$->%gui->%line_smstext->$setMaxLength($$->%gui->%MaxCharSms{$$->%gui->%combo_provider->$current()})
+		}
+		timerevent()
+		{
+			$$->$slotSmsSendResponse("...sms timeout...")
+		}
+		slotStopsms()
+		{
+			$$->$slotSmsSendResponse("..sending stopped by user")
+		}
+		slotSmsSendResponse()
+		{
+			config.close $$->%sms->%id_sms
+			$$->%btn_flag=1
+			$$->%gui->%label_status->$settext($0)
+			$$->%gui->%btn_send->$setenabled(1)
+			$$->%gui->%btn_send->$setText("Invia")
+			delete $$->%sms
+			$$->$killtimer($$->%timer)
+			if (($0 == "..sending stopped by user") || ($0 == "...sms timeout...")) return
+			$$->%destinations_index ++
+			if ($$->%destinations_index == $$->%destinations_array[]#) return $$->%gui->%mdm->$setStatus("Invio completato"!)
+			$$->%actual ++;
+			$$->$start($$->%destinations_array[$$->%destinations_index])
+		}
+		slotProgress()
+		{
+			$$->%gui->%progbar->$setProgress($0)
+		}
+		firstTimeDialog()
+		{
+			$$->%fisrtdialog=$new(mydialog,0,dialog,"<font size=\"8\"><b>Benvenuto...</b><br></font>" \
+					"E' la prima volta che  che usi questo script.</b><br>" \
+					"Per poter andare avanti devi creare almeno un account:" \
+					"nel prossimo dialogo potrai inserire tutti i dati relativi ad esso e creare altri profili," \
+					"in modo da poter usare  varie sim, servizi,diversi utenti<br>"\
+					"Ti verrà chiesto di dare un nome all'account, di indicare uno dei provider tra "\
+					"quelli disponibili e di inserire user e pass relativi al servizio.")
+			objects.connect $$->%fisrtdialog->%btn_ok clicked $$ showAddProvider
+		}
+		showAddProvider()
+		{
+			delete $$->%fisrtdialog
+			$$->%provider= $new(addProvider,0,,$$->%gui->$width(),$$->%gui->$height(),$$->%gui->$x(),$$->%gui->$y(),$$->%gui)
+			objects.connect $$->%provider close $$ showGui
+		}
+		showGui()
+		{
+			$$->%gui->$show()
+			delete $$->%provider
+		}
+	}
+}
+
+
+alias(class_statusbar)
+{
+	class (statusbar,widget)
+	{
+		constructor
+		{
+			
+			$$->%statusbar=$new(wrapper,0,,KviFrame::kvirc_frame,KviStatusBar::statusbar)
+			%labelstatusbar=$new(wrapper,0,,KviFrame::kvirc_frame,KviStatusBar::statusbar,QLabel::msgstatuslabel)
+			%ylabelstatusbar=%labelstatusbar->$y()
+			%Font=$$->%statusbar->$property("font",1)
+			%ypos=5
+			%y=$$->%statusbar->$fontmetricsheight()
+	
+			%label_nrcell=$new(label,$$->%statusbar)
+			%label_nrcell->$setfont($str.section(%Font,",",1,1),$str.section(%Font,",",0,0))
+			%label_nrcell->$setText("Nr.cellulare")
+			%x=%label_nrcell->$fontmetricswidth("Nr.cellulare")
+			%label_nrcell->$move(200,%ylabelstatusbar)
+			%label_nrcell->$resize(%x,%y)
+			%label_nrcell->$show()
+	
+			$$->%line_nrcell=$new(lineedit,$$->%statusbar)
+			$$->%line_nrcell->$move($(205+%x),%ylabelstatusbar)
+			$$->%line_nrcell->$resize(100,$(%y+0))
+			$$->%line_nrcell->$show()
+	
+			%lab_smstext=$new(label,$$->%statusbar)
+			%lab_smstext->$setfont($str.section(%Font,",",1,1),$str.section(%Font,",",0,0))
+			%lab_smstext->$setText("Testo ")
+	
+			%x1=%lab_smstext->$fontmetricswidth("Testo")
+			%lab_smstext->$move($(200+%x+100+10),%ylabelstatusbar)
+			%lab_smstext->$resize(%x1,%y)
+			%lab_smstext->$show()
+		
+			$$->%line_smstext=$new(lineedit,$$->%statusbar)
+			$$->%line_smstext->$move($(205+%x+%x1+100+10),%ylabelstatusbar)
+			$$->%line_smstext->$resize(200,$(%y+0))
+			$$->%line_smstext->$show()
+	
+			$$->%combo_provider=$new(combobox,$$->%statusbar)
+			$$->%combo_provider->$move($(200+%x+%x1+100+20+200),%ylabelstatusbar)
+			$$->%combo_provider->$setfont($str.section(%Font,",",1,1),$str.section(%Font,",",0,0))
+			$$->%combo_provider->$insertitem("Vodafone")
+			$$->%combo_provider->$insertitem("Virgilio")
+	
+			$$->%combo_provider->$resize($($$->%combo_provider->$fontmetricswidth("Vodafone")+30),%y)
+			$$->%combo_provider->$show()
+		
+			$$->%btn_send=$new(mybtn,$$->%statusbar,"btnsend","Send")
+			$$->%btn_send->$move($(200+%x+%x1+100+20+200+30+$$->%combo_provider->$fontmetricswidth("Vodafone")),%ylabelstatusbar)
+			$$->%btn_send->$resize(40,%y)
+			$$->%btn_send->$show()
+		}
+	}
+}
+
+
+alias(class_widgets)
+{
+	# class mylabel,mydialog,mybtn,mylayout,mypopup,
+	
+	class (mylabel,label)
+	{
+		constructor
+		{
+	
+			$$->$settext($0)
+			$$->$setautoresize(1)
+			if ($1) $$->$setAlignment($1)
+		}
+	}
+	class (mybtn,button)
+	{
+		constructor
+		{
+			$$->$settext($0)
+		}
+	}
+	class (mylayout,layout)
+	{
+		constructor
+		{
+			$$->$setspacing($0)
+			$$->$setmargin($0)
+		}
+	}
+	class (mypopup,popupmenu)
+	{
+		constructor()
+		{
+	
+			$$->%Id_popRubrica=$$->$insertitem("Rubrica")
+			$$->%Id_popAccounts=$$->$insertitem("Accounts")
+			$$->%Id_popPrefs=$$->$insertitem("Preferenze")
+		}
+		activatedEvent()
+		{
+			echo activate
+			if ($0 == $$->%Id_popRubrica) return $new(addToRubrica,0,,$$->$parent->$width(),$$->$parent->$height(),$$->$parent->$x(),$$->$parent->$y(),$$->$parent())
+			if ($0 == $$->%Id_popAccounts) return $new(addProvider,0,,$$->$parent->$width(),$$->$parent->$height(),$$->$parent->$x(),$$->$parent->$y(),$$->$parent())
+			$$->$popPrefs()
+		}
+		popAccounts()
+		{
+	
+		}
+		popPrefs()
+		{
+		}
+	}
+	class (mydialog,dialog)
+	{
+		constructor()
+		{
+			$$->$setIcon(29)
+			$$->$setCaption("SMdmS first launch")
+			%label=$new(mylabel,$$,,$0)
+			%lay=$new(layout,$$)
+			%lay->$addmulticellWidget(%label,0,0,0,2)
+			$$->%btn_ok=$new(mybtn,$$,,"Ok")
+			$$->%btn_ok->$setmaximumwidth(60)
+			%lay->$addWidget($$->%btn_ok,1,1)
+			$$->$show
+		}
+	}
+}
+
+
+alias(sms)
+{
+	class_addProvider
+	class_debug
+	class_addToRubrica
+	class_gui
+	class_mdm
+	class_rubrica
+	class_sms
+	class_smskernel
+	class_statusbar
+	class_widgets
+	
+	%sms=$new(smskernel,0,"sms","nostatusbar")
+	
+	#%sms->%gui->$show()
+}
+
+

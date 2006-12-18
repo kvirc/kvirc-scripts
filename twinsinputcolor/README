@@ -1,0 +1,14 @@
+Goal:
+	This addon colorizes your input text in channels, 
+	queries and/or DCC chats. 
+
+Contact:
+	Ahinu (ahinu.laman@gmail.com)
+
+Installation:
+	Use /addon.dialog, then click on "install addon" and search for
+	"install.kvs" where the README is and load it.
+
+Uninstallation :
+	Use /addon.dialog, select "twinsinputcolor" and click on "uninstall".
+

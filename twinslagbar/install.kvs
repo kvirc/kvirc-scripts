@@ -1,0 +1,63 @@
+/*
+	LagBar of the Twins script.
+	Written by Ahinu (2006)
+*/
+
+# register the script: this must be the first instruction executed
+# since it will abort with an error when a greater version is already installed
+addon.register(\
+	"twinslagbar",\
+	"1.0",\
+	$tr("The Twins Lagbar",twinslagbar),\
+	$tr("A simple lag bar",twinslagbar),\
+	"3.2.3",\
+	twins/32x32/twins_lagbar_32.png)
+{
+	//twins::lagbar::core::uninstall
+}
+
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# get the installer helper class (this is pretty standard and included in the distro)
+#include $file.globaldir(defscript/installer.kvs)
+include utils/installer.kvs
+
+# Get the path that this script was launched from
+//%mypath = $file.extractPath($0)
+%mypath = $str.lefttolast($0,/)
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+# copy files in each subdirectory
+# the pics
+file.mkdir $file.localdir(pics)
+file.mkdir $file.localdir(pics/twins)
+foreach(%subdir,16x16,22x22,32x32)
+	%installer->$copyFiles("%mypath/pics/twins/"%subdir,"twins_*.png",$file.localdir("pics/twins/%subdir"))
+# the translations
+#%installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
+
+# includes sources files
+%installer->$includeFiles("%mypath/src/","*.kvs")
+
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("twins::lagbar::core::uninstall")
+
+delete %installer
+
+# set the script's configuration callback
+# so it can be invoked via GUI from the Addon Management dialog
+# and via addon.configure
+addon.setconfigurecallback("twinslagbar")
+{
+        twins::lagbar::configure
+}
+
+if($addon.exists(twins)) return
+
+# make sure any previous instance is closed
+twins::lagbar::close
+# show it up :)
+twins::lagbar::show
+

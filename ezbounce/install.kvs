@@ -1,0 +1,91 @@
+# EZBounce irc proxy utility script for KVIrc
+# Written by Szymon Stefanek (2004)
+
+# register the script: this must be the first instruction executed
+# since it will abort with an error when a greater version is already installed
+addon.register("ezbounce","1.0.0",$tr("EZBounce Proxy Utilities","ezbounce"),$tr("Provides shortcuts and toolbar buttons for EZBounce IRC proxy commands","ezbounce"),"3.2.0.99",ezbounce_32.png)
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	
+	# This is an automatically generated alias that will erase the installed files
+	ezbounce_uninstallfiles
+
+	action.destroy ezb_status
+	action.destroy ezb_quit
+	action.destroy ezb_detach
+	alias(ezb_status){}
+	alias(ezb_quit){}
+	alias(ezb_detach){}
+	alias(ezb_uninstall){}
+
+	toolbar.destroy ezbounce
+	
+	# Done
+}
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+# copy files in each subdirectory
+# the pics
+%installer->$copyFiles("%mypath/pics/","*.png","$file.localdir("pics")")
+# the translations
+%installer->$copyFiles("%mypath/locale/","*.mo","$file.localdir("locale")")
+# the documentation
+%installer->$copyFiles("%mypath/help/en/ezbounce/","*.html","$file.localdir("help/en/ezbounce")")
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("ezbounce_uninstallfiles")
+# finally kill the installer helper
+delete %installer
+
+
+
+
+# We provide the utilities as aliases
+alias(ezb_status)
+{
+	quote ezb status
+	if($query("ezbounce"))window.activate $query("ezbounce")
+}
+
+alias(ezb_quit)
+{
+	quote ezb quit
+}
+
+alias(ezb_detach)
+{
+	quote ezb detach
+}
+
+# And also as actions
+action.create -c -l -t=irc (ezb_status,"EZB Status",$tr("Requests EZBounce statistics","ezbounce"),ezb_status_32.png,ezb_status_16.png)
+{
+	ezb_status
+}
+
+action.create -c -l -t=irc (ezb_quit,"EZB Quit",$tr("Requests EZBounce to quit the current connection","ezbounce"),ezb_quit_32.png,ezb_quit_16.png)
+{
+	ezb_quit
+}
+
+action.create -c -l -t=irc (ezb_detach,"EZB Detach",$tr("Requests EZBounce to detach the current connection","ezbounce"),ezb_detach_32.png,ezb_detach_16.png)
+{
+	ezb_detach
+}
+
+# So we can use them in a toolbar :)
+toolbar.create ezbounce $tr("EZ-Bounce utilities","ezbounce") "ezbounce_16.png"
+toolbar.additem ezbounce ezb_status
+toolbar.additem ezbounce ezb_detach
+toolbar.additem ezbounce ezb_quit
+toolbar.show ezbounce
+

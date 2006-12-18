@@ -1,0 +1,350 @@
+#######################################################							
+# Grifisx & Noldor 2005 (.:mDm:.Team)
+# 
+#######################################################
+addon.register("question&Manager","0.1",$tr("question&Manager","q&M"),$tr("A simple script to manage public lessons"),"3.2.0","49")
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+		
+	# This is an automatically generated alias that will erase the installed files
+	alias(questionManager){}
+	event(OnAccelKeyPressed,questionmanager){}
+	event(OnChannelMessage,questionmanager){}
+	event(OnQueryMessage,questionmanager){}
+	event(OnNickChange,questionmanager){}
+	event(OnTextInput,questionmanager){}
+	event(OnPart,questionmanager){}
+	event(OnQuit,questionmanager){}
+	%Dizionariodomande{}=
+	%MaskDB[]=
+	%IdxMaskDB=
+	defpopup("questionManager"){}
+	delpopupitem -d -q channeltextview 6958369
+	delpopupitem -d -q channeltextview 6985269
+	# Done
+}
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+
+# then generate the uninstall alias
+# finally kill the installer helper
+delete %installer
+
+# Script Alias
+
+alias(questionManager)
+{
+switch($0)
+{
+	case("1")
+	{
+		me $k(5) -=$k(10) KVirc Question Manager  $k(5)=-$o() $tr("Attivato")
+		echo $k(5) \[  $tr("Tasto $b()F3$b()\-\> Mostra la domanda successiva\.") $k(5) \]$o -
+		echo $k(5) \[  $tr("Tasto $b()F4$b()\-\> Espone la domanda successiva\.") $k(5) \]$o -
+		echo $k(5) \[  $tr("Tasto $b()F5$b()\-\> Espone la domanda successiva e da il Voice all\'utente che l\'ha fatta\.") $k(5) \]$o -
+		echo $k(5) \[  $tr("Tasto $b()F6$b()\-\> Elimina la domanda successiva\.") $k(5) \]$o -
+		echo $k(5) \[  $tr("Il Comando $b()\!next$b() dato da un Op in canale, espone la domanda e passa alla successiva\.") $k(5) \]$o -
+		echo $k(5) \[  $tr("Il Comando $b()\!domanda$b() dato da un utente in query\, gli da le istruzioni per proporre la domanda\.") $k(5) \]$o -
+#------------ OnChannelMessage
+		event(OnChannelMessage,questionmanager)
+		{
+			if($chan.isop($0) && $3=="\!next")
+			{
+				if(%Dizionariodomande{%MaskDB[0]})
+				{
+					msg $target %Dizionariodomande{%MaskDB[0]}
+					%Dizionariodomande{%MaskDB[0]}=""
+					%i=0
+					while (%i!=$(%MaskDB[]#-1))
+					{
+						%MaskDB[%i]=%MaskDB[$(%i+1)]
+						%i++
+					}
+					%MaskDB[%i]=""
+					%IdxMaskDB--
+				}
+				else
+				{
+				msg $target $b() $tr("Domande Finite\.") 
+				%Dizionariodomande{}=
+				%MaskDB[]=
+				%IdxMaskDB=
+				}
+			}
+		}
+
+#----------- OnQueryMessage
+		event(OnQueryMessage,questionmanager)
+		{
+			if(!%IdxMaskDB){%IdxMaskDB=0;}
+			if($3==$tr("\!domanda"))
+			{
+				if (%NickFlagQuestion{$2}) msg $0 $tr("Devi porre la domanda \!")
+				else
+				{
+					if (%Dizionariodomande{$2}) msg $0 $tr("Hai gia\' fatto una domanda\: fino a che non sia risposto a quella non puoi farne altre\!");
+					else
+					{
+					msg $0 $tr("Ti ricordo che  puo\' essere effettuata piu\' di una domanda alla volta, se esci dal canale o chiudi la connessione la tua domanda verra\' tolta dalla lista\.")
+					msg $0 $tr("Ora digita la domanda e, prima di fare successiva, aspetta la risposta\.")
+					%NickFlagQuestion{$2}=1
+					}
+				}
+			}
+			if($3=="\!delete")
+			{
+				if(%Dizionariodomande{$2})
+				{
+					msg $0 $tr("La tua domanda e\' stata rimossa dalla lista\.")	
+					%Dizionariodomande{$2}=""
+					%i=0
+					while (%i!=$(%MaskDB[]#-1))
+					{
+						%MaskDB[%i]=%MaskDB[$(%i+1)]
+						%i++
+					}
+					%MaskDB[%i]=""
+					%IdxMaskDB--
+				}
+				else { msg $0 $tr("Nessuna domadna formulata\.");}
+					
+			}  
+			if ((%NickFlagQuestion{$2}) && ($3 != $tr("\!domanda")))
+			{
+				if($str.findlast($3,"\?")>=1)
+				{
+					%MaskDB[%IdxMaskDB]=$2
+					%Dizionariodomande{%MaskDB[%IdxMaskDB]}=$b()\[$0\] $b()\: $3
+					%NickFlagQuestion{$2}=0
+					msg $0 $tr("Domanda memorizzata\.")
+					msg $0 $tr("Numero di coda \:") %Dizionariodomande{}#\. $tr("Usa") $b() \!delete $b() $tr("per rimuoverla\.")
+					%IdxMaskDB++;
+				}
+				else { msg $0 $tr("Deve essere una domanda contenente un \"\?\"\.");}
+			}
+		}
+#--------- OnNickChange
+		event(OnNickChange,questionmanager)
+		{
+			if(%Dizionariodomande{$2})
+			{
+				%question=$str.section(%Dizionariodomande{$2},\:,1,1)
+				%newNickQuestion=$b()\[ $3 \] $b()\: %question
+				%Dizionariodomande{$2}=%newNickQuestion
+			}
+		}
+#-------- OnQuit
+		event(OnQuit,questionmanager)
+		{
+			if(%Dizionariodomande{$2})
+			{
+				if(($str.containsnocase($3," reset by ")==0) && ($str.containsnocase($3,"ping")==0) && ($str.containsnocase($3,"netsplit")==0))
+				{	
+					%Dizionariodomande{$2}=""
+					%i=0
+					while (%i!=$(%MaskDB[]#-1))
+					{
+						%MaskDB[%i]=%MaskDB[$(%i+1)]
+						%i++
+					}
+					%MaskDB[%i]=""
+					%IdxMaskDB--
+				}
+			}
+		}
+#-------- OnPart
+		event(OnPart,questionmanager)
+		{
+			if(%Dizionariodomande{$2})
+			{
+				notice $0 $tr("La tua domanda e\' stata rimossa dalla lista\.")	
+				%Dizionariodomande{$2}=""
+				%i=0
+				while (%i!=$(%MaskDB[]#-1))
+				{
+					%MaskDB[%i]=%MaskDB[$(%i+1)]
+					%i++
+				}
+				%MaskDB[%i]=""
+				%IdxMaskDB--
+			}
+		}
+#-------- OnTextInput
+		event(OnTextInput,questionmanager)
+		{
+			if($0=="\!next")
+			{
+				if(%Dizionariodomande{%MaskDB[0]})
+				{
+					msg $target %Dizionariodomande{%MaskDB[0]}
+					%Dizionariodomande{%MaskDB[0]}=""
+					%i=0
+					while (%i!=$(%MaskDB[]#-1))
+					{
+						%MaskDB[%i]=%MaskDB[$(%i+1)]
+						%i++
+					}
+					%MaskDB[%i]=""
+					%IdxMaskDB--
+				}
+				else
+				{
+				msg $target $b() $tr("Domande Finite"). 
+				%Dizionariodomande{}=
+				%MaskDB[]=
+				%IdxMaskDB=
+				}
+			}
+		}
+#-------- OnAccelKeyPressed
+		event(OnAccelKeyPressed,questionmanager)
+		{
+			if($0==F3)
+			{
+				if(%Dizionariodomande{%MaskDB[0]})
+				{
+					echo $k(5) $tr("Visualizzazione prossima domanda\.")
+					echo  %Dizionariodomande{%MaskDB[0]}
+				}
+				else
+				{
+					msg $target $b() $tr("Domande Finite\.") 
+					%Dizionariodomande{}=
+					%MaskDB[]=
+					%IdxMaskDB=
+				}
+			}
+			if($0==F4)
+			{
+				if(%Dizionariodomande{%MaskDB[0]})
+				{
+					echo $k(5) $tr("Esposizione prossima domanda\.")
+					msg $target %Dizionariodomande{%MaskDB[0]}
+					%Dizionariodomande{%MaskDB[0]}=""
+					%i=0
+					while (%i!=$(%MaskDB[]#-1))
+					{
+						%MaskDB[%i]=%MaskDB[$(%i+1)]
+						%i++
+					}
+					%MaskDB[%i]=""
+					%IdxMaskDB--
+				}
+				else
+				{
+					msg $target $b() $tr("Domande Finite\.") 
+					%Dizionariodomande{}=
+					%MaskDB[]=
+					%IdxMaskDB=
+				}
+			}
+			if($0==F5)
+			{
+				if(%Dizionariodomande{%MaskDB[0]})
+				{
+					echo $k(5) $tr("Esposizione prossima domanda e voice utente\.")
+					msg $target %Dizionariodomande{%MaskDB[0]}
+					voice $str.replace($str.section($str.section(%Dizionariodomande{$2},\:,0,0),"\[",1,1),"","\]")
+					%Dizionariodomande{%MaskDB[0]}=""
+					%i=0
+					while (%i!=$(%MaskDB[]#-1))
+					{
+						%MaskDB[%i]=%MaskDB[$(%i+1)]
+						%i++
+					}
+					%MaskDB[%i]=""
+					%IdxMaskDB--
+				}
+				else
+				{
+					msg $target $b() $tr("Domande Finite\.") 
+					%Dizionariodomande{}=
+					%MaskDB[]=
+					%IdxMaskDB=
+				}
+			}
+			if($0==F6)
+			{
+				if(%Dizionariodomande{%MaskDB[0]})
+				{
+					echo $k(5) $tr("Rimozione domanda\.")
+					%Dizionariodomande{%MaskDB[0]}=""
+					%i=0
+					while (%i!=$(%MaskDB[]#-1))
+					{
+						%MaskDB[%i]=%MaskDB[$(%i+1)]
+						%i++
+					}
+					%MaskDB[%i]=""
+					%IdxMaskDB--		
+				}
+			}		
+	}
+#----------------------------------
+	break;
+	}
+	case("0")
+	{
+		event(OnAccelKeyPressed,questionmanager){}
+		event(OnChannelMessage,questionmanager){}
+		event(OnQueryMessage,questionmanager){}
+		event(OnNickChange,questionmanager){}
+		event(OnTextInput,questionmanager){}
+		event(OnPart,questionmanager){}
+		event(OnQuit,questionmanager){}
+		%Dizionariodomande{}=
+		%MaskDB[]=
+		%IdxMaskDB=
+		me $k(5) -=$k(10) KVirc Question Manager  $k(5)=-$o() $tr("Disattivato")
+		break;
+	}
+	default
+	{
+		echo $k(5) -=$k(10) KVirc Question Manager  $k(5)=-$o() by Grifisx&Noldor
+		echo $k(5) $u() $tr("Usage:")
+		echo $k(5) \[ $k(10) $u()$tr("Attiva")$u() $k(5) \]$o - /questionManager 1
+		echo $k(5) \[ $k(10) $u()$tr("Disattiva")$u() $k(5) \]$o - /questionManager 0
+		echo $k(5) \[  $tr("Tasto $b()F3$b()\-\> Mostra la domanda successiva\.") $k(5) \]$o -
+		echo $k(5) \[  $tr("Tasto $b()F4$b()\-\> Espone la domanda successiva\.") $k(5) \]$o -
+		echo $k(5) \[  $tr("Tasto $b()F5$b()\-\> Espone la domanda successiva e da il Voice all\'utente che l\'ha fatta\.") $k(5) \]$o -
+		echo $k(5) \[  $tr("Tasto $b()F6$b()\-\> Elimina la domanda successiva\.") $k(5) \]$o -
+		echo $k(5) \[  $tr("Il Comando $b()\!next$b() dato da un Op in canale, espone la domanda e passa alla successiva\.") $k(5) \]$o -
+		echo $k(5) \[  $tr("Il Comando $b()\!domanda$b() dato da un utente in query\, gli da le istruzioni per proporre la domanda\.") $k(5) \]$o -
+		break;
+	}
+}
+}
+
+# Popups
+defpopup-m ("channeltextview")
+{
+	separator("6958369")
+	
+	extpopup("$tr("Question Manager")","questionManager","49","6985269")
+}
+
+defpopup("questionManager")
+{
+	label("Question Manager")
+	
+	item("$tr(Attiva)",27)
+	{
+		questionManager 1
+	}
+	
+	item("$tr(Disattiva)",24)
+	{
+		questionManager 0
+	}
+}
+

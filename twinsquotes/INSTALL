@@ -1,0 +1,6 @@
+Installation :
+--------------
+ 1. Ctrl-Alt-M to open the addon manager
+ 2. Click on "Install an addon"
+ 3. Choose the file "install.kvs" where unzipped the addon
+ 4. Then it should be installed, and configurable using the "Configuration" button

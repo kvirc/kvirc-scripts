@@ -1,0 +1,7 @@
+alias(NGLfserv::corefunctions::say)
+{
+	if ($objects.exists(%Virtualshell)) %Virtualshell->$append("$1-")
+	else say -r=$0 $1-
+}
+
+

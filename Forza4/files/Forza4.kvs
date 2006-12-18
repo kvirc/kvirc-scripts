@@ -1,0 +1,494 @@
+alias(Forza4_classesdefinitions)
+{
+	#Name:Forza4
+	#Version:1.9
+	#By:Noldor-Grifisx-Pragma
+	#KVIrcwrapper:version1.0 byGrifisx/Noldor
+	
+	class(forzaquattro,widget)
+	{
+		constructor()
+		{
+			$$->%m_pForza4Handler=$2
+			#initturn'svariables
+			$$->%isMyTurn=$0
+			$$->%myEnemy=$1
+			$$->%id=$config.open($file.localdir(config/Forza4/Forza4.conf))
+			config.setsection $$->%id Prefs
+			if(!$config.read($$->%id,Player1))
+			{
+				%pixplayer1=blue
+				%pixplayer2=purple
+			}
+			else
+			{
+				%tbl[]=$array(blue,purple,pink,red,green,orange)
+				%i=0
+				%pl1=$config.read($$->%id,Player1)
+				while(%pl1!=%tbl[%i]) %i++
+				%pixplayer1=%tbl[%i]
+				%i=0
+				%pl2=$config.read($$->%id,Player2)
+				while(%pl2!=%tbl[%i]) %i++	
+				%pixplayer2=%tbl[%i]
+			}
+			#init all the pixmaps
+			$$->%chips_layer=$new(pixmap)
+			$$->%chips_layer->$resize(314,262)
+			$$->%frontgrid=$new(pixmap)
+			$$->%frontgrid->$load($file.localdir("pics/Forza4/frontgrid.png"))
+			#blue0
+			%tbl[]=$array(f4blue,f4purple,f4pink,f4red,f4green,f4orange)
+			$$->%pixmap_pl1=$new(pixmap)
+			%file=%pixplayer1\.png
+			$$->%pixmap_pl1->$load($file.localdir("pics/Forza4/%file"))
+			#purple1
+			$$->%pixmap_pl2=$new(pixmap)
+			%file=%pixplayer2\.png
+			$$->%pixmap_pl2->$load($file.localdir("pics/Forza4/%file"))
+			#init the cache pixmap:we use it to save last frame of the chip animations and use it next repainting
+			$$->%cache=$new(pixmap)
+			$$->%cache->$resize(314,262)
+			#let's resize and show our game'swidget
+			$$->$resize(314,262)
+			#setting keyboard focus
+			$$->$setFocusPolicy(StrongFocus)
+			#initgamesvariiable
+			$$->$init()
+			$$->$show()
+		}
+		destructor()
+		{
+			#free memory allocations
+			delete $$->%cache
+			%i=0
+			for (%i=0;$$->%pixmap[%i]!="";%i++)delete $$->%pixmap[%i]
+			delete $$->%frontgrid
+			delete $$->%chips_layer
+		}
+		keyPressEvent()
+		{
+			if(!$$->%keysON)return
+			%key=$str.lowcase($0)
+			if(%key=="y")
+			{
+				# if Y(es) ask enemy player for a new game
+				ctcp $$->%myEnemy FORZA4 RESTART
+				$$->%keysON=0
+			}
+			if(%key=="n")
+			{
+				ctcp	$$->%myEnemy FORZA4 RESTARTDENIED
+				$$->%m_pForza4Handler->$forza4DeleteInstance($$->%myEnemy)
+			}
+		}
+		mouseReleaseEvent()
+		{
+			# if is not my turn or the game is over or anim in progress do nothing
+			if(!$$->%isMyTurn||$$->%endgame||$$->%movelock)return
+			# get player input
+			%c=$1
+			%a=$(%c-25)
+			%b=40
+			if($$->$dropChips($(%a/%b))==69)return
+			$$->%movelock=$true
+			$$->$starttimer(35)
+		}
+		init()
+		{
+			#init the game's tbl with a matrix of 6x7
+			%y=0
+			while(%y!=6)
+			{
+				for(%x=0;%x<7;%x++) $$->%tbl{%x,%y}=$false
+				%y++;
+			}
+			#loadthebackground
+			$$->%cache->$load($file.localdir(pics/forza4/backgrid.png))
+			#initstartpositionofthechipandmaxycoordinate
+			$$->%ymoneta=0
+			$$->%ymax=217
+			#gameisover
+			$$->%endgame=0
+			#lockmouseeventifisn'tourturn
+			$$->%movelock=0
+			#checkifboardisfull
+			$$->%total=0
+			#unlockkeyboardwhenwelost
+			$$->%keysON=0
+			#init player andpixmap
+			$$->%player=1
+			$$->%chip=$$->%pixmap_pl1;
+			objects.bitBlt $$->%chips_layer 0 0 $$->%cache 0 0 314 262
+		}
+		#Forza4graphiccore:
+		timerEvent()
+		{
+			%id=$0
+			objects.bitBlt $$->%chips_layer 0 0 $$->%cache 0 0 314 262
+			objects.bitBlt $$->%chips_layer $$->%moncolx $$->%ymoneta $$->%chip 0 0 29 30;
+			#chipgoesdown:-D
+			$$->%ymoneta+=5;
+			#checkifmychipareplacetothemaxyposition
+			if($$->%ymoneta>=$$->%ymax)
+			{
+				#lockpainting
+				$$->%anim=0
+				#initycoordinate
+				$$->%ymoneta=0
+				#markstblwithactualplayer
+				$$->%tbl{$$->%moncol,$$->%monrow}=$$->%player
+				#checkvictory
+				%vict=$$->$checkVictory($$->%moncol,$$->%monrow)
+				#ifvictorymanagingstatusmessages
+				if(%vict==1)
+				{
+					if($$->%isMyTurn)%msg="YouWin!" 
+					else
+					{
+						%msg="Youlose!|AnotherChallenge?|(Y/N)"
+						#setkeyboardfocustothiswidget
+						$$->$setFocus();
+						#unlockkeys
+						$$->%keysON=1
+					}
+					#writemsgtoscreen
+					$$->%write=$true
+					#gameover
+					$$->%endgame=$true
+				}
+				else
+				{
+					$$->%total++;
+					#check"board'sfull"
+					if($$->%total==42)
+					{
+						%msg="GameOver|AnotherChallenge?|(Y/N)"
+						$$->%write=$true
+						$$->%endgame=$true
+						$$->%keysON=$true
+					}
+					#managing players turn's
+					if($$->%isMyTurn) $$->%isMyTurn=$false
+					else $$->%isMyTurn=$true
+					if ($$->%player==1) {$$->%player=2;$$->%chip=$$->%pixmap_pl2;}
+					else {$$->%player=1;$$->%chip=$$->%pixmap_pl1;}
+					#unlock mouse release event
+					$$->%movelock=$false()
+					#save frame to cache
+					objects.bitBlt $$->%cache 0 0 $$->%chips_layer 0 0 314 262
+				}
+				$$->$killtimer(%id)
+			}
+			objects.bitBlt $$->%chips_layer 0 0 $$->%frontgrid 0 0 314 262
+			if ($$-%write) $$->$writeToPixmap(%msg,$$->%chips_layer)
+			$$->%write=0
+			$$->$repaint(0)
+		}
+		paintEvent()
+		{
+			objects.bitBlt $$ 0 0 $$->%chips_layer 0 0 314 262
+		}
+		writeToPixmap()
+		{
+			#split the string
+			%str[]=$split("|",$0)
+			%p=$new(painter)
+			%p->$begin($1)
+			%i=0
+			# set font
+			%p->$setFont(18,"times",bold);
+			# read the max height of the fonts to avoid centering string on the widget
+			%descent=%p->$fontmetricsHeight();
+			# starty=lenghtofthewidget-(maxheight*nroftherows)/2<----centering the output
+			%starty=$((262-(%descent*%str[]#))/2)
+			while(%i!=%str[]#)
+			{
+			#read the amount of pixels of our string
+				%metricx=%p->$fontMetricsWidth(%str[%i])
+				#centering on x
+				%x=$((314-%metricx)/2)
+				#set the shadow pen
+				%p->$setPen(0,255,170);
+				#draw the shadow text
+				%p->$drawText(%x,%starty,%str[%i],-1,Auto)
+				#set pen
+				%p->$setPen(40,255,227,Hsv);
+				#draw the text
+				%p->$drawText($(%x+1),$(%starty+1),%str[%i],-1,Auto)
+				#movetothenextycoordinate
+				%starty+=%descent;
+				#nextstr
+				%i++
+			}
+	
+		}
+		#managingnewsessiongame
+		restart()
+		{
+			$$->%isMyTurn=$0
+			$$->$init()
+		}
+		#managingkeyboardY/Nevents
+		checkVictory()
+		{
+			#wecheck
+			#orizzontalcontrol
+			%i=0
+			%x=$0
+			%y=$1
+			%count=0
+			while(%i!=7)
+			{
+				if(($$->%tbl{$(%x+%i-3),%y}==$$->%player)) %count++
+				else if(%count)%count--;
+				if ((!%count&&%i==3) || %count==4)break;
+				%i++;
+			}
+			if(%count>=4) return $true
+			%i=0
+			%count=0
+			while(%i!=7)
+			{
+				if(($$->%tbl{%x,$(%y+%i-3)}==$$->%player))%count++
+				else if(%count)%count--;
+				if ((!%count&&%i==3)||%count==4)break;
+				%i++;
+			}
+			if(%count==4) return $true
+			%i=0
+			%count=0
+			while(%i!=7)
+			{
+				if(($$->%tbl{$(%x+(%i-3)),$(%y+(%i-3))}==$$->%player))%count++
+				else if(%count)%count--;
+				if ((!%count && %i==3) || %count==4)break;
+				%i++;
+			}
+			if(%count==4) return $true
+			%i=0
+			%count=0
+			while(%i!=7)
+			{
+				if(($$->%tbl{$(%x+(%i-3)),$(%y-(%i-3))} == $$->%player)) %count++
+				else if (%count) %count--;
+				if((!%count && %i==3) || %count==4) break;
+				%i++;
+			}
+			if(%count==4) return $true
+			return $false
+		}
+		#set the max coordinates of the chip
+		setYmax()
+		{
+			%y=5
+			%x=$0
+			$$->%ymax=217
+			while(%y)
+			{
+				if($$->%tbl{%x,%y}=="0")return%y;
+				$$->%ymax-=40;
+				%y--;
+			}
+			if($$->%tbl{%x,%y}=="0")return%y
+			else return 69
+		}
+		dropChips()
+		{
+			#initchipanim
+			if($$->$refreshChips($0)==69) return 69
+			ctcp $$->%myEnemy FORZA4 SENDMOVE $$->%moncol
+			return 0
+		}
+		dropEnemyChips()
+		{
+			$$->$refreshChips($0)
+			$$->$starttimer(35)
+		}
+		refreshChips()
+		{
+			#calculate
+			$$->%moncol=$0
+			$$->%monrow=$$->$setYmax($$->%moncol)
+			if($$->%monrow==69) return 69
+			$$->%moncolx=$(($$->%moncol*40)+25)
+			$$->%pixmap=$$->%player
+			$$->%flagRefresh=$true
+			return $true
+		}
+	}
+	class(forza4handler,object)
+	{
+		constructor
+		{
+			$$->%users[]=""
+			$$->%m_pHook=$new(hookKVIrc)
+			$$->%users=0
+			$$->%instance{}=""
+			$$->%hook{}=""
+		}
+		forza4CreateInstance(flag,nick,windowId)
+		{
+			%flag=$0
+			%nick=$1
+			$$->%hook{$2}=$new(wrapper,0,"a",WinId::$2,QSplitter::main_splitter)
+			$$->%users[%users]=$2
+			$$->%instance{$2}=$new(forzaquattro,$$->%hook{$2},,%flag,%nick,$$)
+			$$->%users++;
+		}
+		dropEnemyChips(move,windid)
+		{
+			$$->%instance{$1}->$dropEnemyChips($0)
+		}
+		restart(flag,winid)
+		{
+			$$->%instance{$1}->$restart($0)
+		}
+		forza4deleteInstance
+		{
+			$$->%users--;
+			%id=$0
+			delete $$->%instance{%id};
+			delete $$->%hook{%id};
+		}
+		instanceExists()
+		{
+			return $objects.exists($$->%instance{$0})
+		}
+		forza4DeleteAllInstances()
+		{
+			%i=0
+			while(%i!=$$->%users[]#)
+			{
+				delete $$->%instance{$$->%users[%i]}
+				delete $$->%hook{$$->%users[%i]}
+				%i++;	
+			}
+		}
+		instance()
+		{
+			return $$->%instance{$0}
+		}
+	}
+	return
+	wrapKVIrc
+}
+
+
+alias(Forza4_config)
+{
+	#Name:Forza4
+	#Version:1.9
+	#By:Noldor-Grifisx-Pragma
+	#KVIrcwrapper:version1.0 byGrifisx/Noldor
+	
+	class (F4config,dialog)
+	        {
+	                constructor
+	                {
+	                        file.mkdir $file.localdir(config/Forza4/)
+	                        $$->%id=$config.open($file.localdir(config/Forza4/Forza4.conf))
+	                        config.setsection $$->%id Prefs
+	                        if (!$config.read($$->%id,Player1))
+	                        {
+	                                config.write $$->%id Player1 blue
+	                                config.write $$->%id Player2 pink
+	                               # config.write $$->%id Preview 1
+	                                config.flush $$->%id
+	                        }
+	        
+	
+	                        $$->$setMaximumHeight(100)
+	                        $$->$setCaption("Forza 4 "$tr("Preferences"))
+	                        
+	                        $$->%combo_choose_color_P1=$new(combobox,$$)
+	                        $$->%combo_choose_color_P2=$new(combobox,$$)
+	                        #$$->%combo_choose_color_P1->$setMaximumWidth(57)
+	        
+	
+	                        %btn_save=$new(button,$$)
+	                        %btn_Save->$settext($tr("&Save"))
+	                        %btn_quit=$new(button,$$)
+	                        %btn_quit->$settext($tr("&Quit"))
+	        
+	        
+	                        %lbl_choose_color_P1=$new(label,$$)
+	                        %lbl_choose_color_P1->$settext($tr("Player one color\:"))
+	                        %lbl_choose_color_P1->$setMaximumHeight(10)
+	                        
+	                   #     $$->%check_preview=$new(checkbox,$$)
+	                   #     $$->%check_preview->$setText($tr("Enable Preview"))
+	                   #	 $$->%check_preview->$setChecked($config.read($$->%id,Preview))
+	        
+	                        
+	                        %lbl_choose_color_P2=$new(label,$$)
+	                        %lbl_choose_color_P2->$settext($tr("Player two color\:"))
+	                        %lbl_choose_color_P2->$setMaximumHeight(10)
+	        
+	                        %lbl_choose_color_title=$new(label,$$)
+	                        %lbl_choose_color_title->$settext($tr("<b>\-Forza 4\- Preferences<\b>"))
+	                        %lbl_choose_color_title->$setMaximumHeight(10)
+	                        %lbl_choose_color_title->$setAlignment(Center)
+	        
+	                        $$->%lbl_error=$new(label,$$)
+	        
+	                        %col[]=$array(blue,purple,pink,red,green,orange)
+	                        %i=0
+	                        
+	                        while (%i != %col[]#)
+	                        {
+	                                $$->%combo_choose_color_P1->$insertItem($tr(%col[%i]))
+	                                if ($config.read($$->%id,Player1) == %col[%i]) %pl1=%i
+	                                if ($config.read($$->%id,Player2) == %col[%i]) %pl2=%i
+	                                $$->%combo_choose_color_P2->$insertItem($tr(%col[%i]))
+	                                %i++
+	                        }
+	                        $$->%combo_choose_color_P1->$setCurrentItem(%pl1)
+	                        $$->%combo_choose_color_P2->$setCurrentItem(%pl2)
+	        
+	                        privateimpl(%btn_quit,mousePressEvent)
+	                        {
+	                                config.close $$->$parent()->%id
+	                                delete $$->$parent()
+	                        }
+	        
+	                        %layout=$new(layout,$$)
+	                        %layout->$setSpacing(2)
+	                        %layout->$addmulticellwidget(%lbl_choose_color_title,0,0,0,1)
+	                        %layout->$addwidget(%lbl_choose_color_P1,1,0)
+	                        %layout->$addwidget(%lbl_choose_color_P2,1,1)
+	                        %layout->$addwidget($$->%combo_choose_color_P1,2,0)
+	                        %layout->$addwidget($$->%combo_choose_color_P2,2,1)
+	                    #    %layout->$addMultiCellWidget($$->%check_preview,3,3,0,1)
+	                        %layout->$addMultiCellWidget($$->%lbl_error,4,4,0,1)
+	                        %layout->$addwidget(%btn_quit,5,1)
+	                        %layout->$addwidget(%btn_save,5,0)
+	        
+	                        privateimpl(%btn_save,mousePressEvent)
+	                        {
+	                                if ($$->$parent()->%combo_choose_color_P1->$current() == $$->$parent()->%combo_choose_color_P2->$current())
+	                                {
+	                                        $$->$parent()->%lbl_error->$setText("<b>"$tr(" Players colors must be different")"</b>")
+	                                        return
+	                                }
+	                                config.write $$->$parent()->%id Player1 $$->$parent()->%combo_choose_color_P1->$current()
+	      
+	                                config.write $$->$parent()->%id Player2 $$->$parent()->%combo_choose_color_P2->$current()
+	                               # config.write $$->$parent()->%id  Preview $$->$parent()->%check_preview->$isChecked()
+	                                config.flush $$->$parent()->%id
+	                                config.close $$->$parent()->%id
+	                                $$->$parent()->%lbl_error->$setText("<b>"$tr(" Config saved successfully")"</b>")
+	                                privateimpl($$,timerEvent)
+	                                {
+	                                        delete $$->$parent()
+	                                }
+	                                $$->$starttimer(1000)
+	                        }
+				$$->$resize(200,300)
+	                        $$->$show()
+	                }
+	        }
+	$new(F4config)
+}
+
+

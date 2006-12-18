@@ -1,0 +1,399 @@
+# A nice Minesweeper game
+# Written by Szymon Stefanek (2005)
+
+# This addon is pretty simple. It does a single thing and it attempts
+# to do it really well. With the comments, the script structure
+# should be really straightforward.
+
+# register the script: this must be the first instruction executed
+# since it will abort with an error when a greater version is already installed
+addon.register("minesweeper","1.1.0",$tr("Minesweeper Game","minesweeper"),$tr("A nice \"time eater\"","minesweeper"),"3.2.0.99",minesweeper_32.png)
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	
+	# This is an automatically generated alias that will erase the installed files
+	minesweeper_uninstallfiles
+
+	# Kill all our aliases
+	alias(mines){}
+
+	# Kill our actions
+	action.destroy minesweeper_play
+	
+}
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+# copy files in each subdirectory
+# the pics
+%installer->$copyFiles("%mypath/pics/","*.png","$file.localdir("pics")")
+# the translations
+%installer->$copyFiles("%mypath/locale/","*.mo","$file.localdir("locale")")
+# the documentation
+%installer->$copyFiles("%mypath/help/en/minesweeper/","*.html","$file.localdir("help/en/minesweeper")")
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("minesweeper_uninstallfiles")
+# finally kill the installer helper
+delete %installer
+
+
+alias(mines)
+{
+	class(minesweeper_gameoptions,widget)
+	{
+		constructor()
+		{
+			$$->%layout = $new(layout,$this)
+			
+			%l = $new(label,$this)
+			%l->$setText($tr("Sea height","minesweeper"));
+			$$->%layout->$addWidget(%l,0,0)
+			
+			$$->%rows = $new(spinbox,$this)
+			$$->%rows->$setMinValue(4)
+			$$->%rows->$setMaxValue(1024)
+			$$->%rows->$setValue($0)
+			$$->%layout->$addWidget($$->%rows,0,1)
+
+			%l = $new(label,$this)
+			%l->$setText($tr("Sea width","minesweeper"));
+			$$->%layout->$addWidget(%l,1,0)
+			
+			$$->%cols = $new(spinbox,$this)
+			$$->%cols->$setMinValue(4)
+			$$->%cols->$setMaxValue(1024)
+			$$->%cols->$setValue($1)
+			$$->%layout->$addWidget($$->%cols,1,1)
+
+			%l = $new(label,$this)
+			%l->$setText($tr("Number of mines","minesweeper"));
+			$$->%layout->$addWidget(%l,2,0)
+			
+			$$->%mines = $new(spinbox,$this)
+			$$->%mines->$setMinValue(1)
+			$$->%mines->$setMaxValue(1024)
+			$$->%mines->$setValue($1)
+			$$->%layout->$addWidget($$->%mines,2,1)
+			
+			%l = $new(label,$this,"stretcher_label")
+			$$->%layout->$addMultiCellWidget(%l,3,3,0,1)
+			
+			%b = $new(button,$this)
+			%b->$setText($tr("Start game","minesweeper"));
+			objects.connect %b clicked $$ okClicked
+			$$->%layout->$addMultiCellWidget(%b,4,4,0,1)
+			
+			$$->%layout->$setColStretch(0,1)
+			$$->%layout->$setRowStretch(3,1)
+
+			$$->%layout->$setMargin(10)
+
+			$$->$setMinimumWidth(250)
+			$$->$setMinimumHeight(250)
+		}
+		
+		okClicked()
+		{
+			$$->%toplevel->$startGameSelected($$->%rows->$value(),$$->%cols->$value(),$$->%mines->$value())
+		}
+	}
+
+	class(minesweeper_label,label)
+	{
+		mousePressEvent()
+		{
+			$$->$parent()->$mineLabelPressed($this,$0)
+		}
+	}
+	
+	class(minesweeper_body,widget)
+	{
+		constructor()
+		{
+			$$->%rows = $0
+			$$->%cols = $1
+			$$->%mines = $2
+			$$->%cellstodiscover = $(($0 * $1) - $2);
+	
+			$$->%layout = $new(layout,$this)
+	
+			for(%i = 0;%i < $$->%rows;%i++)
+			{
+				for(%j = 0;%j < $$->%cols;%j++)
+				{
+					$$->%label{%i,%j}=$new(minesweeper_label,$this,"%i_%j")
+					$$->%label{%i,%j}->%row = %i
+					$$->%label{%i,%j}->%col = %j
+					$$->%layout->$addWidget($$->%label{%i,%j},%i,%j)
+				}
+			}
+			$$->$newGame()
+		}
+	
+		destructor()
+		{
+		}
+
+		rows(){ return $$->%rows; }
+		cols(){ return $$->%cols; }
+		mines(){ return $$->%mines; }
+
+		newGame()
+		{
+			$$->%game = 1;
+			
+			for(%i = 0;%i < $$->%rows;%i++)
+			{
+				for(%j = 0;%j < $$->%cols;%j++)
+				{
+					%l = $$->%label{%i,%j}
+					%l->$setFrameStyle(Raised,Panel);
+					%l->%bIsMine = 0
+					%l->%numMines = 0
+					%l->%bIsDiscovered = 0
+					%l->%bFlagOrQuestion = 0
+					%l->$setImage("minesweeper_water.png");
+				}
+			}
+			# drop the mines
+			for(%i = 0;%i < $$->%mines;%i++)
+			{
+				%row = $rand($($$->%rows - 1))
+				%col = $rand($($$->%cols - 1))
+				while($$->%label{%row,%col}->%bIsMine != 0)
+				{
+					%row = $rand($($$->%rows - 1))
+					%col = $rand($($$->%cols - 1))
+				} 
+				$$->%label{%row,%col}->%bIsMine = 1
+				# increase the mine count for the adiacent cells
+				if(%row > 0)
+				{
+					$$->%label{$(%row - 1),%col}->%numMines++
+					if(%col > 0)$$->%label{$(%row - 1),$(%col - 1)}->%numMines++
+					if(%col < ($$->%cols - 1))$$->%label{$(%row - 1),$(%col + 1)}->%numMines++
+				}
+				if(%row < ($$->%rows - 1))
+				{
+					$$->%label{$(%row + 1),%col}->%numMines++
+					if(%col > 0)$$->%label{$(%row + 1),$(%col - 1)}->%numMines++
+					if(%col < ($$->%cols - 1))$$->%label{$(%row + 1),$(%col + 1)}->%numMines++
+				}
+				if(%col > 0)$$->%label{%row,$(%col - 1)}->%numMines++
+				if(%col < ($$->%cols - 1))$$->%label{%row,$(%col + 1)}->%numMines++
+			}
+		}
+		
+		mineLabelPressed($0 = mine label object that has been pressed,$1 = button)
+		{
+			if(!$$->%game)return; # game disabled
+			if($0->%bIsDiscovered)return
+			if($1 == 0)
+			{
+				if($0->%bIsMine)
+				{
+					$0->$setFrameStyle(Panel,Sunken)
+					$0->$setImage("minesweeper_deepwater_bomb.png");
+					$$->%game = 0
+					$$->%toplevel->$gameTerminated(0)
+				} else {
+					$$->$discoverCells($0)
+					if($$->%cellstodiscover == 0)
+					{
+						$$->%game = 0;
+						$$->%toplevel->$gameTerminated(1)
+					} else {
+						$$->%toplevel->$updateCellsToGo();
+					}
+				}
+			} else {
+				$0->%bFlagOrQuestion++;
+				if($0->%bFlagOrQuestion > 2)$0->%bFlagOrQuestion = 0;
+				switch($0->%bFlagOrQuestion)
+				{
+					case(0):
+						$0->$setImage("minesweeper_water.png");
+					break;
+					case(1):
+						$0->$setImage("minesweeper_water_flag.png");
+					break;
+					default:
+						$0->$setImage("minesweeper_water_questionmark.png");
+					break;
+				}
+			}
+		}
+	
+		discoverCells($0 = mine label that has to be discovered)
+		{
+			if($0->%bIsMine)return;
+			if($0->%bIsDiscovered)return;
+			$0->%bIsDiscovered = 1
+			$0->$setFrameStyle(Panel,Sunken)
+			$$->%cellstodiscover--;
+			if($0->%numMines > 0)
+			{
+				$0->$setImage("minesweeper_deepwater_"$0->%numMines".png");
+			} else {
+				$0->$setImage("minesweeper_deepwater.png");
+				if($0->%row > 0)
+				{
+					$$->$discoverCells($$->%label{$($0->%row - 1),$0->%col})
+					if($0->%col > 0)$$->$discoverCells($$->%label{$($0->%row - 1),$($0->%col - 1)})
+					if($0->%col < ($$->%cols - 1))$$->$discoverCells($$->%label{$($0->%row - 1),$($0->%col + 1)})
+				}
+				if($0->%row < ($$->%rows - 1))
+				{
+					$$->$discoverCells($$->%label{$($0->%row + 1),$0->%col})
+					if($0->%col > 0)$$->$discoverCells($$->%label{$($0->%row + 1),$($0->%col - 1)})
+					if($0->%col < ($$->%cols - 1))$$->$discoverCells($$->%label{$($0->%row + 1),$($0->%col + 1)})
+				}
+				if($0->%col > 0)$$->$discoverCells($$->%label{$0->%row,$($0->%col - 1)})
+				if($0->%col < ($$->%cols - 1))$$->$discoverCells($$->%label{$0->%row,$($0->%col + 1)})
+			}
+		}
+	}
+	
+	class(minesweeper_toplevel,widget)
+	{
+		constructor()
+		{
+			$$->$setCaption("KVIrc's Minesweeper (1.0.0)");
+
+			$$->%layout = $new(layout,$this);
+
+			$$->%button = $new(button,$this);
+			$$->%layout->$addWidget($$->%button,0,0);
+			$$->%button->$setText($tr("New Game","minesweeper"));
+			objects.connect $$->%button "clicked" $$ "newGame"
+
+			$$->%timer = $new(label,$this);
+			$$->%timer->$setAlignment(Right,VCenter);
+			$$->%timer->$setFrameStyle(Sunken,WinPanel);
+			$$->%timer->$setBackgroundColor("000000");
+			$$->%layout->$addMultiCellWidget($$->%timer,0,0,1,2);
+
+			$$->%body = $new(label,$this);
+			$$->%body->$setFrameStyle(Sunken,WinPanel);
+			$$->%layout->$addMultiCellWidget($$->%body,1,1,0,2);
+			$$->%bodylayout = $new(layout,$$->%body);
+			$$->%bodylayout->$setMargin(3);
+			$$->%bodylayout->$setResizeMode(Fixed);
+
+			$$->%statusbar = $new(label,$this);
+			$$->%layout->$addMultiCellWidget($$->%statusbar,2,2,0,2);
+
+			$$->%layout->$setRowStretch(1,100);
+			$$->%layout->$setColStretch(2,1);
+			$$->%layout->$setSpacing(2);
+			$$->%layout->$setMargin(4);
+			$$->%layout->$setResizeMode(Fixed);
+
+			$$->%timer->%value = 0;
+			$$->$setTimerValue()
+			$$->%statusbar->$setText($tr("Press \"New Game\" to start playing...","minesweeper"));
+			
+			$$->%splash = $new(label,$$->%body);
+			$$->%bodylayout->$addWidget($$->%splash,0,0);
+			$$->%splash->$setImage("minesweeper_splash.png")
+		}
+
+		destructor()
+		{
+			if($isTimer(minesweeper_heartbeat))killtimer minesweeper_heartbeat;
+		}
+
+		clearBody()
+		{
+			if($$->%splash)
+			{
+				delete $$->%splash;
+				$$->%splash = "";
+			}
+			if($$->%gamearea)
+			{
+				delete $$->%gamearea;
+				$$->%gamearea = ""
+			}
+			if($$->%gameoptions)
+			{
+				delete $$->%gameoptions;
+				$$->%gameoptions = ""
+			}
+		}
+
+		newGame()
+		{
+			if($isTimer(minesweeper_heartbeat))killtimer minesweeper_heartbeat;
+			
+			$$->$clearBody()
+			
+			$$->%gameoptions = $new(minesweeper_gameoptions,$$->%body,"minesweeper_gameoptions",16,16,24)
+			$$->%gameoptions->%toplevel = $$;
+			$$->%bodylayout->$addWidget($$->%gameoptions,0,0);
+			$$->%gameoptions->$show();
+			$$->%body->$resize($$->%gameoptions->$width(),$$->%gameoptions->$height());
+		}
+
+		startGameSelected($0 = rows, $1 = cols, $2 = mines)
+		{
+			$$->$clearBody()
+			
+			$$->%gamearea = $new(minesweeper_body,$$->%body,"minesweeper_body",$0,$1,$2);
+			$$->%gamearea->%toplevel = $$;
+			$$->%bodylayout->$addWidget($$->%gamearea,0,0);
+			$$->%gamearea->$show();
+			$$->%body->$resize($$->%gamearea->$width(),$$->%gamearea->$height());
+			$$->%timer->%value = 0;
+			
+			if($isTimer(minesweeper_heartbeat))killtimer minesweeper_heartbeat;
+			timer(minesweeper_heartbeat,1000,$$)
+			{
+				$0->%timer->%value++;
+				$0->$setTimerValue()
+			}
+			
+			$$->$updateCellsToGo()
+		}
+		
+		updateCellsToGo()
+		{
+			$$->%statusbar->$setText($$->%gamearea->%cellstodiscover $tr("cells to go","minesweeper"));
+		}
+		
+		gameTerminated($0 = 0 if failed or 1 if success)
+		{
+			if($isTimer(minesweeper_heartbeat))killtimer minesweeper_heartbeat;
+			if($0)
+			{
+				%score = $(($$->%gamearea->$mines * $$->%gamearea->$rows * $$->%gamearea->$cols * 100) / $$->%timer->%value);
+				$$->%statusbar->$setText($tr("Well done! Your score is ","minesweeper") %score);
+			} else {
+				$$->%statusbar->$setText($tr("Game Over :/","minesweeper"));
+			}
+		}
+		
+		setTimerValue()
+		{
+			$$->%timer->$setText("<font color=\"#ff0000\"><b><code>"$$->%timer->%value"</code></b></font>&nbsp;");
+		}
+	}
+
+	%m = $new(minesweeper_toplevel)
+	%m->$show()
+}
+
+action.create -t="tools" (minesweeper_play,$tr("Play Minesweeper","minesweeper"),$tr("Starts a New Minesweeper Game","minesweeper"),minesweeper_32.png,minesweeper_16.png)
+{
+	mines
+}
+

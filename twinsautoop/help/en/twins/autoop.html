@@ -1,0 +1,98 @@
+<html>
+
+	<head>
+		<title>Twins Auto Op</title>
+	</head>
+
+	<body>
+
+		<p><center><h2>Twins Auto Op</h2></center></p>
+
+		<p><center><h3><i>An auto op, voice and ban system</i></h3></center></p>
+
+		<p>Author:<i>Ahinu <address>ahinu.laman@gmail.com</address></i></p>
+
+
+		<h3>How it works</h3>
+
+		<p>
+			This addon is not only an auto op system, it provides also auto voice
+			and auto ban. It takes advantage of the <a href="module_reguser"><code>$reguser</code></a>
+			and <code>$regchan</code> modules: for each channel record (defined by a channel name and a netmask)
+			and action (op, voice, ban), a list of registered users is defined.
+			If such user (identified by his masks) join such channel, he will be
+			automatically oped, voiced or banned.
+			The addons checks for actions to perfom on users both when a user
+			join the channel or when get oped.
+		</p>
+
+		<p>
+			The auto op/voice is performed after a specified delay (default is 10s) for security
+			reasons. A user can be oped and voiced at the same time.
+		<p>
+
+		<p>
+			The auto ban system is nothing else but a "blacklinsting system".
+			If a registered user is blacklisted on a channel, he will be kick/banned
+			according to his matched registered mask. Note: if banned, this user
+			won't be auto oped/voiced.
+		</p>
+
+		<h3>Configuration</h3>
+
+		<p>
+			Here is a list of what you can configure:
+			<ul>
+				<li>Manage the list of registered users for each action on each channel.</li>
+				<li>Unregistered channels and users can be registered directly using the addon.</li>
+				<li>Actions can be suspended independantly on each channel.</li>
+				<li>You can set the delay before auto op/voice, and the default kick reason for auto bans.</li>
+			</ul>
+			You can configure the addon in different ways:
+			<ul>
+				<li>
+					From the addon manager or using <code>twins::autoop::configure</code>,
+					you open the main configuration dialog.
+				</li>
+				<li>
+					On channels, you can right-click in the main window or on nicknames
+					to open specific popups.
+				</li>
+				<li>
+					Specific settings are accessible using below commands.
+			<ul>
+		</p>
+
+		<h3>Commands</h3>
+
+			<dl>
+
+				<dt><b><small><code>twins::autoop::configure</code></small></b></dt>
+				<dd>Open the main configuration dialog.</dd>
+
+				<dt><b><small><code>twins::autoop::help</code></small></b></dt>
+				<dd>Show help of the Twins AutoOp addon</dd>
+
+				<dt><b><small><code>twins::autoop::set::user [--help] [&lt;user&gt;]</code></small></b></dt>
+				<dd>Set or unset an auto action for a specified user on a channel.</dd>
+
+				<dt><b><small><code>twins::autoop::set::chan [--help] [--op/-o[=0/1]] [--voice/-v[=0/1]] [--ban/-b[=0/1]] [&lt;chan&gt;[@&lt;network&gt;]</code></small></b></dt>
+				<dd>Activate/deactivate auto actions or show status on a channel</dd>
+
+				<dt><b><small><code>twins::autoop::set::delay [--help] [&lt;delay:seconds&gt;]</code></small></b></dt>
+				<dd>Show or set the delay for auto op/voice after join</dd>
+
+				<dt><b><small><code>twins::autoop::set::kickreason [--help] [&lt;reason:string&gt;]</code></small></b></dt>
+				<dd>Show or set the kick reason for auto kick/bans</dd>
+
+				<dt><b><small><code>twins::autoop::set::recheck [--help] [--op/-o[=0/1]] [--voice/-v[=0/1]] [--ban/-b[=0/1]]</code></small></b></dt>
+				<dd>Set or show status for rechecking</dd>
+
+				<dt><b><small><code>twins::autoop::check [--help] [-q] [--op/-o[=0/1]] [--voice/-v[=0/1]] [--ban/-b[=0/1]] [&lt;nick&gt;]</code></small></b></dt>
+				<dd>Check if auto actions must be performed on the current channel</dd>
+
+			</dl>
+
+
+	</body>
+</html>

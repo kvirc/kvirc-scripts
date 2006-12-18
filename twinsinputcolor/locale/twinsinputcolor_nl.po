@@ -1,0 +1,99 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-06-26 13:10+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../src/classes.kvs:12 ../src/classes.kvs:23
+msgid "Twinsinputcolor-$addon.version(twinsinputcolor) configuration"
+msgstr ""
+
+#: ../src/classes.kvs:30
+msgid "On/Off"
+msgstr ""
+
+#: ../src/classes.kvs:36
+msgid "Stoppers:"
+msgstr ""
+
+#: ../src/classes.kvs:39
+msgid ""
+"These single characters suppress colors when they are at beginning of input "
+"line.<br>It is useful for bot commands for example."
+msgstr ""
+
+#: ../src/classes.kvs:53
+msgid "Structure"
+msgstr ""
+
+#: ../src/classes.kvs:60
+msgid "Bold"
+msgstr ""
+
+#: ../src/classes.kvs:65
+msgid "Underline"
+msgstr ""
+
+#: ../src/classes.kvs:74
+msgid "Colors"
+msgstr ""
+
+#: ../src/classes.kvs:81
+msgid "Foreground:"
+msgstr ""
+
+#: ../src/classes.kvs:92
+msgid "Background:"
+msgstr ""
+
+#: ../src/classes.kvs:95
+msgid "Use background"
+msgstr ""
+
+#: ../src/classes.kvs:115
+msgid "Where"
+msgstr ""
+
+#: ../src/classes.kvs:116
+msgid "Where to use your color"
+msgstr ""
+
+#: ../src/classes.kvs:123
+msgid "Channels"
+msgstr ""
+
+#: ../src/classes.kvs:128
+msgid "Queries"
+msgstr ""
+
+#: ../src/classes.kvs:133
+msgid "DccChats"
+msgstr ""
+
+#: ../src/classes.kvs:144
+msgid "Ok"
+msgstr ""
+
+#: ../src/classes.kvs:150
+msgid "Apply"
+msgstr ""
+
+#: ../src/classes.kvs:156
+msgid "Close"
+msgstr ""
+
+#: ../src/classes.kvs:206
+msgid "example"
+msgstr ""

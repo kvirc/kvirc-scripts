@@ -1,0 +1,530 @@
+#cryption script for KVIrc 3.2.0+
+#author: g00dsP33D ( gspeed@gmx.net )
+#version: 1.0.2
+
+addon.register("cryption","1.0.2",$tr("Automatic Cryption","cryption"),$tr("Automatically enters cryption-data for your crypted objects.","cryption"),"3.2.0.99",cryption_32.png)
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	
+	# call the uninstaller-function
+	cryption uninstall
+
+	# Done
+}
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+
+# copy files in each subdirectory
+# the pics
+%installer->$copyFiles("%mypath/pics/","*.png","$str.replace($file.localdir("pics"),"/","\\")")
+
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("cryption_uninstallfiles")
+
+# finally kill the installer helper
+delete %installer
+
+
+# Now it's time to define our real aliases
+alias(cryption)
+{
+	
+	%config_file = $file.localdir/config/cryption.kvc
+	%scripttag = "$k(4)[$k(0)$b()cryption$b()$k(4)]$k(0)"
+	# using a switch to see what option has been selected
+	switch($0)
+	{
+		# check object
+		# if found in config - set engine and keys if window exists
+		case(check):
+		{
+						
+			#test parameters
+			if ($1) 
+			{ 
+				%crypt_object = $1
+			} else { 
+				switch($window.type)
+				{
+					case(channel)
+					{
+						#get object
+						%crypt_object = $chan.name
+						
+						#get window-id
+						%wndid = $channel(%crypt_object)
+					}
+					break
+					case(query)
+					{
+						#get object
+						%tmp[] = $split(" ",$window.caption)
+						%crypt_object = %tmp[0]
+						
+						#get window-id
+						%wndid = $query(%crypt_object)
+					}
+					break
+				}
+			}
+			
+			
+			#open config	
+			%cfg = $config.open(%config_file)
+			
+			#test section/object
+			%sectionfound = $config.hassection(%cfg,%crypt_object)
+			if (%sectionfound == 1) 
+			{
+				config.setsection %cfg %crypt_object
+				%active	= $config.read(%cfg,CryptActive,0)
+				if (%active && %wndid) 
+				{
+					#get variables from conf for given object
+					%crypt_method = $config.read(%cfg,CryptMethod,"")
+					%crypt_enckey = $base64totext($config.read(%cfg,EncryptKey,""))
+					%crypt_deckey = $base64totext($config.read(%cfg,Decryptkey,""))		
+			
+					#enable cryption for object
+					window.setCryptEngine %wndid %crypt_method %crypt_enckey %crypt_deckey
+						
+					#output
+					echo -i=$msgtype(ChanPrivmsgCrypted) -w=%wndid %scripttag $b()%crypt_object$b() has been found in the list of crypted objects - cryption enabled ( %crypt_method ).
+				}
+			} else {
+					#echo -i=$msgtype(ChanPrivmsgCrypted) -w=%wndid %scripttag $b()%crypt_object$b() could not be found in list of crypted objects.	
+			}			
+			config.close -q %cfg
+		}
+		break
+
+		# set cryption object
+		# adds/updates object's information in config
+		case (set)
+		{
+			if ($window.type == channel || $window.type == query)
+			{
+				if (!$3) 
+				{
+					echo -i=$msgtype(ChanPrivmsgCrypted) "%scripttag Insufficient parameters! ( /crypion set <enginename> <encrypt key> <decrypt key> )"
+				} else {
+					switch($window.type)
+					{
+						case(channel)
+						{
+							#get object
+							%crypt_object = $chan.name
+							
+							#get window-id
+							%wndid = $channel(%crypt_object)
+						}
+						break
+						case(query)
+						{
+							#get object
+							%tmp[] = $split(" ",$window.caption)
+							%crypt_object = %tmp[0]
+							
+							#get window-id
+							%wndid = $query(%crypt_object)
+						}
+						break
+					}
+					
+					%crypt_method = $1
+					%crypt_enckey = $2
+					%crypt_deckey = $3
+		
+					#open config
+					%cfg = $config.open(%config_file)
+					
+					#check if section exists
+					%sectionfound = $config.hassection(%cfg,%crypt_object)
+					
+					#write section to config
+					config.setsection %cfg %crypt_object
+					config.write %cfg CryptActive 1
+					config.write %cfg CryptMethod %crypt_method
+					config.write %cfg EncryptKey $asciitobase64($asciiToHex(%crypt_enckey))
+					config.write %cfg DecryptKey $asciitobase64($asciiToHex(%crypt_deckey))
+					config.close -q %cfg
+					
+					#setting keys to object-window
+					window.setCryptEngine $window %crypt_method $asciiToHex(%crypt_enckey) $asciiToHex(%crypt_deckey)
+					
+					#output
+					if (%sectionfound != 1)
+					{
+						echo -i=$msgtype(ChanPrivmsgCrypted) -w=%wndid "%scripttag $b()%crypt_object$b() has been added to the list of crypted objects - cryption enabled ( %crypt_method )."	
+					} else {
+						
+						echo -i=$msgtype(ChanPrivmsgCrypted) -w=%wndid "%scripttag $b()%crypt_object$b() has been updated - cryption updated ( %crypt_method )."
+					}
+				}
+	
+			} else {
+				echo -i=$msgtype(ChanPrivmsgCrypted) "%scripttag /cryption $0 only works within a channel/query-window"
+			}			
+		}
+		break
+
+		# remove object
+		# remove object information from config
+		case (remove)
+		{
+			#test parameters
+			if ($1) 
+			{ 
+				%crypt_object = $1
+			} else { 
+					switch($window.type)
+					{
+						case(channel)
+						{
+							#get object
+							%crypt_object = $chan.name
+							
+							#get window-id
+							%wndid = $channel(%crypt_object)
+						}
+						break
+						case(query)
+						{
+							#get object
+							%tmp[] = $split(" ",$window.caption)
+							%crypt_object = %tmp[0]
+							
+							#get window-id
+							%wndid = $query(%crypt_object)
+						}
+						break
+					}
+
+			}
+			
+			%cfg = $config.open(%config_file)
+			%sectionfound = $config.hassection(%cfg,%crypt_object)
+			if (%sectionfound == 1) 
+			{
+				#clear section in config for given object
+				config.clearsection %cfg %crypt_object
+				
+				#unset cryption for object if it has a window				
+				if (%wndid) 
+				{
+					window.setCryptEngine %wndid
+					echo -w=%wndid -i=$msgtype(ChanPrivmsgCrypted) %scripttag $b()%crypt_object$b() has been removed from the list of crypted objects - cryption disabled.
+				} else {
+					echo -i=$msgtype(ChanPrivmsgCrypted) %scripttag $b()%crypt_object$b() has been removed from the list of crypted objects.
+				}
+			} else {
+				echo -i=$msgtype(ChanPrivmsgCrypted) %scripttag $b()%crypt_object$b() could not be found in the list of crypted objects.																																																															
+			}
+		}
+		break
+		
+		# list objects
+		# list all objects with saved cryption-method from config
+		case (list)
+		{
+				%cfg = $config.open(%config_file)
+				%sections[] = $config.sectionlist(%cfg)
+				if (%sections[]# > 0) 
+				{
+					echo -i=$msgtype(ChanPrivmsgCrypted) %scripttag list of crypted objects: ( %sections[]# objects found )
+					foreach(%crypt_object,%sections[])
+					{
+						config.setsection %cfg %crypt_object
+						
+						%crypt_method	= $config.read(%cfg,CryptMethod,method unknown)					
+						if ($config.read(%cfg,CryptActive,0))
+						{
+							%crypt_active = "active"
+						} else {
+							%crypt_active = "inactive"
+						}
+						echo -i=$msgtype(ChanPrivmsgCrypted) $b()%crypt_object$b() is %crypt_active ( method: %crypt_method ) 
+					}
+				} else {
+					echo -i=$msgtype(ChanPrivmsgCrypted) %scripttag no objects found. You can add an object by using '/cryption set'.
+				}
+		}
+		break
+
+		# status
+		# prints out the current status from config for a given object
+		case (status)
+		{
+			#test parameters
+			if ($1) 
+			{ 
+				%crypt_object = $1
+			} else { 
+					switch($window.type)
+					{
+						case(channel)
+						{
+							#get object
+							%crypt_object = $chan.name
+							
+							#get window-id
+							%wndid = $channel(%crypt_object)
+						}
+						break
+						case(query)
+						{
+							#get object
+							%tmp[] = $split(" ",$window.caption)
+							%crypt_object = %tmp[0]
+							
+							#get window-id
+							%wndid = $query(%crypt_object)
+						}
+						break
+					}
+
+			}
+			
+			%cfg = $config.open(%config_file)
+			%sectionfound = $config.hassection(%cfg,%crypt_object)
+		
+			if (%sectionfound == 1) 
+			{
+				config.setsection %cfg %crypt_object
+				%crypt_active	= $config.read(%cfg,CryptActive,0)		
+				%crypt_method = $config.read(%cfg,CryptMethod,"")
+				
+				if (!%crypt_active)
+				{
+					%active_msg = "inactive"
+				} else {
+					%active_msg = "active"
+				}
+				
+				if (!%crypt_method)
+				{
+					%method_msg = ""
+				} else {
+					%method_msg = "( method: %crypt_method )"
+				}
+				echo -i=$msgtype(ChanPrivmsgCrypted) %scripttag $b()%crypt_object$b() is : %active_msg %method_msg
+			} else {
+				echo -i=$msgtype(ChanPrivmsgCrypted) %scripttag $b()%crypt_object$b() could not be found. Try '/cryption list' for a list of all crypted objects.
+			}			
+			config.close -q %cfg
+		
+		}
+		break
+		
+		# activate object
+		# set CryptActive=1 in config for given object
+		case (activate)
+		{
+			#test parameters
+			if ($1) 
+			{ 
+				%crypt_object = $1
+			} else { 
+				switch($window.type)
+				{
+					case(channel)
+					{
+						#get object
+						%crypt_object = $chan.name
+						
+						#get window-id
+						%wndid = $channel(%crypt_object)
+					}
+					break
+					case(query)
+					{
+						#get object
+						%tmp[] = $split(" ",$window.caption)
+						%crypt_object = %tmp[0]
+						
+						#get window-id
+						%wndid = $query(%crypt_object)
+					}
+					break
+				}
+
+			}
+			
+			%cfg = $config.open(%config_file)
+			%sectionfound = $config.hassection(%cfg,%crypt_object)
+		
+			if (%sectionfound == 1) 
+			{
+				config.setsection %cfg %crypt_object
+				%active	= $config.read(%cfg,CryptActive,0)		
+				
+				if (%active == 1) 
+				{
+					echo -i=$msgtype(ChanPrivmsgCrypted) %scripttag $b()%crypt_object$b() is already active - do '/cryption check' or rejoin to reset the keys.
+				} else {
+					#write new status to config
+					config.write %cfg CryptActive 1
+					
+					#set cryption for object if it has a window
+					if (%wndid)
+					{
+						#get variables from conf for given object
+						%crypt_method = $config.read(%cfg,CryptMethod,"")
+						%crypt_enckey = $base64totext($config.read(%cfg,EncryptKey,""))
+						%crypt_deckey = $base64totext($config.read(%cfg,Decryptkey,""))		
+				
+						#enable cryption for object
+						window.setCryptEngine %wndid %crypt_method %crypt_enckey %crypt_deckey
+						
+						echo -i=$msgtype(ChanPrivmsgCrypted) -w=%wndid %scripttag $b()%crypt_object$b() is now active - setting keys for %crypt_method .
+					} else {
+						echo -i=$msgtype(ChanPrivmsgCrypted) %scripttag $b()%crypt_object$b() is now active.
+					}
+					
+				}
+			} else {
+					#echo -i=$msgtype(ChanPrivmsgCrypted) -w=%wndid %scripttag $b()%crypt_object$b() could not be found in the list of crypted objects.
+			}
+			config.close -q %cfg
+	
+		}
+		break
+		
+		# deactivate object
+		# set CryptActive=0 in config for given object
+		case (deactivate)
+		{
+
+			#test parameters
+			if ($1) 
+			{ 
+				%crypt_object = $1
+			} else { 
+					switch($window.type)
+					{
+						case(channel)
+						{
+							#get object
+							%crypt_object = $chan.name
+							
+							#get window-id
+							%wndid = $channel(%crypt_object)
+						}
+						break
+						case(query)
+						{
+							#get object
+							%tmp[] = $split(" ",$window.caption)
+							%crypt_object = %tmp[0]
+							
+							#get window-id
+							%wndid = $query(%crypt_object)
+						}
+						break
+					}
+
+			}
+				
+			%cfg = $config.open(%config_file)
+			%sectionfound = $config.hassection(%cfg,%crypt_object)
+		
+			if (%sectionfound == 1) 
+			{
+				config.setsection %cfg %crypt_object
+				%active	= $config.read(%cfg,CryptActive,0)		
+				
+				if (%active == 1) 
+				{
+					#write new status to config
+					config.write %cfg CryptActive 0
+					
+					#unset cryption if object has a window
+					if (%wndid)
+					{
+						window.setCryptEngine %wndid
+					}
+					
+					echo -i=$msgtype(ChanPrivmsgCrypted) %scripttag $b()%crypt_object$b() is now inactive.
+				} else {
+					echo -i=$msgtype(ChanPrivmsgCrypted) %scripttag $b()%crypt_object$b() is already inactive.
+				}
+			} else {
+					echo -i=$msgtype(ChanPrivmsgCrypted) %scripttag $b()%crypt_object$b() could not be found in the list of crypted objects.
+			}
+			config.close -q %cfg
+
+		}
+		break
+
+		# uninstall script
+		case(uninstall):
+		{
+			echo -i=$msgtype(ChanPrivmsgCrypted) "%scripttag the cryption script has been uninstalled succesfully"
+			# defining the alias by empty code will remove it
+			alias(cryption){}
+			event(OnChannelSync,cryption){}
+			event(OnQueryWindowCreated,cryption){}
+			cryption_uninstallfiles
+			alias(cryption_uninstallfiles) {}
+
+		}
+		break
+		
+		# help
+		case(help):
+		{
+			echo -i=$msgtype(ChanPrivmsgCrypted) "usage: /cryption <option> [parameters]"
+			echo -i=$msgtype(ChanPrivmsgCrypted) ""
+			echo -i=$msgtype(ChanPrivmsgCrypted) "possible options:"
+			echo -i=$msgtype(ChanPrivmsgCrypted) "list                                           list of all crypted objects"
+			echo -i=$msgtype(ChanPrivmsgCrypted) "set <enginename> <encrypt key> <decrypt key>   adds an object to the list of crypted objects"
+			echo -i=$msgtype(ChanPrivmsgCrypted) "check [channel/nickname]                       checks the object and activates cryption if needed"
+			echo -i=$msgtype(ChanPrivmsgCrypted) "remove [channel/nickname]                      removes the object from the list of crypted objects"
+			echo -i=$msgtype(ChanPrivmsgCrypted) "status [channel/nickname]                      tells the status of the given object"
+			echo -i=$msgtype(ChanPrivmsgCrypted) "activate [channel/nickname]                    activates the cryption for the given object"
+			echo -i=$msgtype(ChanPrivmsgCrypted) "deactivate [channel/nickname]                  deactivates the cryption for the given object"
+			echo -i=$msgtype(ChanPrivmsgCrypted) "help                                           you are just reading the result ;)"
+		}
+		break
+		
+		# default
+		default
+		{
+			echo -i=$msgtype(ChanPrivmsgCrypted) "Unsupported parameter ($0)"
+			echo -i=$msgtype(ChanPrivmsgCrypted) "Try '/cryption help' for more information."
+		}		
+	}
+}
+
+# add event-handlers to do the "automatism"
+event(OnChannelSync,cryption)
+{
+	# check the joined channel for cryption
+	cryption check
+}
+
+event(OnQueryWindowCreated,cryption)
+{
+	# check the query-nickname for cryption
+	cryption check
+}
+
+# blabla :)
+echo -i=$msgtype(ChanPrivmsgCrypted) ""
+echo -i=$msgtype(ChanPrivmsgCrypted) "installation of the cryption script succesful"
+echo -i=$msgtype(ChanPrivmsgCrypted) "you can always uninstall it by using 'Manage Addons ...' from the settings menu"
+echo -i=$msgtype(ChanPrivmsgCrypted) "just type '/cryption help' to get all the possible commands"
+echo -i=$msgtype(ChanPrivmsgCrypted) "---"
+echo -i=$msgtype(ChanPrivmsgCrypted) ""
+
+#thx goes to the mailinglist ... :)

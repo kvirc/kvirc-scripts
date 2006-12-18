@@ -1,0 +1,38 @@
+alias(NGLfserv::classes::optionsrestrictedaccess)
+{
+	class(NGLfserv::classes::optionsrestrictedaccess,widget)
+	{
+		constructor()
+		{
+			
+			%main_layout=$new(layout,$this)
+			%main=$new(NGLfserv::classes::customwidgets::box,$$,box,vertical)
+			%hbox=%main->$addWidget(hbox)
+			%main->$setStretchFactor(%hbox,90)
+			%hbox->$setSpacing(2)
+		
+			%gb=$new(NGLfserv::classes::customwidgets::groupbox,%hbox,gb,"Trigger",5,20)
+			%gb->$setColumnLayout(1,Horizontal)
+			$$->%comboboxTriggers=$new(combobox,%gb)
+			
+			%gb=$new(NGLfserv::classes::customwidgets::groupbox,%hbox,gb,"Restricted Options",5,20)
+			%gb->$setColumnLayout(1,Horizontal)
+			
+			%main_layout->$addWidget(%main->$widget,0,0)
+		}
+		showEvent()
+		{
+			if ($objects.exists($$->%comboboxTriggers))
+			{
+				if ($length(%Triggers{}))
+				{
+					$$->%comboboxTriggers->$setEnabled($true)
+					foreach(%tr,%Triggers{}) $$->%comboboxTriggers->$insertItem(%tr->$triggerName())
+				}
+			}
+		}
+		
+	}
+}
+
+

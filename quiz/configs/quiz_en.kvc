@@ -1,0 +1,41 @@
+[Computers]
+Count=5
+n0Q=Which is the acronym of the "calculator" inside a CPU ?
+n0A=ALU
+n0D=1
+
+n1Q=Who is the major competitor of Intel ?
+n1A=AMD
+n1D=1
+
+n2Q=Which is the name of the major windows competitor ?
+n2A=linux
+n2D=1
+
+n3Q=Who is the first author of the linux kernel ?
+n3A=Linus Torvalds
+n3D=1
+
+n4Q=Who writes these stupid questions ?
+n4A=Szymon Stefanek
+n4D=1
+
+[Astronomy]
+Count=2
+n0Q=Which is the biggest planet in the Solar System ?
+n0A=Jupiter
+n0D=1
+
+n1Q=Which is the planet nearest to the Sun ?
+n1A=Mercury
+n1D=1
+
+[Music]
+Count=2
+n0Q=Which is the leader's name of the Aerosmith ?
+n0A=Steve Tyler
+n0D=1
+
+n1Q=A famous compositor...
+n1A=Wolfgang Amadeus Mozart
+n1D=2

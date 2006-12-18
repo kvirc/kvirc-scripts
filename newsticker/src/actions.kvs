@@ -1,0 +1,5 @@
+action.create -t="tools" (newsticker::toggle,$tr("Show Newsticker","newsticker"),$tr("Shows the Newsticker Window","newsticker"),"newsticker_32.png","newsticker_16.png")
+{
+	newsticker::show
+}
+

@@ -1,0 +1,149 @@
+# Define the dialog class
+# Don't get messed here.
+# Hint: $this->something == $$->something == @something (only three different forms, use the one that you like most)
+
+class(autoaway::configure_dialog,dialog)
+{
+	createCheckBox($0 = parent,$1 = text,$2 = checked)
+	{
+		# a helper function
+		%h = $new(checkbox,$0)
+		%h->$setText($1)
+		%h->$setChecked($2)
+		return %h
+	}
+		
+	constructor()
+	{
+		# first of all load the config
+		autoaway::core::config::load
+
+		# set caption and icon
+		$$->$setCaption($tr("Automatic Away Configuration","autoaway"))
+		$$->$setIcon(autoaway_16.png)
+
+		# then the main layout
+		%l = $new(layout,$this);
+		%l->$setMargin(10)
+		%l->$setSpacing(5)
+
+		@%hEnabled = $this->$createCheckBox($this,$tr("Enable Automatic Away","autoaway"),%AutoAway{"Enabled"})
+		objects.connect @%hEnabled "toggled" $this "enableDisableAwayMessage"
+		%l->$addMultiCellWidget(@%hEnabled,0,0,0,4)
+
+		%tip = $tr("The Away Reason text will be used as parameter of the /AWAY command. It can contain color codes, identifiers and variables.<br>Hints: \$k(fg,bg), \$b, \%AutoAwayTime","autoaway");
+		%label = $new(label,$this)
+		%label->$setToolTip(%tip)
+		%label->$setText($tr("Reason","autoaway"))
+		%label->$setEnabled(%AutoAway{"Enabled"})
+		%l->$addMultiCellWidget(%label,1,1,0,1)
+		objects.connect @%hEnabled "toggled" %label "setEnabled"
+
+		@%hReason = $new(lineedit,$this)
+		@%hReason->$setText(%AutoAway{"Reason"})
+		@%hReason->$setEnabled(%AutoAway{"Enabled"})
+		@%hReason->$setToolTip(%tip)
+		%l->$addMultiCellWidget(@%hReason,1,1,2,4)
+		objects.connect @%hEnabled "toggled" @%hReason "setEnabled"
+
+		%tip = $tr("This is the aproximate timeout after that KVIrc will automatically set away mode","autoaway");
+		%label = $new(label,$this)
+		%label->$setText($tr("Inactivity Timeout","autoaway") "  ")
+		%label->$setEnabled(%AutoAway{"Enabled"})
+		%label->$setToolTip(%tip)
+		%l->$addMultiCellWidget(%label,2,2,0,1)
+		objects.connect @%hEnabled "toggled" %label "setEnabled"
+
+		@%hInactivityTimeout = $new(spinbox,$this)
+		@%hInactivityTimeout->$setMinValue(1)
+		@%hInactivityTimeout->$setMaxValue(3600);
+		@%hInactivityTimeout->$setSuffix("" $tr("minutes","autoaway"))
+		@%hInactivityTimeout->$setValue(%AutoAway{"InactivityTimeoutInMins"})
+		@%hInactivityTimeout->$setToolTip(%tip)
+		@%hInactivityTimeout->$setEnabled(%AutoAway{"Enabled"})
+		%l->$addMultiCellWidget(@%hInactivityTimeout,2,2,2,4)
+		objects.connect @%hEnabled "toggled" @%hInactivityTimeout "setEnabled"
+
+		%tip = $tr("While setting away mode, the addon can also execute a /me command on all the channels and queries you are on.<br>Please be aware that away actions are often looked sospiciously by operators...","autoaway");
+		@%hUseAwayMessage = $this->$createCheckBox($this,$tr("Use Away Message","autoaway"),%AutoAway{"UseAwayMessage"})
+		@%hUseAwayMessage->$setEnabled(%AutoAway{"Enabled"})
+		@%hUseAwayMessage->$setToolTip(%tip)
+		objects.connect @%hEnabled "toggled" @%hUseAwayMessage "setEnabled"
+		%l->$addMultiCellWidget(@%hUseAwayMessage,3,3,0,1)
+
+		@%hAwayMessage = $new(lineedit,$this)
+		@%hAwayMessage->$setText(%AutoAway{"Reason"})
+		@%hAwayMessage->$setEnabled(%AutoAway{"Enabled"})
+		@%hAwayMessage->$setEnabled($(%AutoAway{"Enabled"} && %AutoAway{"UseAwayMessage"}))
+		@%hAwayMessage->$setToolTip(%tip)
+		%l->$addMultiCellWidget(@%hAwayMessage,3,3,2,4)
+
+		# finally the cancel and ok buttons
+		%pb = $new(button,$this)
+		%pb->$setText($tr("OK","autoaway"))
+		%pb->$setMinimumWidth(80)
+		%l->$addWidget(%pb,5,3)
+
+		# invoke $okClicked() when this button is pressed
+		objects.connect %pb "clicked" $this "okClicked"
+
+		%pb = $new(button,$this)
+		%pb->$setText($tr("Cancel","autoaway"))
+		%pb->$setMinimumWidth(80)
+		%l->$addWidget(%pb,5,4)
+
+		# invoke $cancelClicked() when this button is pressed
+		objects.connect %pb "clicked" $this "cancelClicked"
+
+
+		%pb = $new(button,$this)
+		%pb->$setText($tr("System Options...","autoaway"))
+		%l->$addWidget(%pb,5,0)
+		
+		objects.connect %pb "clicked" $this "editSystemOptions"
+
+		# adjust the layout so it looks nicer
+		%l->$setRowStretch(4,10)
+		%l->$setColStretch(0,1)
+	}
+		
+	enableDisableAwayMessage()
+	{
+		@%hAwayMessage->$setEnabled($(@%hUseAwayMessage->$isChecked() && @%hEnabled->$isChecked()))
+	}
+		
+	editSystemOptions()
+	{
+		options.edit -m KviAwayOptionsWidget
+	}
+		
+	okClicked()
+	{
+		# the ok button was clicked
+		# get the settings from the controls and store them in the global hash
+		# then call our helper alias to store the hash values on disk
+		%AutoAway{"Enabled"} = @%hEnabled->$isChecked()
+		%AutoAway{"InactivityTimeoutInMins"} = @%hInactivityTimeout->$value()
+		%AutoAway{"Reason"} = @%hReason->$text()
+		%AutoAway{"UseAwayMessage"} = @%hUseAwayMessage->$isChecked()
+		%AutoAway{"AwayMessage"} = @%hAwayMessage->$text()
+		
+		autoaway::core::config::save
+			
+		if(%AutoAway{"Enabled"})autoaway::startall
+		else autoaway_stopall
+		delete $this
+	}
+		
+	cancelClicked()
+	{
+		# just die ignoring all the changes
+		delete $this
+	}
+		
+	showEvent()
+	{
+		# center us to screen
+		$this->$centerToScreen()
+	}
+}

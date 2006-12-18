@@ -1,0 +1,4 @@
+event(OnKVIrcStartup,twins::lagbar)
+{
+	twins::lagbar::show
+}

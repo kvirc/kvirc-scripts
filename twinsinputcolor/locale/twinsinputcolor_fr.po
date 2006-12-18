@@ -1,0 +1,101 @@
+# translation of twinsinputcolor_fr.po to Francais
+# This file is distributed under the same license as the PACKAGE package.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER.
+# Ahinu <ahinu.laman@gmail.com>, 2006.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: twinsinputcolor_fr\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-06-26 13:10+0200\n"
+"PO-Revision-Date: 2006-06-26 13:10+0200\n"
+"Last-Translator: Ahinu <ahinu.laman@gmail.com>\n"
+"Language-Team: Francais <kde-francophone@kde.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.10.2\n"
+
+#: ../src/classes.kvs:12 ../src/classes.kvs:23
+msgid "Twinsinputcolor-$addon.version(twinsinputcolor) configuration"
+msgstr "Configuration de Twinsinputcolor-$addon.version(twinsinputcolor)"
+
+#: ../src/classes.kvs:30
+msgid "On/Off"
+msgstr "On/Off"
+
+#: ../src/classes.kvs:36
+msgid "Stoppers:"
+msgstr "Stoppeurs :"
+
+#: ../src/classes.kvs:39
+msgid ""
+"These single characters suppress colors when they are at beginning of input "
+"line.<br>It is useful for bot commands for example."
+msgstr ""
+"Ces caractères supprime les couleurs quand ils sont trouvés au début de la "
+"ligne tapée.<br>C'est utile par exemple pour les commandes de robots."
+
+#: ../src/classes.kvs:53
+msgid "Structure"
+msgstr "Structure"
+
+#: ../src/classes.kvs:60
+msgid "Bold"
+msgstr "Gras"
+
+#: ../src/classes.kvs:65
+msgid "Underline"
+msgstr "Souligné"
+
+#: ../src/classes.kvs:74
+msgid "Colors"
+msgstr "Couleurs"
+
+#: ../src/classes.kvs:81
+msgid "Foreground:"
+msgstr "Texte :"
+
+#: ../src/classes.kvs:92
+msgid "Background:"
+msgstr "Fond :"
+
+#: ../src/classes.kvs:95
+msgid "Use background"
+msgstr "Utiliser le fond"
+
+#: ../src/classes.kvs:115
+msgid "Where"
+msgstr "Où ?"
+
+#: ../src/classes.kvs:116
+msgid "Where to use your color"
+msgstr "Où utiliser les couleurs ?"
+
+#: ../src/classes.kvs:123
+msgid "Channels"
+msgstr "Salons"
+
+#: ../src/classes.kvs:128
+msgid "Queries"
+msgstr "Privés"
+
+#: ../src/classes.kvs:133
+msgid "DccChats"
+msgstr "DccChats"
+
+#: ../src/classes.kvs:144
+msgid "Ok"
+msgstr "Valider"
+
+#: ../src/classes.kvs:150
+msgid "Apply"
+msgstr "Appliquer"
+
+#: ../src/classes.kvs:156
+msgid "Close"
+msgstr "Fermer"
+
+#: ../src/classes.kvs:206
+msgid "example"
+msgstr "exemple"

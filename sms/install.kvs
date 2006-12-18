@@ -1,0 +1,57 @@
+# SMdmS script version 1.9.9 beta 1
+
+addon.register("sms","1.9.9",$tr("SMS Sender","sms"),$tr("Allows sending SMS messages through several web-based services","sms"),"3.2.0.99","sms/sms_32.png")
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	
+	# This is an automatically generated alias that will erase the installed files
+	sms_uninstallfiles
+
+	%aliases[]=$array(class_addProvider,class_addToRubrica,class_rubrica,class_gui,class_mdm,class_sms,class_smskernel,class_statusbar,class_widgets,mainsms)
+	%classes[]=$array(addProvider,addToRubrica,gui,mdm,rubrica,sms,smskernel,statusbar,mylabel,mydialog,mybtn,mylayout,mypopup)
+
+	foreach(%c,%classes[])objects.killclass -q %c
+	foreach(%a,%aliases[])alias(%a){}
+
+	# We probably shouldn't remove the user configuration files
+	# written AFTER the installation.
+	#if($file.exists($file.localdir("config/scripts/sms/rubrica.mdm")))
+	#	file.remove $file.localdir("config/scripts/sms/rubrica.mdm")
+	#if($file.exists($file.localdir("config/scripts/sms/smsconfig.mdm")))
+	#	file.remove $file.localdir("config/scripts/sms/smsconfig.mdm")
+	#file.rmdir $file.localdir("config/scripts/sms")
+
+	file.rmdir $file.localdir("pics/sms")
+
+	action.destroy -q "sms"
+
+	# Done
+}
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+# copy files in each subdirectory
+# the pics
+%installer->$copyFiles("%mypath/pics/","*.png",$file.localdir("pics/sms"))
+# the translations
+%installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
+# the documentation
+%installer->$copyFiles("%mypath/help/en/sms/","*.html",$file.localdir("help/en/sms"))
+# the configuration files
+%installer->$copyFiles("%mypath/config/","*.txt",$file.localdir("config/scripts/sms"))
+%installer->$copyFiles("%mypath/config/","*.conf",$file.localdir("config/scripts/sms"))
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("sms_uninstallfiles")
+# finally kill the installer helper
+delete %installer
+
+parse %mypath/sms.kvs

@@ -1,0 +1,454 @@
+# Media advertisment script
+# Written by Szymon Stefanek (2005)
+# This script contains ideas also from the Jan Wagner's playing.kvs
+# included in the kvirc distribution.
+
+# This addon is pretty simple. It does a single thing and it attempts
+# to do it really well. With the comments, the script structure
+# should be really straightforward.
+
+# register the script: this must be the first instruction executed
+# since it will abort with an error when a greater version is already installed
+addon.register("nowplaying","1.0.0",$tr("Now Playing: The media advertiser","nowplaying"),$tr("Allows advertising and sharing the currently played media","nowplaying"),"3.2.0.99",nowplaying_32.png)
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	
+	# This is an automatically generated alias that will erase the installed files
+	nowplaying::core::uninstallfiles
+
+	# Kill all our aliases
+	alias(nowplaying::advertise){}
+	alias(nowplaying::configure){}
+	alias(nowplaying::help){}
+	alias(nowplaying::core::loadconfig){}
+	alias(nowplaying::core::saveconfig){}
+	alias(nowplaying::core::uninstallfiles){}
+
+	# Kill our actions
+	action.destroy nowplaying::advertise
+	action.destroy nowplaying::configure
+	
+	# And finally our toolbar
+	toolbar.destroy nowplaying
+	
+	# Done
+}
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+# copy files in each subdirectory
+# the pics
+%installer->$copyFiles("%mypath/pics/","*.png",$file.localdir("pics"))
+# the translations
+%installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
+# the documentation
+%installer->$copyFiles("%mypath/help/en/","*.html",$file.localdir("help/en/nowplaying"))
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("nowplaying::core::uninstallfiles")
+# finally kill the installer helper
+delete %installer
+
+
+# Now time to define our real aliases
+
+# nowplaying::core::loadconfig takes care of loading the configuration
+# from a config file and placing everything in a global hash
+
+alias(nowplaying::core::loadconfig)
+{
+	if(%NowPlaying{"configloaded"})return; # already loaded
+
+	%c = $config.open("nowplaying.kvc","r");
+	%NowPlaying{"UseColors"} = $config.read(%c,"UseColors",1);
+	%NowPlaying{"BoldTitle"} = $config.read(%c,"BoldTitle",1);
+	%NowPlaying{"ShareMedia"} = $config.read(%c,"ShareMedia",1);
+	%NowPlaying{"ShowYear"} = $config.read(%c,"ShowYear",1);
+	%NowPlaying{"ShowBitrate"} = $config.read(%c,"ShowBitrate",1);
+	%NowPlaying{"ShowSamplerate"} = $config.read(%c,"ShowSamplerate",0);
+	%NowPlaying{"ShowChannels"} = $config.read(%c,"ShowChannels",0);
+	%NowPlaying{"ShowFileSize"} = $config.read(%c,"ShowFileSize",1);
+	%NowPlaying{"ShowTotalTime"} = $config.read(%c,"ShowTotalTime",1);
+	%NowPlaying{"ShowCurrentTime"} = $config.read(%c,"ShowCurrentTime",0);
+	%NowPlaying{"ShareTimeout"} = $config.read(%c,"ShareTimeout",600);
+	config.close %c
+
+	%NowPlaying{"configloaded"} = 1
+}
+
+# nowplaying::core::saveconfig does the reverse job: store from
+# the global hash to the config file
+
+alias(nowplaying::core::saveconfig)
+{
+	if(!%NowPlaying{"configloaded"})return; # not loaded
+
+	%c = $config.open("nowplaying.kvc","w");
+	config.write %c "UseColors" %NowPlaying{"UseColors"}
+	config.write %c "ShareMedia" %NowPlaying{"ShareMedia"}
+	config.write %c "BoldTitle" %NowPlaying{"BoldTitle"}
+	config.write %c "ShowYear" %NowPlaying{"ShowYear"}
+	config.write %c "ShowBitrate" %NowPlaying{"ShowBitrate"}
+	config.write %c "ShowSamplerate" %NowPlaying{"ShowSamplerate"}
+	config.write %c "ShowChannels" %NowPlaying{"ShowChannels"}
+	config.write %c "ShowFileSize" %NowPlaying{"ShowFileSize"}
+	config.write %c "ShowTotalTime" %NowPlaying{"ShowTotalTime"}
+	config.write %c "ShowCurrentTime" %NowPlaying{"ShowCurrentTime"}
+	config.write %c "ShareTimeout" %NowPlaying{"ShareTimeout"}
+	config.close %c
+}
+
+# The configuration alias: it creates a dialog that allows
+# configuring our script via GUI. It is pretty straightforward
+
+alias(nowplaying::configure)
+{
+	# Define the dialog class
+	# Don't get messed here.
+	# Hint: $this->something == $$->something == @something (only three different forms, use the one that you like most)
+
+	class(nowplaying::configure_dialog,dialog)
+	{
+		createCheckBox($0 = parent,$1 = text,$2 = checked)
+		{
+			# a helper function
+			%h = $new(checkbox,$0)
+			%h->$setText($1)
+			%h->$setChecked($2)
+			return %h
+		}
+	
+		constructor()
+		{
+			# first of all load the config
+			nowplaying::core::loadconfig
+
+			# set caption and icon
+			$$->$setCaption($tr("Now Playing Script Configuration","nowplaying"))
+			$$->$setIcon(nowplaying_16.png)
+
+			# then the main layout
+			%l = $new(layout,$this);
+			%l->$setMargin(10)
+			%l->$setSpacing(5)
+
+			# our settings are arranged in groupboxes
+			%gb = $new(groupbox,$this)
+			%l->$addMultiCellWidget(%gb,0,0,0,2)
+			%gb->$setTitle($tr("Output Format","nowplaying"))
+			# each groupbox arranges the chidren in columns
+			%gb->$setColumnLayout(1,Horizontal)
+
+			# the groupbox's children controls
+			@%hUseColors = $this->$createCheckBox(%gb,$tr("Use Colors","nowplaying"),%NowPlaying{"UseColors"})
+			@%hBoldTitle = $this->$createCheckBox(%gb,$tr("Bold Title","nowplaying"),%NowPlaying{"BoldTitle"})
+
+			# another groupbox
+			%gb = $new(groupbox,$this)
+			%l->$addMultiCellWidget(%gb,1,1,0,2)
+			%gb->$setTitle($tr("Output Contents","nowplaying"))
+			%gb->$setColumnLayout(1,Horizontal)
+
+			# and another set of children
+			@%hShowYear = $this->$createCheckBox(%gb,$tr("Show Year","nowplaying"),%NowPlaying{"ShowYear"})
+			@%hShowBitrate = $this->$createCheckBox(%gb,$tr("Show Bitrate","nowplaying"),%NowPlaying{"ShowBitrate"})
+			@%hShowSamplerate = $this->$createCheckBox(%gb,$tr("Show Sample Rate","nowplaying"),%NowPlaying{"ShowSamplerate"})
+			@%hShowChannels = $this->$createCheckBox(%gb,$tr("Show Channels","nowplaying"),%NowPlaying{"ShowChannels"})
+			@%hShowFileSize = $this->$createCheckBox(%gb,$tr("Show File Size","nowplaying"),%NowPlaying{"ShowFileSize"})
+			@%hShowTotalTime = $this->$createCheckBox(%gb,$tr("Show Total Time","nowplaying"),%NowPlaying{"ShowTotalTime"})
+			@%hShowCurrentTime = $this->$createCheckBox(%gb,$tr("Show Current Time","nowplaying"),%NowPlaying{"ShowCurrentTime"})
+			@%hShowCurrentTime->$setEnabled(%NowPlaying{"ShowTotalTime"})
+			objects.connect @%hShowTotalTime toggled @%hShowCurrentTime setEnabled
+
+			# yet another groupbox
+			%gb = $new(groupbox,$this)
+			%l->$addMultiCellWidget(%gb,2,2,0,2)
+			%gb->$setTitle($tr("Other","nowplaying"))
+			%gb->$setColumnLayout(1,Horizontal)
+			
+			# and yet another set of children
+			@%hShareMedia = $this->$createCheckBox(%gb,$tr("Share Media","nowplaying"),%NowPlaying{"ShareMedia"})
+			# this child is composed of two children itself
+			# we use another layout to achieve that
+			%panel = $new(widget,%gb)
+			%panellayout = $new(layout,%panel)
+			%label = $new(label,%panel)
+			%label->$setText($tr("Share Timeout","nowplaying") "  ")
+			%panellayout->$addWidget(%label,0,0)
+			@%hShareTimeout = $new(spinbox,%panel)
+			@%hShareTimeout->$setMinValue(10)
+			@%hShareTimeout->$setMaxValue(3600000); # 1000 hours max
+			@%hShareTimeout->$setSuffix("" $tr("seconds","nowplaying"))
+			@%hShareTimeout->$setValue(%NowPlaying{"ShareTimeout"})
+			%panellayout->$addWidget(@%hShareTimeout,0,1)
+
+			# finally the cancel and ok buttons
+			%pb = $new(button,$this)
+			%pb->$setText($tr("OK","nowplaying"))
+			%pb->$setMinimumWidth(80)
+			%l->$addWidget(%pb,4,1)
+			
+			# invoke $okClicked() when this button is pressed
+			objects.connect %pb "clicked" $this "okClicked"
+
+			%pb = $new(button,$this)
+			%pb->$setText($tr("Cancel","nowplaying"))
+			%pb->$setMinimumWidth(80)
+			%l->$addWidget(%pb,4,2)
+
+			# invoke $cancelClicked() when this button is pressed
+			objects.connect %pb "clicked" $this "cancelClicked"
+
+			# adjust the layout so it looks nicer
+			%l->$setRowStretch(3,10)
+			%l->$setColStretch(0,1)
+		}
+		
+		okClicked()
+		{
+			# the ok button was clicked
+			# get the settings from the controls and store them in the global hash
+			%NowPlaying{"UseColors"} = @%hUseColors->$isChecked();
+			%NowPlaying{"BoldTitle"} = @%hBoldTitle->$isChecked();
+			%NowPlaying{"ShareMedia"} = @%hShareMedia->$isChecked();
+			%NowPlaying{"ShowYear"} = @%hShowYear->$isChecked();
+			%NowPlaying{"ShowBitrate"} = @%hShowBitrate->$isChecked();
+			%NowPlaying{"ShowSamplerate"} = @%hShowSamplerate->$isChecked();
+			%NowPlaying{"ShowChannels"} = @%hShowChannels->$isChecked();
+			%NowPlaying{"ShowFileSize"} = @%hShowFileSize->$isChecked();
+			%NowPlaying{"ShareTimeout"} = @%hShareTimeout->$value();
+			%NowPlaying{"ShowCurrentTime"} = @%hShowCurrentTime->$isChecked();
+			%NowPlaying{"ShowTotalTime"} = @%hShowTotalTime->$isChecked();
+			if(%NowPlaying{"ShareTimeout"} < 10)%NowPlaying{"ShareTimeout"} = 10
+			# then call our helper alias to store the hash values on disk
+			nowplaying::core::saveconfig
+			delete $this
+		}
+		
+		cancelClicked()
+		{
+			# just die ignoring all the changes
+			delete $this
+		}
+		
+		showEvent()
+		{
+			# center us to screen
+			$this->$centerToScreen()
+		}
+	}
+
+	# ok , the configuration dialog class is defined: create an instance and show it
+	%x = $new(nowplaying::configure_dialog,0)
+	%x->$show()
+	# the rest of the job will be done asynchronously by the dialog
+}
+
+# set the script's configuration callback
+# so it can be invoked via GUI from the Addon Management dialog
+# and via addon.configure
+
+addon.setconfigurecallback("nowplaying")
+{
+	nowplaying::configure
+}
+
+# Our help alias will invoke the help viewer and will display
+# the documentation we have just installed
+
+alias(nowplaying::help)
+{
+	help.open "nowplaying/index.html"
+}
+
+# set the script's help callback
+# so it can be invoked via GUI from the Addon Management dialog
+# and via addon.help
+
+addon.sethelpcallback("nowplaying")
+{
+	nowplaying::help
+}
+
+# the main advertisement alias
+
+alias(nowplaying::advertise)
+{
+	# load our configuration, yes, that's the same global hash as before
+	nowplaying::core::loadconfig
+
+	# make sure that we're playing something at all
+	if($mediaplayer.status() != "playing")
+	{
+		echo $tr("Seems that your media player is not playing at the moment (status:","nowplaying") $mediaplayer.status() ")"
+		return
+	}
+	
+	# make sure that there is some target
+	if(($window.type != "channel") && ($window.type != "query"))
+	{
+		echo $tr("You can advertise the currently played media only on channels and queries","nowplaying")
+		return
+	}
+	
+	# now get the media information from the mediaplayer module
+	# and build our advertisement string
+	%artist = $mediaplayer.artist
+	%title = $mediaplayer.title
+
+	if(%NowPlaying{"UseColors"})
+	{
+		%clrbegin = "$k(4)"
+		%clrend = "$k"
+	} else {
+		%clrbegin = ""
+		%clrend = ""
+	}
+	
+	if(%NowPlaying{"BoldTitle"})
+	{
+		%bold = "$b"
+	} else {
+		%bold = ""
+	}
+	
+	if((%artist != "") && (%title != ""))
+	{
+		# add a "null" control code to avoid the title
+		# being parsed as part of the $k
+		if($str.isnumber($str.left("%title",1)) || $str.isNumber($str.left("%artist",1)))
+			%clrbegin .= "$b$b"
+
+		%nowplaying = \"%bold%clrbegin%title%clrend%bold\" by %bold%clrbegin%artist%clrend%bold
+	} else {
+		%tmp = $mediaplayer.nowplaying
+		if($str.isnumber($str.left("%tmp",1)))
+			%clrbegin .= "$b$b"
+
+		%nowplaying = \"%bold%clrbegin%tmp%clrend%bold\"
+	}
+
+
+	%year = $mediaplayer.year
+	%bitrate = $mediaplayer.bitrate
+	%samplerate = $mediaplayer.samplerate
+	%channels = $mediaplayer.channels
+	%length = $mediaplayer.length
+	%position = $mediaplayer.position
+	%file = $mediaplayer.localfile
+	if(!$file.exists(%file))%file = ""
+	
+	%info = ""
+
+	if((%year != "") && (%NowPlaying{"ShowYear"}))%info .= "[Year "%year"]"
+	if((%bitrate > 0) && (%NowPlaying{"ShowBitrate"}))%info .= "["%bitrate "Kbit/s]"
+	if((%samplerate > 0) && (%NowPlaying{"ShowSamplerate"}))%info .= "["%samplerate "Hz]"
+	if((%channels > 0) && (%NowPlaying{"ShowChannels"}))
+	{
+		%info .= "["
+		if(%channels == 2)%info .= "Stereo"
+		else if(%channels == 1)%info .= "Mono"
+		else %info .= %channels "channels"
+		%info .= "]"
+	}
+
+
+	if((%length > 0) && (%NowPlaying{"ShowTotalTime"}))
+	{
+		%lh = $(%length / 3600000)
+		%lm = $((%length % 3600000) / 60000)
+		%ls = $((%length % 60000) / 1000)
+			
+		if(%lh > 0)%infolength .= %lh":"
+		if(%lm < 10)%infolength .= "0"%lm":"
+		else %infolength .= %lm":"
+		if(%ls < 10)%infolength .= "0"%ls
+		else %infolength .= %ls
+
+		if((%position > 0) && (%NowPlaying{"ShowCurrentTime"}))
+		{
+			%ph = $(%position / 3600000)
+			%pm = $((%position % 3600000) / 60000)
+			%ps = $((%position % 60000) / 1000)
+			
+			if(%ph > 0)%infoposition .= %ph":"
+			if(%pm < 10)%infoposition .= "0"%pm":"
+			else %infoposition .= %pm":"
+			if(%ps < 10)%infoposition .= "0"%ps
+			else %infoposition .= %ps
+
+			%info .= "["%infoposition "/" %infolength"]"
+		} else {
+			%info .= "["%infolength"]"
+		}
+	}
+	
+	if((%file != "") && (%NowPlaying{"ShowFileSize"}))
+	{
+		%size = $file.size(%file)
+
+		%onemeg = $(1024 * 1024)
+		if(%size > %onemeg)
+		{
+			%mb = $(%size / %onemeg)
+			%rest = $((%size % %onemeg) / 10240)
+			%info .= "["%mb"."$(%rest / 10)$(%rest % 10)" Mb]"
+		} else {
+			%info .= "["%size "bytes]"
+		}
+	}
+
+	%s = %nowplaying
+	
+	if(%info != "")%s .= "" %info
+	
+	# share the media if the user has requested it
+	if((%file != "") && (%NowPlaying{"ShareMedia"}))
+	{
+		if(%NowPlaying{"ShareTimeout"} < 10)%NowPlaying{"ShareTimeout"} = 10
+		# generate a simple but rather unique name for it
+		%name = "media"
+		srand $unixtime
+		%name .= $(($file.size(%file) % 100) / 10)
+		%name .= $($file.size(%file) % 10)
+		%name .= $rand(9)
+		%name .= $rand(9)
+		sharedfile.add -t=%NowPlaying{"ShareTimeout"} -n=%name %file
+		
+		%s .= "[$b/ctcp $me xdcc get %name$b to download]"
+	}
+	
+	# and finally do the one-line command that this addon is all about :)
+	me plays %s
+}
+
+# create the actions so the user can access our functions via GUI
+action.create -w=cqd (nowplaying::advertise,$tr("Advertise current media","nowplaying"),$tr("Advertises the currently played media and shares it","nowplaying"),nowplaying_advertise_32.png,nowplaying_advertise_16.png)
+{
+	nowplaying::advertise
+}
+
+action.create(nowplaying::configure,$tr("Configure \"Now Playing\"","nowplaying"),$tr("Allows configuring the \"Now Playing\" script addon","nowplaying"),nowplaying_configure_32.png,nowplaying_configure_16.png)
+{
+	nowplaying::configure
+}
+
+# create and display our toolbar (we could even avoid that since the user
+# can simply drag the actions anywhere he wants), but let's really avoid relying on user's interaction
+# and do everything by ourselves.
+toolbar.create nowplaying $tr("Now Playing")
+toolbar.additem nowplaying nowplaying::advertise
+#toolbar.additem nowplaying nowplaying::configure
+toolbar.show nowplaying
+
+# Done: the addon is installed and running: enjoy :)
+# Pragma 11.04.2005
+# 20.12.2005: Converted to use namespaces :) This is the FIRST script that has aliaes in its own namespace (tree)

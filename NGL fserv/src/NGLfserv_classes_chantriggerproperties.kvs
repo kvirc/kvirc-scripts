@@ -1,0 +1,49 @@
+alias(NGLfserv::classes::chanTriggerProperties)
+{
+	class(NGLfserv::classes::chanTriggerProperties,object)
+	{
+		function constructor()
+		{
+			$$->%channelName=$0
+			$$->%triggerType=0
+			# 0 for ctcp, 1 for remote, 10 for both
+			$$->%accessType=0
+			# 0 for all, 1 for op, 2 for voice, 12 for both
+		}
+		function getChannelName()
+		{
+			return $$->%channelName
+		}
+		function getTriggerType()
+		{
+			return $$->%triggerType
+		}
+		function getAccessType()
+		{
+			return $$->%accessType
+		}
+		function setTriggerType()
+		{
+			if($0==2) $$->%triggerType = 10
+			else $$->%triggerType = $0
+		}
+		function setAccessType()
+		{
+			$$->%accessType = $0
+		}
+		function setAccessByPswd()
+		{
+			$$->%Pswd=$0
+		}
+		function isPswdRestricted()
+		{
+			if ($$->%Pswd) 
+				return $$->%Pswd
+			else
+				return $false
+		}
+		
+	}
+}
+
+

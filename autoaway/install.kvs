@@ -1,0 +1,60 @@
+# Auto Away addon
+# Written by Szymon Stefanek (2005)
+
+addon.register("autoaway","1.0.1",$tr("Automatic Away","autoaway"),$tr("Automatically enters away state after a period of inactivity","autoaway"),"3.2.0.99",autoaway_32.png)
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	
+	# This is an automatically generated alias that will erase the installed files
+	autoaway::core::uninstall
+
+	# Done
+}
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# Get the path that this script was launched from
+//%mypath = $file.extractPath($0)
+%mypath = $str.lefttolast($0,/)
+
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+# copy files in each subdirectory
+# the pics
+%installer->$copyFiles("%mypath/pics/","*.png","$file.localdir("pics")")
+# the translations
+%installer->$copyFiles("%mypath/locale/","*.mo","$file.localdir("locale")")
+# the documentation
+#%installer->$copyFiles("%mypath/help/en/autoaway/","*.html","$file.localdir("help/en/autoaway")")
+# parse source files
+%installer->$includeFiles("%mypath/src/","*.kvs")
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("autoaway::core::uninstall")
+# finally kill the installer helper
+delete %installer
+
+
+# set the script's configuration callback
+# so it can be invoked via GUI from the Addon Management dialog
+# and via addon.configure
+
+addon.setconfigurecallback("autoaway")
+{
+	autoaway::configure
+}
+
+# set the script's help callback
+# so it can be invoked via GUI from the Addon Management dialog
+# and via addon.help
+
+addon.sethelpcallback("autoaway")
+{
+	autoaway::help
+}
+
+# Done: the addon is installed and running: enjoy :)
+# Pragma 15.04.2005

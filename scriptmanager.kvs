@@ -1,0 +1,90 @@
+# KVIrc script manager , version 1.0.0
+# Szymon Stefanek
+
+
+# The idea:
+#  Each script will register itself with the manager
+#  
+
+# Version MUST be in the form X.Y.Z
+
+alias(scriptmanager_usage)
+{
+	echo "Usage:"
+	echo " if(!$scriptmanager_install("scriptname","scriptlongname"))halt;"
+}
+
+
+alias(scriptmanager_install)
+{
+	# Usage:
+	#    scriptmanager_install <scriptshortname> <scriptlongname> <version> <uninstall_alias> [configure_alias]
+
+	if($0 == "")
+	{
+		scriptmanager_usage
+		return 0 
+	}
+
+
+	%scriptshortname = $0
+	%scriptlongname = $1
+	%newversion = $2
+	%uninstallalias = $3
+	%configurealias = $4
+
+	%newversiondata[] = $split(%newversion)
+
+	
+
+	%cfg = $config.open(scriptmanager.kvc)
+  
+	%oldversion = $config.read(%cfg,"%scriptshortname\_version","")
+	
+	if(%oldversion != "")
+	{
+		# an older version already exists
+		%oldversiondata[] = $split(%oldversion,".")
+	}
+
+	config.write %cfg "%scriptshortname\_version" %newversion 
+	config.write %cfg "%scriptshortname\_uninstall" %uninstallalias
+	config.write %cfg "%scriptshortname\_configure" %configurealias
+
+	config.close %cfg
+
+	return 1;
+}
+
+alias(scriptmanager_uninstall)
+{
+	# Usage:
+	#    scriptmanager_uninstall [-v] <scriptshortname>
+
+	if($sw("v"))
+		echo "[ScriptManager] Uninstalling the script \"$0\"..."
+
+	%cfg = $config.open(scriptmanager.kvc)
+
+
+	%uninstallalias = $config.read(%cfg,"$0\_uninstall","")
+	if(%uninstallalias != "")
+	{
+		if($sw("v"))
+			echo "[ScriptManager] Running uninstallation procedure..."
+
+		eval -q %uninstallalias
+
+		if($sw("v"))
+			echo "[ScriptManager] Uninstallation procedure terminated"
+	}
+
+	config.write %cfg "$0\_version" ""
+	config.write %cfg "$0\_uninstall" ""
+	config.write %cfg "$0\_configure" ""
+
+	config.close %cfg
+
+	if($sw("v"))
+		echo "[ScriptManager] Uninstallation of script \"$0\" terminated"
+}

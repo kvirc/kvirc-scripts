@@ -1,0 +1,186 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ChanStats 1.1.1\n"
+"Report-Msgid-Bugs-To: gspeed@gmx.net\n"
+"POT-Creation-Date: 2005-07-15 19:08+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Remy van Noorden (Neur0) <neur0@xs4all.nl>\n"
+"Language-Team: dutch <nl@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../install.kvs:5
+msgid "Channel Statistics"
+msgstr "Kanaal Statistieken"
+
+#: ../install.kvs:5
+msgid "Shows Statistics for a joined channel."
+msgstr "Toon Statistieken voor een actief kanaal"
+
+#: ../install.kvs:70
+msgid "Chanstats Config"
+msgstr "Configuratie Kanaalstatistieken"
+
+#: ../install.kvs:83
+msgid "cleanup options"
+msgstr "Schoonmaak Opties"
+
+#: ../install.kvs:90
+msgid "remove channels from the regchan-module after :"
+msgstr "Verwijder kanalen uit de regchan-module na :"
+
+#: ../install.kvs:108
+msgid "days without ChanStats."
+msgstr "Dagen zonder Kanaalstatistieken"
+
+#: ../install.kvs:118
+msgid "display options"
+msgstr "Toon opties"
+
+#: ../install.kvs:126
+msgid "display user-percentages"
+msgstr "Toon gebruikers-percentages"
+
+#: ../install.kvs:143
+msgid "enable percentage-bars, drawn with char :"
+msgstr "Activeer percentage-balken, weergegeven met teken :"
+
+#: ../install.kvs:163
+#, fuzzy
+msgid "enable developments"
+msgstr "Activeer ontwikkelingen"
+
+#: ../install.kvs:173
+msgid "display user-peak"
+msgstr "Toon gebruikers-piek"
+
+#: ../install.kvs:180
+msgid "display last visit"
+msgstr "Toon laaste bezoek"
+
+#: ../install.kvs:192
+msgid "notification options"
+msgstr "Schoonmaak Opties"
+
+#: ../install.kvs:200
+msgid "show new user-peaks"
+msgstr "Toon nieuwe gebruikers-piek"
+
+#: ../install.kvs:207
+msgid "show removed channels by cleanup [console-window]"
+msgstr "Toon verwijderde kanalen door schoonmaak [console-window]"
+
+#: ../install.kvs:220
+msgid "OK"
+msgstr "OK"
+
+#: ../install.kvs:229
+msgid "Apply"
+msgstr "Toepassen"
+
+#: ../install.kvs:238
+msgid "Cancel"
+msgstr "Afbreken"
+
+#: ../install.kvs:468
+msgid "channel-data for"
+msgstr "Kanaal-info voor"
+
+#: ../install.kvs:468
+msgid "has been removed from regchan-module."
+msgstr "is verwijderd van de regchan-module."
+
+#: ../install.kvs:531
+msgid "channels have been removed from the regchan-module."
+msgstr "kanalen zijn verwijderd uit de regchan module."
+
+#: ../install.kvs:591
+msgid "New user peak for channel"
+msgstr "Nieuwe gebruikers-piek voor kanaal"
+
+#: ../install.kvs:591 ../install.kvs:804 ../install.kvs:826
+msgid "user(s)"
+msgstr "Gebruiker(s)"
+
+#: ../install.kvs:766
+msgid "usage: /chanstats <option>"
+msgstr "Gebruik: /chanstats <opties>"
+
+#: ../install.kvs:768
+msgid "possible options:"
+msgstr "Mogelijke opties:"
+
+#: ../install.kvs:769
+msgid "configure ChanStats-script"
+msgstr "Configureer Chanstats-script"
+
+#: ../install.kvs:770
+msgid "displays usercounts,peak-data and time of last visit"
+msgstr "Toon gebruikersaantal,piek-data en tijd van laatste bezoek"
+
+#: ../install.kvs:771
+msgid "resets channel-data in the regchan-module"
+msgstr "Verwijdert kanaal-info uit de regchan-module"
+
+#: ../install.kvs:772
+msgid "you were just reading the results ;)"
+msgstr "Je leest net het resultaat ;)"
+
+#: ../install.kvs:810
+msgid "OP(s)"
+msgstr "OP(s)"
+
+#: ../install.kvs:813
+msgid "half-OP(s)"
+msgstr "half-OP(s)"
+
+#: ../install.kvs:816
+msgid "voice(s)"
+msgstr "voice(s)"
+
+#: ../install.kvs:819
+msgid "peon(s)"
+msgstr "peon(s)"
+
+#: ../install.kvs:826
+msgid "user peak"
+msgstr "Gebruikers-piek"
+
+#: ../install.kvs:832
+msgid "last visit"
+msgstr "Laatste bezoek"
+
+#: ../install.kvs:836
+msgid "ERROR"
+msgstr "FOUT"
+
+#: ../install.kvs:836
+msgid "chanstats are only available in channel windows"
+msgstr "Statistieken zijn alleen beschikbaar in een actief kanaal"
+
+#: ../install.kvs:875
+msgid "installation of the chanstats script was succesful,"
+msgstr "Installatie van het Chanstats Script is gelukt"
+
+#: ../install.kvs:876
+msgid "configure ChanStats by using '/chanstats config'."
+msgstr "Configureer Chanstats door te gebruiken: 'chanstats config'."
+
+#: ../install.kvs:877
+msgid "perform a '/chanstats help' to see possible actions."
+msgstr "Gebruik '/chanstats help' om mogelijke acties weer te geven."
+
+#: ../install.kvs:878
+msgid ""
+"you can always uninstall ChanStats by using 'Manage Addons ...' from the "
+"settings menu"
+msgstr ""
+"Je kunt Chanstats altijd de-installeren door 'Manage Addons ...' te "
+"gebruiken onder "

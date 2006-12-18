@@ -1,0 +1,74 @@
+alias(twins::lagbar::core::config::load)
+{
+	%c = $config.open(twinsmediaplayer.kvc,r)
+
+	%TwinsLagBar{status} = $config.read(%c,status,1)
+
+	%TwinsLagBar{width} = $config.read(%c,width,72)
+	%TwinsLagBar{maxlag} = $config.read(%c,maxlag,6.)
+
+	%TwinsLagBar{colors:low} 		= $str.split(",",$config.read(%c,colors:low,		"0,200,200"))
+	%TwinsLagBar{colors:medium} 	= $str.split(",",$config.read(%c,colors:medium,	"220,220,255"))
+	%TwinsLagBar{colors:high} 		= $str.split(",",$config.read(%c,colors:high,	"255,0,255"))
+
+	config.close %c
+}
+
+alias(twins::lagbar::core::config::save)
+{
+	%c = $config.open(twinsmediaplayer.kvc,w)
+	foreach(%tag,$keys(%TwinsLagBar))
+	config.write %c %tag %TwinsLagBar{%tag}
+	config.close %c
+
+	if(!%TwinsLagBar{status})
+	{
+		twins::lagbar::close
+		return
+	}
+
+	if($objects.exists(%G_hTwinsLagBar{bar}))
+		%G_hTwinsLagBar{bar}->$loadConfig()
+}
+
+alias(twins::lagbar::configure)
+{
+	# @title:
+	#	Configuration center of the Twins LagBar addon
+
+	if(!$objects.exists(%G_hTwinsLagBar{config}))
+		%G_hTwinsLagBar{config} = $new(twins::lagbar::config)
+	%G_hTwinsLagBar{config}->$setModal(1)
+	%G_hTwinsLagBar{config}->$show
+}
+
+alias(twins::lagbar::show)
+{
+	# @title:
+	#	Show the Twins LagBar
+
+	twins::lagbar::core::config::load
+
+	if(!%TwinsLagBar{status}) return
+
+	if(!$option(boolUseLagMeterEngine))
+		dialog.message -b (TwinsLagBar,$tr("The lagmeter engine is currently OFF. Do you want to turn it ON?",twinslagbar),warning,$tr(Yes),$tr(No))
+		{
+			if(!$0)option boolUseLagMeterEngine 1
+		}
+
+	if(!$objects.exists(%G_hTwinsLagBar{bar}))
+		%G_hTwinsLagBar{bar} = $new(twins::lagbar::bar)
+	%G_hTwinsLagBar{bar}->$show()
+}
+
+alias(twins::lagbar::close)
+{
+	# @title:
+	#	Close the Twins LagBar
+	if($objects.exists(%G_hTwinsLagBar{bar}))
+		%G_hTwinsLagBar{bar}->$quit()
+	%G_hTwinsLagBar{bar} =
+}
+
+

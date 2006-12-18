@@ -1,0 +1,16 @@
+event(OnIrc,autoaway)
+{
+	autoaway::start
+}
+
+event(OnIrcConnectionTerminated,autoaway)
+{
+	autoaway::stop
+}
+
+event(OnTextInput,autoaway)
+{
+	if(!$ic)return
+	%AutoAway{"Timestamp$ic"} = $unixtime
+}
+

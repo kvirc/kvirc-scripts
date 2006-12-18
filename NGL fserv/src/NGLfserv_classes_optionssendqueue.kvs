@@ -1,0 +1,86 @@
+alias(NGLfserv::classes::optionssendqueue)
+{
+	class(NGLfserv::classes::optionssendqueue,widget)
+			{
+				constructor()
+				{
+					%main_layout=$new(layout,$this)
+					%main=$new(NGLfserv::classes::customwidgets::box,$$,box,vertical)
+					%hbox=%main->$addWidget(hbox)
+					%hbox->$setSpacing(2)
+	
+					// Box send properties
+					%gb=$new(NGLfserv::classes::customwidgets::groupbox,%hbox,gb,"Sends properties",5,20)
+					%gb->$setColumnLayout(1,Vertical)
+					%box_labels=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
+					%box_labels->$setSpacing(1)
+					%box_labels->$addGroup("label",$array("Max sends:","Sends per user:","Max resends:","Instant send limit:","Resend interval:"))
+					%box_params=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
+					%box_params->$setSpacing(1)
+					%maxSends = %box_params->$addWidget(spinbox,"\%MaxSends",80,100)
+					%eachSends = %box_params->$addWidget(spinbox,"\%EachSends",80,100)
+					%maxResends = %box_params->$addWidget(spinbox,"\%MaxResends",80,100)
+					$$->%spinBoxInstantSend=%box_params->$addWidget(spinbox,$(%InstantSendSize / 1024),80,10240)
+					$$->%spinBoxInstantSend->$setSuffix("kB");
+					$$->%spinBoxInstantSend->$setLineStep(2);
+					$$->%spinBoxResendInterval=%box_params->$addWidget(spinbox,$(%ResendInterval / 1000),80)
+					$$->%spinBoxResendInterval->$setSuffix("s");
+					privateimpl($$->%spinBoxResendInterval,valueChangedEvent){
+						if($istimer(deadTransferFinder)) {
+							%DeadTransferHandler->$stop()
+							%DeadTransferHandler->$run()
+						}
+					}
+	
+					// Box queue properties
+					%gb=$new(NGLfserv::classes::customwidgets::groupbox,%hbox,gb,"Queues properties",5,20)
+					%gb->$setColumnLayout(1,Vertical)
+					%box_labels=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
+					%box_labels->$setSpacing(1)
+					%box_labels->$addGroup("label",$array("Queue slots:","Slots per user:","Priority to:"))
+					%box_params=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
+					%box_params->$setSpacing(1)
+					%maxQueues = %box_params->$addWidget(spinbox,"\%MaxQueues",60,1000)
+					%maxQueues->$setMaxValue(999)
+					%eachQueues = %box_params->$addWidget(spinbox,"\%EachQueues",60,100)
+					$$->%comboBoxPriorityType=%box_params->$addWidget(combobox,$array("-","o","ov"))
+					$$->%comboBoxPriorityType->$setMaximumWidth(60)
+					$$->%comboBoxPriorityType->$setCurrentItem(%PriorityType)
+					$$->%comboBoxPriorityType->$setTooltip($tr("You can set different priority type.<br> Users with priority will stay in queue before not-prioritized users.<br>-: Stands for no priority<br>o: Stands for priority to opped users<br>ov: Stands for opped and voiced users"))
+	
+					// Box Dcc properties
+					%gb=$new(NGLfserv::classes::customwidgets::groupbox,%hbox,gb,"DCC Properties",5,20)
+					%gb->$setColumnLayout(1,Horizontal)
+					$$->%ckbReverse=$new(NGLfserv::classes::customwidgets::checkbox,%gb,cb,"Always use DCC Reverse","\%DccReverse")
+					$$->%ckbCloneDetection=$new(NGLfserv::classes::customwidgets::checkbox,%gb,cb,"Enable clone detection","\%CloneDetection")
+	
+					%main_layout->$addWidget(%main->$widget,0,0)
+	
+					%maxSends->$setTooltip($tr("Maximum number of contemporary sends (globally)"))
+					%eachSends->$setTooltip($tr("Maximum number of contemporary sends per user"))
+					%maxResends->$setTooltip($tr("Number of times a failed transfer will be retried"))
+					$$->%spinBoxInstantSend->$setTooltip($tr("Files with size smaller than this will be sent immediately"))
+					$$->%spinBoxResendInterval->$setTooltip($tr("Seconds elapsed before retrying a dcc-transfer<br><b>Note: </b>Values bigger than 15 seconds are discouraged"))
+	
+					%maxQueues->$setTooltip($tr("Maximum number of contemporary queued files (globally)"))
+					%eachQueues->$setTooltip($tr("Maximum number of contemporary queued files per user"))
+					$$->%comboBoxPriorityType->$setTooltip($tr("Give priority in queue to:<ul><li><b>-</b>: none (all have same priority)</li><li><b>o</b>: operators users only</li><li><b>ov</b>: operators and voiced users only</li></ul>"))
+	
+					$$->%ckbReverse->$setTooltip($tr("Dcc-Chats and Dcc-Sends will<br> be effectuated connecting to the remote host instead of listening on a local port. This is very useful for users with private addresses that are unreachable from the extern."))
+					$$->%ckbCloneDetection->$setTooltip($tr("Any user accessing the File Server will be scanned for clone detection and if recognized as a clone will be treated as a single user"))
+	
+					objects.connect $$->%spinBoxInstantSend valueChanged $$ commit
+					objects.connect $$->%spinBoxResendInterval valueChanged $$ commit
+					objects.connect $$->%comboBoxPriorityType activated $$ commit
+				}
+				commit()
+				{
+					%source=$$->$signalSender()
+					if (%source==$$->%spinBoxInstantSend) %InstantSendSize=$(%source->$value()*1024)
+					else if (%source==$$->%spinBoxResendInterval) %ResendInterval=$(%source->$value()*1000)
+					else if (%source==$$->%comboBoxPriorityType) %PriorityType=%source->$currentItem()
+				}
+			}
+}
+
+

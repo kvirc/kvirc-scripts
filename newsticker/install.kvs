@@ -1,0 +1,74 @@
+# script newsticker for KVIrc :)
+# Written by Szymon Stefanek (2006)
+
+
+# register the script: this must be the first instruction executed
+# since it will abort with an error when a greater version is already installed
+addon.register("newsticker","1.2.0",$tr("Newsticker: The RSS News Reader","newsticker"),$tr("Displays RSS news feeds from various sources","newsticker"),"3.2.0.99.20051230",newsticker_32.png)
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	
+	newsticker::core::uninstall
+
+/*	objects.killclass newsticker::window
+	objects.killclass newsticker::source
+	objects.killclass newsticker::controller
+	objects.killclass newsticker::rss::reader
+	objects.killclass newsticker::rss::entrylist
+	objects.killclass newsticker::rss::entry
+	objects.killclass newsticker::configuration::dialog
+	objects.killclass newsticker::configuration
+	objects.killclass newsticker::configuration::source
+
+	alias(newsticker::show){}
+	alias(newsticker::close){}
+	alias(newsticker::configure){}
+	alias(newsticker::core::uninstallfiles){}
+	alias(newsticker::core::configuration){}
+
+	action.destroy newsticker::toggle
+	action.destroy newsticker::show
+*/
+
+}
+
+addon.setconfigurecallback(newsticker)
+{
+	newsticker::configure
+}
+
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# get the installer helper class (this is pretty standard and included in the distro)
+include "utils/installer.kvs"
+
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+//%mypath = $str.lefttolast($0,/)
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+# copy files in each subdirectory
+# the pics
+%installer->$copyFiles("%mypath/pics/","*.png",$file.localdir("pics"))
+# the translations
+#%installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
+# the documentation
+#%installer->$copyFiles("%mypath/help/en/nowplaying/","*.html",$file.localdir("help/en/nowplaying"))
+# parse source files
+%installer->$includeFiles("%mypath/src/","*.kvs")
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("newsticker::core::uninstall")
+# finally kill the installer helper
+delete %installer
+
+# fetch the complete script
+//include "src/main.kvs"
+
+
+# make sure any previous instance is closed
+newsticker::close
+# show it up :)
+newsticker::show
+

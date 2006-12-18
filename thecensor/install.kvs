@@ -1,0 +1,487 @@
+# The censor script
+# Written by Grifisx  (2005)
+
+# This addon is pretty simple. It does a single thing and it attempts
+# to do it really well. With the comments, the script structure
+# should be really straightforward.
+
+# register the script: this must be the first instruction executed
+# since it will abort with an error when a greater version is already installed
+addon.register("thecensor","1.0.0",$tr("The Censor: A censor addon","thecensor"),$tr("Permette all'utente di avvetire, kickare ed alla fine bannare chi dice parole vietate","thecensor"),"3.2.0.99",109)
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	
+	# This is an automatically generated alias that will erase the installed files
+	thecensor_uninstallfiles
+
+	# Kill all our aliases
+	alias(thecensor_addchan){}
+	alias(thecensor_addwords){}
+	alias(thecensor_check){}
+	alias(thecensor_delchan){}
+	alias(thecensor_delwords){}
+	alias(thecensor_gui){}
+	alias(thecensor_loadconfig){}
+	alias(thecensor_saveconfig){}
+
+	# Kill all our event
+	event(OnChannelMessage,thecensor_checkEvent){}
+	event(OnTextInput,thecensor_checkme){}
+
+	# Kill our actions
+	action.destroy thecensor_action
+	
+	# And finally our toolbar
+	toolbar.destroy thecensor_toolbar
+	
+	# Done
+}
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+# copy files in each subdirectory
+# the pics
+%installer->$copyFiles("%mypath/pics/","*.png","$file.localdir("pics")")
+# the translations
+%installer->$copyFiles("%mypath/locale/","*.mo","$file.localdir("locale")")
+# the documentation
+%installer->$copyFiles("%mypath/help/it/thecensor/","*.html","$file.localdir("help/it/thecensor")")
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("thecensor_uninstallfiles")
+# finally kill the installer helper
+delete %installer
+# set the script's configuration callback
+# so it can be invoked via GUI from the Addon Management dialog
+# and via addon.configure
+
+addon.setconfigurecallback("thecensor")
+{
+	thecensor_gui
+}
+
+# Our help alias will invoke the help viewer and will display
+# the documentation we have just installed
+
+alias(thecensor_help)
+{
+	help.open "it/thecensor/index.html"
+}
+
+# set the script's help callback
+# so it can be invoked via GUI from the Addon Management dialog
+# and via addon.help
+
+addon.sethelpcallback("thecensor")
+{
+	thecensor_help
+}
+
+# Now time to define our real aliases
+
+alias(thecensor_addchan)
+{
+	#-TheCensor
+	# Add a channel to the dictionary
+	%chan =  $0-
+	%Elencochannels{%chan} = %chan
+	
+	# save the updated list
+	thecensor_saveconfig
+	
+	# End.
+}
+
+
+alias(thecensor_addwords)
+{
+	#-TheCensor
+	# Add a word to the dictionary
+	%word =  $0-
+	%Elencobadword{%word} = %word
+	
+	# save the updated list
+	thecensor_saveconfig
+	
+	# End.
+}
+
+
+alias(thecensor_check)
+{
+	%nick=$0
+	%key=$1
+	%message=$2
+	%channel= $3
+	if($chan.isop(%nick)){
+	return
+	}
+	if(!$chan.isMeOp) {
+	return
+	}
+	foreach(%w,%Badwordlist[])
+	{
+		if($str.containsnocase("$2",%w))
+		{
+			if(!%CensoredNick{%key})
+			{
+				%val=1
+				%CensoredNick{%key}=%val
+			}
+			else
+			{
+				%val=%CensoredNick{%key}
+				%val++
+				%CensoredNick{%key}=%val
+			}
+			if(%CensoredNick{%key}==1)
+			{
+				msg %channel $tr("We") %nick  $tr("non si dicono le cattive parole....la prossima volta verrai kikkato!")
+			}
+			if(%CensoredNick{%key}==2)
+			{
+				kick %nick $tr("impara l'educazione.")
+			}
+			if(%CensoredNick{%key}==3)
+			{
+				kb %nick $tr("e basta!")
+				%CensoredNick{%key}=
+			}
+			break	
+		}
+	}
+}
+
+
+alias(thecensor_delchan)
+{
+	#-TheCensor
+	# delete a word from the dictionary
+	%delch=  $0
+	%Elencochannels{%delch} = ""
+	
+	# save the updated channelslist
+	thecensor_saveconfig
+	
+	# End.
+}
+
+
+alias(thecensor_delwords)
+{
+	#-TheCensor
+	# delete a word from the dictionary
+	%delwd=  $0
+	%Elencobadword{%delwd} = ""
+	
+	# save the updated wordlist
+	thecensor_saveconfig
+	
+	# End.
+}
+
+
+alias(thecensor_gui)
+{
+#-TheCensor
+# Load config and make the GUI
+thecensor_loadconfig
+
+#The main widget
+%CensorWidget=$new(widget)
+%CensorWidget->$setCaption("Qt The Censor")
+%CensorWidget->$setIcon(109)
+%CensorWidget->$resize(300,300)
+%CensorWidget->$setMinimumWidth(300)
+%CensorWidget->$setMinimumHeight(300)
+%CensorWidget->$setMaximumWidth(300)
+%CensorWidget->$setMaximumHeight(300)
+#The tab widget
+%CensortabWidget=$new(tabwidget,%CensorWidget)
+%CensorWidgetG=$new(widget,%CensortabWidget)
+%CensorWidgetC=$new(widget,%CensortabWidget)
+%CensorWidgetW=$new(widget,%CensortabWidget)
+%CensortabWidget->$addtab(%CensorWidgetG,$tr("Generale"),20)
+%CensortabWidget->$addtab(%CensorWidgetC,$tr("#Canali"),153)
+%CensortabWidget->$addtab(%CensorWidgetW,$tr("Parole"),221)
+
+#The main layout
+%censorLayout=$new(layout,%CensorWidget)
+%censorLayout->$setMargin(1)
+#%censorLayout->$setSpacing(1)
+%censorLayout->$addmulticellwidget(%CensortabWidget,0,11,0,11)
+%censorLayoutG=$new(layout,%CensorWidgetG)
+%censorLayoutG->$setMargin(4)
+%censorLayoutG->$setSpacing(1)
+
+%censorLayoutC=$new(layout,%CensorWidgetC)
+%censorLayoutC->$setMargin(4)
+%censorLayoutC->$setSpacing(1)
+
+%censorLayoutW=$new(layout,%CensorWidgetW)
+%censorLayoutW->$setMargin(4)
+%censorLayoutW->$setSpacing(1)
+
+# Words section GUI
+%censorLabel=$new(label,%CensorWidgetW)
+%CensorListBox=$new(listbox,%CensorWidgetW)
+%CensorAddWordButton=$new(button,%CensorWidgetW)
+%CensorDelWordButton=$new(button,%CensorWidgetW)
+%CensorDelWordButton->$setText($tr("&Elimina Parola"))
+%CensorAddWordButton->$setText($tr("A&ggiungi Parola"))
+%censorLabel->$setText($tr("Lista parole:"))
+%censorLabel->$setAlignment(center)
+%CensorWordLineEdit=$new(lineedit,%CensorWidgetW)
+
+# Channels section GUI
+%censorLabelChan=$new(label,%CensorWidgetC)
+%CensorListBoxChan=$new(listbox,%CensorWidgetC)
+%CensorAddChanButton=$new(button,%CensorWidgetC)
+%CensorDelChanButton=$new(button,%CensorWidgetC)
+%CensorDelChanButton->$setText($tr("Elimina Cana&le"))
+%CensorAddChanButton->$setText($tr("Aggiungi &Canale"))
+%censorLabelChan->$setText($tr("Lista Canali:"))
+%censorLabelChan->$setAlignment(center)
+%CensorChanLineEdit=$new(lineedit,%CensorWidgetC)
+
+# General options GUI
+%CensorStatusLabel=$new(label,%CensorWidgetG)
+%CensorCheckBox=$new(checkbox,%CensorWidgetG)
+%CensorActButton=$new(button,%CensorWidgetG)
+%CensorDeactButton=$new(button,%CensorWidgetG)
+%CensorCloseButton=$new(button,%CensorWidget)
+%censorLayout->$addmulticellwidget(%CensorCloseButton,12,12,0,11)
+%CensorStatusLabel->$settext($tr("Status: <b>Disabilitato"))
+%CensorStatusLabel->$setAlignment(center)
+%CensorCheckBox->$setText($tr("Auto&Censura"))
+%CensorDeactButton->$setText($tr("&Disattiva"))
+%CensorActButton->$setText($tr("&Attiva"))
+%CensorCloseButton->$setText($tr("&Chiudi"))
+
+# Insert Object in layout
+# Words
+%censorLayoutW->$addmulticellwidget(%censorLabel,0,0,0,11)
+%censorLayoutW->$addmulticellwidget(%CensorListBox,1,7,0,11)
+%censorLayoutW->$addmulticellwidget(%CensorAddWordButton,9,9,0,5)
+%censorLayoutW->$addmulticellwidget(%CensorDelWordButton,9,9,6,11)
+%censorLayoutW->$addmulticellwidget(%CensorWordLineEdit,8,8,0,11)
+
+# Channels
+%censorLayoutC->$addmulticellwidget(%censorLabelChan,0,0,0,11)
+%censorLayoutC->$addmulticellwidget(%CensorListBoxChan,1,8,0,11)
+%censorLayoutC->$addmulticellwidget(%CensorAddChanButton,9,9,0,5)
+%censorLayoutC->$addmulticellwidget(%CensorDelChanButton,9,9,6,11)
+%censorLayoutC->$addmulticellwidget(%CensorChanLineEdit,8,8,0,11)
+
+# Generals
+%censorLayoutG->$addmulticellwidget(%CensorCheckBox,1,1,0,11)
+%censorLayoutG->$addmulticellwidget(%CensorStatusLabel,0,0,0,11)
+%censorLayoutG->$addmulticellwidget(%CensorActButton,2,2,0,5)
+%censorLayoutG->$addmulticellwidget(%CensorDeactButton,2,2,6,11)
+
+# Check Configurations
+if(%TheCensorIsOn==1){%CensorStatusLabel->$settext($tr("Status: <b>Abilitato"));}
+if(%TheCensorIsOn==0){%CensorStatusLabel->$settext($tr("Status: <b>Disabilitato"));}
+if(%MyCensorIsOn==1){%CensorCheckBox->$setChecked(1);}
+if(%MyCensorIsOn==0){%CensorCheckBox->$setChecked(0);}
+
+# GUI End.
+
+# Update the listbox
+foreach(%word,%Badwordlist[])
+{
+	%CensorListBox->$insertItem(%word)
+}
+
+foreach(%word,%CensoredChannels[])
+{
+	%CensorListBoxChan->$insertItem(%word)
+}
+
+# Word privateImpl
+privateImpl(%CensorAddWordButton,mousePressEvent)
+{
+	if(%CensorWordLineEdit->$text()!=""){
+		thecensor_addwords %CensorWordLineEdit->$text()	
+		%CensorListBox->$clear()
+		foreach(%word,%Elencobadword{})
+		{
+			%CensorListBox->$insertItem(%word)
+		}
+	}
+}
+privateImpl(%CensorDelWordButton,mousePressEvent)
+{
+	if(%CensorListBox->$currentText()){
+		%cword=%CensorListBox->$currentText()
+		thecensor_delwords %cword
+		%CensorListBox->$clear()
+		foreach(%word,%Elencobadword{})
+		{
+			%CensorListBox->$insertItem(%word)
+		}
+	}
+	
+}
+
+# Chan privateImpl
+privateImpl(%CensorAddChanButton,mousePressEvent)
+{
+	if(%CensorChanLineEdit->$text()!=""){
+		thecensor_addchan %CensorChanLineEdit->$text()	
+		%CensorListBoxChan->$clear()
+		foreach(%chan,%Elencochannels{})
+		{
+			%CensorListBoxChan->$insertItem(%chan)
+		}
+	}
+}
+privateImpl(%CensorDelChanButton,mousePressEvent)
+{
+	if(%CensorListBoxChan->$currentText()){
+		%cchan=%CensorListBoxChan->$currentText()
+		thecensor_delchan %cchan
+		%CensorListBoxChan->$clear()
+		foreach(%chan,%Elencochannels{})
+		{
+			%CensorListBoxChan->$insertItem(%chan)
+		}
+	}
+	
+}
+
+# General privateImpl
+privateImpl(%CensorActButton,mousePressEvent)
+{
+	event(OnChannelMessage,thecensor_checkEvent)
+	{
+		foreach(%c,%Elencochannels{})
+		{
+			if($target==%c)
+			{
+				thecensor_check $0 $2 $3 $target;
+				return
+			}
+		}
+	}
+	%TheCensorIsOn=1
+
+	thecensor_saveconfig
+	%CensorStatusLabel->$settext($tr("Status: <b>Abilitato"))
+}
+privateImpl(%CensorDeactButton,mousePressEvent)
+{
+	event(OnChannelMessage,thecensor_checkEvent){}
+	%TheCensorIsOn=0
+
+	thecensor_saveconfig
+	%CensorStatusLabel->$settext($tr("Status: <b>Disabilitato"))
+}
+
+privateImpl(%CensorCloseButton,mousePressEvent)
+{
+	%CensorWidget->$hide()
+}
+privateImpl(%CensorCheckBox,mousePressEvent)
+{
+	if(!%CensorCheckBox->$isChecked())
+	{
+		event(OnTextInput,thecensor_checkme){
+		%idx=0
+		%CensoredMessage=$0
+		while(%Badwordlist[%idx] != "")
+		{
+			if($str.containsnocase("%CensoredMessage","%Badwordlist[%idx]"))
+			{
+				%part2censor=$str.mid(%Badwordlist[%idx],1,$($str.len(%Badwordlist[%idx])-2))
+				%censoredWord=$str.replace(%Badwordlist[%idx],"\[\*\*\*\*\]",%part2censor)
+				%CensoredMessage=$str.replace(%CensoredMessage,%censoredWord,%Badwordlist[%idx])
+			}
+			%idx++
+		}
+		say %CensoredMessage
+		halt
+		}
+		%MyCensorIsOn=1
+		thecensor_saveconfig
+	}
+	if(%CensorCheckBox->$isChecked())
+	{
+		event(OnTextInput,thecensor_checkme){}
+		%MyCensorIsOn=0
+
+		thecensor_saveconfig
+	}
+}
+
+%CensorWidget->$show()
+}
+
+
+alias(thecensor_loadconfig)
+{
+	#-TheCensor
+	# Load all configurations
+	%c = $config.open("thecensor.kvc","r");
+	%Badwordlist[] = $split(",",$config.read(%c,"WordList"))
+	%CensoredChannels[] =$split(",",$config.read(%c,"ChannelsList"))
+	%TheCensorIsOn=$config.read(%c,"TheCensorIsOn",0)
+	%MyCensorIsOn=$config.read(%c,"MyCensorIsOn",0)
+	config.close %c
+	
+	# Make the badwords list
+	# this is a trick, i use a dictionary with  key = value to have not to 
+	# check if a badword is in my list or not when i delete or add it.
+	for(%bw=0;%bw < %Badwordlist[]#;%bw++){
+		%Elencobadword{%Badwordlist[%bw]} = %Badwordlist[%bw]
+	}
+	
+	# Make the channel list
+	for(%bc=0;%bc < %CensoredChannels[]#;%bc++){
+		%Elencochannels{%CensoredChannels[%bc]} = %CensoredChannels[%bc]
+	}
+	
+	# End.
+}
+
+
+alias(thecensor_saveconfig)
+{
+	#-TheCensor
+	# Save all configuration
+	%c = $config.open("thecensor.kvc","w");
+	config.write %c "WordList" %Elencobadword{}
+	config.write %c "ChannelsList" %Elencochannels{}
+	config.write %c "TheCensorIsOn" %TheCensorIsOn
+	config.write %c "MyCensorIsOn" %MyCensorIsOn
+	config.close %c
+	
+	# Now i have to reload all configuration
+	thecensor_loadconfig
+	
+	# End.
+}
+
+# create the actions so the user can access our functions via GUI
+action.create -w=cqd (thecensor_action,$tr("TheCensorConfig","thecensor"),$tr("Configura TheCensor","TheCensor"),109,109)
+{
+	thecensor_gui
+}
+
+# create and display our toolbar (we could even avoid that since the user
+# can simply drag the actions anywhere he wants), but let's really avoid relying on user's interaction
+# and do everything by ourselves.
+toolbar.create thecensor_toolbar $tr("TheCensor")
+toolbar.additem thecensor_toolbar thecensor_action
+toolbar.show thecensor_toolbar
+
+# Done: the addon is installed and running: enjoy :)
+# Grifisx 19.11.2005

@@ -1,0 +1,784 @@
+# A little Quiz bot
+# Written by Szymon Stefanek and HelLViS69 (2005)
+
+# register the script: this must be the first instruction executed
+# since it will abort with an error when a greater version is already installed
+addon.register("quiz","1.0.0",$tr("Quiz Bot","quiz"),$tr("Implements a simple Quiz Bot","quit"),"3.2.0.99",quiz_32.png)
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+
+	objects.killclass -q quiz_init_game_dialog
+	objects.killclass -q quiz_controller
+	objects.killclass -q quiz_game
+	%Quiz_controller = ""
+
+	action.destroy quiz_control
+
+	alias(quiz_initialize){}
+	alias(quiz_start){}
+	alias(quiz_stop){}
+	alias(quiz_control){}
+
+	toolbar.destroy -q quiz
+
+	# This is an automatically generated alias that will erase the installed files
+	quiz_uninstallfiles
+	
+}
+
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+# copy files in each subdirectory
+# the configs
+%installer->$copyFiles("%mypath/configs/","*.kvc",$file.localdir("config/scripts/quiz/data"))
+# the pics
+%installer->$copyFiles("%mypath/pics/","*.png",$file.localdir("pics"))
+# the translations
+#%installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
+# the documentation
+#%installer->$copyFiles("%mypath/help/en/chanops/","*.html",$file.localdir("help/en/chanops"))
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("quiz_uninstallfiles")
+# finally kill the installer helper
+delete %installer
+
+
+alias(quiz_initialize)
+{
+	if(%Quiz_controller)return
+	
+	class(quiz_init_game_dialog,dialog)
+	{
+		constructor($0 = windowId)
+		{
+			@%m_hWindow = $0
+	
+			@$setCaption($tr("Create a quiz for "$chan.name($0)"...","quiz"))
+	
+			%l = $new(layout,$this)
+			%l->$setMargin(5)
+			%l->$setSpacing(4)
+			
+			%lab = $new(label,$this)
+			%lab->$setText($tr("Language"),"quiz")
+			%l->$addWidget(%lab,0,0)
+			
+			@%m_hLangCombo = $new(combobox,$this)
+			@%m_hLangCombo->$setEditable(0)
+			%l->$addMultiCellWidget(@%m_hLangCombo,0,0,1,4)
+	
+			%lab = $new(label,$this)
+			%lab->$setText($tr("First suggestion timeout","quiz"))
+			%l->$addWidget(%lab,1,0)
+	
+			@%m_hFirstDelay = $new(spinbox,$this)
+			@%m_hFirstDelay->$setMinValue(5000)
+			@%m_hFirstDelay->$setMaxValue(360000)
+			@%m_hFirstDelay->$setValue(35000)
+			@%m_hFirstDelay->$setSuffix($tr(" msecs.","quiz"))
+			%l->$addMultiCellWidget(@%m_hFirstDelay,1,1,1,4)
+	
+			%lab = $new(label,$this)
+			%lab->$setText($tr("Next suggestions timeout","quiz"))
+			%l->$addWidget(%lab,2,0)
+	
+			@%m_hNextDelays = $new(spinbox,$this)
+			@%m_hNextDelays->$setMinValue(5000)
+			@%m_hNextDelays->$setMaxValue(360000)
+			@%m_hNextDelays->$setValue(25000)
+			@%m_hNextDelays->$setSuffix($tr(" msecs.","quiz"))
+			%l->$addMultiCellWidget(@%m_hNextDelays,2,2,1,4)
+	
+			%lab = $new(label,$this)
+			%lab->$setText($tr("Delay between questions","quiz"))
+			%l->$addWidget(%lab,3,0)
+	
+			@%m_hQuestionDelay = $new(spinbox,$this)
+			@%m_hQuestionDelay->$setMinValue(500)
+			@%m_hQuestionDelay->$setMaxValue(60000)
+			@%m_hQuestionDelay->$setValue(4000)
+			@%m_hQuestionDelay->$setSuffix($tr(" msecs.","quiz"))
+			%l->$addMultiCellWidget(@%m_hQuestionDelay,3,3,1,4)
+	
+			%lab = $new(label,$this)
+			%lab->$setText($tr("Number of questions","quiz"))
+			%l->$addWidget(%lab,4,0)
+	
+			@%m_hNumberOfQuestions = $new(spinbox,$this)
+			@%m_hNumberOfQuestions->$setMinValue(2)
+			@%m_hNumberOfQuestions->$setMaxValue(100)
+			@%m_hNumberOfQuestions->$setValue(15)
+			%l->$addMultiCellWidget(@%m_hNumberOfQuestions,4,4,1,4)
+	
+			%b = $new(button,$this)
+			%b->$setText($tr("Start Game"),"quiz");
+			%l->$addWidget(%b,5,4)
+			objects.connect %b "clicked" $this "okClicked"
+	
+			%b = $new(button,$this)
+			%b->$setText($tr("Cancel"),"quiz");
+			%l->$addWidget(%b,5,3)
+			objects.connect %b "clicked" $this "cancelClicked"
+			
+			$this->$fillLanguageList()
+		}
+	
+		fillLanguageList()
+		{
+			@%m_hLangCombo->$clear()
+			%configs[] = $file.ls($file.localdir("config/scripts/quiz/data/"),"fr","quiz_*.kvc")
+			foreach(%c,%configs[])
+			{
+				%a = $str.rightfromlast(%c,"_")
+				%b = $str.lefttofirst(%a,".")
+				if("%b" != "")
+					@%m_hLangCombo->$insertItem("%b")
+			}
+		}
+	
+		okClicked()
+		{
+			%lang = @%m_hLangCombo->$current()
+			%fird = @%m_hFirstDelay->$value()
+			%nexd = @%m_hNextDelays->$value()
+			%qued = @%m_hQuestionDelay->$value()
+			%numq = @%m_hNumberOfQuestions->$value()
+			%Quiz_controller->$startGame(@%m_hWindow,%lang,%fird,%nexd,%qued,%numq)
+			delete $this
+		}
+		
+		cancelClicked()
+		{
+			delete $this
+		}
+	}
+	
+	class(quiz_stats,dialog){
+		constructor($0 = puntatore){
+			@%m_hGame = $0;
+	
+			$$->$setCaption($tr("Game statistics","quiz"))
+	
+			%l = $new(layout,$$)
+			%l->$setMargin(5)
+			%l->$setSpacing(4)
+	
+			%ml = $new(multilineedit,$$)
+			%ml->$setReadOnly(1)
+			%ml->$clear()
+			%ml->$append(@%m_hGame->$loadStats())
+			%l->$addwidget(%ml,0,0)
+	
+			%b = $new(button,$$)
+			%b->$setText("OK")
+			%l->$addwidget(%b,1,0)
+			objects.connect %b "clicked" $$ "okClicked"
+	
+			$$->$show()
+		}
+	
+		okClicked(){
+			delete $$
+		}
+	}
+	
+	class(quiz_controller,object)
+	{
+		# %m_aGames{} = per channel game hash
+	
+		constructor()
+		{
+			srand $unixtime
+			%Quiz_controller = $$
+		}
+	
+		destructor()
+		{
+			@$stopAllGames()
+			%Quiz_controller = ""
+		}
+	
+		configureGameDialog($0 = window)
+		{
+			if(!@%m_aGames{$0})return
+			# This function must show a dialog that shows some stats and allows stopping the current game
+			%stat = $new(quiz_stats,0,"",@%m_aGames{$0});
+		}
+		
+		initGameDialog($0 = window)
+		{
+			if(@%m_aGames{$0})return
+			# This function must show a dialog that allows starting a new game
+			# After selecting the language, the allowed categories, the number of questions, the timeouts, etc...
+			%d = $new(quiz_init_game_dialog,0,"",$0)
+			%d->$show()
+		}
+	
+		handleControlRequest($0 = window)
+		{
+			if(@%m_aGames{$0})
+				$$->$configureGameDialog($0)
+			else
+				$$->$initGameDialog($0)
+		}
+	
+		installEventHandler()
+		{
+			event(OnChannelMessage,quiz_controller)
+			{
+				if(%Quiz_controller)
+				{
+					%ret = %Quiz_controller->$handleChannelMessage($window,$0,$1,$2,$3,0);
+					if(%ret == 2)halt
+				}
+			}
+	
+			event(OnTextInput,quiz_controller)
+			{
+				if($window.type($window) == "channel")
+				{
+					if(%Quiz_controller)
+					{
+						%ret = %Quiz_controller->$handleChannelMessage($window,$my.nick,$my.user,$my.host,$0,1);
+						if(%ret == 2)halt
+					}
+				}
+			}
+		}
+	
+		uninstallEventHandler()
+		{
+			event(OnChannelMessage,quiz_controller){}
+			event(OnTextInput,quiz_controller){}
+		}
+	
+		handleChannelMessage($0 = windowId,$1 = nick,$2 = user,$3 = host,$4 = message,$5 = 1 if local)
+		{
+			if(@%m_aGames{$0})
+			{
+				return @%m_aGames{$0}->$handleChannelMessage($1,$2,$3,$4,$5)
+			}
+			return 0;
+		}
+	
+		startGame($0 = windowId,$1 = language,$2 = firstSuggestionDelay,$3 = nextSuggestionsDelay,$4 = delayBetweenQuestions,$5 = numberOfQuestions)
+		{
+			if(@%m_aGames{$0})
+			{
+				echo "There is already a quiz game running in this window"
+				return 0
+			}
+		
+			if($window.type($0) != "channel")
+			{
+				echo "The specified window is not a channel!"
+				return 0
+			}
+		
+			%tmp = $new(quiz_game,$$)
+			if(%tmp->$start($0,$1,$2,$3,$4,$5))
+			{
+				@%m_aGames{$0} = %tmp
+			} else {
+				echo "The game failed to start"
+				delete %tmp;
+				return 0
+			}
+		
+			if(@%m_aGames{}# == 1)@$installEventHandler()
+		
+			return 1;
+		}
+	
+		stopGame($0 = windowId)
+		{
+			if(!@%m_aGames{$0})
+			{
+				echo "There is no quiz game in the specified window"
+				return 0
+			}
+			delete @%m_aGames{$0}
+			return 1;
+		}
+	
+		stopAllGames()
+		{
+			if(@%m_aGames{}#)
+			{
+				foreach(%x,@%m_aGames{}@)
+				{
+					@$stopGame(%x)
+				}
+			}
+		}
+	
+		gameDead($0 = gameId)
+		{
+			@%m_aGames{$0} = ""
+			if(@%m_aGames{}# < 1)@$uninstallEventHandler()
+		}
+	}
+	
+	class(quiz_game,object)
+	{
+		# %m_iFirstSuggestionDelay = the delay for the first suggestion
+		# %m_iNextSuggestionsDelay = the delay for the next suggestions
+		# %m_iDelayBetweenQuestions = the delay between questions
+		# %m_iNumberOfQuestions = number of questions to ask
+	
+		# %m_bRunning
+		# %m_hWindow = window id
+		# %m_iQuestionTimerId = timer running while got a question
+		# %m_iDelayTimerId = timer running while waiting for a question to be started
+	
+		# %m_szQuestion = the current question
+		# %m_szCategory = the current question category
+		# %m_szAnswer = the current answer
+		# %m_szMaskedAnswer = the currenta answer in form __________
+		# %m_iDifficulty = the current answer difficulty
+		# %m_iSuggestions = the current answer suggestions given
+		# %m_iMaxSuggestions = maximum suggestions available
+		# %m_tQuestionStartTime = last question start time
+		# %m_iLetterCount = number of letters in the answer
+		# %m_iQuestionNumber = the number of the question , progressive
+		# %m_aPoints{} = per-nick hash of points
+	
+		constructor()
+		{
+			@%m_bRunning = 0
+			@%m_hWindow = 0
+			@%m_iQuestionTimerId = 0
+			@%m_iDelayTimerId = 0
+			@%m_iQuestionNumber = 0
+		}
+	
+		destructor()
+		{
+			if(@%m_bRunning)@$stop()
+			@$parent()->$gameDead(@%m_hWindow)
+		}
+	
+		start($0 = windowId,$1 = language,$2 = firstSuggestionDelay,$3 = nextSuggestionsDelay,$4 = delayBetweenQuestions,$5 = numberOfQuestions)
+		{
+			if(@%m_bRunning)
+			{
+				echo "BUG: this quiz_controller is already running";
+				return 0
+			}
+	
+			if($window.type($0) != "channel")
+			{
+				echo "BUG: The window $0 is not a channel"
+				return 0
+			}
+	
+			@%m_szLanguage = $1
+			if(@%m_szLanguage == "")@%m_szLanguage = "en"
+	
+			@%m_iFirstSuggestionDelay = $2
+			if(!$str.isNumber(@%m_iFirstSuggestionDelay))
+				@%m_iFirstSuggestionDelay = 35000
+			if(@%m_iFirstSuggestionDelay < 5000)
+				@%m_iFirstSuggestionDelay = 5000
+			@%m_iNextSuggestionsDelay = $3
+			if(!$str.isNumber(@%m_iNextSuggestionsDelay))
+				@%m_iNextSuggestionsDelay = 25000
+			if(@%m_iNextSuggestionsDelay < 5000)
+				@%m_iNextSuggestionsDelay = 5000
+			@%m_iDelayBetweenQuestions = $4
+			if(!$str.isNumber(@%m_iDelayBetweenQuestions))
+				@%m_iDelayBetweenQuestions = 4000
+			if(@%m_iDelayBetweenQuestions < 500)
+				@%m_iDelayBetweenQuestions = 500
+			@%m_iNumberOfQuestions = $5
+			if(!$str.isNumber(@%m_iNumberOfQuestions))
+				@%m_iNumberOfQuestions = 10
+			if(@%m_iNumberOfQuestions < 2)
+				@%m_iNumberOfQuestions = 2
+	
+			@%m_hWindow = $0
+			@%m_iQuestionNumber = 0
+			@%m_bRunning = 1
+		
+			@$loadStats()
+		
+			@%m_iDelayTimerId = @$startTimer(@%m_iDelayBetweenQuestions)
+	
+			return 1
+		}
+	
+		stop()
+		{
+			@%m_bRunning = 0
+			@$saveStats()
+		}
+	
+		buildNextQuestion()
+		{
+			%c = $config.open($file.localdir("config/scripts/quiz/data/quiz_@%m_szLanguage\.kvc"),"r")
+			%categorie[] = $config.sectionlist(%c);
+			@%m_szCategory = %categorie[$rand(%categorie[]#)]
+			config.setsection %c @%m_szCategory
+			%n = $config.read(%c,"Count","0")
+	
+			if(%n < 1)
+			{
+				@%m_szQuestion = "Why I have no questions available ?"
+				@%m_szCategory = "none"
+				@%m_szAnswer = "I don't know"
+				@%m_iDifficulty = 10
+			}
+	
+			%r = $rand($(%n-1))
+		
+			@%m_szQuestion = $config.read(%c,"n%r\Q","Invalid question")
+			@%m_szAnswer = $config.read(%c,"n%r\A","Invalid answer")
+			@%m_iDifficulty = $config.read(%c,"n%r\D","10")
+			if(!$str.isnumber(@%m_iDifficulty))
+				@%m_iDifficulty = 1
+		
+			if(@%m_iDifficulty < 1)@%m_iDifficulty = 1
+		
+			config.close %c
+		
+			@%m_szMaskedAnswer = ""
+			@%m_iSuggestions = 0
+			@%m_tQuestionStartTime = $unixtime
+	
+			#%contatore=1
+			#while($str.contains(@%m_szAnswer,"  "))
+			#{
+			#	echo Ciclo %contatore
+			#	@%m_szAnswer = $str.replace(@%m_szAnswer," ","  ")
+			#	if(%contatore >= 50){
+			#		echo "Sono in loop"
+			#		break
+			#	}
+			#	%contatore++
+			#}
+			# The code below does the same by using the fantastic perl-like regexp replace operator
+			@%m_szAnswer =~ s/"[ ][ ]*"/" "/g
+		
+			@%m_szMaskedAnswer = @%m_szAnswer
+			@%m_szMaskedAnswer =~ s/[a-zA-Z0-9]/-/g
+		
+			%tmp = $str.replace(@%m_szAnswer,""," ")
+			@%m_iLetterCount = $str.len(%tmp)
+			@%m_iMaxSuggestions = $(@%m_iLetterCount - 1)
+			@%m_iQuestionNumber++
+		}
+	
+		gameTerminated()
+		{
+			say -r=@%m_hWindow "[Quiz] Game Terminated!"
+			@$stats()
+			delete $$
+		}
+	
+		triggerTimerForNextQuestion()
+		{
+			if(@%m_iQuestionNumber == $(@%m_iNumberOfQuestion - 1))
+				@$gameTerminated()
+			else
+				@%m_iDelayTimerId = @$startTimer(@%m_iDelayBetweenQuestions)
+		}
+	
+		nextQuestion()
+		{
+			@$buildNextQuestion()
+			@$sayQuestion()
+			@$killAllTimers()
+			if(@%m_iSuggestions == 0)
+				@%m_iQuestionTimerId = @$startTimer(@%m_iFirstSuggestionDelay)
+			else
+				@%m_iQuestionTimerId = @$startTimer(@%m_iNextSuggestionsDelay)
+		}
+	
+		timerEvent($0 = timerId)
+		{
+			if($window.type(@%m_hWindow) != "channel")
+			{
+				echo "The window $0 either doesn't exist anymore or is not a channel"
+				delete $$;
+				return;
+			}
+	
+			if(@%m_iQuestionTimerId == $0)
+			{
+				@$killAllTimers()
+				@$noAnswer()
+			} else if(@%m_iDelayTimerId == $0)
+			{
+				@$killAllTimers()
+				@$nextQuestion()
+			}
+		}
+	
+		noAnswer()
+		{
+			# add a letter
+	
+			@%m_iSuggestions++;
+			if(@%m_iSuggestions >= @%m_iMaxSuggestions)
+			{
+				say -r=@%m_hWindow "[Quiz] Bad Luck for everyone: no answer was given"
+				say -r=@%m_hWindow "[Quiz] Try with the next question :)"
+				@$killAllTimers()
+				@$triggerTimerForNextQuestion()
+				return
+			}
+	
+			%ok = 0
+			while(!%ok)
+			{
+				%r = $rand($($str.len(@%m_szAnswer)-1))
+				if($str.mid("@%m_szMaskedAnswer",%r,1) == "-")
+				{
+					%left = $str.left("@%m_szMaskedAnswer",%r)
+					%right = $str.right("@%m_szMaskedAnswer",$($str.len("@%m_szMaskedAnswer") - (%r + 1)))
+					@%m_szMaskedAnswer = %left
+					@%m_szMaskedAnswer .= $str.mid("@%m_szAnswer",%r,1)
+					@%m_szMaskedAnswer .= %right
+					%ok = 1
+				}
+			}
+	
+			@$calcPoints()
+	
+			say -r=@%m_hWindow "[Quiz] Suggestion $b@%m_iSuggestions$b (of max @%m_iMaxSuggestions), Max Points drop to: $b@%m_iCurPoints$b"
+			say -r=@%m_hWindow "[Quiz] Answer: $b@%m_szMaskedAnswer$b (@%m_iLetterCount letters)"
+			@%m_iQuestionTimerId = @$startTimer(@%m_iNextSuggestionsDelay)
+		}
+	
+		calcPoints()
+		{
+			@%m_iCurSecs = $($unixtime - @%m_tQuestionStartTime)
+			@%m_iCurPoints = $((@%m_iDifficulty * 200) / (@%m_iSuggestions + 1));
+			@%m_iCurPoints -= @%m_iCurSecs;
+			if(@%m_iCurPoints < 1)@%m_iCurPoints = 1
+		}
+	
+		killAllTimers()
+		{
+			@$killTimers()
+			@%m_iDelayTimerId = -1
+			@%m_iQuestionTimerId = -1
+		}
+	
+		loadStats()
+		{
+			# clear actual stats
+			@%m_aPoints{} = ""
+	
+			%stats_file=$file.localdir(config/scripts/quiz/quiz_statistics.kvc)
+			if($file.exists(%stats_file)){
+	
+				%c = $config.open(%stats_file,"r")
+				config.setsection %c "$chan.name(@%m_hWindow)_$my.network"
+	
+				for(%i = 0;%i < 10;%i++)
+				{
+					%who = $config.read(%c,"n%i\Nick","")
+					%pnt = $config.read(%c,"n%i\Pnts",0)
+			
+					if($str.isnumber(%pnt))
+					{
+						if((%who != "") && (%pnt > 0))
+						{
+							@%m_aPoints{%who} = %pnt
+						}
+					}
+				}
+			
+				config.close %c
+			}
+		}
+	
+		saveStats()
+		{
+			if(@%m_aPoints{}# < 1)return
+			%l = @$getSortedStats()
+		
+			%c = $config.open($file.localdir(config/scripts/quiz/quiz_statistics.kvc),"rw")
+			config.setsection %c "$chan.name(@%m_hWindow)_$my.network"
+	
+			%z = %l->$last()
+			%i = 0
+			while(%l->$canIterate() && (%i < 10))
+			{
+				%a[] = $split(":",%z)
+	
+				config.write %c "n%i\Nick" %a[2]
+				config.write %c "n%i\Pnts" %a[1]
+	
+				%z = %l->prev()
+				%i++
+			}
+		
+			delete %l
+	
+			config.close %c
+		}
+	
+		getSortedStats()
+		{
+			foreach(%x,@%m_aPoints{$0})
+			{
+				if(%x > %max)%max = %x
+			}
+		
+			%l = $new(list)
+	
+			foreach(%x,@%m_aPoints{$0}@)
+			{
+				%z = @%m_aPoints{%x}
+				while($str.len(%z) < $str.len(%max))
+					%z = "0%z"
+				%l->$append("%z:@%m_aPoints{%x}:%x")
+			}
+		
+			%l->$sort()
+		
+			return %l
+		}
+	
+		stats()
+		{
+			say -r=@%m_hWindow "[Quiz] Statistics"
+		
+			%max = 0
+		
+			if(@%m_aPoints{}# < 1)
+			{
+				say -r=@%m_hWindow "[Quiz] Statistics not available yet"
+				return
+			}
+		
+			%l = @$getSortedStats()
+	
+			%z = %l->$last();
+			%i = 0
+			while(%l->$canIterate() && (%i < 10))
+			{
+				%a[] = $split(":",%z)
+			
+				say -r=@%m_hWindow "[Quiz] $(%i+1) $b%a[2]$b %a[1]"
+			
+				%z = %l->$prev()
+				%i++
+			}
+	
+			delete %l
+		}
+	
+		handleChannelMessage($0 = nick,$1 = user,$2 = host,$3 = message,$4 = 1 if local)
+		{
+			if($3 == @%m_szAnswer)
+			{
+				if(@%m_szGot == 1){
+					halt
+				}
+	
+				# Yeah , $0 got it!
+				@%m_szGot = 1
+				@$calcPoints()
+			
+				if($4)say -r=@%m_hWindow $3
+				else echoprivmsg $0 $1 $2 $3
+	
+				say -r=@%m_hWindow "[Quiz] $b\Great $0!$b You've got it after $b@%m_iCurSecs seconds$b for $b@%m_iCurPoints points$b!"
+				say -r=@%m_hWindow "[Quiz] >> The answer was $b@%m_szAnswer$b"
+			
+				if(!@%m_aPoints{$0})@%m_aPoints{$0} = 0;
+				@%m_aPoints{$0} += @%m_iCurPoints;
+			
+				@$killAllTimers()
+				@$triggerTimerForNextQuestion()
+				@%m_szGot = 0
+				return 2
+			}
+		
+			if($3 == "!stop")
+			{
+				if($hostname($0) != $my.host)
+				{
+					halt
+				}
+				if($4)say -r=@%m_hWindow $3
+				else echoprivmsg $0 $1 $2 $3
+				say -r=@%m_hWindow "[Quiz] Stopping game on request"
+				delete $$
+				return 2
+			}
+		
+			if($3 == "!stats")
+			{
+				if($hostname($0) != $my.host){
+					halt
+				}
+				if($4)say -r=@%m_hWindow $3
+				else echoprivmsg $0 $1 $2 $3
+				@$stats()
+				return 2
+			}
+		
+			return 1
+		}
+	
+		sayQuestion()
+		{
+			@$calcPoints()
+			say -r=@%m_hWindow "[Quiz] Question @%m_iQuestionNumber (of @%m_iNumberOfQuestions), Category: $b@%m_szCategory$b, Max Points: $b@%m_iCurPoints$b"
+			say -r=@%m_hWindow "[Quiz] $k(4,1)@%m_szQuestion"
+			say -r=@%m_hWindow "[Quiz] Answer: $b@%m_szMaskedAnswer$b (@%m_iLetterCount letters)"
+		}
+	}
+	
+	%Quiz_controller = $new(quiz_controller)
+}
+
+
+alias(quiz_start)
+{
+	quiz_initialize
+	%Quiz_controller->$startGame($window)
+}
+
+
+alias(quiz_stop)
+{
+	if(%Quiz_controller)
+		%Quiz_controller->$stopGame($window)
+}
+
+
+alias(quiz_control)
+{
+	quiz_initialize
+	if(%Quiz_controller)%Quiz_controller->$handleControlRequest($window)
+}
+
+
+
+action.create -i -c -w=c -t=channel (quiz_control,$tr("Control Quiz Bot","quiz"),$tr("Controls the Quiz Bot on the current channel","quiz"),quiz_32.png,quiz_16.png)
+{
+	quiz_control
+}
+
+
+# So we can use them in a toolbar :)
+toolbar.create quiz $tr("Quiz Bot","quiz") "quiz_16.png"
+toolbar.additem quiz quiz_control
+toolbar.show quiz
+
+

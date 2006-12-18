@@ -1,0 +1,44 @@
+# TWINSINPUTCOLOR ADDON INSTALLATION FILE
+# =======================================
+# Author: Ahinu (ahinu.laman@gmail.com)
+
+addon.register("twinsinputcolor","1.2",$tr("The Twins Input Text Coloriser",twinsinputcolor),\
+	$tr("Colorizes your text in channel, queries and DCC chats.",twinsinputcolor),\
+	"3.2.4","twins/32x32/twins_inputcolor_32.png")
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+
+	# call the uninstaller-function
+	twins::inputcolor::core::uninstall
+
+	# Done
+}
+addon.setconfigurecallback(twinsinputcolor) {
+	twins::inputcolor::configure
+}
+
+# Get the path that this script was launched from
+//%mypath = $file.extractPath($0)
+%mypath = $str.lefttolast($0,/)
+
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+
+# copy files in each subdirectory
+# the pics
+%installer->$copyFiles("%mypath/pics/twins/32x32/","twins_*.png",$file.localdir("pics/twins/32x32"))
+# langage
+%installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
+# sources
+%installer->$includeFiles("%mypath/src/","*.kvs")
+
+
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("twins::inputcolor::core::uninstall")
+
+# finally kill the installer helper
+delete %installer

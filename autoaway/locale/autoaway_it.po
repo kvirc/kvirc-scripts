@@ -1,0 +1,104 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-04-16 05:15+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../install.kvs:4
+msgid "Automatic Away"
+msgstr ""
+
+#: ../install.kvs:4
+msgid "Automatically enters away state after a period of inactivity"
+msgstr ""
+
+#: ../install.kvs:62
+msgid "felt asleep over the keyboard..."
+msgstr ""
+
+#: ../install.kvs:65
+#, c-format
+msgid ""
+"felt asleep over the keyboard after \\%AutoAwayTime minutes of inactivity..."
+msgstr ""
+
+#: ../install.kvs:113
+msgid "Automatic Away Configuration"
+msgstr ""
+
+#: ../install.kvs:121
+msgid "Enable Automatic Away"
+msgstr ""
+
+#: ../install.kvs:125
+#, c-format
+msgid ""
+"The Away Reason text will be used as parameter of the /AWAY command. It can "
+"contain color codes, identifiers and variables.<br>Hints: \\$k(fg,bg), \\$b, "
+"\\%AutoAwayTime"
+msgstr ""
+
+#: ../install.kvs:128
+msgid "Reason"
+msgstr ""
+
+#: ../install.kvs:140
+msgid ""
+"This is the aproximate timeout after that KVIrc will automatically set away "
+"mode"
+msgstr ""
+
+#: ../install.kvs:142
+msgid "Inactivity Timeout"
+msgstr ""
+
+#: ../install.kvs:151
+msgid "minutes"
+msgstr ""
+
+#: ../install.kvs:158
+msgid ""
+"While setting away mode, the addon can also execute a /me command on all the "
+"channels and queries you are on.<br>Please be aware that away actions are "
+"often looked sospiciously by operators..."
+msgstr ""
+
+#: ../install.kvs:159
+msgid "Use Away Message"
+msgstr ""
+
+#: ../install.kvs:175
+msgid "Cancel"
+msgstr ""
+
+#: ../install.kvs:182
+msgid "OK"
+msgstr ""
+
+#: ../install.kvs:262 ../install.kvs:268
+msgid "Autoaway must be started in a connected IRC context"
+msgstr ""
+
+#: ../install.kvs:294
+msgid "Entering AutoAway after"
+msgstr ""
+
+#: ../install.kvs:294
+msgid "minutes of IRC context inactivity"
+msgstr ""
+
+#: ../install.kvs:310
+msgid "Autoaway can be running only in an IRC context"
+msgstr ""

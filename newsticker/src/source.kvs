@@ -1,0 +1,134 @@
+class(newsticker::source)
+{
+	// @%m_szName (the name of this source)
+	// @%m_szUrl (the url of for this source object)
+	// @%m_tLastFetched (timestamp of last fetch of this uri)
+	// @%m_eState (state enumeration: "Idle" or "Fetching")
+	// @%m_hController (handle to the controller)
+	constructor()
+	{
+		@%m_szName = ""
+		@%m_szUrl = ""
+		@%m_bNotify = $false
+		@%m_tLastFetched = 0
+		@%m_tLastNotification = "0001/01/01 00:00"
+		@%m_eState = "Idle"
+	}
+
+	setController($0 = hController)
+	{
+		@%m_hController = $0
+	}
+
+	name()
+	{
+		return @%m_szName
+	}
+	
+	setName($0 = name)
+	{
+		@%m_szName = $0
+	}
+	
+	url()
+	{
+		return @%m_szUrl
+	}
+	
+	setUrl($0 = url)
+	{
+		@%m_szUrl = $0
+	}
+
+	notify()
+	{
+		return @%m_bNotify
+	}
+
+	setNotify($0 = notify?)
+	{
+		@%m_bNotify = $0
+	}
+
+	lastNotification()
+	{
+		return @%m_tLastNotification
+	}
+
+	setLastNotification($0 = time)
+	{
+		@%m_tLastNotification = $0
+	}
+	
+	lastFetched()
+	{
+		return @%m_tLastFetched
+	}
+
+	isIdle()
+	{
+		return $(@%m_eState == "Idle")
+	}
+	
+	isFetching()
+	{
+		return $(@%m_eState == "Fetching")
+	}
+	
+	state()
+	{
+		return @%m_eState
+	}
+
+	fetch()
+	{
+		#debug "Fetching from url" @%m_szUrl
+		@%m_eState = "Fetching"
+		http.asyncget --winctrl="h" --quiet --no-output --clear --auto-file-name --identifier=$this (@%m_szUrl)
+		{
+			# debug "Get completed: $0 $1 $2 $3"
+			// $0 = status
+			// $1 = remote url
+			// $2 = local file
+			// $3 = magic identifier
+			
+			if($objects.exists($3))
+			{
+				// the newsticker controller still exists
+				$3->$fetchTerminated($0,$1,$2)
+			} else {
+				# This can happen when editing the configuration
+				# Just ignore: will refetch soon anyway.
+				
+				# debug "Opss.. the master object of this get is dead ?"
+			}
+		}
+	}
+	
+	fetchTerminated($0 = status,$1 = remote uri,$2 = local file)
+	{
+		# debug "Fetch terminated"
+		@%m_eState = "Idle"
+		@%m_tLastFetched = $unixtime
+		if($0)
+		{
+			// fetch succesfull
+			// parse it
+			%r = $new(newsticker::rss::reader)
+			%l = @%m_hController->$newsList()
+			# debug "FETCH TERMINATED: REMOVING BY SOURCE"
+			%hUnread = %l->$removeBySource(@%m_szName)
+			# debug "RUNNING PARSER"
+			if(%r->$run($file.read($2),%l,@%m_szName,%hUnread,@%m_bNotify,@%m_tLastNotification,$false))
+			{
+				# debug "Document parsed"
+				$this->$emit("newDataAvailable",$this)
+				if($newsticker::core::configuration()->$removeFeedFiles())
+					file.remove -q $2
+			}
+			// otherwise leave the file in place, so we can analyze it :D
+			delete %r
+		}
+	}
+}
+

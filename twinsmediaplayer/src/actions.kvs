@@ -1,0 +1,5 @@
+action.create -t=tools ("twins::mediaplayer::show",$tr("Twins: Show Mediaplayer"),$tr("Show the mediaplayer of the Twins script"),"twins/32x32/twins_mediaplayer_32.png","twins/16x16/twins_mediaplayer_16.png")
+{
+	twins::mediaplayer::show
+}
+
