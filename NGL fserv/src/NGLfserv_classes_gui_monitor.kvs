@@ -1,0 +1,303 @@
+alias(NGLfserv::classes::gui::monitor)
+{
+	class(NGLfserv::classes::gui::monitor,widget)
+		{
+			constructor()
+			{
+				$$->$setGeometry(250,150,640,400)
+				$$->$setCaption(%NGLlogo" - Monitor")
+				$$->$setIcon(171)
+				%main_layout=$new(layout,$this)
+				%main_layout->$setspacing(5)
+				%main_layout->$setMargin(5)
+	
+				%gb=$new(NGLfserv::classes::customwidgets::groupbox,$$,gb,"Sends",5,20)
+				%gb->$setColumnLayout(1,Vertical)
+				$$->%listViewSends=$new(NGLfserv::classes::sendsAndQueueView,%gb)
+				%main_layout->$addWidget(%gb,0,0)
+	
+				%gb=$new(NGLfserv::classes::customwidgets::groupbox,$$,gb,"Queues",5,20,Vertical)
+				$$->%listViewQueues=$new(NGLfserv::classes::sendsAndQueueView,%gb)
+				%main_layout->$addWidget(%gb,1,0)
+	
+				%gb=$new(NGLfserv::classes::customwidgets::groupbox,$$,gb,"Sends controls",5,20,Vertical)
+				$$->%box_control_sends=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
+				$$->%btAbort=$$->%box_control_sends->$addWidget(button,"Abort")
+				$$->%btAbort->$setImage("cancel")
+				$$->%btReSend=$$->%box_control_sends->$addWidget(button,"Resend")
+				$$->%btReSend->$setImage("resend")
+				$$->%btMoveToQueue=$$->%box_control_sends->$addWidget(button,"Move to queue")
+				$$->%btMoveToQueue->$setImage("enqueue")
+				$$->%btAbort->$setEnabled($false)
+				$$->%btReSend->$setEnabled($false)
+				$$->%btMoveToQueue->$setEnabled($false)
+				$$->%btAddSend=$$->%box_control_sends->$addWidget(button,"Add")
+				$$->%btAddSend->$setImage(add)
+				%main_layout->$addWidget(%gb,0,1)
+	
+				%gb=$new(NGLfserv::classes::customwidgets::groupbox,$$,gb,"Queues controls",5,20,Vertical)
+				$$->%box_control_queues=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
+				%temp_hbox = $$->%box_control_queues->$addWidget(hbox)
+				%imgUp=%G_icons->$getIcon("up")
+				%imgDown=%G_icons->$getIcon("down")
+				$$->%btMoveUp = $new(button,%temp_hbox)
+				$$->%btMoveUp->$setMaximumWidth(75)
+				$$->%btMoveUp->$setText("Up")
+				$$->%btMoveUp->$setImage(%imgUp)
+				$$->%btMoveDown=$new(button,%temp_hbox)
+				$$->%btMoveDown->$setMaximumWidth(75)
+				$$->%btMoveDown->$setText("Down")
+				$$->%btMoveDown->$setImage(%imgDown)
+				$$->%btSend=$$->%box_control_queues->$addWidget(button,"Send now")
+				$$->%btSend->$setImage(send)
+				$$->%btRemove=$$->%box_control_queues->$addWidget(button,"Remove")
+				$$->%btRemove->$setImage(cancel)
+				$$->%btMoveUp->$setEnabled($false)
+				$$->%btMoveDown->$setEnabled($false)
+				$$->%btSend->$setEnabled($false)
+				$$->%btRemove->$setEnabled($false)
+				$$->%btAddQueue=$$->%box_control_queues->$addWidget(button,"Add")
+				$$->%btAddQueue->$setImage(add)
+	
+				%main_layout->$addWidget(%gb,1,1)
+	
+				//instructions=$new(NGLfserv::classes::customwidgets::output,$$,name,"Here you can keep an eye on sends and queues status")
+				//main_layout->$addMultiCellWidget(%instructions,2,2,0,1)
+				objects.connect $$->%listViewSends selectionChanged $$ sendsChange
+	
+				objects.connect $$->%listViewQueues selectionChanged $$ queuesChange
+				objects.connect $$->%btMoveUp clicked $$ moveQueueUp
+				objects.connect $$->%btMoveDown clicked $$ moveQueueDown
+				objects.connect $$->%btSend clicked $$ sendIt
+				objects.connect $$->%btRemove clicked $$ removeQueue
+				objects.connect $$->%btAbort clicked $$ abort
+				objects.connect $$->%btReSend clicked $$ resend
+				objects.connect $$->%btMoveToQueue clicked $$ moveToQueue
+				objects.connect $$->%btAddSend clicked $$ addSend
+				objects.connect $$->%btAddQueue clicked $$ addQueue
+			}
+			function abort()
+			{
+				%i=$($$->%listViewSends->$selectedItem()->$text(0)-1)
+				%id = %Send->$at(%i)->%dcc_id
+				%Send->$at(%i)->%retries=%MaxResends
+				if($dcc.isFileTransfer(%id)) dcc.abort %id
+				else {
+					NGLfserv::corefunctions::queues "t" %Send->$at(%i)->%ircContext %Send->$at(%i)->%nick %Send->$at(%i)->%file
+				}
+				$$->$showSends()
+			}
+			function resend()
+			{
+				if($$->%listViewSends->$selectedItem()->$text(3)=="Waiting")
+				{
+					%i=$($$->%listViewSends->$selectedItem()->$text(0)-1)
+					NGLfserv::corefunctions::dccstartsend $console %Send->$at(%i)->%nick %Send->$at(%i)->%completepath
+					%Send->$at(%i)->%initialNick = %Send->$at(%i)->%nick
+					$$->$showSends()
+				}
+			}
+			function moveToQueue()
+			{
+				%i=$($$->%listViewSends->$selectedItem()->$text(0)-1)
+				%nickName=%Send->$at(%i)->%nick
+				%Queues->$append(%Send->$at(%i))
+				%Send->$at(%i)->%retries=%MaxResends
+				dcc.abort %Send->$at(%i)->%dcc_id
+				if(!%Nick_nr_queues{%nickName})
+					%Nick_nr_queues{%nickName}=0
+				%Nick_nr_queues{%nickName}++
+			}
+			function moveQueueUp()
+			{
+				%j=$($$->%listViewQueues->$selectedItem()->$text(0)-1)
+				%i=$(%j-1)
+				%temp1=%Queues->$at(%i)
+				%temp2=%Queues->$at(%j)
+				%Queues->$remove(%i)
+				%Queues->$insert(%i,%temp2)
+				%Queues->$remove(%j)
+				%Queues->$insert(%j,%temp1)
+				$$->$showQueues()
+			}
+			function moveQueueDown()
+			{
+				%j=$($$->%listViewQueues->$selectedItem()->$text(0)-1)
+				%i=$(%j+1)
+				%temp1=%Queues->$at(%j)
+				%temp2=%Queues->$at(%i)
+				%Queues->$remove(%j)
+				%Queues->$insert(%j,%temp2)
+				%Queues->$remove(%i)
+				%Queues->$insert(%i,%temp1)
+				$$->$showQueues()
+			}
+			function sendIt()
+			{
+				%fileName=$$->%listViewQueues->$selectedItem()->$text(1)
+				%nickName=$$->%listViewQueues->$selectedItem()->$text(2)
+				for(%i=0;%i!=%Queues->$count();%i++)
+				{
+					if(%Queues->$at(%i)->%nick==%nickName && %Queues->$at(%i)->%file==%fileName)
+					{
+						%Send->$append(%Queues->$at(%i))
+						%Queues->$remove(%i)
+						%Nick_nr_queues{%nickName}--
+						%Send->$movelast()
+						NGLfserv::corefunctions::dccstartsend $console %Send->$at(%i)->%nick %Send->$at(%i)->%completepath
+						if(!%Nick_nr_sends{%nickName})
+							%Nick_nr_sends{%nickName}=0
+						%Nick_nr_sends{%nickName}++
+						if(%Send->$count() == 1) %DeadTransferHandler->$run()
+						break
+					}
+				}
+				$$->$showQueues()
+				$$->$showSends()
+			}
+			function removeQueue()
+			{
+				%fileName=$$->%listViewQueues->$selectedItem()->$text(1)
+				%nickName=$$->%listViewQueues->$selectedItem()->$text(2)
+				for(%i=0;%i!=%Queues->$count();%i++)
+				{
+					if(%Queues->$at(%i)->%nick==%nickName && %Queues->$at(%i)->%file==%fileName)
+					{
+						%Queues->$remove(%i)
+						%Nick_nr_queues{%nickName}--
+						break
+					}
+				}
+				$$->$showQueues()
+			}
+			function sendsChange()
+			{
+				if($$->%listViewSends->$selectedItem()==$null)
+				{
+					$$->$setSendsButtons($false)
+					return
+				}
+				$$->$setSendsButtons($true)
+				if($$->%listViewSends->$selectedItem()->$text(3)!="Waiting")
+					$$->%btReSend->$setEnabled($false)
+				//else
+				//$$->%btAbort->$setEnabled($false)
+			}
+			function queuesChange()
+			{
+				if($$->%listViewQueues->$selectedItem()==$null)
+				{
+					$$->$setQueuesButtons($false)
+					return
+				}
+				$$->%box_control_queues->$setEnabled($true)
+				%pos=$$->%listViewQueues->$selectedItem()->$text(0)
+				if(%pos!=1) $$->%btMoveUp->$setEnabled($true)
+				else $$->%btMoveUp->$setEnabled($false)
+				if(%pos<%Queues->$count()) $$->%btMoveDown->$setEnabled($true)
+				else $$->%btMoveDown->$setEnabled($false)
+				$$->%btSend->$setEnabled($true)
+				$$->%btRemove->$setEnabled($true)
+			}
+			function addSend() {
+				dialog.textinput("Nickname","Please enter user nickname","Ok","Cancel",,$$)	{
+					if($0==0) {
+						%nickName = $1
+						%context = $context(,%nickName)
+						if(%context) {
+							dialog.file(open,%NGLlogo,,,%nickName,%context,$2) {
+								if ($0) {
+									%fl_send = $new(object)
+									%fl_send->%completepath = $0
+									%fl_send->%size = $file.size(%fl_send->%completepath)
+									%fl_send->%file = $file.extractfilename(%fl_send->%completepath)
+									%fl_send->%retries = 0
+									%fl_send->%nick = $1
+									%fl_send->%initialNick = %fl_send->%nick
+									%fl_send->%nickStatus = "op"
+									%fl_send->%ircContext = $console($2)
+	
+									if($NGLfserv::corefunctions::dccStartSend(%fl_send->%ircContext, %fl_send->%nick, %fl_send->%completepath)) {
+										%Send->$append(%fl_send)
+										if(!%Nick_nr_sends{%fl_send->%nick}) %Nick_nr_sends{%fl_send->%nick}=0
+										%Nick_nr_sends{%fl_send->%nick}++
+										if(%Send->$count() == 1) %DeadTransferHandler->$run()
+										$3->$showSends()
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			function addQueue() {
+				dialog.textinput("Nickname","Please enter user nickname","Ok","Cancel",,$$)	{
+					if($0==0) {
+						%nickName = $1
+						%context = $context(,%nickName)
+						if(%context) {
+							dialog.file(open,%NGLlogo,,,%nickName,%context,$2) {
+								if ($0) {
+									%fl_send = $new(object)
+									%fl_send->%completepath = $0
+									%fl_send->%size = $file.size(%fl_send->%completepath)
+									%fl_send->%file = $file.extractfilename(%fl_send->%completepath)
+									%fl_send->%retries = 0
+									%fl_send->%nick = $1
+									%fl_send->%initialNick = %fl_send->%nick
+									%fl_send->%nickStatus = "op"
+									%fl_send->%ircContext = $console($2)
+	
+									%Queues->$append(%fl_send)
+									if(!%Nick_nr_queues{%fl_send->%nick}) %Nick_nr_queues{%fl_send->%nick}=0
+									%Nick_nr_queues{%fl_send->%nick}++
+									$3->$showQueues()
+								}
+							}
+						}
+					}
+				}
+			}
+			function showSends()
+			{
+				$$->%listViewSends->$showSends()
+				if(%Send->$count()<1) $$->%btAddQueue->$setEnabled($false)
+				else $$->%btAddQueue->$setEnabled($true)
+				$$->$setSendsButtons($false)
+			}
+			function showQueues()
+			{
+				$$->%listViewQueues->$showQueues()
+				$$->$setQueuesButtons($false)
+			}
+			function setSendsButtons(bool)
+			{
+				$$->%btAbort->$setEnabled($0)
+				$$->%btReSend->$setEnabled($0)
+				$$->%btMoveToQueue->$setEnabled($0)
+			}
+			function setQueuesButtons(bool)
+			{
+				$$->%btMoveUp->$setEnabled($0)
+				$$->%btMoveDown->$setEnabled($0)
+				$$->%btSend->$setEnabled($0)
+				$$->%btRemove->$setEnabled($0)
+			}
+			internal function showEvent()
+			{
+				$$->$showSends()
+				$$->$showQueues()
+				$$->$startTimer(5000)
+			}
+			internal function timerEvent()
+			{
+				$$->%listViewSends->$refreshSends()
+			}
+			internal function closeEvent()
+			{
+				$$->$killtimers()
+			}
+		}
+}
+
+

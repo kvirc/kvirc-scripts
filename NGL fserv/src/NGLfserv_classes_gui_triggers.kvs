@@ -1,0 +1,402 @@
+alias(NGLfserv::classes::gui::triggers)
+{
+	class(NGLfserv::classes::gui::triggers,widget)
+		{
+			function constructor()
+			{
+				// Define shortcut var for easily managing of custom widget
+	
+				// Main layout
+				%main_layout=$new(layout,$this)
+				%main=$new(NGLfserv::classes::customwidgets::box,$$,box,vertical)
+				%hbox=%main->$addWidget(hbox)
+				%hbox->$setSpacing(2)
+				%gb=$new(NGLfserv::classes::customwidgets::groupbox,%hbox,gb,"Triggers",5,20)
+				%gb->$setColumnLayout(1,Horizontal)
+	
+				// Triggers
+				$$->%listboxTriggers=$new(listbox,%gb)
+				$$->%lineEditTrigger=$new(lineedit,%gb)
+				%box_btn=$new(NGLfserv::classes::customwidgets::box,%gb,box,horizontal)
+				%box_btn->$setSpacing(1)
+				$$->%btAddTrigger=%box_btn->$addWidget("button","Add",)
+				$$->%btAddTrigger->$setENabled($false)
+				$$->%btRemTrigger=%box_btn->$addWidget("button","Remove")
+				$$->%btRemTrigger->$setENabled($false)
+	
+				// Channels section
+				%gb=$new(NGLfserv::classes::customwidgets::groupbox,%hbox,gb,"Channels",5,20)
+				%gb->$setColumnLayout(1,Horizontal)
+				$$->%box_channels=%gb
+				$$->%listboxChannels=$new(listbox,%gb)
+				$$->%lineEditChannel=$new(lineedit,%gb)
+				%box_btn=$new(NGLfserv::classes::customwidgets::box,%gb,box,horizontal)
+				%box_btn->$setSpacing(1)
+				$$->%btAddChannel=%box_btn->$addWidget("button","Add",)
+				$$->%btAddChannel->$setEnabled($false)
+				$$->%btRemChannel=%box_btn->$addWidget("button","Remove",)
+				$$->%btRemChannel->$setEnabled($false)
+	
+				// Root path
+				$$->%box_root=%main->$addWidget(hbox)
+				$$->%box_root->$setSpacing(1)
+				%gb=$new(NGLfserv::classes::customwidgets::groupbox,$$->%box_root,gb,"Trigger's root path",5,20)
+				%gb->$setColumnLayout(1,Vertical)
+				$$->%root_dir=$new(lineedit,%gb)
+				$$->%btChageRoot=$new(button,%gb)
+				$$->%btChageRoot->$setText("Change")
+	
+				// Trigger type section
+				%vbox=$new(vbox,%hbox)
+				%gb=$new(NGLfserv::classes::customwidgets::groupbox,%vbox,gb,"Trigger properties on channel",5,20)
+				%gb->$setColumnLayout(1,Vertical)
+				%gb->$setEnabled($false)
+				$$->%box_triggertype=%gb
+				%box_trig_type=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
+				%box_trig_type->$setSpacing(1)
+				%box_trig_type->$addGroup(label,$array("Trigger type:",,"Access restricted to:"))
+				%box_trig_params=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
+	
+				$$->%ComboBoxTriggerType=%box_trig_params->$addWidget(combobox,$array(Ctcp,Remote,Both))
+				$$->%ComboBoxAccessType=%box_trig_params->$addWidget(combobox,$array(--------,Op & Voice,Op))
+	
+				// Password
+				$$->%gbPassword=$new(NGLfserv::classes::customwidgets::groupbox,%vbox,gb2,"Password",5,20)
+				$$->%gbPassword->$setColumnLayout(1,Horizontal)
+				$$->%gbPassword->$setEnabled($false)
+				$$->%ckbUsePswd = $new(NGLfserv::classes::customwidgets::checkbox,$$->%gbPassword,cb,"...use password access")
+				$$->%lineeditPswd = $new(lineedit,$$->%gbPassword)
+				$$->%lineeditPswd->$setEchoMode(password)
+	
+				%main_layout->$addWidget(%main->$widget(),0,0)
+	
+				if($length(%Triggers{})) {
+					foreach(%tr,%Triggers{}) {
+					$$->%listboxTriggers->$insertItem(%tr->$triggername())
+					}
+				}
+	
+				objects.connect $$->%listboxTriggers currentItemChange $$ triggerChanged
+				objects.connect $$->%listboxChannels currentItemChange $$ channelChanged
+	
+				// combobox triggered
+				objects.connect $$->%comboBoxTriggerType activated $$ activated
+				objects.connect $$->%comboBoxAccessType activated $$ activated
+	
+				// button ADD and REMOVE channel connection
+				objects.connect $$->%btAddChannel clicked $$ addChannel
+				objects.connect $$->%btRemChannel clicked $$ removeChannel
+	
+				// button ADD and REMOVE trigger connection
+				objects.connect $$->%btAddTrigger clicked $$ addTrigger
+				objects.connect $$->%btRemTrigger clicked $$ removeTrigger
+	
+				// button CHANGE root path connection
+				objects.connect $$->%btChageRoot clicked $$ changeRootPath
+				objects.connect $$->%root_dir returnPressed $$ changeRootPathFromLineedit
+	
+				// lineedits
+				objects.connect $$->%lineEditTrigger textChanged $$ lineEditTrigTextChanged
+				objects.connect $$->%lineEditChannel textChanged $$ lineEditChanTextChanged
+				objects.connect $$->%lineEditTrigger returnPressed $$ addTrigger
+				objects.connect $$->%lineEditChannel returnPressed $$ addChannel
+	
+				// password
+				objects.connect $$->%ckbUsePswd toggled $$ passwordManager
+				objects.connect $$->%lineeditPswd textChanged $$ passwordEntered
+	
+				// tooltips
+				$$->%lineEditTrigger->$setTooltip($tr("Type in a keyword for accessing the files you will share.<br>Every keyword is called \"trigger\" and gives access only to the files you select."))
+				$$->%lineEditChannel->$setTooltip($tr("Type in a channel you want the trigger to be active.<br>Please note that you must type channel's prefix too, if any.(#, &, ', or others...)"))
+				$$->%ComboBoxTriggerType->$setTooltip($tr("Select the type of access to your files:<ul><li><b>ctcp</b>: users will access with command /ctcp yournick trigger</li><li><b>remote</b>: user will access typing the trigger in channel</li></ul>"))
+				$$->%ComboBoxAccessType->$setTooltip($tr("Select who can access your files:<ul><li><b>--------</b>: everyone</li><li><b>Op & Voice</b>: operators and voiced users only</li><li><b>Op</b>: operators users only</li></ul>"))
+				$$->%gbPassword->$setTooltip($tr("Access to this trigger will require a password.<br><b>Warning: </b>This is a per-trigger option. Checking this will force access to this trigger in the ctcp way from all channels"))
+				$$->%box_root->$setTooltip($tr("This is useful to change the main directory of a trigger.<p><i>Press return once you've typed the new path</i>"))
+			}
+			function passwordManager()
+			{
+				%triggerName=$$->%listboxTriggers->$currentText()
+				%channelName=$$->%listboxChannels->$currentText()
+				if ($0) {
+					$$->%ComboBoxTriggerType->$setEnabled($false)
+					$$->%ComboBoxTriggerType->$setCurrentItem(0)
+					$$->%lineeditPswd->$setEnabled($true)
+					foreach(%ch,%Triggers{%triggerName}->$activeChannels{}) {
+						%ch->$setTriggerType(0)
+					}
+				}
+				else {
+					$$->%ComboBoxTriggerType->$setEnabled($true)
+					$$->%lineeditPswd->$clear()
+					%Triggers{%triggerName}->%password = ""
+				}
+			}
+	
+			function passwordEntered() {
+				%password = $$->%lineeditPswd->$text()
+				%triggerName=$$->%listboxTriggers->$currentText()
+				if(!%triggerName || !%Triggers{%triggerName}) return
+				%Triggers{%triggerName}->%password = %password
+			}
+	
+			function triggerChanged()
+			{
+				if ($$->%listboxTriggers->$currentText()) %bflag=$true
+				else %bflag=$false
+				$$->%btRemTrigger->$setEnabled(%bflag)
+				$$->%lineEditChannel->$setEnabled(%bflag)
+				$$->%gbPassword->$setEnabled(%bflag)
+				%triggerName=$0
+				if(%triggerName) {
+					$$->%box_root->$setEnabled($true)
+					$$->%box_triggertype->$setEnabled($false)
+					$$->%box_triggertype->$setTitle(%triggerName" properties on channel")
+					$$->%listboxChannels->$clear()
+					$$->%listboxChannels->$parent()->$setTitle(%triggerName" active channels")
+					$$->%gbPassword->$setTitle(%triggerName" password")
+					$$->$lineEditChanTextChanged($$->%lineEditChannel->$text())
+					if (%Triggers{%triggerName}->%password){
+						$$->%ckbUsePswd->$setChecked($true)
+						$$->%lineeditPswd->$setEnabled($true)
+						$$->%lineeditPswd->$setText(%Triggers{%triggerName}->%password)
+					}
+					else {
+						$$->%lineeditPswd->$setEnabled($false)
+						$$->%ckbUsePswd->$setChecked($false)
+					}
+					//%Triggers{%triggerName}->$setName(%Triggers{%triggerName}->$firstNode())
+					$$->%root_dir->$setText(%Triggers{%triggerName}->$getRealRootFolder(%Triggers{%triggerName}->$firstNode()))
+					$$->%root_dir->$parent()->$setTitle(%triggerName" root path")
+					if(!%Triggers{%triggerName}->$channels()) return
+					foreach(%ch,%Triggers{%triggerName}->$activeChannels())
+						$$->%listboxChannels->$insertItem(%ch->$getChannelName())
+				}
+			}
+	
+			function addTrigger()
+			{
+				%triggerName=$$->%lineEditTrigger->$text()
+				if($str.contains(%triggerName,"[") || $str.contains(%triggerName,"]") || $str.contains(%triggerName," ")) {
+					NGLfserv::corefunctions::nglwarning "Trigger cannot contain [ ] or blank characters"
+					return
+				}
+				if(%Triggers{%triggerName})	{
+					NGLfserv::corefunctions::nglwarning "Trigger already present"
+					return
+				}
+				dialog.file(dir,%NGLlogo,,,$$,%triggerName)
+				{
+					if (!$0) $1->$returnFromDialog($false)
+					else {
+						%path=$0
+						if ($str.right(%path,1)!="\/") %path .= \/
+						%trigger=$new(NGLfserv::classes::trigger,0)
+						%trigger->$addFirstNode(%path,$2)
+						$1->$returnFromDialog(%trigger)
+					}
+				}
+			}
+	
+			returnFromDialog() {
+				if ($typeof($0)=="hobject") {
+					%Triggers{$0->$triggerName()}=$0
+					$0->$setChanged($true)
+					if(!$1) {
+						$$->%listboxTriggers->$insertItem($0->$triggerName(),0)
+						$$->%listboxTriggers->$setCurrentItem(0)
+					}
+					%ta=$0
+					%tt=%ta->$firstNode()
+					$$->%root_dir->$setText($0->$getRealRootFolder(%tt))
+					$$->%lineEditTrigger->$clear()
+					if(!$1)	NGLfserv::corefunctions::nglok "Trigger has been successfully added"
+					else NGLfserv::corefunctions::nglok "Trigger root path has been successfully changed"
+				}
+			}
+	
+			function changeRootPath() {
+				%triggerName=$$->%listboxTriggers->$currentText()
+				if(!%triggerName || !%Triggers{%triggerName}) return
+				dialog.file(dir,%NGLlogo,,,$$,%triggerName)
+				{
+					if (!$0) $1->$returnFromDialog($false)
+					else {
+						%path=$0
+						if ($str.right(%path,1)!="\/") %path .= \/
+						$1->$removeTrigger("rootPathChanged")
+						%trigger=$new(NGLfserv::classes::trigger,0)
+						%trigger->$addFirstNode(%path,$2)
+						%trigger->%welcomeMessage = %Triggers{$2}->%welcomeMessage
+						%trigger->%password = %Triggers{$2}->%password
+						%trigger->%activeChannels{} = %Triggers{$2}->%activeChannels{}
+						$1->$returnFromDialog(%trigger,"rootPathChanged")
+					}
+				}
+			}
+	
+			function changeRootPathFromLineedit() {
+				%triggerName=$$->%listboxTriggers->$currentText()
+				if(!%Triggers{%triggerName}) return
+				%path = $$->%root_dir->$text()
+				if ($str.right(%path,1)!="\/") %path .= \/
+				if($file.type(%path)=="d") {
+					if(%path != %Triggers{%triggerName}->$getRealRootFolder(%Triggers{%triggerName}->$firstNode())) {
+						$$->$removeTrigger("rootPathChanged")
+						%trigger=$new(NGLfserv::classes::trigger,0)
+						%trigger->$addFirstNode(%path,%triggerName)
+						%trigger->%welcomeMessage = %Triggers{%triggerName}->%welcomeMessage
+						%trigger->%password = %Triggers{%triggerName}->%password
+						%trigger->%activeChannels{} = %Triggers{%triggerName}->%activeChannels{}
+						$$->$returnFromDialog(%trigger,"rootPathChanged")
+					}
+				}
+				else {
+					NGLfserv::corefunctions::nglwarning "Invalid path. Please insert a correct folder path"
+					$$->%root_dir->$setText(%Triggers{%triggerName}->$getRealRootFolder(%Triggers{%triggerName}->$firstNode()))
+				}
+			}
+	
+			function removeTrigger() {
+				%triggerName=$$->%listboxTriggers->$currentText()
+				if(%triggerName) {
+					if ($file.exists("NGLfservtriggertree"%triggerName".kvc")){
+						file.remove "NGLfservtriggertree"%triggerName".kvc"
+						NGLfserv::corefunctions::ngldebug deleting "NGLfservtriggertree"%triggerName".kvc"
+					}
+					%c = $config.open("NGLfserv.kvc","rw")
+					config.setsection %c general
+					%totals=$config.read(%c,"Triggersnumber")
+					if($0!="rootPathChanged") {
+						if (%Triggers{%triggerName}->$channels()) {
+							foreach(%ch,%Triggers{%triggerName}->$activeChannels())
+								NGLfserv::corefunctions::channels r %ch->$getChannelName %triggerName
+						}
+						delete %Triggers{%triggerName}
+						%Triggers{%triggerName}=""
+	
+						%i=0
+						%cnt=0
+						// while there are triggers
+						while(%totals!=%cnt){
+							config.setsection %c TRIGGER%i
+							if ($config.read(%c,"triggername","")!="") {
+								if ($config.read(%c,"triggername")==%triggerName) {
+									NGLfserv::corefunctions::ngldebug removing %triggerName
+									config.clearsection %c TRIGGER%i
+									%deleted=$true
+									break
+								}
+								%cnt++
+							}
+							%i++
+						}
+	
+						$$->%listboxChannels->$clear()
+						$$->%box_channels->$setTitle("Channels trigger:")
+						$$->%listboxTriggers->$removeItem($$->%listboxTriggers->$currentItem())
+						$$->%root_dir->$setText("")
+					}
+					if (%deleted || $0=="rootPathChanged"){
+						config.setsection %c general
+						%totals--
+						config.write %c "Triggersnumber" %totals
+					}
+					config.close %c
+				}
+				if(!%Triggers{}#) {
+					$$->%box_triggertype->$setEnabled($false)
+					$$->%box_triggertype->$setTitle("Trigger properties on channel")
+					$$->%gbPassword->$setEnabled($false)
+					$$->%gbPassword->$setTitle("Password")
+					$$->%root_dir->$parent()->$setEnabled($false)
+					$$->%root_dir->$parent()->$setTitle("Trigger's root path")
+					$$->%box_channels->$setTitle("Channels")
+					$$->%btRemChannel->$setEnabled($false)
+				}
+			}
+			addChannel()
+			{
+				%triggerName=$$->%listboxTriggers->$currentText()
+				%channelName=$$->%lineEditChannel->$text()
+	
+				if(%Triggers{%triggerName}->$channelExists(%channelName)) {
+					NGLfserv::corefunctions::nglwarning "Channel already present"
+					return
+				}
+				if($str.left(%channelName,1)!="#" && $str.left(%channelName,1)!="&" && $str.left(%channelName,1)!="'")
+					NGLfserv::corefunctions::nglwarning "Please note that you must type channel's prefix too, if any.\n(#, &, ', or others...)"
+				NGLfserv::corefunctions::channels a %channelName %triggerName
+				$$->%lineEditChannel->$clear()
+				$$->%listboxChannels->$insertItem(%channelName,0)
+				$$->%listboxChannels->$setCurrentItem(0)
+			}
+			removeChannel()
+			{
+				%triggerName=$$->%listboxTriggers->$currentText()
+				%channelName=$$->%listboxChannels->$currentText()
+				NGLfserv::corefunctions::channels r %channelName %triggerName
+				$$->%listboxChannels->$removeItem($$->%listboxChannels->$currentItem())
+				if(!%Triggers{%triggerName}->%activeChannels{}#) {
+					$$->%box_triggertype->$setEnabled($false)
+					$$->%box_triggertype->$setTitle("Trigger properties on channel")
+				}
+			}
+			lineEditTrigTextChanged()
+			{
+				if ($0) $$->%btAddTrigger->$setEnabled($true)
+					else $$->%btAddTrigger->$setEnabled($false)
+			}
+			lineEditChanTextChanged()
+			{
+				if ($0  && $$->%listboxTriggers->$currentText()) $$->%btAddChannel->$setEnabled($true)
+					else $$->%btAddChannel->$setEnabled($false)
+			}
+			channelChanged()
+			{
+				%triggerName=$$->%listboxTriggers->$currentText()
+				%channelName=$$->%listboxChannels->$currentText()
+				if (%channelName) %bflag=$true
+				else %bflag=$false
+				$$->%btRemChannel->$setEnabled(%bflag)
+				if(%triggerName && %channelName) {
+					$$->%box_triggertype->$setTitle("%triggerName properties on %channelName")
+					$$->%box_triggertype->$setEnabled($true)
+					%type=%Triggers{%triggerName}->$getChannel(%channelName)->$getTriggerType
+					if(%type==10) %type=2
+					$$->%comboBoxTriggerType->$setCurrentItem(%type)
+					%access=%Triggers{%triggerName}->$getChannel(%channelName)->$getAccessType()
+					$$->%comboBoxAccessType->$setCurrentItem(%access)
+				}
+			}
+			showEvent()
+			{
+				%triggerName=$$->%listboxTriggers->$currentText()
+				$$->%box_root->$setEnabled($false)
+				if (!%triggerName) return
+				$$->%root_dir->$setText(%Triggers{%triggerName}->$getRealRootFolder(%Triggers{%triggerName}->$firstNode()))
+				$$->%box_root->$setEnabled($true)
+				$$->%gbPassword->$setEnabled($true)
+				if(%Triggers{%triggerName}->%password) %bflag = $true
+				else %bflag = $false
+				$$->%ckbUsePswd->$setChecked(%bflag)
+			}
+			function activated()
+			{
+				%triggerName=$$->%listboxTriggers->$currentText()
+				%channelName=$$->%listboxChannels->$currentText()
+				if ($$->$signalsender()==$$->%comboBoxTriggerType) {
+					if(%triggerName) {
+						if(%channelName)
+							%Triggers{%triggerName}->$getChannel(%channelName)->$setTriggerType($$->%comboBoxTriggerType->$currentItem())
+					}
+				}
+				else {
+					if ($$->$signalsender()==$$->%comboBoxAccessType)
+						if(%triggerName && %channelName)
+							%Triggers{%triggerName}->$getChannel(%channelName)->$setAccessType($$->%comboBoxAccessType->$currentItem())
+				}
+			}
+		}
+}
+
+
