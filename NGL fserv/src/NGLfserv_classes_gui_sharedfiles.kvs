@@ -61,6 +61,10 @@ alias(NGLfserv::classes::gui::sharedfiles)
 						objects.connect %add clicked $$ addFolder
 						objects.connect %rem clicked $$ removeFolder
 						objects.connect $$->%check clicked $$ updateFolders
+						objects.connect %G_fserverbusyhandler busy $$ fservBusyEvent
+						objects.connect %G_fserverbusyhandler notbusy $$ fservNotBusyEvent
+						debug connected signals
+	
 					}
 					addFolder()
 					{
@@ -93,7 +97,9 @@ alias(NGLfserv::classes::gui::sharedfiles)
 							$$->%dirview->$clear()
 							$$->%dirview->$setTree(%trigger)
 							objects.connect %trigger scancompleted $$ status
-							$$->%dirview->$showTree()
+							if (!$$->%busy)
+								$$->%dirview->$showTree()
+							else $$->%dirviewnotshowed=$true
 						}
 					}
 					status()
@@ -101,6 +107,22 @@ alias(NGLfserv::classes::gui::sharedfiles)
 						$$->%info_widget->$append("Updating completed!")
 						$$->%check->$setEnabled($true)
 						$$->%dirview->$setEnabled($true)
+					}
+					fservBusyEvent()
+					{
+						$$->$setEnabled($false)
+						debug changetab
+						$$->$parent()->$changeTab($$,"Busy",120)
+						$$->%busy=$true
+					}
+					fservNotBusyEvent()
+					{
+						$$->$setEnabled($true)
+						$$->$parent()->$changeTab($$,&Shared Files,161)
+						$$->%busy=$false
+						debug not change tab
+						if ($$->%dirviewnotshowed  && $$->$isVisible())
+							$$->%dirview->$showTree()
 					}
 					showEvent()
 					{
@@ -123,5 +145,4 @@ alias(NGLfserv::classes::gui::sharedfiles)
 					}
 				}
 }
-
 

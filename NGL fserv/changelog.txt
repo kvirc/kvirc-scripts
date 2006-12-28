@@ -1,3 +1,8 @@
+24 december 2006
+- work on "busy status" of the fserver (still incomplete)
+- removed some memory lack
+- now the tabwidget is a class named "NGLgui" (moved all the global var definitions and the freememory allocation from aliases to this class)
+
 Changes since version 1.0aplha
 
 - Fixed welcome message displaying in shell

@@ -6,12 +6,10 @@ alias(NGLfserv::classes::gui::globals)
 				{
 					%main_layout=$new(layout,$this)
 					%main=$new(NGLfserv::classes::customwidgets::box,$$,box,vertical)
-					%vbox=%main->$addWidget(vbox)
-					%vbox->$setSpacing(2)
 					
-					%hbox=$new(hbox,%vbox)
+					%hbox=$new(hbox,%main->$widget())
 					%hbox->$setSpacing(2)
-					%hbox1=$new(hbox,%vbox)
+					%hbox1=$new(hbox,%main->$widget())
 					%hbox1->$setSpacing(2)
 	
 					// Box send properties
@@ -45,8 +43,10 @@ alias(NGLfserv::classes::gui::globals)
 					%box_labels->$addGroup("label",$array("Queue slots:","Slots per user:","Priority to:"))
 					%box_params=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
 					%box_params->$setSpacing(1)
+					
 					%maxQueues = %box_params->$addWidget(spinbox,"\%MaxQueues",60,1000)
 					%maxQueues->$setMaxValue(999)
+					
 					%eachQueues = %box_params->$addWidget(spinbox,"\%EachQueues",60,100)
 					$$->%comboBoxPriorityType=%box_params->$addWidget(combobox,$array("-","o","ov"))
 					$$->%comboBoxPriorityType->$setMaximumWidth(60)
@@ -114,6 +114,8 @@ alias(NGLfserv::classes::gui::globals)
 					objects.connect $$->%spinBoxResendInterval valueChanged $$ commit
 					objects.connect $$->%comboBoxPriorityType activated $$ commit
 					
+					
+					
 					privateimpl($$->%comboBoxColor1,activatedEvent) {
 					%NGLc1=$($$->$currentItem() + 2)
 					}
@@ -130,5 +132,4 @@ alias(NGLfserv::classes::gui::globals)
 				}
 			}
 }
-
 

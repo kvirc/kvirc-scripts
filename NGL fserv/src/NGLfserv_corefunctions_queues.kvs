@@ -1,118 +1,117 @@
 alias(NGLfserv::corefunctions::queues)
 {
 	# $0 option
-		# $1 ircContext
-		# $2 nick
-		# $3 filename
-
-		switch($0) {
-			case("c") {
-		#-------Check for presence of a file in the queue/sends
-				if (!$objects.exists(%Send)) return
-				%i=0
-				while (%i!=%Send->$count()) {
-					if (%Send->$at(%i)->%nick==$2 && %Send->$at(%i)->%file==$3) {
-						return 1
-					}
-					%i++
-				}
-				if (!%Queues) return
-				if (!$objects.exists(%Queues)) return
-				%i=0
-				while (%i!=%Queues->$count()) {
-					if (%Queues->$at(%i)->%nick==$2 && %Queues->$at(%i)->%file==$3) {
-						return 2
-					}
-					%i++
-				}
-				return 0
-			}
-			case("r") {
-		#-------Removes a file from queue
-				if (!$objects.exists(%Queues)) return
-				%i=0
-				%removed=0
-				while (%i!=%Queues->$count()) {
-					if (%Queues->$at(%i)->%nick==$2) {
-						%Queues->$remove(%i)
-						%i--
-						%removed++
-					}
-					%i++
-				}
-				if(%removed>0) {
-					%Nick_nr_queues{$2}=0
-				}
-				return %removed
-			}
-			case("s") {
-		#-------Sends a file from queue
-				if (!$objects.exists(%Send)) return
-				%i=0
-				%n=%Send->$count()
-				while (%i!=%n && (%Send->$at(%i)->%initialNick!=$2 || %Send->$at(%i)->%file!=$3)) {
-					%i++
-				}
-				if (%i==%n) return
-				if(%Nick_nr_sends{%Send->$at(%i)->%nick})
-					%Nick_nr_sends{%Send->$at(%i)->%nick}--
-				%Send->$remove(%i)
-				if($objects.exists(%NGLmonitor)) {
-					%NGLmonitor->$showSends()
-				}
-				if(%Send->$count()>=%MaxSends || !$objects.exists(%Queues)) return "transferSuccess"
-
-				%n = %Queues->$count()
-				if (%n > 0) {
-					NGLfserv::corefunctions::ngldebug there are object in queue
+			# $1 ircContext
+			# $2 nick
+			# $3 filename
+	
+			switch($0) {
+				case("c") {
+			#-------Check for presence of a file in the queue/sends
+					if (!$objects.exists(%Send)) return
 					%i=0
-					while(%i < %n) {
-						%nickName=%Queues->$at(%i)->%nick
-					 	if(%Nick_nr_sends{%nickName} < %EachSends) break
+					while (%i!=%Send->$count()) {
+						if (%Send->$at(%i)->%nick==$2 && %Send->$at(%i)->%file==$3) {
+							return 1
+						}
 						%i++
 					}
-					if(%i == %n) return "transferSuccess"
-					%Send->$append(%Queues->$at(%i))
-					if(%Nick_nr_queues{%nickName})
-						%Nick_nr_queues{%nickName}--
-					if(!%Nick_nr_sends{%nickName})
-						%Nick_nr_sends{%nickName}=0
-					%Nick_nr_sends{%nickName}++
-					%Queues->$remove(%i)
-					%Send->$movelast()
-					NGLfserv::corefunctions::dccstartsend $1 %Send->$current()->%nick %Send->$current()->%completepath
-					if(%Send->$count() == 1) %DeadTransferHandler->$run()
+					if (!%Queues) return
+					if (!$objects.exists(%Queues)) return
+					%i=0
+					while (%i!=%Queues->$count()) {
+						if (%Queues->$at(%i)->%nick==$2 && %Queues->$at(%i)->%file==$3) {
+							return 2
+						}
+						%i++
+					}
+					return 0
 				}
-				return "transferSuccess"
-			}
-			case("t") {
-		#-------Retry to send a file
-				if (!$objects.exists(%Send)) return
-				%i=0
-				while (%i!=%Send->$count()) {
-					if (%Send->$at(%i)->%initialNick==$2 && %Send->$at(%i)->%file==$3) {
-						if(%Send->$at(%i)->%retries<%MaxResends) {
-							notice -r=$1 -q %Send->$at(%i)->%nick $k(%NGLc2)%NGLlogo: $k(%NGLc1)Dcc transfer for $k(%NGLc2)%Send->$at(%i)->%file $k(%NGLc1)failed. Resending in 10 seconds. "["$k(%NGLc2)$r$r$(%Send->$at(%i)->%retries+1)$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxResends$k(%NGLc1)"]". To cancel resends type $k(%NGLc2)\/ctcp $me NORESEND
-							timer -s (resend,%ResendInterval,$1,%i) {
-								if(%Send->$at($1)->%retries<%MaxResends) {
-									NGLfserv::corefunctions::dccstartsend $0 %Send->$current()->%nick %Send->$current()->%completepath
-									%Send->$at($1)->%retries++
-									%Send->$at($1)->%initialNick = %Send->$current()->%nick
-								}
-								else {
-									NGLfserv::corefunctions::queues "s" $0 %Send->$at($1)->%initialNick %Send->$at($1)->%file
+				case("r") {
+			#-------Removes a file from queue
+					if (!$objects.exists(%Queues)) return
+					%i=0
+					%removed=0
+					while (%i!=%Queues->$count()) {
+						if (%Queues->$at(%i)->%nick==$2) {
+							%Queues->$remove(%i)
+							%i--
+							%removed++
+						}
+						%i++
+					}
+					if(%removed>0) {
+						%Nick_nr_queues{$2}=0
+					}
+					return %removed
+				}
+				case("s") {
+			#-------Sends a file from queue
+					if (!$objects.exists(%Send)) return
+					%i=0
+					%n=%Send->$count()
+					while (%i!=%n && (%Send->$at(%i)->%initialNick!=$2 || %Send->$at(%i)->%file!=$3)) {
+						%i++
+					}
+					if (%i==%n) return
+					if(%Nick_nr_sends{%Send->$at(%i)->%nick})
+						%Nick_nr_sends{%Send->$at(%i)->%nick}--
+					%Send->$remove(%i)
+					if($objects.exists(%NGLmonitor)) {
+						%NGLmonitor->$showSends()
+					}
+					if(%Send->$count()>=%MaxSends || !$objects.exists(%Queues)) return "transferSuccess"
+	
+					%n = %Queues->$count()
+					if (%n > 0) {
+						NGLfserv::corefunctions::ngldebug there are object in queue
+						%i=0
+						while(%i < %n) {
+							%nickName=%Queues->$at(%i)->%nick
+						 	if(%Nick_nr_sends{%nickName} < %EachSends) break
+							%i++
+						}
+						if(%i == %n) return "transferSuccess"
+						%Send->$append(%Queues->$at(%i))
+						if(%Nick_nr_queues{%nickName})
+							%Nick_nr_queues{%nickName}--
+						if(!%Nick_nr_sends{%nickName})
+							%Nick_nr_sends{%nickName}=0
+						%Nick_nr_sends{%nickName}++
+						%Queues->$remove(%i)
+						%Send->$movelast()
+						NGLfserv::corefunctions::dccstartsend $1 %Send->$current()->%nick %Send->$current()->%completepath
+						if(%Send->$count() == 1) %DeadTransferHandler->$run()
+					}
+					return "transferSuccess"
+				}
+				case("t") {
+			#-------Retry to send a file
+					if (!$objects.exists(%Send)) return
+					%i=0
+					while (%i!=%Send->$count()) {
+						if (%Send->$at(%i)->%initialNick==$2 && %Send->$at(%i)->%file==$3) {
+							if(%Send->$at(%i)->%retries<%MaxResends) {
+								notice -r=$1 -q %Send->$at(%i)->%nick $k(%NGLc2)%NGLlogo: $k(%NGLc1)Dcc transfer for $k(%NGLc2)%Send->$at(%i)->%file $k(%NGLc1)failed. Resending in 10 seconds. "["$k(%NGLc2)$r$r$(%Send->$at(%i)->%retries+1)$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxResends$k(%NGLc1)"]". To cancel resends type $k(%NGLc2)\/ctcp $me NORESEND
+								timer -s (resend,%ResendInterval,$1,%i) {
+									if(%Send->$at($1)->%retries<%MaxResends) {
+										NGLfserv::corefunctions::dccstartsend $0 %Send->$current()->%nick %Send->$current()->%completepath
+										%Send->$at($1)->%retries++
+										%Send->$at($1)->%initialNick = %Send->$current()->%nick
+									}
+									else {
+										NGLfserv::corefunctions::queues "s" $0 %Send->$at($1)->%initialNick %Send->$at($1)->%file
+									}
 								}
 							}
+							else {
+								NGLfserv::corefunctions::queues "s" $1 $2 $3
+							}
+							return
 						}
-						else {
-							NGLfserv::corefunctions::queues "s" $1 $2 $3
-						}
-						return
+						%i++
 					}
-					%i++
 				}
 			}
-		}
 }
-
 

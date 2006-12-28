@@ -1,6 +1,8 @@
 alias(NGLfserv::classes::register)
 {
 	%classes[]=$array(\
+			NGLfserv::classes::NGLfserver,\
+			NGLfserv::classes::gui::gui,\
 			NGLfserv::classes::customwidgets::box,\
 			NGLfserv::classes::customwidgets::checkbox,\
 			NGLfserv::classes::customwidgets::button,\
@@ -21,12 +23,13 @@ alias(NGLfserv::classes::register)
 			NGLfserv::classes::shell,\
 			NGLfserv::classes::trigger,\
 			NGLfserv::classes::asynchIOoperations,\
+			NGlfserv::classes::globalbusyeventfilter,\
 			NGLfserv::classes::deadtransferhandler)
 			
 	for (%i=0;%i<$length(%classes[]);%i++;){
-		if ($classDefined("%classes[%i]")) objects.killclass %classes[%i]
+		if ($classDefined("%classes[%i]"))
+			 objects.killclass %classes[%i]
 		eval %classes[%i]
 	}
 }
-
 

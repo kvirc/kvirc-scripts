@@ -1,17 +1,16 @@
 alias(NGLfserv::init)
 {
+	if ($objects.exists(%NGLfserver)){
+		debug call destrutor nglfserver
+	 	delete -I %NGLfserver
+	}
 	# register classes
 	NGLfserv::classes::register
 	
 	# init events
 	NGLfserv::events::init	
 	
-	# init variables
-	NGLfserv::config::initialiseglobalvar
-			
-	
 	 # load config
-	NGLFserv::config::load
+	NGLfserv::config::load
 }
-
 

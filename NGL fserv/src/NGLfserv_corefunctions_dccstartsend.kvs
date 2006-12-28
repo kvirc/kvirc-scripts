@@ -13,4 +13,3 @@ alias(NGLfserv::corefunctions::dccstartsend)
 		return $true
 }
 
-

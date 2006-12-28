@@ -1,0 +1,48 @@
+alias(NGLfserv::classes::NGLfserver)
+{
+	class(NGLfserver,object)
+	{
+		constructor()
+		{
+			// list of the queues pointers
+			%Queues=$new(list)
+			// list of the sends pointers
+			%Send=$new(list)
+			// Our logo :-D
+			%NGLlogo = "...::NGL File Server::..."
+	
+			%G_icons=$new(NGLfserv::classes::icon,$$)
+			
+			%G_fserverbusyhandler=$new(NGlfserv::classes::globalbusyeventfilter,$$)
+	
+			%DeadTransferHandler=$new(NGLfserv::classes::deadtransferhandler,$$)
+			
+		}
+		destructor()
+		{
+			if ($objects.exists(%NGLgui)) delete %NGLgui
+			if ($objects.exists(%Queues)){
+				for (%i=0;%i<%Queues->$count();%i++) 
+					if ($objects.exists(%Queues->$at(%i)))  delete %Queues->$at(%i)
+				delete %Queues				
+			}
+			if ($objects.exists(%Send)){
+				for (%i=0;%i<%Send->$count();%i++) 
+					if ($objects.exists(%Send->$at(%i))) delete %Send->$at(%i)
+				delete %Send
+			}
+			
+			// free var
+			unset %Queues %Send %NGLlogo %Index_root %G_icons %G_fserverbusyhandler %DeadTransferHandler
+			unset %FservActive %MaxSends %EachSends %MaxQueues %EachQueues %MaxSessions
+			unset %Max_shell_life %FindMsg %NGLlogo %NGLc1 %NGLc2 %DccReverse %MaxResends
+			// and dict
+			%Nick_nr_queues{}=""
+			%Nick_nr_sends{}=""
+			%Triggers{}=""
+			%FservChannels{}=""
+			%Session{}=""
+		}
+	}
+}
+

@@ -3,7 +3,7 @@ alias(NGLfserv::classes::deadtransferhandler)
 	class(NGLfserv::classes::deadtransferhandler,object)
 		{
 			constructor()	{
-				$$->%sendsImage = $new(list)
+				$$->%sendsImage = $new(list,$$)
 			}
 	
 			function update() {
@@ -70,5 +70,4 @@ alias(NGLfserv::classes::deadtransferhandler)
 			}
 		}
 }
-
 

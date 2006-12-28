@@ -1,0 +1,20 @@
+alias(NGLfserv::classes::globalbusyeventfilter)
+{
+	class(NGlfserv::classes::globalbusyeventfilter)
+	{
+		
+		fserverBusyEvent()
+		{
+			$$->%trigger=$$->$signalSender()
+			$$->$emit(busy,$$->%trigger)
+		
+		}
+		fserverNotBusyEvent()
+		{
+			$$->$emit(notbusy,$$->$signalSender())
+			$$->%trigger=
+		}
+			
+	}
+}
+

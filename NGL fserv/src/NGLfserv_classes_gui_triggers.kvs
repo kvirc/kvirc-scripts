@@ -4,8 +4,6 @@ alias(NGLfserv::classes::gui::triggers)
 		{
 			function constructor()
 			{
-				// Define shortcut var for easily managing of custom widget
-	
 				// Main layout
 				%main_layout=$new(layout,$this)
 				%main=$new(NGLfserv::classes::customwidgets::box,$$,box,vertical)
@@ -196,7 +194,7 @@ alias(NGLfserv::classes::gui::triggers)
 					}
 				}
 			}
-	
+			
 			returnFromDialog() {
 				if ($typeof($0)=="hobject") {
 					%Triggers{$0->$triggerName()}=$0
@@ -257,6 +255,8 @@ alias(NGLfserv::classes::gui::triggers)
 			}
 	
 			function removeTrigger() {
+				
+				NGLfserv::corefunctions::ngldebug  inside remove trigger
 				%triggerName=$$->%listboxTriggers->$currentText()
 				if(%triggerName) {
 					if ($file.exists("NGLfservtriggertree"%triggerName".kvc")){
@@ -398,5 +398,4 @@ alias(NGLfserv::classes::gui::triggers)
 			}
 		}
 }
-
 

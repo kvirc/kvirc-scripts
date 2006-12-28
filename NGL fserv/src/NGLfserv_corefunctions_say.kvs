@@ -4,4 +4,3 @@ alias(NGLfserv::corefunctions::say)
 	else say -r=$0 $1-
 }
 
-

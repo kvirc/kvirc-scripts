@@ -4,13 +4,16 @@ alias(NGLfserv::uninstall::uninstall)
 			NGLfserv::events::eventshandler UNINSTALL
 	
 			// free the memory
-			NGLfserv::corefunctions::freememoryallocations
+			if ($objects.exists(%NGLfserver)) delete %NGLfserver
 	
 			// removes files
 			NGLfserv::uninstall::uninstallfiles
 			alias (NGLfserv::uninstall::uninstallfiles) {}
 	
+			
+			
 			// removes classes
+			
 			NGLfserv::uninstall::uninstallclasses
 	
 			// removes popup
@@ -30,5 +33,4 @@ alias(NGLfserv::uninstall::uninstall)
 			// good bye cruel world...
 			NGLfserv::uninstall::uninstallaliases
 }
-
 

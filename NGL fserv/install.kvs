@@ -69,7 +69,8 @@ defpopup("NGLfserv")
 
 	item($tr("Options"),20)
 	{
-		NGLfserv::classes::gui::gui
+		if (!$objects.exists(%NGLgui)) %NGLgui=$new(NGLfserv::classes::gui,%NGLfserver)
+			else %NGLgui->$show()
 	}
 
 	item($tr("Monitor","NGLfserv"),171)
@@ -79,7 +80,7 @@ defpopup("NGLfserv")
 			%NGLmonitor->$raise()
 		}
 		else{
-			%NGLmonitor=$new(NGLfserv::classes::gui::monitor)
+			%NGLmonitor=$new(NGLfserv::classes::gui::monitor,%NGLfserver)
 			%NGLmonitor->$show()
 		}
 	}
@@ -106,10 +107,11 @@ defpopup("NGLfserv")
 
 setmenu -q -i=7 %NGLlogo NGLfserv
 
-/*addon.setconfigurecallback("NGLfserv")
+addon.setconfigurecallback("NGLfserv")
 {
-	NGLfserv::classes::gui::gui
-}*/
+	if (!$objects.exists(%NGLgui)) %NGLgui=$new(NGLfserv::classes::gui)
+			else %NGLgui->$show()
+}
 
 defpopup(NGLfserv_channel)
 {

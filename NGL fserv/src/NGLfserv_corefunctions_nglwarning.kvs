@@ -3,9 +3,3 @@ alias(NGLfserv::corefunctions::nglwarning)
 	dialog.message --modal (Warning,$0,200) {}
 }
 
-alias(NGLfserv::corefunctions::nglok)
-{
-	dialog.message --modal (Info,$0,200) {}
-}
-
-

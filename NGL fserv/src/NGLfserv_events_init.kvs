@@ -115,6 +115,10 @@ alias(NGLfserv::events::init)
 				%triggerName=$3
 				if(!%FservChannels{$chan.name}) return
 				if(%Triggers{%triggerName}) {
+					if (%Triggers{%triggerName}->$isBusy()){
+						notice -q %requesting %NGLlogo Sorry, this trigger is in updating contents mode... please wait 1 minute and retry!
+						return
+					}
 					if (!%Triggers{%triggerName}->%noNode){
 						if(%Triggers{%triggerName}->%activeChannels{$chan.name}) {
 							if($str.contains(%Triggers{%triggerName}->%activeChannels{$chan.name}->$getTriggerType(),1)) {
@@ -534,5 +538,4 @@ alias(NGLfserv::events::init)
 				}
 			}
 }
-
 
