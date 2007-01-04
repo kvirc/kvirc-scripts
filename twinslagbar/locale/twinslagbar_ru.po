@@ -26,7 +26,7 @@ msgstr ""
 
 #: ../src/classes.kvs:16
 msgid "Lag"
-msgstr ""
+msgstr "Задержка"
 
 #: ../src/classes.kvs:17
 msgid "Twins Lag Bar"
