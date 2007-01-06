@@ -8,7 +8,7 @@
 # since it will abort with an error when a greater version is already installed
 addon.register(\
 	"twinsmediaplayer",\
-	"1.3",\
+	"1.4",\
 	$tr("The Twins Mediaplayer",twinsmediaplayer),\
 	$tr("An interface to the Mediaplayer module to play music and advertise it",twinsmediaplayer),\
 	"3.2.4",\
