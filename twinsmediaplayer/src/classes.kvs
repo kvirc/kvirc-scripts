@@ -620,7 +620,7 @@ class(twins::mediaplayer::mrldialog,dialog)
 		%l->$addwidget(@%m_hMrl,3,0)
 		%l->$addwidget(%vmrl,3,1)
 		objects.connect %vmrl clicked $$ playMrl
-		if ($int($version(s))<20070107)){
+		if ($int($version(s))<20070107){
 		 	@%m_hMrl->$setenabled($str.equal($system.ostype,windows))
 			%vmrl->$setenabled($str.equal($system.ostype,windows))
 		}
