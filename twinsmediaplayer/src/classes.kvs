@@ -37,7 +37,7 @@ class(twins::mediaplayer::window,dockwindow)
 		twins::mediaplayer::core::config::save
 
 		%G_hTwinsMediaPlayer{window} = $$
-		$$->$setCaption($str.printf($tr("Twins MediaPlayer-?s",twinsmediaplayer).$addon.version(twinsmediaplayer)))
+		$$->$setCaption($str.printf($tr("Twins MediaPlayer-?s",twinsmediaplayer),$addon.version(twinsmediaplayer)))
 
 		@$setAllowedDockAreas("lrfm")
 		@$setResizeEnabled($true)
@@ -620,8 +620,10 @@ class(twins::mediaplayer::mrldialog,dialog)
 		%l->$addwidget(@%m_hMrl,3,0)
 		%l->$addwidget(%vmrl,3,1)
 		objects.connect %vmrl clicked $$ playMrl
-		@%m_hMrl->$setenabled($str.equal($system.ostype,windows))
-		%vmrl->$setenabled($str.equal($system.ostype,windows))
+		if ($int($version(s))<20070107)){
+		 	@%m_hMrl->$setenabled($str.equal($system.ostype,windows))
+			%vmrl->$setenabled($str.equal($system.ostype,windows))
+		}
 
 		%close = $new(button,$$)
 		%close->$settext($tr(close))
