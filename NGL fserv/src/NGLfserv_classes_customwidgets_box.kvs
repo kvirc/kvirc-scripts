@@ -12,7 +12,7 @@ alias(NGLfserv::classes::customwidgets::box)
 		}
 		internal function create()
 		{
-			if ($0=="button") %widget=$new(NGLfserv::classes::customwidgets::btn,$$->%widget)
+			if ($0=="button") %widget=$new(NGLfserv::classes::customwidgets::button,$$->%widget)
 			elseif ($0=="checkbox") %widget=$new(NGLfserv::classes::customwidgets::checkbox,$$->%widget,name,$1,$2)
 			else %widget=$new($0,$$->%widget)
 			switch ($0)
