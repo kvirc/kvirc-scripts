@@ -4,12 +4,11 @@ alias(NGLfserv::classes::gui::gui)
 	{
 		constructor()
 		{
-			debug %NGLfserver esiste $objects.exists(%NGLfserver)
-			$$->%tabTriggers=$new(NGLfserv::classes::gui::triggers,%NGLfserver)
-			$$->%tabChannels=$new(NGLfserv::classes::gui::channels,%NGLfserver)
-			$$->%tabSharedFiles=$new(NGLfserv::classes::gui::sharedfiles,%NGLfserver)
-			$$->%tabShell=$new(NGLfserv::classes::gui::shell,%NGLfserver)
-			$$->%tabGlobals=$new(NGLfserv::classes::gui::globals,%NGLfserver)
+			$$->%tabTriggers=$new(NGLfserv::classes::gui::triggers,$$)
+			$$->%tabChannels=$new(NGLfserv::classes::gui::channels,$$)
+			$$->%tabSharedFiles=$new(NGLfserv::classes::gui::sharedfiles,$$)
+			$$->%tabShell=$new(NGLfserv::classes::gui::shell,$$)
+			$$->%tabGlobals=$new(NGLfserv::classes::gui::globals,$$)
 	
 			$$->$setMargin(5)
 			$$->$setTabPosition(Top)

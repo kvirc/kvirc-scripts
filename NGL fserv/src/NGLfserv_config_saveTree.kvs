@@ -17,6 +17,7 @@ alias(NGLfserv::config::saveTree)
 			config.write %c realnodes %trigger->%realRootFolder->$count()
 			config.write %c notshared %ns
 			config.close %c
+			%trigger->$setChanged($false)
 		}	
 	}
 }

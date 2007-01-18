@@ -1,148 +1,140 @@
 alias(NGLfserv::classes::gui::sharedfiles)
 {
-	class(NGLfserv::classes::gui::sharedfiles,widget)
-				{
-					constructor()
-					{
-						$$->$setCaption(".:Shared Files:.")
-						%main_layout=$new(layout,$this)
-						%main = $new(NGLfserv::classes::customwidgets::box,$$,box,vertical)
+	class(NGLfserv::classes::gui::sharedfiles,vbox)
+	{
+		constructor()
+		{
+			$$->$setCaption(".:Shared Files:.")
+			%main = $NGLfserv::corefunctions::addWidget(vbox,$$)
+			
+			// main horizontal layout
+			%hbox=$NGLfserv::corefunctions::addWidget(hbox,%main)
+			%hbox->$setSpacing(2)
+						
+			// trigger choose section
+			%gb=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,"Trigger",5,20,Horizontal,1)
+			%hbox->$setStretchFactor(%gb,40)
+			$$->%comboboxTriggers=$new(combobox,%gb)
 	
-						// Trigger combobox
-						%hbox=%main->$addWidget(hbox)
-						%hbox->$setSpacing(2)
-						%gb=$new(NGLfserv::classes::customwidgets::groupbox,%hbox,gb,"Trigger",5,20)
-						%gb->$setColumnLayout(1,Horizontal)
-						$$->%comboboxTriggers=$new(combobox,%gb)
+			// Add/Remove section
+			$$->%box_buttons=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,"Add/Remove Extra dirs",5,20,Horizontal,2)
+			%hbox->$setStretchFactor($$->%box_buttons,40)		
+			%add=$NGLfserv::corefunctions::addWidget(button,$$->%box_buttons,"Add")
+			%add->$setImage(redfolder)
+			$$->%remove=$NGLfserv::corefunctions::addWidget(button,$$->%box_buttons,"Remove")
+			$$->%remove->$setImage(redfoldercancel)
+			$$->%remove->$setEnabled($false)
+			
+			// Update section
+			%gb=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,"Update trigger",5,20,Horizontal,1)
+			$$->%check=$NGLfserv::corefunctions::addWidget(btn,%gb,"Update")
+			$$->%check->$setImage(ok)
+			%hbox->$setStretchFactor(%gb,20)
 	
-						// Operations buttons
-						%gb=$new(NGLfserv::classes::customwidgets::groupbox,%hbox,gb,"Operations",5,20)
-						%gb->$setColumnLayout(1,Horizontal)
-						$$->%box_buttons=$new(NGLfserv::classes::customwidgets::box,%gb,box,horizontal)
-						$$->%box_buttons->$setSpacing(1)
-						%add=$$->%box_buttons->$addWidget(button,"Add")
-						%add->$setImage(redfolder)
-						%rem=$$->%box_buttons->$addWidget(button,"Remove")
-						%rem->$setImage(redfoldercancel)
-						$$->%check=$$->%box_buttons->$addWidget(button,"Update")
-						$$->%check->$setImage(ok)
-						//%check->$setEnabled($false)
+			// Dirview section
+			%hbox=$NGLfserv::corefunctions::addWidget(hbox,%main)
+			%hbox->$setSpacing(2)
+			$$->%gbFiles=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,"Trigger files",5,20,Horizontal,1)
+			$$->%dirview=$NGLfserv::corefunctions::addWidget(NGLfserv::classes::dirview,$$->%gbFiles)
 	
-						// Dirview
-						%hbox=%main->$addWidget(hbox)
-						%hbox->$setSpacing(2)
-						$$->%gbFiles=$new(NGLfserv::classes::customwidgets::groupbox,%hbox,gb,"Trigger files",5,20)
-						$$->%gbFiles->$setColumnLayout(1,Vertical)
-						%box=$new(NGLfserv::classes::customwidgets::box,$$->%gbFiles,box,vertical)
-						/*$$->%status=%box->$addWidget(label,"Status: \<font color=\"#808080\"> Ready")
-						$$->%status->$setminimumwidth(100)
-						$$->%status->$setmaximumwidth(100)
-						*/
-						$$->%dirview=%box->$addWidget(NGLfserv::classes::dirview)
+			// Output section
+			$$->%info_widget=$NGLfserv::corefunctions::addWidget(multilineedit,$$->%gbFiles)
+			$$->%dirview->$setMinimumheight(250)
+			$$->%info_widget->$setReadOnly($true)
+					
+			// Tooltips
+			$$->%comboboxTriggers->$setTooltip($tr("Browse your shared files by trigger"))
+			%add->$setTooltip($tr("Add other dirs to this trigger"))
+			$$->%remove->$setTooltip($tr("Remove the extra dirs you don't want to share from this trigger"))
+			$$->%check->$setTooltip($tr("If some file have been phisically added/removed to the trigger folder while KVIrc is opened, click here to update your shared files list"))
 	
-						// Output
-						$$->%info_widget=%box->$addWidget(multilineedit)
-						//$$->%status=%box->$addWidget(label,"Status: \<font color=\"#808080\"> HD scanning")
-						//"Status: Ready"
-						//$setText)
-						//%box->$setStretchFactor($$->%info_widget,10)
-						//%box->$setStretchFactor($$->%dirview,90)
-						$$->%dirview->$setMinimumheight(250)
-						//$$->%dirView->$setWidgetOutput($$->%info_widget)
-						//$$->%dirView->$setStatusOutput(%status)
-						%main_layout->$addWidget(%main->$widget(),0,0)
-	
-						$$->%comboboxTriggers->$setTooltip($tr("Browse your shared files by trigger"))
-						%add->$setTooltip($tr("Add other files to this trigger"))
-						%rem->$setTooltip($tr("Remove the files you don't want to share from this trigger"))
-						$$->%check->$setTooltip($tr("If some file have been phisically added/removed to the trigger folder while KVIrc is opened, click here to update your shared files list"))
-	
-						objects.connect $$->%comboboxTriggers activated $$ newTrigger
-						objects.connect %add clicked $$ addFolder
-						objects.connect %rem clicked $$ removeFolder
-						objects.connect $$->%check clicked $$ updateFolders
-						objects.connect %G_fserverbusyhandler busy $$ fservBusyEvent
-						objects.connect %G_fserverbusyhandler notbusy $$ fservNotBusyEvent
-						debug connected signals
-	
-					}
-					addFolder()
-					{
-						if (!$$->%dirview->%item_clicked) {echo vuoto;$$->%dirview->%item_clicked=$$->%dirview;}
-						$$->%dirview->$addTo($$->%dirview->%item_clicked)
-					}
-					removeFolder()
-					{
-						if (!$$->%dirview->%item_clicked) NGLfserv::corefunctions::nglwarning "You must choose a file or folder first!"
-						else{
-							if ($$->%dirview->%item_clicked!=$$->%dirview)
-							     $$->%dirview->$remove($$->%dirview->%item_clicked)
-						}
-					}
-					updateFolders()
-					{
-						//$$->%status->$setText("Status: \<font color=\"#808080\"> HD scanning")
-						$$->%check->$setEnabled($false)
-						$$->%dirview->$setEnabled($false)
-						$$->%info_widget->$append("Updating shared dirs/files...")
-						$$->%dirview->%trigger->$update()
-					}
-					newTrigger()
-					{
-						%triggername=$$->%comboboxTriggers->$textAt($0)
-						if (%triggername)
-						{
-							$$->%gbFiles->$setTitle(%triggername" files")
-							%trigger=%Triggers{%triggername}
-							$$->%dirview->$clear()
-							$$->%dirview->$setTree(%trigger)
-							objects.connect %trigger scancompleted $$ status
-							if (!$$->%busy)
-								$$->%dirview->$showTree()
-							else $$->%dirviewnotshowed=$true
-						}
-					}
-					status()
-					{
-						$$->%info_widget->$append("Updating completed!")
-						$$->%check->$setEnabled($true)
-						$$->%dirview->$setEnabled($true)
-					}
-					fservBusyEvent()
-					{
-						$$->$setEnabled($false)
-						debug changetab
-						$$->$parent()->$changeTab($$,"Busy",120)
-						$$->%busy=$true
-					}
-					fservNotBusyEvent()
-					{
-						$$->$setEnabled($true)
-						$$->$parent()->$changeTab($$,&Shared Files,161)
-						$$->%busy=$false
-						debug not change tab
-						if ($$->%dirviewnotshowed  && $$->$isVisible())
-							$$->%dirview->$showTree()
-					}
-					showEvent()
-					{
-						$$->%comboboxTriggers->$clear()
-						$$->%comboboxTriggers->$setEnabled($false)
-						$$->%box_buttons->$setEnabled($false)
-						$$->%dirView->$setEnabled($false)
-						if ($objects.exists($$->%comboboxTriggers))
-						{
-							if ($length(%Triggers{}))
-							{
-								$$->%comboboxTriggers->$setEnabled($true)
-								$$->%box_buttons->$setEnabled($true)
-								$$->%dirView->$setEnabled($true)
-								foreach(%tr,%Triggers{}) $$->%comboboxTriggers->$insertItem(%tr->$triggerName())
-								$$->%comboboxTriggers->$setEnabled($true)
-								$$->$newTrigger($$->%comboboxTriggers->$currentItem)
-							}
-						}
-					}
+			objects.connect $$->%comboboxTriggers activated $$ newTrigger
+			objects.connect $$->%dirview currentChanged $$ checkitem
+			objects.connect %add clicked $$ addFolder
+			objects.connect $$->%remove clicked $$ removeFolder
+			objects.connect $$->%check clicked $$ updateFolders
+			objects.connect %G_fserverbusyhandler busy $$ fservBusyEvent
+			objects.connect %G_fserverbusyhandler notbusy $$ fservNotBusyEvent
+		}
+		checkitem()
+		{
+			$$->%remove->$setEnabled($false)
+			if (!$0->%virtual_node) return
+			else{
+				if ($0->%virtual_node->%realRootFolder) $$->%remove->$setEnabled($true)
+			}
+		}
+		addFolder()
+		{
+			if (!$$->%dirview->%item_clicked) {echo vuoto;$$->%dirview->%item_clicked=$$->%dirview;}
+			$$->%dirview->$addTo($$->%dirview->%item_clicked)
+		}
+		removeFolder()
+		{
+			if (!$$->%dirview->%item_clicked) NGLfserv::corefunctions::nglwarning "You must choose a file or folder first!"
+			else{
+				if ($$->%dirview->%item_clicked!=$$->%dirview)
+					$$->%dirview->$remove($$->%dirview->%item_clicked)
+			}
+		}
+		updateFolders()
+		{
+			$$->%check->$setEnabled($false)
+			$$->%dirview->$setEnabled($false)
+			$$->%info_widget->$append("Updating shared dirs/files...")
+			$$->%dirview->%trigger->$update()
+		}
+		newTrigger()
+		{
+			%triggername=$$->%comboboxTriggers->$textAt($0)
+			if (%triggername){
+				$$->%gbFiles->$setTitle(%triggername" files")
+				%trigger=%Triggers{%triggername}
+				$$->%dirview->$clear()
+				$$->%dirview->$setTree(%trigger)
+				objects.connect %trigger scancompleted $$ status
+				if (!$$->%busy)
+				$$->%dirview->$showTree()
+				else $$->%dirviewnotshowed=$true
+			}
+		}
+		status()
+		{
+			$$->%info_widget->$append("Updating completed!")
+			$$->%check->$setEnabled($true)
+			$$->%dirview->$setEnabled($true)
+		}
+		fservBusyEvent()
+		{
+			$$->$setEnabled($false)
+			$$->$parent()->$changeTab($$,"Busy",120)
+			$$->%busy=$true
+		}
+		fservNotBusyEvent()
+		{
+			$$->$setEnabled($true)
+			$$->$parent()->$changeTab($$,&Shared Files,161)
+			$$->%busy=$false
+			if ($$->%dirviewnotshowed  && $$->$isVisible())
+				$$->%dirview->$showTree()
+		}
+		showEvent()
+		{
+			$$->%comboboxTriggers->$clear()
+			$$->%comboboxTriggers->$setEnabled($false)
+			$$->%box_buttons->$setEnabled($false)
+			$$->%dirView->$setEnabled($false)
+			if ($objects.exists($$->%comboboxTriggers)){
+				if ($length(%Triggers{})){
+					$$->%comboboxTriggers->$setEnabled($true)
+					//$$->%box_buttons->$setEnabled($true)
+					$$->%dirView->$setEnabled($true)
+					foreach(%tr,%Triggers{}) $$->%comboboxTriggers->$insertItem(%tr->$triggerName())
+					$$->%comboboxTriggers->$setEnabled($true)
+					$$->$newTrigger($$->%comboboxTriggers->$currentItem)
 				}
+			}
+		}
+	}
 }
 

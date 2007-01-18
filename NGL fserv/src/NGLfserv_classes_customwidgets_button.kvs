@@ -1,8 +1,12 @@
 alias(NGLfserv::classes::customwidgets::button)
 {
-	class(NGLfserv::classes::customwidgets::btn,button)
+	class(NGLfserv::classes::customwidgets::button,button)
 	{
-		setImage()
+		constructor(text)
+		{
+			$$->$setText($tr($0))
+		}
+		setImage(icon)
 		{
 			%img=%G_icons->$getIcon($0)
 			if (!%img) $$->$button::setImage($0)

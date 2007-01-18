@@ -1,20 +1,20 @@
 alias(NGLfserv::corefunctions::masterdebug)
 {
 	if (!$file.exists($file.localdir("NGLdebug.txt"))){
-			%logheader="NGLfserver NGLfserv::corefunctions::ngldebug Log $cr$lf Processor : $system.osmachine $cr$lf Os Name: $system.osname $cr$lf Os: $system.osversion $cr$lf"
-			%logheader += $date(d B Y H:M)
-			file.write -a $file.localdir("NGLdebug.txt") %logheader
+		%logheader="NGLfserver NGLfserv::corefunctions::ngldebug Log $cr$lf Processor : $system.osmachine $cr$lf Os Name: $system.osname $cr$lf Os: $system.osversion $cr$lf"
+		%logheader += $date(d B Y H:M)
+		file.write -a $file.localdir("NGLdebug.txt") %logheader
+	}
+	timer(debug,%Debugtimerdelay){
+		%log="snapshot at  $date(d B Y H:M) $cr$lf"
+		%log +="Async operations:$cr$lf"
+		if (%Findsessions->$length){
+			%log += "Find operations running: %Findsessions->$length() $cr$lf"
 		}
-		timer(debug,%Debugtimerdelay){
-			%log="snapshot at  $date(d B Y H:M) $cr$lf"
-			%log +="Async operations:$cr$lf"
-			if (%Findsessions->$length){
-				%log += "Find operations running: %Findsessions->$length() $cr$lf"
-				}
-			else %log += "no find operations running $cr$lf"
-			%log +="Users queue: %Queues->$length() $cr$lf"
-			%log +="Sends in progress: %Sends->$length() $cr$lf"
-			file.write -a $file.localdir("NGLdebug.txt") %log   	
-	    	}
+		else %log += "no find operations running $cr$lf"
+		%log +="Users queue: %Queues->$length() $cr$lf"
+		%log +="Sends in progress: %Sends->$length() $cr$lf"
+		file.write -a $file.localdir("NGLdebug.txt") %log   	
+	 }
 }
 

@@ -2,13 +2,16 @@ alias(NGLfserv::classes::customwidgets::groupbox)
 {
 	class(NGLfserv::classes::customwidgets::groupbox,groupbox)
 	{
-		constructor()
+		constructor(title,inside spacing,inside margin, column layout, strip)
 		{
-			$$->$setTitle($0)
-			$$->$setInsideSpacing($1)
-			$$->$setInsideMargin($2)
-			if ($3)
-			$$->$setColumnLayout(1,$3)
+			$$->$setTitle($tr($0))
+			if ($1) $$->$setInsideSpacing($1)
+			if ($2) $$->$setInsideMargin($2)
+			if ($3){
+				if (!$4) %strip=1
+				else %strip=$4
+				$$->$setColumnLayout(%strip,$3)
+			}
 		}
 	}
 }

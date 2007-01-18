@@ -1,0 +1,5 @@
+alias(NGLfserv::corefunctions::nglok)
+{
+	dialog.message --modal (Info,$0,200) {}
+}
+

@@ -1,0 +1,16 @@
+alias(NGLfserv::config::saveSendAndQueues)
+{
+	%c = $config.open("NGLfservSends.kvc","w")
+	for (%i=0;%i<%Send->$count();%i++){
+		config.setsection %c send%i
+		NGLfserv::config::savesendobject %c %Send->$at(%i)
+	}
+	config.close %c
+	%c = $config.open("NGLfservQueue.kvc","w")
+	for (%i=0;%i<%Queues->$count();%i++){
+		config.setsection %c queue%i
+		NGLfserv::config::savesendobject %c %Queues->$at(%i)
+	}
+	config.close %c
+}
+

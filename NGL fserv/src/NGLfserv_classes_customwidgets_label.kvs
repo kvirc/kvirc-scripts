@@ -1,0 +1,11 @@
+alias(NGLfserv::classes::customwidgets::label)
+{
+	class(NGLfserv::classes::customwidgets::label,label)
+	{
+		constructor(text)
+		{
+			$$->$setText($tr($0))
+		}
+	}
+}
+

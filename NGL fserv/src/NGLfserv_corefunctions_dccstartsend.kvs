@@ -1,15 +1,14 @@
 alias(NGLfserv::corefunctions::dccstartsend)
 {
 	%irccontext=$0
-		%nick=$1
-		%completepath=$2
+	%nick=$1	
+	%completepath=$2
+	if(%DccReverse)
+		dcc.rsend -z -r=%irccontext %nick %completepath
+	else
+		dcc.send -r=%irccontext %nick %completepath
 	
-		if(%DccReverse)
-			dcc.rsend -z -r=%irccontext %nick %completepath
-		else
-			dcc.send -r=%irccontext %nick %completepath
-	
-		if($objects.exists(%NGLmonitor)) %NGLmonitor->$showSends()
-		return $true
+	if($objects.exists(%NGLmonitor)) %NGLmonitor->$showSends()
+	return $true
 }
 

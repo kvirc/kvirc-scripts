@@ -1,0 +1,221 @@
+alias(NGLfserv::classes::gui::wiz)
+{
+	class(NGLfserv::classes::gui::wiz,wizard)
+	{
+		constructor()
+		{
+			$$->$setWelcomePage()
+			$$->$setTriggerPage()
+			$$->$setChannelPage()
+			$$->$setFindPage()
+			$$->$setReportPage()
+			$$->$setNextEnabled($$->%pages{trigger_page},$false)
+			$$->$setNextEnabled($$->%pages{channel_page},$false)
+			$$->$show()
+		}
+		setWelcomePage()
+		{
+			%insidepage=$$->$setBaseWidget("welcome_page","Welcome to the NGLfserver configuration wizard")
+			
+			%label=$new(label,%insidepage)
+			%label->$setImage($file.localdir(pics/NGLfserv/NGLlogo.png))
+			%label->$setAlignment("Hcenter")
+				
+			%label=$NGLfserv::corefunctions::addWidget(label,%insidepage,"<p>This procedure will help you during the creation of the trigger.<br>You will have to insert the trigger name, the shared directory and the channel where the trigger works.<br> You could also setup the main options or leave them as suggested by the wizard.</p><p>Then you could personalize using the preferences menu.</p><p>Click Next to start.")
+			
+			%insidepage->$setStretchfactor(%label,200)		
+		}
+		setBaseWidget()
+		{
+			%page=$new(widget,$$)
+			%hbox=$new(hbox,%page)
+			%label=$new(label,%hbox)
+			%label->$setImage($file.localdir(pics/NGLfserv/NGLwizardBackgroundPixmap.png))
+			%label->$setAlignment("Left","Bottom")
+			%hbox->$setStretchfactor(%label,20)
+			$$->$addPage(%page,$1)
+			$$->%pages{$0}=%page
+			$$->$setHelpEnabled(%page,$tr($2))
+			%layout=$new(layout,%page)
+			%layout->$addWidget(%hbox,0,0)
+			%vbox=$new(vbox,%hbox)
+			%hbox->$setStretchfactor(%vbox,200)	
+			return %vbox	
+		}
+		setTriggerPage()
+		{
+			%insidepage=$$->$setBaseWidget("trigger_page","Choose trigger and shared directory",$false)
+					
+			%gbox=$NGLfserv::corefunctions::addWidget(groupbox,%insidepage,"Choose Trigger",,,Horizontal,1)
+			%insidepage->$setStretchFactor(%gbox,20)
+			%label=$NGLfserv::corefunctions::addWidget(label,%gbox,"<p>Specify a word to identify the shared files.</p>")
+			
+			$$->%triggerName=$new(lineedit,%gbox)
+			objects.connect $$->%triggerName textChanged $$ checktriggerparameters
+			
+			%gbox=$NGLfserv::corefunctions::addWidget(groupbox,%insidepage,"Choose folder",,,Horizontal,1)
+			%insidepage->$setStretchFactor(%gbox,80)
+			%label=$NGLfserv::corefunctions::addWidget(label,%gbox,"<p>Choose the shared directory.<br>Then you could add more folders, hanging them up virtually to this one, from the preferences, in the \"shared files\" tab,</p>")
+			
+			%hbox2=$new(hbox,%gbox)
+			
+			$$->%folderName=$new(lineedit,%hbox2)	
+			objects.connect $$->%folderName textChanged $$ checktriggerparameters
+			
+			%btn=$NGLfserv::corefunctions::addWidget(btn,%hbox2,"Browse")
+			
+			objects.connect %btn clicked $$ addFolder
+		}
+		addFolder()
+		{
+			dialog.file(dir,%NGLlogo,,,$$)
+			{
+				if ($0) $1->%folderName->$setText($0)
+			}
+		}
+		checkTriggerParameters()
+		{
+			if ($str.strip($$->%triggerName->$text()) && $$->%folderName->$text()){
+				if (%Triggers{$$->%triggerName->$text()}) {$$->$setNextEnabled($$->%pages{trigger_page},$false);NGLfserv::corefunctions::nglwarning "Trigger already present";return;}
+				if (!$file.exists($$->%folderName->$text()))  {$$->$setNextEnabled($$->%pages{trigger_page},$false);NGLfserv::corefunctions::nglwarning "Folder does not exist!";return;}
+				$$->$setNextEnabled($$->%pages{trigger_page},$true)
+			}
+		}
+		setChannelPage()
+		{
+			%insidepage=$$->$setBaseWidget("channel_page","Choose the channel in which the trigger works",$false)
+			
+			// channel 
+			%gbox=$NGLfserv::corefunctions::addWidget(groupbox,%insidepage,"Choose Channel",,,Horizontal,1)
+			%insidepage->$setStretchFactor(%gbox,20)
+			%label=$NGLfserv::corefunctions::addWidget(label,%gbox,"<p>Now add the channel name in which the trigger works, prepended by #, & or others suffixes..</p>")
+			$$->%channelName=$new(lineedit,%gbox)
+			objects.connect $$->%channelName textChanged $$ checkchannelparameters
+			%gbox=$NGLfserv::corefunctions::addWidget(groupbox,%insidepage,"Choose Channel's Options",,,Horizontal,1)
+			%insidepage->$setStretchFactor(%gbox,70)
+			
+			// channel options
+			$$->%checklist=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>This option let the users know your trigger is acrive on that channel</p>",$true)
+			$$->%checkmyqueues=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>This option let the users know the status of their own queue for this trigger</p>",$true)
+			%boxh=$new(hbox,%gbox)
+			$$->%triggertype=$new(combobox,%boxh)
+			$$->%triggertype->$insertItem("Ctcp")
+			$$->%triggertype->$insertItem("Remote")
+			$$->%triggertype->$insertItem("Both")
+			%label=$NGLfserv::corefunctions::addWidget(label,%boxh,"<p>Here you can choose the access type for the trigger: choosing ctcp the access will be such as /ctcp yournick trigger; with remote the user will digit the trigger name in the channel instead.</p>")
+		}
+		checkChannelParameters()
+		{
+			if ($str.strip($$->%channelName->$text())) $$->$setNextEnabled($$->%pages{channel_page},$true)
+			else $$->$setNextEnabled($$->%pages{channel_page},$false)
+		
+		}
+		setFindPage()
+		{
+			%insidepage=$$->$setBaseWidget("find_page","Choose @find options",$false)
+			%gbox=$NGLfserv::corefunctions::addWidget(groupbox,%insidepage,"Choose @find options",,,Horizontal,1)
+			%insidepage->$setStretchfactor(%gbox,200)
+					
+			%label=$NGLfserv::corefunctions::addWidget(label,%gbox,"<p>Choose @find special options.</p>")
+			
+			$$->%checkqget=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>This option qualify the quickget who permit to download a file without passing by the navigation window.</p>",$true)
+			$$->%checkmres=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>This option let the @find show as many results as possible per line, reducing lag in case of many occurences.</p>",$false)
+			$$->%checknooccurrence=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>Activating it it will notify the user in the case the @find will find nothing.</p>",$true)
+		
+		}
+		setReportPage()
+		{
+			%insidepage=$$->$setBaseWidget("report_page","Riepilogo",$false)
+		
+			%label=$NGLfserv::corefunctions::addWidget(label,%insidepage,"")	
+			%label->$setAlignment("Left","Top")
+			%label->%wiz=$$
+			privateimpl(%label,showEvent)
+			{
+				// hack to fix KVIrc bug ?!?
+				if (!$objects.exists($$->%wiz) || !$objects.exists($$->%wiz->%triggerName)) return 
+				// 
+				
+				%szText<<"<b>Trigger name:</b> "<ul><li>$$->%wiz->%triggerName->$text()"</li></ul>"
+				%szText<<"<b>Channel name:</b> "<ul><li>$$->%wiz->%channelName->$text()"</li></ul>"
+				
+				if ($$->%wiz->%checkqget->$isChecked()) %szOpts="<ul><li>Quickget </li>"
+				if ($$->%wiz->%checkmres->$isChecked()) %szOpts<<"<li>Multiline @find output </li>"
+				if ($$->%wiz->%checknooccurrence->$isChecked()) %szOpts<<"<li>Display \"No occurrences found\" </li>"
+				if ($$->%wiz->%checklist->$isChecked()) %szOpts<<"<li> Reply to !list </li>"
+				if ($$->%wiz->%checkmyqueues->$isChecked()) %szOpts<<"<li> Reply to !myqueues </li>"
+				switch($$->%wiz->%triggertype->$current()){
+					case ("Ctcp"){
+						%szOpts<<"<li>Ctcp access</li>"
+						break
+					}
+					case ("Remote"){
+						%szOpts<<"<li>Remote access</li>"
+						break
+					}
+					default:{
+						%szOpts<<"<li>Ctcp and remote access</li>"
+						break
+					}
+				}
+				if (%szOpts) %szText<<"<b>Main active options:</b>"%szOpts"</ul>"
+				$$->$setText(%szText)
+			}
+					
+			%label=$NGLfserv::corefunctions::addWidget(label,%insidepage,"<b>Folder to share:</b>")
+			%insidepage->$setStretchFactor(%label,20)	
+			
+			%ledit=$new(lineedit,%insidepage)
+			%ledit->%wiz=$$
+			privateimpl(%ledit,showEvent)
+			{
+				// hack to fix KVIrc bug ?!?
+				if (!$objects.exists($$->%wiz->%folderName)) return
+				//	
+				$$->$setText($$->%wiz->%folderName->$text())
+			}
+	
+			%label1=$NGLfserv::corefunctions::addWidget(label,%insidepage,"<br><p><b><u>Click Finish to complete the trigger creation.</u></b></p>")
+			
+			$$->$setFinishEnabled($$->%pages{report_page},$true)
+		}
+		internal function acceptEvent()
+		{
+			// creating trigger
+			%path=$$->%folderName->$text()
+			if ($str.right(%path,1)!="\/") %path .= \/
+			%trigger=$new(NGLfserv::classes::trigger,0)
+			%trigger->$addFirstNode(%path,$$->%triggerName->$text())
+			%Triggers{$$->%triggerName->$text()}=%trigger
+			%trigger->$setChanged($true)
+			
+			// then add channel
+			NGLfserv::corefunctions::channels a $$->%channelName->$text() $$->%triggerName->$text()
+				
+			// if the gui exists then add triggername and channelname to their rispective listbox
+			if ($objects.exists(%NGLgui)){
+				%NGLgui->%tabTriggers->%listboxTriggers->$insertItem($$->%triggerName->$text())
+				%NGLgui->%tabTriggers->%listboxChannels->$insertItem($$->%channelName->$text())
+			}
+			
+			// setting trigger option
+			%trigger->$getChannel($$->%channelName->$text())->$setTriggerType($$->%triggertype->$currentItem())
+			
+			// now setting channel options
+			%FservChannels{$$->%channelName->$text()}->$setRespToMyQueues($$->%checkmyqueues->$isChecked())
+			%FservChannels{$$->%channelName->$text()}->$setUseQuickGet($$->%checkqget->$isChecked())
+			%FservChannels{$$->%channelName->$text()}->$setMultipleResultsPerLine($$->%checkmres->$isChecked())
+			%FservChannels{$$->%channelName->$text()}->$setDisplayNoOccurrenceFound($$->%checknooccurrence->$isChecked())		
+			
+			NGLfserv::corefunctions::nglok "<p>The trigger is been added succesfully: it will be operating as the file scan finishes.</p>"
+			NGLfserv::config::save
+			delete $this		
+		}
+		internal rejectEvent()
+		{
+			delete $this
+		}
+		
+	}
+}
+

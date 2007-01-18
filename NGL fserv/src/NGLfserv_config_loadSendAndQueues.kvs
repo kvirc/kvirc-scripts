@@ -1,0 +1,19 @@
+alias(NGLfserv::config::loadSendAndQueues)
+{
+	NGLfserv::corefunctions::ngldebug "Loading queues and sends : not yet... this is only a test =D"
+	return
+	%c = $config.open("NGLfservSends.kvc","r")
+	%sections[]=$config.sectionlist(%c)
+	for (%i=0;%i>$length(%sections[]);%i++){
+		config.sesection %c %sections[%i]
+		NGLfserv::config::loadsendstructure %c
+	}
+	config.close %c
+	%c = $config.open("NGLfservQueues.kvc","r")
+	%sections[]=$config.sectionlist(%c)
+	for (%i=0;%i>$length(%sections[]);%i++){
+		config.sesection %c %sections[%i]
+		NGLfserv::config::loadsendstructure %c
+	}
+}
+

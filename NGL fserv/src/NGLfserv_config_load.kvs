@@ -76,6 +76,7 @@ alias(NGLfserv::config::load)
 	
 	%triggersnumber=$config.read(%c,Triggersnumber)
 	// moving to first trigger
+	
 	NGLfserv::corefunctions::ngldebug triggers to load %triggersnumber
 	%nochannel=$true
 	%cnt=0
@@ -126,8 +127,9 @@ alias(NGLfserv::config::load)
 	}
 	config.close %c
 	%Asyncio=$new(NGLfserv::classes::asynchLoad)
+		%instances=$new(list,%Asyncio)
 	foreach(%trigger,$keys(%Triggers{})){
-		%instance=$new(list,%Asyncio)
+	
 		%c = $config.open("NGLfservtriggertree"%trigger".kvc",rw)
 		config.setsection %c general
 		%realnodes=$config.read(%c,"realnodes",0)
@@ -136,6 +138,12 @@ alias(NGLfserv::config::load)
 		/*for(%i=0;%i<$length(%keylist[]);%i++;)
 		{
 		*/
+		%realrootfolderslist=$new(list,%instances)
+		%instances->$append(%realrootfolderslist)
+		%realrootfolderslist->%trigger=%Triggers{%trigger}
+		%realrootfolderslist->%c=%c
+		%inst=$false
+		//debug trigger
 		while (%i<%realnodes){
 			config.setsection %c realnode%i
 			//config.setsection %c %keylist[%i]
@@ -145,13 +153,16 @@ alias(NGLfserv::config::load)
 				if ($file.exists(%rrf$config.read(%c,"realnodedir")))
 				{
 					%instance_node=$new(object,%instance)
-					%instance_node->%trigger=%Triggers{%trigger}
 					%instance_node->%realRootFolder=%rrf
 					%instance_node->%pathFromTrigger=$config.read(%c,"pathFromTrigger")
 					%instance_node->%dir=$config.read(%c,"realnodedir")
 					if (%instance_node->%dir=="\/") %instance_node->%dir=""
-					%instance->$append(%instance_node)
-					%inst=$true
+					%realrootfolderslist->$append(%instance_node)
+					//debug creo istanza con il %rrf
+					if (!%inst){
+						objects.connect %Triggers{%trigger} scancompleted %Asyncio nexttrigger
+						%inst=$true
+					}
 				}
 				else{
 					NGLfserv::corefunctions::ngldebug la dir $config.read(%c,"realRootFolder")$config.read(%c,"realnodedir") non esiste: rimuovo il nodo dalla config!
@@ -163,18 +174,14 @@ alias(NGLfserv::config::load)
 			}
 			%i++
 		}
-		if (%inst) {
-			%Asyncio->$addInstance(%instance,%c)
-			%b_instance=$true
-		}
-		else{
+		if (!%inst){
 			 %Triggers{%trigger}->%noNode=$true
 			  config.close %c
 		}
 	
 	}
-	if (%b_instance) %Asyncio->$start()
+	if (%Asyncio->$start(%instances))
+		%G_fserverbusyhandler->$setAliasCallback("NGLfserv::config::loadSendAndQueues")
 	else delete %Asyncio
-	//config.close %c
 }
 

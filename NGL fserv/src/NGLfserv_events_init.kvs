@@ -1,33 +1,31 @@
 alias(NGLfserv::events::init)
 {
 	event(OnKVIrcStartup,"NGLfserv")
-			{
-				NGLfserv::config::load
-				setmenu -q -i=7 %NGLlogo NGLfserv
-			}
-			event(OnChannelMessage,"NGLfserv_!list")
-			{
-				%nick=$0
-				%text=$3
-				if (!$objects.exists(%FservChannels{$chan.name})) return
-				%str=$str.lowCase(%text)
-				if((%str=="!list") ||(%str=="!list $me"))
-				{
-					if(%FservChannels{$chan.name}->$getRespToList()==$false) return
-					if(%FservChannels{$chan.name}->%rootFolders{}#>0)
-					{
-						%normalAdsPrefix = $k(%NGLc1)"["$k(%NGLc2)Fserve active$k(%NGLc1)"] - Triggers:["
-						%normalAdsCount=0
-						%normalAdsRowCount=0
-						%normalAds[0] = %normalAdsPrefix
+	{
+		NGLfserv::config::load
+		setmenu -q -i=7 %NGLlogo NGLfserv
+	}
+	event(OnChannelMessage,"NGLfserv_!list")
+	{
+		%nick=$0
+		%text=$3
+		if (!$objects.exists(%FservChannels{$chan.name})) return
+		%str=$str.lowCase(%text)
+		if((%str=="!list") ||(%str=="!list $me")){
+			if(%FservChannels{$chan.name}->$getRespToList()==$false) return
+				if(%FservChannels{$chan.name}->%rootFolders{}#>0){
+					%normalAdsPrefix = $k(%NGLc1)"["$k(%NGLc2)Fserve active$k(%NGLc1)"] - Triggers:["
+					%normalAdsCount=0
+					%normalAdsRowCount=0
+					%normalAds[0] = %normalAdsPrefix
 	
-						// %TDCCAdsPrefix = $k(%NGLc1)"["$k(%NGLc2)TDCC active$k(%NGLc1)"] - Triggers:["
+					// %TDCCAdsPrefix = $k(%NGLc1)"["$k(%NGLc2)TDCC active$k(%NGLc1)"] - Triggers:["
 	
-						#-------Gives a shape to the trigger notice
-						foreach(%tr,%FservChannels{$chan.name}->%rootFolders{}) {
-							if (!%tr->%noNode){
-								if($str.contains(%Triggers{%tr->$triggerName()}->$getChannel($chan.name)->$getTriggerType(),0)) {
-									%token = "$k(%NGLc2)/ctcp $me %tr->$triggerName() $k(%NGLc1)& "
+					#-------Gives a shape to the trigger notice
+					foreach(%tr,%FservChannels{$chan.name}->%rootFolders{}) {
+						if (!%tr->%noNode){
+							if($str.contains(%Triggers{%tr->$triggerName()}->$getChannel($chan.name)->$getTriggerType(),0)) {
+								%token = "$k(%NGLc2)/ctcp $me %tr->$triggerName() $k(%NGLc1)& "
 									if($($str.len(%normalAds[%normalAdsRowCount]) + $str.len(%token)) <= 350) {
 										%normalAds[%normalAdsRowCount] .= %token
 									}

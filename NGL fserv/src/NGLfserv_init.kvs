@@ -1,9 +1,8 @@
 alias(NGLfserv::init)
 {
-	if ($objects.exists(%NGLfserver)){
-		debug call destrutor nglfserver
-	 	delete -I %NGLfserver
-	}
+	# deleting old instance
+	if ($objects.exists(%NGLfserver))delete -I %NGLfserver
+	
 	# register classes
 	NGLfserv::classes::register
 	

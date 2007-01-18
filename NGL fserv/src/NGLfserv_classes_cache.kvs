@@ -5,7 +5,6 @@ alias(NGLfserv::classes::cache)
 		constructor()
 		{
 			$$->%channel=$0
-			//$str.replace($0,"\%35","#")
 			%c = $config.open("NGLfservcachenooccurrence"$$->%channel"\.kvc",r)
 			%len=$config.read(%c,cachelength,0)
 			if (%len)
@@ -27,7 +26,6 @@ alias(NGLfserv::classes::cache)
 		}
 		noOccurence()
 		{
-			//return $false
 			if (!$length($$->%cacheFoundNoOccurence{})) return $false
 			%words[]=$str.split(" ",$0)
 			%tofind[]=$sort(%words[])

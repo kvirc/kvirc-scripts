@@ -1,0 +1,7 @@
+alias(NGLfserv::corefunctions::addWidget)
+{
+	%classpath="NGLfserv::classes::customwidgets::"
+	if (!$classDefined(%classpath$0)) return $new($0,$1)
+	else return $new(%classpath$0,$1,NGLwidget$0,$2,$3,$4,$5,$6)
+}
+

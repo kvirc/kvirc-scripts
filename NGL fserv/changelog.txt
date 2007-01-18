@@ -1,5 +1,35 @@
-SINCE VERSION 1.0alpha
+[Noldor, 18 january 2007]
+gui changes:
+- added a wizard gui to configure quickly a trigger (thanks to hellvis69 for translation in english)
+- fixed some warnings in tab sharedfiles (dirview section)
+- fixed blank chars bug in "add channel section"
+- fixed layout view problems in tab global options
 
+code changes:
+- added experimental fastscandrive routine (need a recent KVIrc svn version but it doesn't necessary due to an internal script version check ;) )
+- fixed uninstall issues
+- added $NGLfserv::corefunctions::addWidget (wizard class and shared folder tab are based on this new widget constructor: in the future we'll use this instead of NGLfserv::classes::customwidgets::box class)
+- removed unused code
+- optimized asyincload class 
+- fixed some aesthetic coding style
+
+work in progress:
+- save queues and sends at kvirc exit (at this moment only the load/save functions are ready... need some synch routine with server connection)
+- "busy status" is still incomplete.
+
+
+knows bugs:
+- add/delete extra folders is temporarily deactivated due a few bugs
+- some others to discovery :P
+
+
+[Noldor, 24 december 2006]
+- Work on "busy status" of the fserver (still incomplete)
+- Removed some memory lack
+- Now the tabwidget is a class named "NGLgui" (moved all the global var definitions and the freememory allocation from aliases to this class)
+
+
+SINCE VERSION 1.0alpha
 [LoSko]
 - Fixed welcome message displaying in shell
 - Fixed dcc-chat shell clonescanner
@@ -8,7 +38,3 @@ SINCE VERSION 1.0alpha
 - Any @find option is now a channel related option
 - Restructured GUI option tabwidget
 
-[Noldor, 24 december 2006]
-- Work on "busy status" of the fserver (still incomplete)
-- Removed some memory lack
-- Now the tabwidget is a class named "NGLgui" (moved all the global var definitions and the freememory allocation from aliases to this class)

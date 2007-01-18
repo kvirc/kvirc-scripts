@@ -90,6 +90,11 @@ defpopup("NGLfserv")
 		NGLfserv::config::save
 	}
 
+	item($tr("Wizard","NGLfserv"),10)
+	{
+		$new(NGLfserv::classes::gui::wiz)
+	}
+
 	separator
 
 	item($tr("Turn fileserver %:status","NGLfserv"),%:icon)
@@ -109,8 +114,9 @@ setmenu -q -i=7 %NGLlogo NGLfserv
 
 addon.setconfigurecallback("NGLfserv")
 {
-	if (!$objects.exists(%NGLgui)) %NGLgui=$new(NGLfserv::classes::gui)
-			else %NGLgui->$show()
+	//if (!$objects.exists(%NGLgui)) %NGLgui=$new(NGLfserv::classes::gui)
+		//	else %NGLgui->$show()
+	$new(NGlfserv::classes::gui::wiz)
 }
 
 defpopup(NGLfserv_channel)

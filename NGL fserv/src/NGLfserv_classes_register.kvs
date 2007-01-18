@@ -7,12 +7,14 @@ alias(NGLfserv::classes::register)
 			NGLfserv::classes::customwidgets::checkbox,\
 			NGLfserv::classes::customwidgets::button,\
 			NGLfserv::classes::customwidgets::groupbox,\
+			NGLfserv::classes::customwidgets::label,\
 			NGLfserv::classes::gui::triggers,\
 			NGLfserv::classes::gui::sharedfiles,\
 			NGLfserv::classes::gui::channels,\
 			NGLfserv::classes::gui::globals,\
 			NGLfserv::classes::gui::shell,\
 			NGLfserv::classes::gui::monitor,\
+			NGLfserv::classes::gui::wiz,\
 			NGLfserv::classes::chanGeneralProperties,\
 			NGLfserv::classes::chanTriggerProperties,\
 			NGLfserv::classes::sendsAndQueueView,\
@@ -27,8 +29,9 @@ alias(NGLfserv::classes::register)
 			NGLfserv::classes::deadtransferhandler)
 			
 	for (%i=0;%i<$length(%classes[]);%i++;){
-		if ($classDefined("%classes[%i]"))
+		if ($classDefined("%classes[%i]")){
 			 objects.killclass %classes[%i]
+		}
 		eval %classes[%i]
 	}
 }

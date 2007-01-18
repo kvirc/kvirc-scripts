@@ -11,6 +11,5 @@ for (%i=0;%i<$length(%files[]);%i++)
 	%alias  .= "alias (%file){};$lf"
 	
 }
-%alias  .= "alias (NGLfserv::uninstall::uninstallaliases){};$lf"
 %alias .= "}"
 eval %alias

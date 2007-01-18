@@ -1,36 +1,30 @@
 alias(NGLfserv::uninstall::uninstall)
 {
 	// unregistering events
-			NGLfserv::events::eventshandler UNINSTALL
+	NGLfserv::events::eventshandler UNINSTALL
 	
-			// free the memory
-			if ($objects.exists(%NGLfserver)) delete %NGLfserver
+	// free the memory
+	if ($objects.exists(%NGLfserver)) delete %NGLfserver
 	
-			// removes files
-			NGLfserv::uninstall::uninstallfiles
-			alias (NGLfserv::uninstall::uninstallfiles) {}
-	
+	// removes files
+	NGLfserv::uninstall::uninstallfiles
 			
-			
-			// removes classes
-			
-			NGLfserv::uninstall::uninstallclasses
+	// removes classes
+	NGLfserv::uninstall::uninstallclasses
 	
-			// removes popup
-			timer -s (uninstall,1000){
-				setmenu -q -i=7 "...::NGL File Server::..."
-				delpopupitem channeltextview NGLfserv.menu
-				defpopup(NGLfserv_channel) {}
-			}
+	// removes popup
+	timer -s (uninstall,1000){
+		setmenu -q -i=7 "...::NGL File Server::..."
+		delpopupitem channeltextview NGLfserv.menu
+		defpopup(NGLfserv_channel) {}
+	}
+	 // removes configs files
+	if($dialog.yesno("NGL File Server",$tr("Do you want to remove configuration files too?")) == 1){
+		%file[]=$file.ls($file.localdir("config/scripts/"),f,NGLfserv*)
+		foreach(%f,%file[]) file.remove $file.localdir("config/scripts/")/%f
+	}
 	
-			 // removes configs files
-			if($dialog.yesno("NGL File Server",$tr("Do you want to remove configuration files too?")) == 1)
-			{
-				%file[]=$file.ls($file.localdir("config/scripts/"),f,NGLfserv*)
-				foreach(%f,%file[]) file.remove $file.localdir("config/scripts/")/%f
-			}
-	
-			// good bye cruel world...
-			NGLfserv::uninstall::uninstallaliases
+	// good bye cruel world...
+	NGLfserv::uninstall::uninstallaliases
 }
 

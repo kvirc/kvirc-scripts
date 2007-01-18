@@ -1,91 +1,90 @@
 alias(NGLfserv::corefunctions::channels)
 {
 	# $0 option
-		# $1 chan/trigger
-		# $2 target/trigger
-		# $3 trigger type
+	# $1 chan/trigger
+	# $2 target/trigger
+	# $3 trigger type
 	
-		%chan=%FservChannels{$1}
+	%chan=%FservChannels{$1}
 	
-		if($0!="n" && $0!="a" && $0!="s" && $0!="m")
-			if(!%chan) return $false
-	
-		switch($0) {
-			case("a") {
+	if($0!="n" && $0!="a" && $0!="s" && $0!="m")
+	if(!%chan) return $false
+	switch($0) {
+		case("a") {
 		#--------Adds channels & triggers to the Fserv database
-				%new=$new(NGLfserv::classes::chanTriggerProperties,0,chTrPr,$1)
-				%Triggers{$2}->$addChannel($1,%new)
-				if(!$objects.exists(%FservChannels{$1})) {
-					%new=$new(NGLfserv::classes::chanGeneralProperties,0,chGePr,$1)
-					%FservChannels{$1}=%new
-				}
-				%FservChannels{$1}->$addRootFolder(%Triggers{$2})
-				return %new
-				break
+			%new=$new(NGLfserv::classes::chanTriggerProperties,0,chTrPr,$1)
+			%Triggers{$2}->$addChannel($1,%new)
+			if(!$objects.exists(%FservChannels{$1})) {
+				%new=$new(NGLfserv::classes::chanGeneralProperties,0,chGePr,$1)
+				%FservChannels{$1}=%new
 			}
-			case("n") {
+			%FservChannels{$1}->$addRootFolder(%Triggers{$2})
+			return %new
+			break
+		}
+		case("n") {
 		#-------Checks if the nick is at least in one channel of the list...
-				%i=0
-				%exitCode=0
-				foreach(%ch,%Triggers{$1}->$activeChannels()) {
-					%id=$channel(%ch->$getChannelName())
-					if(%id!=0) {
-						if($chan.ison($2,%id)) {
-							%i++
-							%vector[%i]=%ch->$getTriggerType()
-						}
+			%i=0
+			%exitCode=0
+			foreach(%ch,%Triggers{$1}->$activeChannels()) {
+				%id=$channel(%ch->$getChannelName())
+				if(%id!=0) {
+					if($chan.ison($2,%id)) {
+						%i++
+						%vector[%i]=%ch->$getTriggerType()
 					}
 				}
-				if(%i>0) %exitCode=1
+			}
+			if(%i>0) %exitCode=1
 		#-------...and if trigger type request is compatible with trigger type for those channels
-				foreach(%string,%vector[]) {
-					if($str.contains(%string,$3)) {
-						%exitCode=2
+			foreach(%string,%vector[]) {
+				if($str.contains(%string,$3)) {
+					%exitCode=2
+					break
+				}
+			}
+			# ExitCodes 0: failed, 1: passed channels, 2: passed channels & triggers
+			return %exitCode
+		}
+		case("r") {
+		#-------Removes channels & triggers from the Fserv database
+			%FservChannels{$1}->$removeRootFolder($2)
+			if(%FservChannels{$1}->$isRootFolderEmpty()) {
+				delete %FservChannels{$1}
+				%FservChannels{$1}=""				
+			}
+			%Triggers{$2}->$removeChannel($1)
+			break
+		}
+		case("s") {
+		#-------Checks nick status on trigger channels
+			%status = "normal"
+			foreach(%ch,%Triggers{$1}->$activeChannels()) {
+				%id=$channel(%ch->$getChannelName())
+				if(%id!=0) {
+					if($chan.isvoice($2,%id)) {
+						%status = "voice"
+					}
+					if($chan.isop($2,%id)) {
+						%status = "op"
 						break
 					}
 				}
-				# ExitCodes 0: failed, 1: passed channels, 2: passed channels & triggers
-				return %exitCode
 			}
-			case("r") {
-		#-------Removes channels & triggers from the Fserv database
-				%FservChannels{$1}->$removeRootFolder($2)
-				if(%FservChannels{$1}->$isRootFolderEmpty()) {
-					delete %FservChannels{$1}
-					%FservChannels{$1}=""				
-				}
-				%Triggers{$2}->$removeChannel($1)
-				break
-			}
-			case("s") {
-		#-------Checks nick status on trigger channels
-				%status = "normal"
-				foreach(%ch,%Triggers{$1}->$activeChannels()) {
-					%id=$channel(%ch->$getChannelName())
-					if(%id!=0) {
-						if($chan.isvoice($2,%id)) {
-							%status = "voice"
-						}
-						if($chan.isop($2,%id)) {
-							%status = "op"
-							break
-						}
-					}
-				}
-				return %status
-			}
-			case("m") {
-		#-------Checks minimum status necessary to access a trigger
-				%status = 2
-				foreach(%ch,%Triggers{$1}->$activeChannels()) {
-					%id=$channel(%ch->$getChannelName())
-					if(%id!=0) {
-						if(%ch->$getAccessType() < %status)
-							%status = %ch->$getAccessType()
-					}
-				}
-				return %status
-			}
+			return %status
 		}
+		case("m") {
+		#-------Checks minimum status necessary to access a trigger
+			%status = 2
+			foreach(%ch,%Triggers{$1}->$activeChannels()) {
+				%id=$channel(%ch->$getChannelName())
+				if(%id!=0) {
+					if(%ch->$getAccessType() < %status)
+						%status = %ch->$getAccessType()
+				}
+			}
+			return %status
+		}
+	}
 }
 

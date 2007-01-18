@@ -1,281 +1,276 @@
 alias(NGLfserv::classes::find)
 {
 	class(NGLfserv::classes::searchHandler,object)
-			{
-				// init find handler
-			 	function constructor(string to find,max occurrences,nick)
-				{
-					$$->%max_occurrences=$1
-					$$->%string_to_find=$0
-					$$->%nick=$2
-					$$->%idx_trigger=0
-					$$->%channel=$3
-					$$->%instances_temp=$new(list,$$)
-					$$->%instances=$new(list,$$)
-					$$->%instances_mirror=$new(list,$$)
+	{
+		// init find handler
+	 	function constructor(string to find,max occurrences,nick)
+		{
+			$$->%max_occurrences=$1
+			$$->%string_to_find=$0
+			$$->%nick=$2
+			$$->%idx_trigger=0
+			$$->%channel=$3
+			$$->%instances_temp=$new(list,$$)
+			$$->%instances=$new(list,$$)
+			$$->%instances_mirror=$new(list,$$)
+		}
+		// add find instance: 1 instance for every trigger
+		function addFindHandler(trigger)
+		{
+			%trigger=$0
+			%instance=$new(NGLfserv::classes::find,$this)
+			$$->%instances_temp->$append(%instance)
+			%instance->$setFind($$->%string_to_find,$($$->%max_occurrences+1),%trigger)
+		}
+		function randomize()
+		{
+			if ($$->%instances_temp->$count()==1) {
+				$$->%instances->$append($$->%instances_temp->$item(0))
+				$$->%instances_mirror->$append($$->%instances_temp->$item(0))
+				return
+			}
+			while(!%i){
+				%pos=$rand($$->%instances_temp->$count())
+				if ($objects.exists($$->%instances_temp->$item(%pos))){
+					$$->%instances->$append($$->%instances_temp->$item(%pos))
+				 	$$->%instances_mirror->$append($$->%instances_temp->$item(%pos))
+					$$->%instances_temp->$remove(%pos)
 				}
+				if (!$$->%instances_temp->$count()) break
+			}
+			delete $$->%instances_temp
+		}
+		
+		// start find
+		function startFind()
+		{
+			$$->$randomize()
+			$$->%total_results =0
+			$$->$temporized()
+			$$->%antiloop=0
+			$$->$startTimer(1000)
+		}
 	
-				// add find instance: 1 instance for every trigger
-				function addFindHandler(trigger)
-				{
-					%trigger=$0
-					%instance=$new(NGLfserv::classes::find,$this)
-					$$->%instances_temp->$append(%instance)
-					%instance->$setFind($$->%string_to_find,$($$->%max_occurrences+1),%trigger)
-				}
-				function randomize()
-				{
-					if ($$->%instances_temp->$count()==1) {
-						$$->%instances->$append($$->%instances_temp->$item(0))
-						$$->%instances_mirror->$append($$->%instances_temp->$item(0))
-						return
-					}
-					while(!%i){
-						%pos=$rand($$->%instances_temp->$count())
-						if ($objects.exists($$->%instances_temp->$item(%pos))){
-							$$->%instances->$append($$->%instances_temp->$item(%pos))
-						 	$$->%instances_mirror->$append($$->%instances_temp->$item(%pos))
-							$$->%instances_temp->$remove(%pos)
-						}
-						if (!$$->%instances_temp->$count()) break
-					}
-					delete $$->%instances_temp
-				}
-				// start find
-				function startFind()
-				{
-					$$->$randomize()
-					$$->%total_results =0
-					$$->$temporized()
-					$$->%antiloop=0
-					$$->$startTimer(1000)
-				}
+		internal function timerEvent()
+		{
+			if ($$->%antiloop>30){
+				NGLfserv::corefunctions::ngldebug "Too many time for the @find: kill the process!"
+				$$->$killtimers()
+				delete $this
+			}
+			else{
+				$$->$temporized()
+				$$->%antiloop++
+			}
+		}
 	
-				internal function timerEvent()
-				{
-					if ($$->%antiloop>30){
-						NGLfserv::corefunctions::ngldebug "Too many time for the @find: kill the process!"
-						$$->$killtimers()
-						delete $this
-						}
-					else{
-						$$->$temporized()
-						$$->%antiloop++
-					}
-				}
-	
-				// temporized cycle
-				function temporized()
-				{
-					// calculate the time of each find instance
-					$$->%total_result=0
-					%nrinstances=$$->%instances->$count()
-					if (%nrinstances){
-						%max_time_each_instance=$(0.200/$length(%nrinstances))
-						// main cycle
-						for (%i=0;%i<%nrinstances;%i++) {
-							NGLfserv::corefunctions::ngldebug performing find on trigger $$->%instances->$item(%i)->$trigger
-							%tmp = $hptimestamp
-							// start find instance
-							if ($$->%instances->$item(%i)->$progressiveScan(%max_time_each_instance)) %flag_finish=$true
-					 		%tmp_diff=$($hptimestamp-%tmp)
-							// recalculate the time of each find instance to optimize remaining time
-					 		%max_time_each_instance=$((0.200-%tmp_diff)/$(%nrinstances)-%i)
-					 		$$->%total_results += $$->%instances->$item(%i)->$nrOccurrences()
-					 		// check finish
-					 		if ($$->%total_results>=$$->%max_occurrences) {
-					 		$$->$killtimers()
-								$$->$end()
-								halt
-							}
-						}
-						// check if 1 instance has ended its search
-						if (%flag_finish) $$->$refreshInstances()
-					}
-					else{
-						$$->$killtimers()
+		// temporized cycle
+		function temporized()
+		{
+			$$->%total_result=0
+			%nrinstances=$$->%instances->$count()
+			if (%nrinstances){
+				// calculate the time of each find instance
+				%max_time_each_instance=$(0.200/$length(%nrinstances))
+				// main cycle
+				for (%i=0;%i<%nrinstances;%i++) {
+					NGLfserv::corefunctions::ngldebug performing find on trigger $$->%instances->$item(%i)->$trigger
+					%tmp = $hptimestamp
+					// start find instance
+					if ($$->%instances->$item(%i)->$progressiveScan(%max_time_each_instance)) %flag_finish=$true
+					%tmp_diff=$($hptimestamp-%tmp)
+					// recalculate the time of each find instance to optimize remaining time
+					%max_time_each_instance=$((0.200-%tmp_diff)/$(%nrinstances)-%i)
+					$$->%total_results += $$->%instances->$item(%i)->$nrOccurrences()
+					// check finish
+					if ($$->%total_results>=$$->%max_occurrences) {
+			 			$$->$killtimers()
 						$$->$end()
-					}
-				}
-	
-				// refreshing active instances
-				function refreshInstances()
-				{
-					for (%i=0;%i<$$->%instances->$count();%i++) {
-	
-						 if ($$->%instances->$item(%i)->$end()) {
-						 	NGLfserv::corefunctions::ngldebug search finished on trigger $$->%instances->$item(%i)->$trigger() : kill instance!
-						 	$$->%instances->$remove(%i)
-						 	%i--
-						}
-						if (!$$->%instances->$count()){
-							NGLfserv::corefunctions::ngldebug no one instance remain: kill the find handler and make the find report!
-							$$->$killtimers()
-							$$->$end()
-							return
-						}
-					}
-				}
-	
-				// search end
-				function end()
-				{
-					if($$->%total_results)
-					 {
-						%total_res=0
-						%tmp_res=0
-						%printed_res=0
-						msg -q $$->%nick $k(%NGLc2)%NGLlogo: $k(%NGLc1)\@Find result for "["$k(%NGLc2)$$->%string_to_find$k(%NGLc1)"]"
-						for(%i=0;%i<$$->%instances_mirror->$count();%i++)
-						{
-							$$->%instances_mirror->$item(%i)->%trigger->$resetFlag()
-							if ($$->%instances_mirror->$item(%i)->$nrOccurrences()) {
-								msg -q $$->%nick $k(%NGLc1)On trigger\:"["$k(%NGLc2)\/ctcp $me  $$->%instances_mirror->$item(%i)->$trigger()$k(%NGLc1)"]"
-								foreach(%fd,$$->%instances_mirror->$item(%i)->$occurrences()){
-									%fileName=$str.token(0,"?",%fd)
-									%token = $k(%NGLc1)"["$k(%NGLc2)%fileName $k(%NGLc1)Size: $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc($str.token(1,"?",%fd))$k(%NGLc1)
-									if(%FservChannels{$$->%channel}->$getUseQuickGet()) {
-										%token .= " Qget: $k(%NGLc2)/ctcp "$me" qget "$$->%instances_mirror->$item(%i)->$trigger()"|"$str.token(2,"?",%fd)"|"$str.token(3,"?",%fd)$k(%NGLc1)"] "
-									}
-									else {
-										%token .= "] "
-									}
-									if(%FservChannels{$$->%channel}->$getMultipleResultsPerLine()) {
-										if($($str.len(%buffer) + $str.len(%token))<=400) %buffer .= %token
-										else{
-											msg -q $$->%nick %buffer
-											%buffer = %token
-										}
-									}
-									else {
-										msg -q $$->%nick %token
-									}
-									%total_res++
-									%printed_res++
-									if (%printed_res>=$$->%instances_mirror->$item(%i)->$nrOccurrences()) break
-									if (%total_res>=%FindMsg) break
-								}
-							}
-							if(%buffer) msg -q $$->%nick %buffer
-							%tmp_res += $$->%instances_mirror->$item(%i)->$nrOccurrences()
-							if(%tmp_res>=%FindMsg){
-								msg -q $$->%nick $k(%NGLc2)Too many results to display
-								delete $$
-								halt
-							}
-						}
-						delete $this
 						halt
 					}
-					for(%i=0;%i<$$->%instances_mirror->$count();%i++)
-							$$->%instances_mirror->$item(%i)->%trigger->$resetFlag()
-					// no occurence found
-					if(%FservChannels{$$->%channel}->$getDisplayNoOccurrenceFound())
-						notice -q $$->%nick $k(%NGLc2)%NGLlogo: $k(%NGLc1)No file has been found
-					%FservChannels{$$->%channel}->$cache()->$append($$->%string_to_find)
-					delete $this
-					halt
+				}
+				// check if 1 instance has ended its search
+				if (%flag_finish) $$->$refreshInstances()
+			}
+			else{
+				$$->$killtimers()
+				$$->$end()
+			}
+		}
+	
+		// refreshing active instances
+		function refreshInstances()
+		{
+			for (%i=0;%i<$$->%instances->$count();%i++) {
+				 if ($$->%instances->$item(%i)->$end()) {
+				 	NGLfserv::corefunctions::ngldebug search finished on trigger $$->%instances->$item(%i)->$trigger() : kill instance!
+				 	$$->%instances->$remove(%i)
+				 	%i--
+				}
+				if (!$$->%instances->$count()){
+					NGLfserv::corefunctions::ngldebug no one instance remain: kill the find handler and make the find report!
+					$$->$killtimers()
+					$$->$end()
+					return
 				}
 			}
-			if ($classDefined(NGLfserv::classes::find)) objects.killclass NGLfserv::classes::find
-			class(NGLfserv::classes::find,object)
-			{
-				// init find
-				constructor()
-				{
-					//$$->%index=0
-					$$->%tmp_results=0
-					$$->%flag_searchend=$false
-				}
+		}
 	
-				// set find parameters: string to search, max occurences, trigger where to search
-				setFind()
-				{
-					$$->%tofind[]=$str.split(" ",$0)
-					$$->%length=$length($$->%tofind[])
-					$$->%max_occ=$int($1)
-					$$->%tmp_res=0
-					$$->%trigger=$2
-				}
-				function trigger()
-				{
-					return $$->%trigger->$triggerName()
-				}
-				function progressiveScan()
-				{
-					$$->%time=$hptimestamp
-					$$->%time_available=$0
-					//NGLfserv::corefunctions::ngldebug startscan
-					%time=$$->$treeScan($$->%trigger->$firstnode())
-					if (!%time)
-						$$->%flag_searchend=$true
-					return $$->%flag_searchend
-	
-				}
-				function treeScan()
-				{
-					%item=$0
-					if (!%item->%thisNodeCompleted){
-						%item->%thisNodeCompleted=$true
-						%tmp[]=%item->%files_list[]
-						%list[]=%tmp[]
-						%sizes[]=%item->%file_size[]
-						for (%j=0;%j<$$->%length;%j++){
-					 		%tmp[]=$str.grep($$->%tofind[%j],%tmp[])
-					 		if (!%tmp[]) break
-						 }
-						if($length(%tmp[])) {
-							%len=$($$->%max_occ-$$->%tmp_res)
-							if ($length(%tmp[])<%len) %len=$length(%tmp[])
-							%count=0
-					 		for (%k=0;%k<%len;%k++) {
-					 			 if (!%item->%filesNotShared{%tmp[%k]}){
-					 			 	%id=0
-					 				while(%list[%id]!=%tmp[%k]) %id++
-					 				%str=%str%tmp[%k]?%sizes[%id]?%item->%index?%id??
-					 				%count++
-					 				if (%len==%count) break
-					 			}
-					 		}
-							$$->%occurrence=$$->%occurrence%str??
-							$$->%tmp_res .=%count
-							if ($$->%tmp_res>$$->%max_occ){
-								$$->%flag_searchend=$true
-								break
+		// search end
+		function end()
+		{
+			if($$->%total_results) {
+				%total_res=0
+				%tmp_res=0
+				%printed_res=0
+				msg -q $$->%nick $k(%NGLc2)%NGLlogo: $k(%NGLc1)\@Find result for "["$k(%NGLc2)$$->%string_to_find$k(%NGLc1)"]"
+				for(%i=0;%i<$$->%instances_mirror->$count();%i++){
+					$$->%instances_mirror->$item(%i)->%trigger->$resetFlag()
+					if ($$->%instances_mirror->$item(%i)->$nrOccurrences()) {
+						msg -q $$->%nick $k(%NGLc1)On trigger\:"["$k(%NGLc2)\/ctcp $me  $$->%instances_mirror->$item(%i)->$trigger()$k(%NGLc1)"]"
+						foreach(%fd,$$->%instances_mirror->$item(%i)->$occurrences()){
+							%fileName=$str.token(0,"?",%fd)
+							%token = $k(%NGLc1)"["$k(%NGLc2)%fileName $k(%NGLc1)Size: $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc($str.token(1,"?",%fd))$k(%NGLc1)
+							if(%FservChannels{$$->%channel}->$getUseQuickGet()) {
+								%token .= " Qget: $k(%NGLc2)/ctcp "$me" qget "$$->%instances_mirror->$item(%i)->$trigger()"|"$str.token(2,"?",%fd)"|"$str.token(3,"?",%fd)$k(%NGLc1)"] "
 							}
+							else {
+								%token .= "] "
+							}
+							if(%FservChannels{$$->%channel}->$getMultipleResultsPerLine()) {
+								if($($str.len(%buffer) + $str.len(%token))<=400) %buffer .= %token
+								else{
+									msg -q $$->%nick %buffer
+									%buffer = %token
+								}
+							}
+							else {
+								msg -q $$->%nick %token
+							}
+							%total_res++
+							%printed_res++
+							if (%printed_res>=$$->%instances_mirror->$item(%i)->$nrOccurrences()) break
+							if (%total_res>=%FindMsg) break
 						}
 					}
-					if (($hptimestamp-$$->%time)>$$->%time_available || $$->%flag_searchend) return $true
-			 		%folders[]=%item->$children()
-			 		%fl=$false
-					for (%i=0;%i<%folders[]#;%i++) {
-						if (!%folders[%i]->%dirNotShared){
-							if (!%folders[%i]->%allSubFoldersScanned){
-				  				if (!$$->$treeScan(%folders[%i]))
-				  					%item->%allSubFoldersScanned=$true()
-				   				else
-				   					%fl=$true
-				   			}
-				   		}
-						if (%fl) break
+					if(%buffer) msg -q $$->%nick %buffer
+					%tmp_res += $$->%instances_mirror->$item(%i)->$nrOccurrences()
+					if(%tmp_res>=%FindMsg){
+						msg -q $$->%nick $k(%NGLc2)Too many results to display
+						delete $$
+						halt
 					}
-					if (%fl) return $true
 				}
+				delete $this
+				halt
+			}
+			for(%i=0;%i<$$->%instances_mirror->$count();%i++)
+				$$->%instances_mirror->$item(%i)->%trigger->$resetFlag()
+			// no occurence found
+			if(%FservChannels{$$->%channel}->$getDisplayNoOccurrenceFound())
+				notice -q $$->%nick $k(%NGLc2)%NGLlogo: $k(%NGLc1)No file has been found
+			%FservChannels{$$->%channel}->$cache()->$append($$->%string_to_find)
+			delete $this
+			halt
+		}
+	}
 	
-				function end()
-				{
-					return $$->%flag_searchend
-				}
+	class(NGLfserv::classes::find,object)
+	{
+		// init find
+		constructor()
+		{
+			//$$->%index=0
+			$$->%tmp_results=0
+			$$->%flag_searchend=$false
+		}
 	
-	
-				function occurrences()
-				{
-					return $str.split("??",$$->%occurrence)
-				}
-				function nrOccurrences()
-				{
-					return $$->%tmp_res
+		// set find parameters: string to search, max occurences, trigger where to search
+		setFind()
+		{
+			$$->%tofind[]=$str.split(" ",$0)
+			$$->%length=$length($$->%tofind[])
+			$$->%max_occ=$int($1)
+			$$->%tmp_res=0
+			$$->%trigger=$2
+		}
+		function trigger()
+		{
+			return $$->%trigger->$triggerName()
+		}
+		function progressiveScan()
+		{
+			$$->%time=$hptimestamp
+			$$->%time_available=$0
+			NGLfserv::corefunctions::ngldebug startscan
+			%time=$$->$treeScan($$->%trigger->$firstnode())
+			if (!%time)
+				$$->%flag_searchend=$true
+			return $$->%flag_searchend
+		}
+		function treeScan()
+		{
+			%item=$0
+			if (!%item->%thisNodeCompleted){
+				%item->%thisNodeCompleted=$true
+				%tmp[]=%item->%files_list[]
+				%list[]=%tmp[]
+				%sizes[]=%item->%file_size[]
+				for (%j=0;%j<$$->%length;%j++){
+			 		%tmp[]=$str.grep($$->%tofind[%j],%tmp[])
+			 		if (!%tmp[]) break
+				 }
+				if($length(%tmp[])) {
+					%len=$($$->%max_occ-$$->%tmp_res)
+					if ($length(%tmp[])<%len) %len=$length(%tmp[])
+					%count=0
+			 		for (%k=0;%k<%len;%k++) {
+			 			 if (!%item->%filesNotShared{%tmp[%k]}){
+			 			 	%id=0
+			 				while(%list[%id]!=%tmp[%k]) %id++
+			 				%str=%str%tmp[%k]?%sizes[%id]?%item->%index?%id??
+			 				%count++
+			 				if (%len==%count) break
+			 			}
+			 		}
+					$$->%occurrence=$$->%occurrence%str??
+					$$->%tmp_res .=%count
+					if ($$->%tmp_res>$$->%max_occ){
+						$$->%flag_searchend=$true
+						break
+					}
 				}
 			}
+			if (($hptimestamp-$$->%time)>$$->%time_available || $$->%flag_searchend) return $true
+	 		%folders[]=%item->$children()
+	 		%fl=$false
+			for (%i=0;%i<%folders[]#;%i++) {
+				if (!%folders[%i]->%dirNotShared){
+					if (!%folders[%i]->%allSubFoldersScanned){
+		  				if (!$$->$treeScan(%folders[%i]))
+		  					%item->%allSubFoldersScanned=$true()
+		   				else
+		   					%fl=$true
+			   		}
+			   	}
+				if (%fl) break
+			}
+			if (%fl) return $true
+		}
+	
+		function end()
+		{
+			return $$->%flag_searchend
+		}
+	
+		function occurrences()
+		{
+			return $str.split("??",$$->%occurrence)
+		}
+		function nrOccurrences()
+		{
+			return $$->%tmp_res
+		}
+	}
 }
 
