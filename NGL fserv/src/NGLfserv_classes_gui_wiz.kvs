@@ -29,6 +29,7 @@ alias(NGLfserv::classes::gui::wiz)
 		{
 			%page=$new(widget,$$)
 			%hbox=$new(hbox,%page)
+			%hbox->$setSpacing(2)
 			%label=$new(label,%hbox)
 			%label->$setImage($file.localdir(pics/NGLfserv/NGLwizardBackgroundPixmap.png))
 			%label->$setAlignment("Left","Bottom")
@@ -48,21 +49,20 @@ alias(NGLfserv::classes::gui::wiz)
 					
 			%gbox=$NGLfserv::corefunctions::addWidget(groupbox,%insidepage,"Choose Trigger",,,Horizontal,1)
 			%insidepage->$setStretchFactor(%gbox,20)
-			%label=$NGLfserv::corefunctions::addWidget(label,%gbox,"<p>Specify a word to identify the shared files.</p>")
+			$$->%labelTrigger=$NGLfserv::corefunctions::addWidget(label,%gbox,"<p>Specify a word to identify the shared files.</p>")
 			
 			$$->%triggerName=$new(lineedit,%gbox)
 			objects.connect $$->%triggerName textChanged $$ checktriggerparameters
-			objects.connect $$->%triggerName lostFocus $$ checkTriggerName
 			
 			%gbox=$NGLfserv::corefunctions::addWidget(groupbox,%insidepage,"Choose folder",,,Horizontal,1)
 			%insidepage->$setStretchFactor(%gbox,80)
-			%label=$NGLfserv::corefunctions::addWidget(label,%gbox,"<p>Choose the shared directory.<br>Then you could add more folders, hanging them up virtually to this one, from the preferences, in the \"shared files\" tab,</p>")
+			$$->%labelFolder=$NGLfserv::corefunctions::addWidget(label,%gbox,"<p align="justify">Choose the shared directory. Further on you could add more folders from the preferences, hanging them up virtually to this one</p>")
 			
 			%hbox2=$new(hbox,%gbox)
+			%hbox2->$setSpacing(2)
 			
 			$$->%folderName=$new(lineedit,%hbox2)
 			objects.connect $$->%folderName textChanged $$ checktriggerparameters
-			objects.connect $$->%folderName lostFocus $$ checkFolderName
 			
 			%btn=$NGLfserv::corefunctions::addWidget(button,%hbox2,"Browse")
 			
@@ -75,35 +75,38 @@ alias(NGLfserv::classes::gui::wiz)
 				if ($0) $1->%folderName->$setText($0)
 			}
 		}
-		checkTriggerName()
-		{
-			if ($str.strip($$->%triggerName->$text())){
-				if (%Triggers{$$->%triggerName->$text()}) {
-					$$->$setNextEnabled($$->%pages{trigger_page},$false)
-					NGLfserv::corefunctions::nglwarning "Trigger already present"
-					$$->%triggerName->$setFocus()
-					return
-				}
-			}
-		}
-		checkFolderName()
-		{
-			if ($$->%folderName->$text()){
-				if (!$file.exists($$->%folderName->$text())) {
-					$$->$setNextEnabled($$->%pages{trigger_page},$false)
-					NGLfserv::corefunctions::nglwarning "Folder does not exist!"
-					$$->%folderName->$setFocus()
-					return
-				}
-			}
-		}
 		checkTriggerParameters()
 		{
-			if ($str.strip($$->%triggerName->$text()) && $$->%folderName->$text()){
-				if (%Triggers{$$->%triggerName->$text()}) {$$->$setNextEnabled($$->%pages{trigger_page},$false);return;}
-				if (!$file.exists($$->%folderName->$text()))  {$$->$setNextEnabled($$->%pages{trigger_page},$false);return;}
-				$$->$setNextEnabled($$->%pages{trigger_page},$true)
+			%bool1 = $true
+			%bool2 = $true
+			if ($$->%triggerName->$text()){
+				if (%Triggers{$$->%triggerName->$text()}) {
+					%bool1 = $false
+					$$->%labelTrigger->$setText("<p>Specify a word to identify the shared files.</p><p><b><font color="red">TRIGGER NAME ALREADY PRESENT</font></b></p>")
+				} else if($str.contains($$->%triggerName->$text(),"[") || $str.contains($$->%triggerName->$text(),"]") || $str.contains($$->%triggerName->$text()," ")) {
+					$$->%labelTrigger->$setText("<p>Specify a word to identify the shared files.</p><p><b><font color="red">WHITESPACES AND [ ] CHARS ARE NOT ALLOWED</font></b></p>")
+					%bool1 = $false
+				} else {
+					$$->%labelTrigger->$setText("<p>Specify a word to identify the shared files.</p>")
+					%bool1 = $true
+				}
+			} else {
+				$$->%labelTrigger->$setText("<p>Specify a word to identify the shared files.</p>")
+				%bool1 = $false
 			}
+			if($$->%folderName->$text()) {
+				if (!$file.exists($$->%folderName->$text())) {
+					%bool2 = $false
+					$$->%labelFolder->$setText("<p align="justify">Choose the shared directory. Further on you could add more folders from the preferences, hanging them up virtually to this one</p><p><b><font color="red">INVALID FOLDER</font></b></p>")
+				} else {
+					%bool2 = $true
+					$$->%labelFolder->$setText("<p align="justify">Choose the shared directory. Further on you could add more folders from the preferences, hanging them up virtually to this one</p>")
+				}
+			} else {
+				$$->%labelFolder->$setText("<p align="justify">Choose the shared directory. Further on you could add more folders from the preferences, hanging them up virtually to this one</p>")
+				%bool2 = $false
+			}
+			$$->$setNextEnabled($$->%pages{trigger_page},$(%bool1 && %bool2))
 		}
 		setChannelPage()
 		{
@@ -112,13 +115,14 @@ alias(NGLfserv::classes::gui::wiz)
 			// channel 
 			%gbox=$NGLfserv::corefunctions::addWidget(groupbox,%insidepage,"Choose Channel",,,Horizontal,1)
 			%insidepage->$setStretchFactor(%gbox,20)
-			%label=$NGLfserv::corefunctions::addWidget(label,%gbox,"<p>Now add the channel name in which the trigger works, prepended by #, & or others suffixes..</p>")
+			%label=$NGLfserv::corefunctions::addWidget(label,%gbox,"<p>Now add the channel name where you want to share your files, <b>prepended by #, & or others suffixes if any.</b></p>")
 			$$->%channelName=$new(lineedit,%gbox)
 			objects.connect $$->%channelName textChanged $$ checkchannelparameters
 			%gbox=$NGLfserv::corefunctions::addWidget(groupbox,%insidepage,"Choose Channel's Options",,,Horizontal,1)
 			%insidepage->$setStretchFactor(%gbox,70)
 			
 			// channel options
+			%label=$NGLfserv::corefunctions::addWidget(label,%gbox,"<p>Choose the options for the channel (if you don't know, leave them as they are).</p>")
 			$$->%checklist=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>This option let the users know if your trigger is active on this channel</p>",$true)
 			$$->%checkmyqueues=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>This option let the users know the status of their queued files</p>",$false)
 			%vbox=$new(vbox,%gbox)
@@ -144,11 +148,11 @@ alias(NGLfserv::classes::gui::wiz)
 			%gbox=$NGLfserv::corefunctions::addWidget(groupbox,%insidepage,"Choose @find options",,,Horizontal,1)
 			%insidepage->$setStretchfactor(%gbox,200)
 					
-			%label=$NGLfserv::corefunctions::addWidget(label,%gbox,"<p>Choose @find special options.</p>")
+			%label=$NGLfserv::corefunctions::addWidget(label,%gbox,"<p>Choose @find special options (if you don't know, leave them as they are).</p>")
 			
 			$$->%checkqget=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>This option activates the quickget that permits to download a file without passing by the navigation window.</p>",$true)
 			$$->%checkmres=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>This option let the @find show as many results as possible per line, reducing lag in case of many occurences.</p>",$true)
-			$$->%checknooccurrence=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>Activating it it will notify the user in the case the @find will find nothing.</p>",$false)
+			$$->%checknooccurrence=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>Checking this the file server will notify the user in case the @find didn't find anything.</p>",$false)
 		
 		}
 		setReportPage()
@@ -242,7 +246,6 @@ alias(NGLfserv::classes::gui::wiz)
 		{
 			delete $this
 		}
-		
 	}
 }
 
