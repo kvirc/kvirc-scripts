@@ -27,7 +27,7 @@ alias(NGLfserv::classes::gui::sharedfiles)
 			
 			// Update section
 			%gb=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,"Update trigger",5,20,Horizontal,1)
-			$$->%check=$NGLfserv::corefunctions::addWidget(btn,%gb,"Update")
+			$$->%check=$NGLfserv::corefunctions::addWidget(button,%gb,"Update")
 			$$->%check->$setImage(ok)
 			%hbox->$setStretchFactor(%gb,20)
 	

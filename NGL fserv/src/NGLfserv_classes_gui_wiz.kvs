@@ -62,7 +62,7 @@ alias(NGLfserv::classes::gui::wiz)
 			$$->%folderName=$new(lineedit,%hbox2)	
 			objects.connect $$->%folderName textChanged $$ checktriggerparameters
 			
-			%btn=$NGLfserv::corefunctions::addWidget(btn,%hbox2,"Browse")
+			%btn=$NGLfserv::corefunctions::addWidget(button,%hbox2,"Browse")
 			
 			objects.connect %btn clicked $$ addFolder
 		}
