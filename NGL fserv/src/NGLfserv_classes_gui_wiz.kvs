@@ -95,14 +95,19 @@ alias(NGLfserv::classes::gui::wiz)
 			%insidepage->$setStretchFactor(%gbox,70)
 			
 			// channel options
-			$$->%checklist=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>This option let the users know your trigger is acrive on that channel</p>",$true)
-			$$->%checkmyqueues=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>This option let the users know the status of their own queue for this trigger</p>",$true)
-			%boxh=$new(hbox,%gbox)
-			$$->%triggertype=$new(combobox,%boxh)
-			$$->%triggertype->$insertItem("Ctcp")
-			$$->%triggertype->$insertItem("Remote")
+			$$->%checklist=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>This option let the users know if your trigger is active on this channel</p>",$true)
+			$$->%checkmyqueues=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>This option let the users know the status of their queued files</p>",$false)
+			%vbox=$new(vbox,%gbox)
+			%label=$NGLfserv::corefunctions::addWidget(label,%vbox,"Here you can choose the access type for the trigger:")
+			%boxh=$new(hbox,%vbox)
+			$$->%triggertype=$new(listbox,%boxh)
 			$$->%triggertype->$insertItem("Both")
-			%label=$NGLfserv::corefunctions::addWidget(label,%boxh,"<p>Here you can choose the access type for the trigger: choosing ctcp the access will be such as /ctcp yournick trigger; with remote the user will digit the trigger name in the channel instead.</p>")
+			$$->%triggertype->$insertItem("Remote")
+			$$->%triggertype->$insertItem("Ctcp")
+			$$->%triggertype->$setMaximumWidth(60)
+			$$->%triggertype->$setMaximumHeight(60)
+			$$->%triggertype->$setCurrentItem(0)
+			%label=$NGLfserv::corefunctions::addWidget(label,%boxh,"<ul><li>ctcp: the access will be such as /ctcp yournick trigger</li><li>remote: the user will digit the trigger name in the channel instead</li></ul>")
 		}
 		checkChannelParameters()
 		{
@@ -118,9 +123,9 @@ alias(NGLfserv::classes::gui::wiz)
 					
 			%label=$NGLfserv::corefunctions::addWidget(label,%gbox,"<p>Choose @find special options.</p>")
 			
-			$$->%checkqget=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>This option qualify the quickget who permit to download a file without passing by the navigation window.</p>",$true)
-			$$->%checkmres=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>This option let the @find show as many results as possible per line, reducing lag in case of many occurences.</p>",$false)
-			$$->%checknooccurrence=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>Activating it it will notify the user in the case the @find will find nothing.</p>",$true)
+			$$->%checkqget=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>This option activates the quickget that permits to download a file without passing by the navigation window.</p>",$true)
+			$$->%checkmres=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>This option let the @find show as many results as possible per line, reducing lag in case of many occurences.</p>",$true)
+			$$->%checknooccurrence=$NGLfserv::corefunctions::addWidget(checkbox,%gbox,"<p>Activating it it will notify the user in the case the @find will find nothing.</p>",$false)
 		
 		}
 		setReportPage()
@@ -144,7 +149,7 @@ alias(NGLfserv::classes::gui::wiz)
 				if ($$->%wiz->%checknooccurrence->$isChecked()) %szOpts<<"<li>Display \"No occurrences found\" </li>"
 				if ($$->%wiz->%checklist->$isChecked()) %szOpts<<"<li> Reply to !list </li>"
 				if ($$->%wiz->%checkmyqueues->$isChecked()) %szOpts<<"<li> Reply to !myqueues </li>"
-				switch($$->%wiz->%triggertype->$current()){
+				switch($$->%wiz->%triggertype->$currentText()){
 					case ("Ctcp"){
 						%szOpts<<"<li>Ctcp access</li>"
 						break
