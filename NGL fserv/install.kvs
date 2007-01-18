@@ -66,6 +66,11 @@ defpopup("NGLfserv")
 	}
 
 	label(%:labelText)
+	
+	item($tr("Wizard","NGLfserv"),110)
+	{
+		$new(NGLfserv::classes::gui::wiz)
+	}
 
 	item($tr("Options"),20)
 	{
@@ -84,15 +89,10 @@ defpopup("NGLfserv")
 			%NGLmonitor->$show()
 		}
 	}
-
+	
 	item($tr("Save configuration","NGLfserv"),10)
 	{
 		NGLfserv::config::save
-	}
-
-	item($tr("Wizard","NGLfserv"),10)
-	{
-		$new(NGLfserv::classes::gui::wiz)
 	}
 
 	separator

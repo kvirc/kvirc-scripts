@@ -5,8 +5,9 @@ alias(NGLfserv::classes::gui::globals)
 		constructor()
 		{
 			%main_layout=$new(layout,$this)
+			%main_layout->$setSpacing(2)
 					
-					// Box send properties
+			// Box send properties
 			%gb=$new(NGLfserv::classes::customwidgets::groupbox,$$,gb,"Sends properties",5,20)
 			%gb->$setColumnLayout(1,Vertical)
 			%box_labels=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)

@@ -21,7 +21,7 @@ alias(NGLfserv::classes::gui::wiz)
 			%label->$setImage($file.localdir(pics/NGLfserv/NGLlogo.png))
 			%label->$setAlignment("Hcenter")
 				
-			%label=$NGLfserv::corefunctions::addWidget(label,%insidepage,"<p>This procedure will help you during the creation of the trigger.<br>You will have to insert the trigger name, the shared directory and the channel where the trigger works.<br> You could also setup the main options or leave them as suggested by the wizard.</p><p>Then you could personalize using the preferences menu.</p><p>Click Next to start.")
+			%label=$NGLfserv::corefunctions::addWidget(label,%insidepage,"<p align="justify">This procedure will help you in the creation of a trigger. You will have to insert the trigger name, the shared directory and the channel where the trigger works.</p><p align="justify">You can also setup the main options or leave them just as suggested by the wizard. Further on you could personalize them using the preferences menu.</p><p><b><u>Click Next to start.</b></u></p>")
 			
 			%insidepage->$setStretchfactor(%label,200)		
 		}
@@ -130,7 +130,7 @@ alias(NGLfserv::classes::gui::wiz)
 		}
 		setReportPage()
 		{
-			%insidepage=$$->$setBaseWidget("report_page","Riepilogo",$false)
+			%insidepage=$$->$setBaseWidget("report_page","Summary",$false)
 		
 			%label=$NGLfserv::corefunctions::addWidget(label,%insidepage,"")	
 			%label->$setAlignment("Left","Top")
