@@ -69,13 +69,20 @@ defpopup("NGLfserv")
 	
 	item($tr("Wizard","NGLfserv"),110)
 	{
-		$new(NGLfserv::classes::gui::wiz)
+		if (!$objects.exists(%NGLwizard)) %NGLwizard = $new(NGLfserv::classes::gui::wiz)
+		else {
+			%NGLwizard->$show()
+			%NGLwizard->$raise()
+		}
 	}
 
 	item($tr("Options"),20)
 	{
 		if (!$objects.exists(%NGLgui)) %NGLgui=$new(NGLfserv::classes::gui,%NGLfserver)
-			else %NGLgui->$show()
+		else {
+			%NGLgui->$show()
+			%NGLgui->$raise()
+		}
 	}
 
 	item($tr("Monitor","NGLfserv"),171)

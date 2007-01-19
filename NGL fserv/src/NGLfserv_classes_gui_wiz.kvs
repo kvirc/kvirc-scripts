@@ -11,6 +11,9 @@ alias(NGLfserv::classes::gui::wiz)
 			$$->$setReportPage()
 			$$->$setNextEnabled($$->%pages{trigger_page},$false)
 			$$->$setNextEnabled($$->%pages{channel_page},$false)
+			$$->$setWFlags(TopLevel)
+			$$->$setCaption(%NGLlogo" - Wizard")
+			$$->$setIcon(110)
 			$$->$show()
 		}
 		setWelcomePage()
@@ -70,9 +73,9 @@ alias(NGLfserv::classes::gui::wiz)
 		}
 		addFolder()
 		{
-			dialog.file(dir,%NGLlogo,,,$$)
+			dialog.file(dir,%NGLlogo,,,$$->%folderName)
 			{
-				if ($0) $1->%folderName->$setText($0)
+				if ($0) $1->$setText($0)
 			}
 		}
 		checkTriggerParameters()
