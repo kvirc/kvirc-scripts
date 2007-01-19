@@ -146,7 +146,7 @@ alias(NGLfserv::classes::gui::shell)
 		useFile()
 		{
 			%triggerName=$$->%triggerComboBox->$current()
-			dialog.file(open,"Choose a text file",,"*.txt",$$->%lineeditFile,%Triggers{%triggerName},$$->%msgText)
+			dialog.file --modal (open,"Choose a text file",,"*.txt",$$->%lineeditFile,%Triggers{%triggerName},$$->%msgText)
 			{
 				if($0) {
 					$1->$setText($0)

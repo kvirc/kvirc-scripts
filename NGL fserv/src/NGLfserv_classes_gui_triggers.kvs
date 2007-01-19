@@ -184,7 +184,7 @@ alias(NGLfserv::classes::gui::triggers)
 				NGLfserv::corefunctions::nglwarning "Trigger already present"
 				return
 			}
-			dialog.file(dir,%NGLlogo,,,$$,%triggerName)
+			dialog.file --modal (dir,%NGLlogo,,,$$,%triggerName)
 			{
 				if (!$0) $1->$returnFromDialog($false)
 				else {
@@ -219,7 +219,7 @@ alias(NGLfserv::classes::gui::triggers)
 		{
 			%triggerName=$$->%listboxTriggers->$currentText()
 			if(!%triggerName || !%Triggers{%triggerName}) return
-			dialog.file(dir,%NGLlogo,,,$$,%triggerName)
+			dialog.file --modal (dir,%NGLlogo,,,$$,%triggerName)
 			{
 				if (!$0) $1->$returnFromDialog($false)
 				else {

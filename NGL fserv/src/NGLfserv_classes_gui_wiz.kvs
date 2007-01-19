@@ -11,7 +11,7 @@ alias(NGLfserv::classes::gui::wiz)
 			$$->$setReportPage()
 			$$->$setNextEnabled($$->%pages{trigger_page},$false)
 			$$->$setNextEnabled($$->%pages{channel_page},$false)
-			if ($system.osname("linux")) $$->$setWFlags(TopLevel)
+			$$->$setWFlags(TopLevel)
 			$$->$setCaption(%NGLlogo" - Wizard")
 			$$->$setIcon(110)
 			$$->$resize(570,480)
@@ -74,7 +74,7 @@ alias(NGLfserv::classes::gui::wiz)
 		}
 		addFolder()
 		{
-			dialog.file(dir,%NGLlogo,,,$$->%folderName)
+			dialog.file --modal (dir,%NGLlogo,,,$$->%folderName)
 			{
 				if ($0) $1->$setText($0)
 			}
@@ -195,22 +195,16 @@ alias(NGLfserv::classes::gui::wiz)
 					}
 				}
 				if (%szOpts) %szText<<"<b>Main active options:</b>"%szOpts"</ul>"
+				
+				if ($objects.exists($$->%wiz->%folderName)) {
+					%szText<<"<b>Folder to share:</b>"
+					%szText<<"<ul><li>"$$->%wiz->%folderName->$text()"</li></ul>"
+				}
+
+				%szText<<"<b><u>Click Finish to complete the trigger creation.</u></b>"
+
 				$$->$setText(%szText)
 			}
-					
-			%label=$NGLfserv::corefunctions::addWidget(label,%insidepage,"<b>Folder to share:</b>")	
-			
-			%label=$new(label,%insidepage)
-			%label->%wiz=$$
-			privateimpl(%label,showEvent)
-			{
-				// hack to fix KVIrc bug ?!?
-				if (!$objects.exists($$->%wiz->%folderName)) return
-				//	
-				$$->$setText("<ul><li>"$$->%wiz->%folderName->$text()"</li></ul>")
-			}
-	
-			%label1=$NGLfserv::corefunctions::addWidget(label,%insidepage,"<br><p><b><u>Click Finish to complete the trigger creation.</u></b></p>")
 			
 			$$->$setFinishEnabled($$->%pages{report_page},$true)
 		}
