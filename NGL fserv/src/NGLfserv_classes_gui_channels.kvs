@@ -1,43 +1,36 @@
 alias(NGLfserv::classes::gui::channels)
 {
-	class(NGLfserv::classes::gui::channels,widget)
+	class(NGLfserv::classes::gui::channels,vbox)
 	{
 		constructor()
 		{
-			%lay=$new(layout,$$)
-			%main=$new(NGLfserv::classes::customwidgets::box,$$,box,vertical)
-			%hbox=%main->$addWidget(hbox)
+			// main layout
+			%hbox=$NGLfserv::corefunctions::addWidget(hbox,$$)
 			%hbox->$setSpacing(2)
 		
-			// channels list
-			%gb=$new(NGLfserv::classes::customwidgets::groupbox,%hbox,gb,"Channels list",5,20)
-			 %gb->$setColumnLayout(1,Vertical)
-			$$->%listboxChannels=$new(listbox,%gb)
+			// creating right column/channels list
+			%gb=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,"Channels list",5,20,Vertical,1)
+			$$->%listboxChannels=$NGLfserv::corefunctions::addWidget(listbox,%gb)
 			%hbox->$setStretchFactor(%gb,70)
-	
-			// channel properties
-			%vbox = $new(vbox,%hbox)
+			
+			// creating right column
+			%vbox = $NGLfserv::corefunctions::addWidget(vbox,%hbox)
 			%hbox->$setStretchFactor(%vbox,30)
-			$$->%gb_channelproperties=$new(NGLfserv::classes::customwidgets::groupbox,%vbox,gb,"Properties",5,20)
-			$$->%gb_channelproperties->$setColumnLayout(1,Vertical)
-		
-			%box_properties=$new(NGLfserv::classes::customwidgets::box,$$->%gb_channelproperties,box,vertical)	
-			%box_properties->$setSpacing(1)
-		
-			$$->%ckbRespToList=%box_properties->$addWidget("checkbox","Respond to !list")
-			$$->%ckbRespToMyQueues=%box_properties->$addWidget("checkbox","Respond to !myqueues")
+			
+			// channel properties
+			$$->%gb_channelproperties=$NGLfserv::corefunctions::addWidget(groupbox,%vbox,"Properties",5,20,Horizontal,1)
+			$$->%ckbRespToList=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_channelproperties,"Respond to !list")
+			$$->%ckbRespToMyQueues=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_channelproperties,"Respond to !myqueues")
 			
 			// find properties
-			$$->%gb_findproperties=$new(NGLfserv::classes::customwidgets::groupbox,%vbox,gb,"@find properties",5,20)
-			$$->%gb_findproperties->$setColumnLayout(1,Vertical)
-			%box_find_properties=$new(NGLfserv::classes::customwidgets::box,$$->%gb_findproperties,box,vertical)
-			%box_find_properties->$setSpacing(1)
-			$$->%ckbRespToFind=%box_find_properties->$addWidget("checkbox","Respond to @find")
-			$$->%ckbUseQuickGet=%box_find_properties->$addWidget("checkbox","Display quickget code")
-			$$->%ckbDisplayNoOccurrenceFound=%box_find_properties->$addWidget("checkbox","Display \"No files found\"")
-			$$->%ckbMultipleResultsPerLine=%box_find_properties->$addWidget("checkbox","Mutiple results per line")
-			$$->%ckbFindFilter=%box_find_properties->$addWidget("checkbox","Enable filtering")
+			$$->%gb_findproperties=$NGLfserv::corefunctions::addWidget(groupbox,%vbox,"@find properties",5,20,Horizontal,1)
+			$$->%ckbRespToFind=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,"Respond to @find")
+			$$->%ckbUseQuickGet=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,"Display quickget code")
+			$$->%ckbDisplayNoOccurrenceFound=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,"Display \"No files found\"")
+			$$->%ckbMultipleResultsPerLine=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,"Mutiple results per line")
+			$$->%ckbFindFilter=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,"Enable filtering")
 	
+			// set tooltips
 			$$->%ckbRespToList->$setTooltip($tr("The File Server will respond when !list is typed in channel, providing the list of your shared files"))
 			$$->%ckbRespToFind->$setTooltip($tr("The File Server will respond when @find filename is typed in channel and \"filename\" is found in your shared files"))
 			$$->%ckbRespToMyQueues->$setTooltip($tr("The File Server will respond when !myqueues is typed in channel providing to the user the list of his queued files"))
@@ -45,9 +38,8 @@ alias(NGLfserv::classes::gui::channels)
 			$$->%ckbDisplayNoOccurrenceFound->$setTooltip($tr("<b>(Discouraged)</b> Choose if you want to inform that no matching files were found"))
 			$$->%ckbMultipleResultsPerLine->$setTooltip($tr("Outputs multiple results per line reducing lag effects in case of many results"))
 			$$->%ckbFindFilter->$setTooltip($tr("Does not report found results to users that are not allowed to access the trigger"))
-					
-			%lay->$addWidget(%main->$widget,0,0)
-	
+			
+			// setup connections		
 			objects.connect $$->%listboxChannels currentItemChange $$ selectionChange
 			objects.connect $$->%ckbRespToList toggled $$ checkHandler
 			objects.connect $$->%ckbRespToFind toggled $$ checkHandler
@@ -98,7 +90,7 @@ alias(NGLfserv::classes::gui::channels)
 				$$->%gb_channelproperties->$setEnabled($true)
 				$$->%gb_channelproperties->$setTitle(%channelName" properties")
 				$$->%gb_findproperties->$setEnabled($true)
-				$$->%gb_findproperties->$setTitle(%channelName" @find properties")
+				$$->%gb_findproperties->$setTitle(%channelName" @find pppproperties")
 				$$->%ckbRespToList->$setChecked(%FservChannels{%channelName}->$getRespToList())
 				$$->%ckbRespToFind->$setChecked(%FservChannels{%channelName}->$getRespToFind())
 				$$->%ckbRespToMyQueues->$setChecked(%FservChannels{%channelName}->$getRespToMyQueues())
@@ -149,7 +141,7 @@ alias(NGLfserv::classes::gui::channels)
 			}
 			else {
 				$$->%gb_channelproperties->$setTitle("Properties")
-				$$->%gb_channelproperties->$setTitle("@find properties")
+				$$->%gb_findproperties->$setTitle("@find properties")
 			}
 		}
 	}
