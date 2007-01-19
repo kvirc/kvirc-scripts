@@ -8,7 +8,7 @@ alias(NGLfserv::classes::gui::channels)
 			%hbox=$NGLfserv::corefunctions::addWidget(hbox,$$)
 			%hbox->$setSpacing(2)
 		
-			// creating right column/channels list
+			// creating left column/channels list
 			%gb=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,"Channels list",5,20,Vertical,1)
 			$$->%listboxChannels=$NGLfserv::corefunctions::addWidget(listbox,%gb)
 			%hbox->$setStretchFactor(%gb,70)
