@@ -14,6 +14,7 @@ alias(NGLfserv::classes::gui::wiz)
 			if (!$system.osname(windows)) $$->$setWFlags(TopLevel)
 			$$->$setCaption(%NGLlogo" - Wizard")
 			$$->$setIcon(110)
+			$$->$resize(570,480)
 			$$->$show()
 		}
 		setWelcomePage()
