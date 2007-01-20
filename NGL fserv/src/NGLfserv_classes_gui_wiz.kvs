@@ -237,9 +237,13 @@ alias(NGLfserv::classes::gui::wiz)
 			%FservChannels{$$->%channelName->$text()}->$setRespToMyQueues($$->%checkmyqueues->$isChecked())
 			%FservChannels{$$->%channelName->$text()}->$setUseQuickGet($$->%checkqget->$isChecked())
 			%FservChannels{$$->%channelName->$text()}->$setMultipleResultsPerLine($$->%checkmres->$isChecked())
-			%FservChannels{$$->%channelName->$text()}->$setDisplayNoOccurrenceFound($$->%checknooccurrence->$isChecked())		
+			%FservChannels{$$->%channelName->$text()}->$setDisplayNoOccurrenceFound($$->%checknooccurrence->$isChecked())
+
+			if($$->%triggertype->$currentItem() == 0) %typing = "by typing /ctcp "$me" "$$->%triggerName->$text()
+			else if($$->%triggertype->$currentItem() == 1) %typing = "by typing "$$->%triggerName->$text()" in channel "$$->%channelName->$text()
+			else %typing = "<ul><li>by typing "$$->%triggerName->$text()" in channel "$$->%channelName->$text()"</li><li>by typing /ctcp "$me" "$$->%triggerName->$text()"</li></ul>"
 			
-			NGLfserv::corefunctions::nglok "<p>The trigger is been added succesfully: it will be operating as the file scan finishes.</p>"
+			NGLfserv::corefunctions::nglok "<p>Folder has been successfully shared! You're now sharing "$$->%triggerName->$text()" on channel "$$->%channelName->$text()"</p><p>Users can access your files "%typing"</p>"
 			NGLfserv::config::save
 			delete $this		
 		}
