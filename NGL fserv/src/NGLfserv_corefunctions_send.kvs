@@ -8,15 +8,19 @@ alias(NGLfserv::corefunctions::send)
 	%fl_send->%size = $4
 	%fl_send->%ircContext = $5
 	%fl_send->%triggerName= $6
+	
 	%shell = $7
 	%fl_send->%file = $file.extractfilename(%fl_send->%completepath)
 	%fl_send->%retries = 0
 	%fl_send->%initialNick = %fl_send->%nick
-	#-----Checks if the user is a clone of anyone in sends or queue
+	%fl_send->%console = $console(%fl_send->%ircContext)
+	%fl_send->%serverName = $server(%fl_send->%ircContext)
+	
+#-----Checks if the user is a clone of anyone in sends or queue
 	if(%CloneDetection) {
 		if(%type == "shell") {
 			%winid = %shell->%shellwindow
-			rebind %fl_send->%ircContext
+			rebind %fl_send->%console
 		}
 		if(%Nick_nr_sends{}#>0) {
 			foreach(%k,$keys(%Nick_nr_sends{})) {
@@ -57,11 +61,10 @@ alias(NGLfserv::corefunctions::send)
 	if(%fl_send->%size <= %InstantSendSize) {
 		if(%type == "shell") %shell->$msg($k(%NGLc1)"Sending File.")
 		else notice -q %fl_send->%nick $k(%NGLc1)"Sending File."
-		if($NGLfserv::corefunctions::dccStartSend(%fl_send->%ircContext, %fl_send->%nick, %fl_send->%completepath)) {
+		if($NGLfserv::corefunctions::dccStartSend(%fl_send->%console, %fl_send->%nick, %fl_send->%completepath)) {
 			%Send->$append(%fl_send)
 			if(!%Nick_nr_sends{%fl_send->%nick}) %Nick_nr_sends{%fl_send->%nick}=0
 			%Nick_nr_sends{%fl_send->%nick}++
-			if(%Send->$count() == 1) %DeadTransferHandler->$run()
 		}
 		return
 	}
@@ -70,10 +73,9 @@ alias(NGLfserv::corefunctions::send)
 		if (%Nick_nr_sends{%fl_send->%nick} < %EachSends) {
 			if(%type == "shell") %shell->$msg($k(%NGLc1)"Sending File.")
 			else notice -q %fl_send->%nick $k(%NGLc1)"Sending File."
-			if($NGLfserv::corefunctions::dccStartSend(%fl_send->%ircContext, %fl_send->%nick, %fl_send->%completepath)) {
+			if($NGLfserv::corefunctions::dccStartSend(%fl_send->%console, %fl_send->%nick, %fl_send->%completepath)) {
 				%Send->$append(%fl_send)
 				%Nick_nr_sends{%fl_send->%nick}++
-				if(%Send->$count() == 1) %DeadTransferHandler->$run()
 			}
 			return
 		}

@@ -136,7 +136,6 @@ alias(NGLfserv::classes::gui::monitor)
 					if(!%Nick_nr_sends{%nickName})
 						%Nick_nr_sends{%nickName}=0
 					%Nick_nr_sends{%nickName}++
-					if(%Send->$count() == 1) %DeadTransferHandler->$run()
 					break
 				}
 			}

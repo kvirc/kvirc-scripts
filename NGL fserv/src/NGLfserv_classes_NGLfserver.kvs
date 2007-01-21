@@ -14,8 +14,6 @@ alias(NGLfserv::classes::NGLfserver)
 			%G_icons=$new(NGLfserv::classes::icon,$$)
 			
 			%G_fserverbusyhandler=$new(NGlfserv::classes::globalbusyeventfilter,$$)
-	
-			%DeadTransferHandler=$new(NGLfserv::classes::deadtransferhandler,$$)
 			
 		}
 		destructor()

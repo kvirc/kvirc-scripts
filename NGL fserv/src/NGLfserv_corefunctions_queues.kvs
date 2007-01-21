@@ -68,7 +68,6 @@ alias(NGLfserv::corefunctions::queues)
 					%Queues->$remove(%i)
 					%Send->$movelast()
 					NGLfserv::corefunctions::dccstartsend $1 %Send->$current()->%nick %Send->$current()->%completepath
-					if(%Send->$count() == 1) %DeadTransferHandler->$run()
 				}
 				return "transferSuccess"
 			}

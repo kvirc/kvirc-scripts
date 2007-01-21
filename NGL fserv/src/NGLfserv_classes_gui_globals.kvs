@@ -23,12 +23,6 @@ alias(NGLfserv::classes::gui::globals)
 			$$->%spinBoxInstantSend->$setLineStep(2);
 			$$->%spinBoxResendInterval=%box_params->$addWidget(spinbox,$(%ResendInterval / 1000),80)
 			$$->%spinBoxResendInterval->$setSuffix("s");
-			privateimpl($$->%spinBoxResendInterval,valueChangedEvent){
-				if($istimer(deadTransferFinder)) {
-					%DeadTransferHandler->$stop()
-					%DeadTransferHandler->$run()
-				}
-			}
 			$$->%spinBoxLoadSendsDelay=%box_params->$addWidget(spinbox,$(%LoadSendsDelay / 1000),80)
 			$$->%spinBoxLoadSendsDelay->$setSuffix("s");
 			%main_layout->$addWidget(%gb,0,0)
@@ -63,6 +57,7 @@ alias(NGLfserv::classes::gui::globals)
 			%maxResends->$setTooltip($tr("Number of times a failed transfer will be retried"))
 			$$->%spinBoxInstantSend->$setTooltip($tr("Files with size smaller than this will be sent immediately"))
 			$$->%spinBoxResendInterval->$setTooltip($tr("Seconds elapsed before retrying a dcc-transfer<br><b>Note: </b>Values bigger than 15 seconds are discouraged"))
+			$$->%spinBoxLoadSendsDelay->$setTooltip($tr("Incomplete sends from previous sessions are saved: this is the delay before they start upon kvirc startup. If your connection to server takes more than this, consider increasing this value"))
 	
 			%maxQueues->$setTooltip($tr("Maximum number of contemporary queued files (globally)"))
 			%eachQueues->$setTooltip($tr("Maximum number of contemporary queued files per user"))

@@ -212,7 +212,7 @@ alias(NGLfserv::events::init)
 				}
 			}
 			%Trig{%requesting} = %Triggers{%triggerName}
-			%WindowID{%requesting} = $console($context)
+			%ContextID{%requesting} = $context
 			if(%DccReverse) {
 				dcc.chat -z %requesting
 			}
@@ -296,7 +296,7 @@ alias(NGLfserv::events::init)
 				%size=%trigger->$fileSizeAt(%fileindex)
 
 				if (%file){
-					NGLfserv::corefunctions::send "qget" %requesting %nickStatus %completepath %size $console($context) %triggerName
+					NGLfserv::corefunctions::send "qget" %requesting %nickStatus %completepath %size $context %triggerName
 				}
 				else notice -q %requesting $k(%NGLc2)%NGLlogo: $k(%NGLc1)No file corresponding to this quickget index
 				halt
@@ -309,7 +309,7 @@ alias(NGLfserv::events::init)
 		%requesting=$dcc.remoteNick(%id)
 		timer -s (test,5000,%requesting) {
 			%Trig{$0}=""
-			%WindowID{$0}=""
+			%ContextID{$0}=""
 		}
 	}
 	event(OnDccChatConnected,"NGLfserv")
@@ -317,9 +317,9 @@ alias(NGLfserv::events::init)
 		%id=$0
 		%requesting=$dcc.remoteNick(%id)
 		if(!%Trig{%requesting}) return
-		%Session{%id}=$new(NGLfserv::classes::shell,0,usershell,%Trig{%requesting},$window(),%id,%requesting,%WindowID{%requesting},%NickStatus{%requesting})
+		%Session{%id}=$new(NGLfserv::classes::shell,0,usershell,%Trig{%requesting},$window(),%id,%requesting,%ContextID{%requesting},%NickStatus{%requesting})
 		%Trig{%requesting}=""
-		%WindowID{%requesting}=""
+		%ContextID{%requesting}=""
 	}
 	event(OnDCCChatDisconnected,"NGLfserv")
 	{
@@ -536,13 +536,12 @@ alias(NGLfserv::events::init)
 	}
 	event(onIRC,"NGLfserv")
 	{
-		#We must get the server name here
-		return
+		%NGLServersContext{$server} = $context()
 		if(!%SendsLoaded) {
+			%SendsLoaded = $true
 			timer -s (LoadSends,%LoadSendDelay) {
 				NGLfserv::config::loadSendAndQueues
 			}
-			%SendsLoaded = $true
 		}
 	}
 }

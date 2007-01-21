@@ -251,7 +251,6 @@ defpopup(NGLfserv_nick)
 					%Send->$append(%fl_send)
 					if(!%Nick_nr_sends{%fl_send->%nick}) %Nick_nr_sends{%fl_send->%nick}=0
 					%Nick_nr_sends{%fl_send->%nick}++
-					if(%Send->$count() == 1) %DeadTransferHandler->$run()
 					if($objects.exists(%NGLmonitor)) {
 						%NGLmonitor->$showSends()
 					}
