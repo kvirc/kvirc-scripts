@@ -71,7 +71,10 @@ alias(NGLfserv::classes::sendsAndQueueView)
 					if($dcc.transferStatus(%id)!="failure") {
 						%a=$($dcc.transferredBytes(%id)/100)
 						%b=$($dcc.localFileSize(%id)/100)
-						%vector[%i]->$setText(3,$(100*%a/%b)\%)
+						if(%b!=0)
+							%vector[%i]->$setText(3,$(100*%a/%b)\%)
+						else
+							%vector[%i]->$setText(3,"Waiting")
 					}
 					else {
 						%vector[%i]->$setText(3,"Waiting")

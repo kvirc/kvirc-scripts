@@ -17,6 +17,9 @@ alias(NGLfserv::uninstall::uninstall)
 		setmenu -q -i=7 "...::NGL File Server::..."
 		delpopupitem channeltextview NGLfserv.menu
 		defpopup(NGLfserv_channel) {}
+		delpopupitem defaulttextview NGLfserv.menu
+		delpopupitem channel NGLfserv.menu
+		defpopup(NGLfserv_nick) {}
 	}
 	 // removes configs files
 	if($dialog.yesno("NGL File Server",$tr("Do you want to remove configuration files too?")) == 1){

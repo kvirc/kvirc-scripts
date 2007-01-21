@@ -30,8 +30,6 @@ alias(NGLfserv::classes::gui::monitor)
 			$$->%btAbort->$setEnabled($false)
 			$$->%btReSend->$setEnabled($false)
 			$$->%btMoveToQueue->$setEnabled($false)
-			$$->%btAddSend=$$->%box_control_sends->$addWidget(button,"Add")
-			$$->%btAddSend->$setImage(add)
 			%main_layout->$addWidget(%gb,0,1)
 	
 			%gb=$new(NGLfserv::classes::customwidgets::groupbox,$$,gb,"Queues controls",5,20,Vertical)
@@ -55,8 +53,6 @@ alias(NGLfserv::classes::gui::monitor)
 			$$->%btMoveDown->$setEnabled($false)
 			$$->%btSend->$setEnabled($false)
 			$$->%btRemove->$setEnabled($false)
-			$$->%btAddQueue=$$->%box_control_queues->$addWidget(button,"Add")
-			$$->%btAddQueue->$setImage(add)
 	
 			%main_layout->$addWidget(%gb,1,1)
 			objects.connect $$->%listViewSends selectionChanged $$ sendsChange
@@ -69,8 +65,6 @@ alias(NGLfserv::classes::gui::monitor)
 			objects.connect $$->%btAbort clicked $$ abort
 			objects.connect $$->%btReSend clicked $$ resend
 			objects.connect $$->%btMoveToQueue clicked $$ moveToQueue
-			objects.connect $$->%btAddSend clicked $$ addSend
-			objects.connect $$->%btAddQueue clicked $$ addQueue
 		}
 		function abort()
 		{
@@ -174,119 +168,58 @@ alias(NGLfserv::classes::gui::monitor)
 				//$$->%btAbort->$setEnabled($false)
 		}
 		function queuesChange()
+		{
+			if($$->%listViewQueues->$selectedItem()==$null)
 			{
-				if($$->%listViewQueues->$selectedItem()==$null)
-				{
-					$$->$setQueuesButtons($false)
-					return
-				}
-				$$->%box_control_queues->$setEnabled($true)
-				%pos=$$->%listViewQueues->$selectedItem()->$text(0)
-				if(%pos!=1) $$->%btMoveUp->$setEnabled($true)
-				else $$->%btMoveUp->$setEnabled($false)
-				if(%pos<%Queues->$count()) $$->%btMoveDown->$setEnabled($true)
-				else $$->%btMoveDown->$setEnabled($false)
-				$$->%btSend->$setEnabled($true)
-				$$->%btRemove->$setEnabled($true)
-			}
-			function addSend() {
-				dialog.textinput("Nickname","Please enter user nickname","Ok","Cancel",,$$)	{
-					if($0==0) {
-						%nickName = $1
-						%context = $context(,%nickName)
-						if(%context) {
-							dialog.file(open,%NGLlogo,,,%nickName,%context,$2) {
-								if ($0) {
-									%fl_send = $new(object)
-									%fl_send->%completepath = $0
-									%fl_send->%size = $file.size(%fl_send->%completepath)
-									%fl_send->%file = $file.extractfilename(%fl_send->%completepath)
-									%fl_send->%retries = 0
-									%fl_send->%nick = $1
-									%fl_send->%initialNick = %fl_send->%nick
-									%fl_send->%nickStatus = "op"
-									%fl_send->%ircContext = $console($2)
-	
-									if($NGLfserv::corefunctions::dccStartSend(%fl_send->%ircContext, %fl_send->%nick, %fl_send->%completepath)) {
-										%Send->$append(%fl_send)
-										if(!%Nick_nr_sends{%fl_send->%nick}) %Nick_nr_sends{%fl_send->%nick}=0
-										%Nick_nr_sends{%fl_send->%nick}++
-										if(%Send->$count() == 1) %DeadTransferHandler->$run()
-										$3->$showSends()
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			function addQueue() {
-				dialog.textinput("Nickname","Please enter user nickname","Ok","Cancel",,$$)	{
-					if($0==0) {
-						%nickName = $1
-						%context = $context(,%nickName)
-						if(%context) {
-							dialog.file(open,%NGLlogo,,,%nickName,%context,$2) {
-								if ($0) {
-									%fl_send = $new(object)
-									%fl_send->%completepath = $0
-									%fl_send->%size = $file.size(%fl_send->%completepath)
-									%fl_send->%file = $file.extractfilename(%fl_send->%completepath)
-									%fl_send->%retries = 0
-									%fl_send->%nick = $1
-									%fl_send->%initialNick = %fl_send->%nick
-									%fl_send->%nickStatus = "op"
-									%fl_send->%ircContext = $console($2)
-	
-									%Queues->$append(%fl_send)
-									if(!%Nick_nr_queues{%fl_send->%nick}) %Nick_nr_queues{%fl_send->%nick}=0
-									%Nick_nr_queues{%fl_send->%nick}++
-									$3->$showQueues()
-								}
-							}
-						}
-					}
-				}
-			}
-			function showSends()
-			{
-				$$->%listViewSends->$showSends()
-				if(%Send->$count()<1) $$->%btAddQueue->$setEnabled($false)
-				else $$->%btAddQueue->$setEnabled($true)
-				$$->$setSendsButtons($false)
-			}
-			function showQueues()
-			{
-				$$->%listViewQueues->$showQueues()
 				$$->$setQueuesButtons($false)
+				return
 			}
-			function setSendsButtons(bool)
-			{
-				$$->%btAbort->$setEnabled($0)
-				$$->%btReSend->$setEnabled($0)
-				$$->%btMoveToQueue->$setEnabled($0)
-			}
-			function setQueuesButtons(bool)
-			{
-				$$->%btMoveUp->$setEnabled($0)
-				$$->%btMoveDown->$setEnabled($0)
-				$$->%btSend->$setEnabled($0)
-				$$->%btRemove->$setEnabled($0)
-			}
-			internal function showEvent()
-			{
-				$$->$showSends()
-				$$->$showQueues()
-				$$->$startTimer(5000)
-			}
-			internal function timerEvent()
-			{
-				$$->%listViewSends->$refreshSends()
-			}
-			internal function closeEvent()
-			{
-				$$->$killtimers()
-			}
+			$$->%box_control_queues->$setEnabled($true)
+			%pos=$$->%listViewQueues->$selectedItem()->$text(0)
+			if(%pos!=1) $$->%btMoveUp->$setEnabled($true)
+			else $$->%btMoveUp->$setEnabled($false)
+			if(%pos<%Queues->$count()) $$->%btMoveDown->$setEnabled($true)
+			else $$->%btMoveDown->$setEnabled($false)
+			$$->%btSend->$setEnabled($true)
+			$$->%btRemove->$setEnabled($true)
 		}
+		function showSends()
+		{
+			$$->%listViewSends->$showSends()
+			$$->$setSendsButtons($false)
+		}
+		function showQueues()
+		{
+			$$->%listViewQueues->$showQueues()
+			$$->$setQueuesButtons($false)
+		}
+		function setSendsButtons(bool)
+		{
+			$$->%btAbort->$setEnabled($0)
+			$$->%btReSend->$setEnabled($0)
+			$$->%btMoveToQueue->$setEnabled($0)
+		}
+		function setQueuesButtons(bool)
+		{
+			$$->%btMoveUp->$setEnabled($0)
+			$$->%btMoveDown->$setEnabled($0)
+			$$->%btSend->$setEnabled($0)
+			$$->%btRemove->$setEnabled($0)
+		}
+		internal function showEvent()
+		{
+			$$->$showSends()
+			$$->$showQueues()
+			$$->$startTimer(5000)
+		}
+		internal function timerEvent()
+		{
+			$$->%listViewSends->$refreshSends()
+		}
+		internal function closeEvent()
+		{
+			$$->$killtimers()
+		}
+	}
 }
 
