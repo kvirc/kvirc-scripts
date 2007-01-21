@@ -296,6 +296,8 @@ alias(NGLfserv::classes::gui::triggers)
 						}
 						%i++
 					}
+
+					file.remove $file.localdir("config/scripts/")"/NGLfservtriggertree"%triggerName".kvc"
 	
 					$$->%listboxChannels->$clear()
 					$$->%box_channels->$setTitle("Channels trigger:")
