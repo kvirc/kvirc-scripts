@@ -25,9 +25,7 @@ alias(NGLfserv::classes::gui::wiz)
 			%label->$setImage($file.localdir(pics/NGLfserv/NGLlogo.png))
 			%label->$setAlignment("Hcenter")
 				
-			%label=$NGLfserv::corefunctions::addWidget(label,%insidepage,"<p align="justify">This procedure will help you to share your files with other users. You will have to specify a shared directory, a description for its content and the channel where it will be shared.</p><p align="justify">You can either setup the main options or leave them just as suggested by the wizard. Further on you could personalize them using the preferences menu.</p><p><b><u>Click Next to start.</b></u></p>")
-			
-			//%insidepage->$setStretchfactor(%label,200)		
+			%label=$NGLfserv::corefunctions::addWidget(label,%insidepage,"<p align="justify">This procedure will help you to share your files with other users. You will have to specify a shared directory, a description for its content and the channel where it will be shared.</p><p align="justify">You can either setup the main options or leave them just as suggested by the wizard. Further on you could personalize them using the preferences menu.</p><p><b><u>Click Next to start.</b></u></p>")	
 		}
 		setBaseWidget()
 		{
@@ -86,16 +84,16 @@ alias(NGLfserv::classes::gui::wiz)
 			if ($$->%triggerName->$text()){
 				if (%Triggers{$$->%triggerName->$text()}) {
 					%bool1 = $false
-					$$->%labelTrigger->$setText("<p>Specify a word to identify the shared files.</p><p><b><font color="red">TRIGGER NAME ALREADY PRESENT</font></b></p>")
+					$$->%labelTrigger->$setText("<p>Specify a word to describe the shared files.</p><p><b><font color="red">TRIGGER NAME ALREADY PRESENT</font></b></p>")
 				} else if($str.contains($$->%triggerName->$text(),"[") || $str.contains($$->%triggerName->$text(),"]") || $str.contains($$->%triggerName->$text()," ")) {
-					$$->%labelTrigger->$setText("<p>Specify a word to identify the shared files.</p><p><b><font color="red">WHITESPACES AND [ ] CHARS ARE NOT ALLOWED</font></b></p>")
+					$$->%labelTrigger->$setText("<p>Specify a word to describe the shared files.</p><p><b><font color="red">WHITESPACES AND [ ] CHARS ARE NOT ALLOWED</font></b></p>")
 					%bool1 = $false
 				} else {
-					$$->%labelTrigger->$setText("<p>Specify a word to identify the shared files.</p>")
+					$$->%labelTrigger->$setText("<p>Specify a word to describe the shared files.</p>")
 					%bool1 = $true
 				}
 			} else {
-				$$->%labelTrigger->$setText("<p>Specify a word to identify the shared files.</p>")
+				$$->%labelTrigger->$setText("<p>Specify a word to describe the shared files.</p>")
 				%bool1 = $false
 			}
 			if($$->%folderName->$text()) {
@@ -172,8 +170,7 @@ alias(NGLfserv::classes::gui::wiz)
 			privateimpl(%label,showEvent)
 			{
 				// hack to fix KVIrc bug ?!?
-				if (!$objects.exists($$->%wiz) || !$objects.exists($$->%wiz->%triggerName)) return 
-				// 
+				if (!$objects.exists($$->%wiz) || !$objects.exists($$->%wiz->%triggerName)) return
 				
 				%szText<<"<b>Trigger name:</b> "<ul><li>$$->%wiz->%triggerName->$text()"</li></ul>"
 				%szText<<"<b>Channel name:</b> "<ul><li>$$->%wiz->%channelName->$text()"</li></ul>"
@@ -245,7 +242,7 @@ alias(NGLfserv::classes::gui::wiz)
 			
 			NGLfserv::corefunctions::nglok "<p>Folder has been successfully shared! You're now sharing "$$->%triggerName->$text()" on channel "$$->%channelName->$text()"</p><p>Users can access your files "%typing"</p>"
 			NGLfserv::config::save
-			delete $this		
+			delete $this
 		}
 		internal rejectEvent()
 		{
