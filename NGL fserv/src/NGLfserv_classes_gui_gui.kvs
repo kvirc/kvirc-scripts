@@ -34,14 +34,18 @@ alias(NGLfserv::classes::gui::gui)
 			$$->$setMinimumHeight(%size[1])
 			$$->$setCaption(%NGLlogo" - Options")
 			$$->$setIcon(20)
+			$$->$centerToScreen()
 			$$->$show()
 			$$->$raise()
 		}
-		closeEvent()
+		internal closeEvent()
 		{
 			NGLfserv::config::save
 		}
-		
+		internal showEvent()
+		{
+			$$->$centerToScreen()
+		}
 	}
 }
 

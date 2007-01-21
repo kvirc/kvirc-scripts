@@ -248,6 +248,10 @@ alias(NGLfserv::classes::gui::wiz)
 		{
 			delete $this
 		}
+		internal showEvent()
+		{
+			$$->$centerToScreen()
+		}
 	}
 }
 
