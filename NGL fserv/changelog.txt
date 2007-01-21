@@ -2,6 +2,7 @@
 - wizard styling
 - removed Add Send/Enqueue from monitor and created a new nick pop-up for it
 - localfolder ~/pics/NGLfserv is removed when unistalling
+- trigger configuration files are removed when removing trigger
 
 [Noldor, 18 january 2007]
 gui changes:

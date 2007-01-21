@@ -1,26 +1,28 @@
 alias(NGLfserv::config::loadsendstructure)
 {
-	// %send structure reminder :=)
-	/*%type = $0
+	/* Send structure
 	%fl_send = $new(object)
-	%fl_send->%nick = $1
-	%fl_send->%nickStatus = $2
-	%fl_send->%completepath = $3
-	%fl_send->%size = $4
-	%fl_send->%ircContext = $5
-	%fl_send->%triggerName= $6
-	%shell = $7
-	%fl_send->%file = $file.extractfilename(%fl_send->%completepath)
-	%fl_send->%retries = 0
-	%fl_send->%initialNick = %fl_send->%nick
+		->%nick
+		->%nickStatus
+		->%completepath
+		->%size
+		->%ircContext
+		->%triggerName
+		->%file
+		->%retries
+		->%initialNick
 	*/
+
 	%c=$0
+	
 	%nick=$config.read(%c,nick)
 	%nickStatus=$config.read(%c,nickStatus)
 	%completepath=$config.read(%c,completepath)
 	%size=$config.read(%c,size)
-	%ircContext=$config.read(%c,ircContext)
-	%triggerName=$confi.read(%c,triggername)
+	%triggerName=$config.read(%c,triggername)
+
+	%ircContext = $console(connessione)
+
 	NGLfserv::corefunctions::send "qget" %nick %nickStatus %completepath %size %ircContext %triggerName
 }
 

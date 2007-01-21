@@ -12,7 +12,7 @@ alias(NGLfserv::classes::gui::globals)
 			%gb->$setColumnLayout(1,Vertical)
 			%box_labels=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
 			%box_labels->$setSpacing(1)
-			%box_labels->$addGroup("label",$array("Max sends:","Sends per user:","Max resends:","Instant send limit:","Resend interval:"))
+			%box_labels->$addGroup("label",$array("Max sends:","Sends per user:","Max resends:","Instant send limit:","Resend interval:","Load delay:"))
 			%box_params=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
 			%box_params->$setSpacing(1)
 			%maxSends = %box_params->$addWidget(spinbox,"\%MaxSends",80,100)
@@ -29,6 +29,8 @@ alias(NGLfserv::classes::gui::globals)
 					%DeadTransferHandler->$run()
 				}
 			}
+			$$->%spinBoxLoadSendsDelay=%box_params->$addWidget(spinbox,$(%LoadSendsDelay / 1000),80)
+			$$->%spinBoxLoadSendsDelay->$setSuffix("s");
 			%main_layout->$addWidget(%gb,0,0)
 					
 			// Box queue properties
@@ -55,7 +57,7 @@ alias(NGLfserv::classes::gui::globals)
 			%gb->$setColumnLayout(1,Horizontal)
 			$$->%ckbReverse=$new(NGLfserv::classes::customwidgets::checkbox,%gb,cb,"Always use DCC Reverse","\%DccReverse")
 			$$->%ckbCloneDetection=$new(NGLfserv::classes::customwidgets::checkbox,%gb,cb,"Enable clone detection","\%CloneDetection")
-	
+
 			%maxSends->$setTooltip($tr("Maximum number of contemporary sends (globally)"))
 			%eachSends->$setTooltip($tr("Maximum number of contemporary sends per user"))
 			%maxResends->$setTooltip($tr("Number of times a failed transfer will be retried"))
@@ -112,8 +114,6 @@ alias(NGLfserv::classes::gui::globals)
 			objects.connect $$->%spinBoxInstantSend valueChanged $$ commit
 			objects.connect $$->%spinBoxResendInterval valueChanged $$ commit
 			objects.connect $$->%comboBoxPriorityType activated $$ commit
-					
-					
 					
 			privateimpl($$->%comboBoxColor1,activatedEvent) 
 			{

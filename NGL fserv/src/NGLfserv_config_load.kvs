@@ -69,6 +69,9 @@ alias(NGLfserv::config::load)
 	
 	// MaxSessions
 	%MaxSessions = $config.read(%c,"MaxSessions",5)
+
+	// LoadSendDelay
+	%LoadSendsDelay = $config.read(%c,"LoadSendsDelay",30000)
 	
 	%G_NGLdebug=$config.read(%c,"NGLdebug",0)
 	

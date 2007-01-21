@@ -13,527 +13,537 @@ alias(NGLfserv::events::init)
 		%str=$str.lowCase(%text)
 		if((%str=="!list") ||(%str=="!list $me")){
 			if(%FservChannels{$chan.name}->$getRespToList()==$false) return
-				if(%FservChannels{$chan.name}->%rootFolders{}#>0){
-					%normalAdsPrefix = $k(%NGLc1)"["$k(%NGLc2)Fserve active$k(%NGLc1)"] - Triggers:["
-					%normalAdsCount=0
-					%normalAdsRowCount=0
-					%normalAds[0] = %normalAdsPrefix
-	
-					// %TDCCAdsPrefix = $k(%NGLc1)"["$k(%NGLc2)TDCC active$k(%NGLc1)"] - Triggers:["
-	
-					#-------Gives a shape to the trigger notice
-					foreach(%tr,%FservChannels{$chan.name}->%rootFolders{}) {
-						if (!%tr->%noNode){
-							if($str.contains(%Triggers{%tr->$triggerName()}->$getChannel($chan.name)->$getTriggerType(),0)) {
-								%token = "$k(%NGLc2)/ctcp $me %tr->$triggerName() $k(%NGLc1)& "
-									if($($str.len(%normalAds[%normalAdsRowCount]) + $str.len(%token)) <= 350) {
-										%normalAds[%normalAdsRowCount] .= %token
-									}
-									else {
-										%normalAdsRowCount++
-										%normalAds[%normalAdsRowCount] = %normalAdsPrefix
-										%normalAds[%normalAdsRowCount] .= %token
-									}
-									%normalAdsCount++
-								}
-								if($str.contains(%Triggers{%tr->$triggerName()}->$getChannel($chan.name)->$getTriggerType(),1)) {
-									%token = "$k(%NGLc2)%tr->$trigger() $k(%NGLc1)& "
-									if($($str.len(%normalAds[%normalAdsRowCount]) + $str.len(%token)) <= 350) {
-										%normalAds[%normalAdsRowCount] .= %token
-									}
-									else {
-										%normalAdsRowCount++
-										%normalAds[%normalAdsRowCount] = %normalAdsPrefix
-										%normalAds[%normalAdsRowCount] .= %token
-									}
-									%normalAdsCount++
-								}
+			if(%FservChannels{$chan.name}->%rootFolders{}#>0){
+				%normalAdsPrefix = $k(%NGLc1)"["$k(%NGLc2)Fserve active$k(%NGLc1)"] - Triggers:["
+				%normalAdsCount=0
+				%normalAdsRowCount=0
+				%normalAds[0] = %normalAdsPrefix
+
+				// %TDCCAdsPrefix = $k(%NGLc1)"["$k(%NGLc2)TDCC active$k(%NGLc1)"] - Triggers:["
+
+				#-------Gives a shape to the trigger notice
+				foreach(%tr,%FservChannels{$chan.name}->%rootFolders{}) {
+					if (!%tr->%noNode){
+						if($str.contains(%Triggers{%tr->$triggerName()}->$getChannel($chan.name)->$getTriggerType(),0)) {
+							%token = "$k(%NGLc2)/ctcp $me %tr->$triggerName() $k(%NGLc1)& "
+							if($($str.len(%normalAds[%normalAdsRowCount]) + $str.len(%token)) <= 350) {
+								%normalAds[%normalAdsRowCount] .= %token
 							}
+							else {
+								%normalAdsRowCount++
+								%normalAds[%normalAdsRowCount] = %normalAdsPrefix
+								%normalAds[%normalAdsRowCount] .= %token
+							}
+							%normalAdsCount++
 						}
-						if(!%Send) %sends = 0
-						else %sends = %Send->$count()
-						if(!%Queues) %queues = 0
-						else %queues = %Queues->$count()
-						if(%normalAdsCount>0) {
-							for(%i=0; %i<=%normalAdsRowCount; %i++) {
-								%normalAds[%i]=$str.lefttolast(%normalAds,&)
-								%normalAds[%i]=$str.lefttolast(%normalAds," ")
-								%normalAds[%i] .= $k(%NGLc1)] - Users:[$k(%NGLc2)$r$r%Session{}#$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxSessions$k(%NGLc1)] - Sends:[$k(%NGLc2)$r$r%sends$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxSends$k(%NGLc1)] - Queues:[$k(%NGLc2)$r$r%queues$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxQueues$k(%NGLc1)] -$k(%NGLc2) %NGLlogo
-								notice -q %nick %normalAds[%i]
+						if($str.contains(%Triggers{%tr->$triggerName()}->$getChannel($chan.name)->$getTriggerType(),1)) {
+							%token = "$k(%NGLc2)%tr->$trigger() $k(%NGLc1)& "
+							if($($str.len(%normalAds[%normalAdsRowCount]) + $str.len(%token)) <= 350) {
+								%normalAds[%normalAdsRowCount] .= %token
 							}
+							else {
+								%normalAdsRowCount++
+								%normalAds[%normalAdsRowCount] = %normalAdsPrefix
+								%normalAds[%normalAdsRowCount] .= %token
+							}
+							%normalAdsCount++
 						}
 					}
 				}
+				if(!%Send) %sends = 0
+				else %sends = %Send->$count()
+				if(!%Queues) %queues = 0
+				else %queues = %Queues->$count()
+				if(%normalAdsCount>0) {
+					for(%i=0; %i<=%normalAdsRowCount; %i++) {
+						%normalAds[%i]=$str.lefttolast(%normalAds,&)
+						%normalAds[%i]=$str.lefttolast(%normalAds," ")
+						%normalAds[%i] .= $k(%NGLc1)] - Users:[$k(%NGLc2)$r$r%Session{}#$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxSessions$k(%NGLc1)] - Sends:[$k(%NGLc2)$r$r%sends$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxSends$k(%NGLc1)] - Queues:[$k(%NGLc2)$r$r%queues$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxQueues$k(%NGLc1)] -$k(%NGLc2) %NGLlogo
+						notice -q %nick %normalAds[%i]
+					}
+				}
 			}
-	
-			event(OnChannelMessage,"NGLfserv_@find") {
-					%requesting=$0
-					%text=$3
-					%flagstart=$false
-					if(!%FservChannels{$chan.name}) return
-					if($str.token(0," ",$str.lowCase(%text))=="@find") {
-						%str=$str.replace($str.section(%text,"@find ",1,"-1")," ","*")
-						%str=$str.replace(%str," ","_")
-						%str=$str.stripright(%str)
-						if(!%FservChannels{$chan.name}->$getRespToFind() || !%str) return
-						if (%FservChannels{$chan.name}->$cache->$noOccurence(%str)) {
-							NGLfserv::corefunctions::ngldebug "Using cache!"
-							if (%DisplayNoOccurenceFound) notice -q %nick $k(%NGLc2)%NGLlogo: $k(%NGLc1)No file has been found
+		}
+	}
+	event(OnChannelMessage,"NGLfserv_@find") {
+			%requesting=$0
+			%text=$3
+			%flagstart=$false
+			if(!%FservChannels{$chan.name}) return
+			if($str.token(0," ",$str.lowCase(%text))=="@find") {
+				%str=$str.replace($str.section(%text,"@find ",1,"-1")," ","*")
+				%str=$str.replace(%str," ","_")
+				%str=$str.stripright(%str)
+				if(!%FservChannels{$chan.name}->$getRespToFind() || !%str) return
+				if (%FservChannels{$chan.name}->$cache->$noOccurence(%str)) {
+					NGLfserv::corefunctions::ngldebug "Using cache!"
+					if (%DisplayNoOccurenceFound) notice -q %nick $k(%NGLc2)%NGLlogo: $k(%NGLc1)No file has been found
+				}
+				else {
+					%search=$new(NGLfserv::classes::searchHandler,0,search,%str,$(%FindMsg+1),%requesting,$chan.name)
+					foreach(%tr,%FservChannels{$chan.name}->%rootFolders{}) {
+						%triggerName=%tr->$triggerName()
+						if(%Triggers{%triggerName}->%activeChannels{$chan.name}) {
+							if(%FservChannels{$chan.name}->$getFindFilter()) {
+								if($chan.isvoice(%requesting,$channel($chan.name))) %nickstatus = "voice"
+								if($chan.isop(%requesting,$channel($chan.name))) %nickstatus = "op"
+								%access = %Triggers{%triggerName}->%activeChannels{$chan.name}->$getAccessType()
+								if(!((!%nickstatus && %access) || (%nickstatus == "voice" && %access == 2))) {
+									%flagstart=$true
+									%search->$addFindHandler(%tr)
+								}
+							}
+							else {
+								%flagstart=$true
+								%search->$addFindHandler(%tr)
+							}
+						}
+					}
+					if (%flagstart) {
+						%search->$startFind()
+					}
+				}
+			}
+	}
+
+	event(OnChannelMessage,"NGLfserv_!trigger")
+	{
+		%requesting=$0
+		%triggerName=$3
+		if(!%FservChannels{$chan.name}) return
+		if(%Triggers{%triggerName}) {
+			if (%Triggers{%triggerName}->$isBusy()){
+				notice -q %requesting %NGLlogo Sorry, this trigger is in updating contents mode... please wait 1 minute and retry!
+				return
+			}
+			if (!%Triggers{%triggerName}->%noNode){
+				if(%Triggers{%triggerName}->%activeChannels{$chan.name}) {
+					if($str.contains(%Triggers{%triggerName}->%activeChannels{$chan.name}->$getTriggerType(),1)) {
+						%Trig{%requesting}=%Triggers{%triggerName}
+						%nickStatus = "normal"
+						if($chan.isvoice(%requesting,$channel($chan.name))) %nickStatus = "voice"
+						if($chan.isop(%requesting,$channel($chan.name))) %nickStatus = "op"
+						%access = %Triggers{%triggerName}->%activeChannels{$chan.name}->$getAccessType()
+						if((%nickStatus == "normal" && %access != 0) || (%nickStatus == "voice" && %access == 2)) {
+							notice -q %requesting %NGLlogo Sorry, this is a restricted trigger. You're not allowed
+							return
+						}
+						if(%DccReverse) {
+							dcc.chat -z %requesting
 						}
 						else {
-						 	%search=$new(NGLfserv::classes::searchHandler,0,search,%str,$(%FindMsg+1),%requesting,$chan.name)
-						 	foreach(%tr,%FservChannels{$chan.name}->%rootFolders{}) {
-								%triggerName=%tr->$triggerName()
-								if(%Triggers{%triggerName}->%activeChannels{$chan.name}) {
-									if(%FservChannels{$chan.name}->$getFindFilter()) {
-										if($chan.isvoice(%requesting,$channel($chan.name))) %nickstatus = "voice"
-										if($chan.isop(%requesting,$channel($chan.name))) %nickstatus = "op"
-										%access = %Triggers{%triggerName}->%activeChannels{$chan.name}->$getAccessType()
-										if(!((!%nickstatus && %access) || (%nickstatus == "voice" && %access == 2))) {
-											%flagstart=$true
-											%search->$addFindHandler(%tr)
-										}
-									}
-									else {
-										%flagstart=$true
-										%search->$addFindHandler(%tr)
-									}
-								}
-							}
-							if (%flagstart) {
-								%search->$startFind()
-							}
+							dcc.chat %requesting
 						}
 					}
+				}
 			}
-	
-			event(OnChannelMessage,"NGLfserv_!trigger")
-			{
-				%requesting=$0
-				%triggerName=$3
-				if(!%FservChannels{$chan.name}) return
-				if(%Triggers{%triggerName}) {
-					if (%Triggers{%triggerName}->$isBusy()){
-						notice -q %requesting %NGLlogo Sorry, this trigger is in updating contents mode... please wait 1 minute and retry!
+		}
+	}
+	event(OnChannelMessage,"NGLfserv_!myqueues")
+	{
+		%requesting=$0
+		%text=$3
+		if (!$objects.exists(%FservChannels{$chan.name})) return
+		%str=$str.lowCase(%text)
+		if($str.token(0," ",%str)=="!myqueues") {
+			if(%FservChannels{$chan.name}->$getRespToMyQueues()==$false) return
+			if (!$objects.exists(%Queues) || %Queues->$count()==0) return
+			%n=%Queues->$count()
+			%found=0
+			for(%i=0;%i<%n;%i++) {
+				if(%Queues->$at(%i)->%nick==%requesting) {
+					%found++
+					if(%found==1) {
+						msg -q %requesting $k(%NGLc2)%NGLlogo: $k(%NGLc1)Your queued files:
+					}
+					msg -q %requesting $k(%NGLc1)"["$k(%NGLc2)%Queues->$at(%i)->%file $k(%NGLc1)Size: $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc(%Queues->$at(%i)->%size)$k(%NGLc1)"]" queued at $k(%NGLc2)#$(%i+1)
+				}
+			}
+		}
+	}
+	event(OnCtcpRequest,"NGLfserv_trigger")
+	{
+		%requesting=$0
+		%triggerName=$4
+		%triggerPassword=$5
+		if(%Triggers{%triggerName}) {
+			%retValue=$NGLfserv::corefunctions::channels("n",%triggerName,%requesting,0)
+			if(%retValue==0) {
+					notice -q %requesting %NGLlogo You must be on channel to use this trigger
+					halt
+					return
+			}
+			if(%retValue==1) {
+					notice -q %requesting %NGLlogo This trigger does not allow this kind of access
+					halt
+					return
+			}
+			%nickStatus = $NGLfserv::corefunctions::channels("s",%triggerName,%requesting,0)
+			%access = $NGLfserv::corefunctions::channels("m",%triggerName,%requesting,0)
+			if((%nickStatus == "normal" && %access != 0) || (%nickStatus == "voice" && %access == 2)) {
+				notice -q %requesting %NGLlogo Sorry, this is a restricted trigger. You're not allowed
+				halt
+				return
+			}
+			if(%Sessions{}# >= %MaxSessions) {
+				notice -q %requesting %NGLlogo Sorry, too many users are accessing this fserv at the same time
+				halt
+				return
+			}
+			if(%Session{}#>0) {
+				foreach(%s, %Session{}) {
+					if(%s->%nick == %requesting) {
+						notice -q %requesting %NGLlogo Sorry, only one shell session per user is allowed
+						halt
 						return
 					}
-					if (!%Triggers{%triggerName}->%noNode){
-						if(%Triggers{%triggerName}->%activeChannels{$chan.name}) {
-							if($str.contains(%Triggers{%triggerName}->%activeChannels{$chan.name}->$getTriggerType(),1)) {
-								%Trig{%requesting}=%Triggers{%triggerName}
-								%nickStatus = "normal"
-								if($chan.isvoice(%requesting,$channel($chan.name))) %nickStatus = "voice"
-								if($chan.isop(%requesting,$channel($chan.name))) %nickStatus = "op"
-								%access = %Triggers{%triggerName}->%activeChannels{$chan.name}->$getAccessType()
-								if((%nickStatus == "normal" && %access != 0) || (%nickStatus == "voice" && %access == 2)) {
-									notice -q %requesting %NGLlogo Sorry, this is a restricted trigger. You're not allowed
-									return
-								}
-								if(%DccReverse) {
-									dcc.chat -z %requesting
-								}
-								else {
-									dcc.chat %requesting
-								}
-							}
-						}
+				}
+			}
+			if(%Triggers{%triggerName}->%password) {
+				if(!%triggerPassword) {
+					notice -q %requesting %NGLlogo Sorry, this is a password protected trigger
+					halt
+					return
+				}
+				else if(%Triggers{%triggerName}->%password != %triggerPassword) {
+					notice -q %requesting %NGLlogo Wrong password
+					halt
+					return
+				}
+			}
+			%Trig{%requesting} = %Triggers{%triggerName}
+			%WindowID{%requesting} = $console($context)
+			if(%DccReverse) {
+				dcc.chat -z %requesting
+			}
+			else {
+				dcc.chat %requesting
+			}
+			halt
+		}
+	}
+	event(OnCtcpRequest,"NGLfserv_NORESEND")
+	{
+		%requesting=$0
+		%ctcpName=$4
+		if($str.cmpnocase(%ctcpName,"NORESEND")==0) {
+			%i=0
+			%count=0
+			while (%i!=%Send->$count()) {
+				if(%Send->$at(%i)->%nick==%requesting) {
+					%Send->$at(%i)->%retries=%MaxResends
+					%count++
+				}
+				%i++
+			}
+			if(%count!=0) {
+				notice -q %requesting $k(%NGLc2)%NGLlogo: $k(%NGLc1)Resends for $k(%NGLc2)$r$r%count $k(%NGLc1)file\/s has been canceled
+			}
+			halt
+		}
+	}
+	event(OnCtcpRequest,NGLfserv_qget)
+	{
+		%requesting=$0
+		%ctcpName=$4
+		%parameter=$5
+		%triggerPassword = $6
+		if($str.cmpnocase(%ctcpName,"qget")==0)
+		{
+			%triggerName=$str.token(0,"|",%parameter)
+			%folder=$str.token(1,"|",%parameter)
+			%fileindex=$str.token(2,"|",%parameter)
+			if (!$str.isnumber(%folder) || !$str.isnumber(%fileindex)){
+					notice -q %requesting %NGLlogo This is not a quick get valid code
+					return
+			}
+			%trigger=%Triggers{%triggerName}
+			if(%trigger) {
+				%retValue=$NGLfserv::corefunctions::channels("n",%triggerName,%requesting,0)
+				if(%retValue==0) {
+					notice -q %requesting %NGLlogo You must be on channel to request this file
+					halt
+					return
+				}
+				if(%retValue==1) {
+					notice -q %requesting %NGLlogo This trigger does not allow this kind of access
+					halt
+					return
+				}
+				%nickStatus = $NGLfserv::corefunctions::channels("s",%triggerName,%requesting,0)
+				%access = $NGLfserv::corefunctions::channels("m",%triggerName,%requesting,0)
+				if((%nickStatus == "normal" && %access != 0) || (%nickStatus == "voice" && %access == 2)) {
+					notice -q %requesting %NGLlogo Sorry, this is a restricted file. You're not allowed
+					halt
+					return
+				}
+				if(%Triggers{%triggerName}->%password) {
+					if(!%triggerPassword) {
+						notice -q %requesting %NGLlogo Sorry, this is a password protected trigger
+						halt
+						return
+					}
+					else if(%Triggers{%triggerName}->%password != %triggerPassword) {
+						notice -q %requesting %NGLlogo Wrong password
+						halt
+						return
+					}
+				}
+				%folder_obj=%trigger->$getFolderById(%folder)
+				%folderpath=%trigger->$getRealPath(%folder_obj)
+				%file=%trigger->$getFileById(|f%fileindex,%folder_obj)
+				%completepath=%folderpath%file
+				%size=%trigger->$fileSizeAt(%fileindex)
+
+				if (%file){
+					NGLfserv::corefunctions::send "qget" %requesting %nickStatus %completepath %size $console($context) %triggerName
+				}
+				else notice -q %requesting $k(%NGLc2)%NGLlogo: $k(%NGLc1)No file corresponding to this quickget index
+				halt
+			}
+		}
+	}
+	event(OnDCCChatConnectionInProgress,"NGLfserv")
+	{
+		%id=$0
+		%requesting=$dcc.remoteNick(%id)
+		timer -s (test,5000,%requesting) {
+			%Trig{$0}=""
+			%WindowID{$0}=""
+		}
+	}
+	event(OnDccChatConnected,"NGLfserv")
+	{
+		%id=$0
+		%requesting=$dcc.remoteNick(%id)
+		if(!%Trig{%requesting}) return
+		%Session{%id}=$new(NGLfserv::classes::shell,0,usershell,%Trig{%requesting},$window(),%id,%requesting,%WindowID{%requesting},%NickStatus{%requesting})
+		%Trig{%requesting}=""
+		%WindowID{%requesting}=""
+	}
+	event(OnDCCChatDisconnected,"NGLfserv")
+	{
+		%id=$0
+		if($objects.exists(%Session{%id})) {
+			delete %Session{%id}
+			%Session{%id}=""
+		}
+	}
+	event(OnDCCChatWindowClosing,"NGLfserv")
+	{
+		%id=$0
+		if($objects.exists(%Session{%id})) {
+			delete %Session{%id}
+			%Session{%id}=""
+		}
+	}
+	event(OnDCCChatError,"NGLfserv")
+	{
+		%id=$1
+		%requesting=$dcc.remoteNick(%id)
+		if(%Trig{%requesting}) %Trig{%requesting}=""
+		if($objects.exists(%Session{%id})) {
+			delete %Session{%id}
+			%Session{%id}=""
+		}
+		window.close -q
+	}
+	event(onDCCChatMessage,"NGLfserv")
+	{
+		%text=$0
+		%id=$1
+		if (%Session{%id}) %Session{%id}->$parseCommand(%text)
+	}
+	event(OnDCCFileTransferBegin,"NGLfserv")
+	{
+		if (!$objects.exists(%Send)) return
+		%id = $0
+		%i=0
+		while (%i!=%Send->$count())
+		{
+			if(%Send->$at(%i)->%nick==$dcc.remotenick(%id) && %Send->$at(%i)->%file==$file.extractfilename($dcc.localFileName(%id))) {
+				%Send->$at(%i)->%dcc_id=%id
+				if($objects.exists(%NGLmonitor)) {
+					%NGLmonitor->$showSends()
+					%NGLmonitor->$showQueues()
+				}
+				break
+			}
+			%i++
+		}
+	}
+	event(OnDCCFileTransferSuccess,"NGLfserv")
+	{
+		%id=$1
+		%retvalue = $NGLfserv::corefunctions::queues("s", $console($dcc.ircContext(%id)), $dcc.remoteNick(%id), $file.extractfilename($dcc.localFileName(%id)))
+		if(%retvalue == "transferSuccess") {
+			%NGLSentBytes = $(%NGLSentBytes + $dcc.localFileSize($1))
+			%NGLSentFiles++
+			%cfg = $config.open("NGLfserv.kvc")
+			config.setsection %cfg general
+			config.write %cfg NGLSentBytes %NGLSentBytes
+			config.write %cfg NGLSentFiles %NGLSentFiles
+			config.close %cfg
+		}
+		if($objects.exists(%NGLmonitor)) {
+			%NGLmonitor->$showSends()
+			%NGLmonitor->$showQueues()
+		}
+	}
+	event(OnDCCFileTransferFailed,"NGLfserv")
+	{
+		%id=$2
+		NGLfserv::corefunctions::ngldebug Trasferimento fallito: $file.extractfilename($dcc.localFileName(%id)) per $dcc.remoteNick(%id)
+		NGLfserv::corefunctions::queues "t" $console($dcc.ircContext(%id)) $dcc.remoteNick(%id) $file.extractfilename($dcc.localFileName(%id))
+		if($objects.exists(%NGLmonitor)) {
+			%NGLmonitor->$showSends()
+			%NGLmonitor->$showQueues()
+		}
+	}
+	event(OnNickChange,"NGLfserv")
+	{
+		%oldNick = $0
+		%newNick = $3
+		if($objects.exists(%Queues) && %Nick_nr_queues{%oldNick}) {
+			%n=%Queues->$count()
+			for(%i=0;%i<%n;%i++) {
+				if(%Queues->$at(%i)->%nick==%oldNick) {
+					%Queues->$at(%i)->%nick=%newNick
+					if(!%Nick_nr_queues{%newNick}) {
+						%Nick_nr_queues{%newNick} = %Nick_nr_queues{%oldNick}
+						%Nick_nr_queues{%oldNick} = ""
 					}
 				}
 			}
-			event(OnChannelMessage,"NGLfserv_!myqueues")
-			{
-				%requesting=$0
-				%text=$3
-				if (!$objects.exists(%FservChannels{$chan.name})) return
-				%str=$str.lowCase(%text)
-				if($str.token(0," ",%str)=="!myqueues") {
-					if(%FservChannels{$chan.name}->$getRespToMyQueues()==$false) return
-					if (!$objects.exists(%Queues) || %Queues->$count()==0) return
-					%n=%Queues->$count()
-					%found=0
-					for(%i=0;%i<%n;%i++) {
-						if(%Queues->$at(%i)->%nick==%requesting) {
-							%found++
-							if(%found==1) {
-								msg -q %requesting $k(%NGLc2)%NGLlogo: $k(%NGLc1)Your queued files:
-							}
-							msg -q %requesting $k(%NGLc1)"["$k(%NGLc2)%Queues->$at(%i)->%file $k(%NGLc1)Size: $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc(%Queues->$at(%i)->%size)$k(%NGLc1)"]" queued at $k(%NGLc2)#$(%i+1)
-						}
+		}
+		if($objects.exists(%Send) && %Nick_nr_sends{%oldNick}) {
+			%n=%Send->$count()
+			for(%i=0;%i<%n;%i++) {
+				if(%Send->$at(%i)->%nick == %oldNick) {
+					%Send->$at(%i)->%nick=%newNick
+					if(!%Nick_nr_sends{%newNick}) {
+						%Nick_nr_sends{%newNick} = %Nick_nr_sends{%oldNick}
+						%Nick_nr_sends{%oldNick} = ""
 					}
 				}
 			}
-			event(OnCtcpRequest,"NGLfserv_trigger")
-			{
-				%requesting=$0
-				%triggerName=$4
-				%triggerPassword=$5
-				if(%Triggers{%triggerName}) {
-					%retValue=$NGLfserv::corefunctions::channels("n",%triggerName,%requesting,0)
+		}
+		if(%Session{}#>0) {
+			foreach(%s, %Session{})
+				if(%s->%nick == %oldNick) %s->%nick = %newNick
+		}
+		if($objects.exists(%NGLmonitor)) {
+			%NGLmonitor->$showQueues()
+			%NGLmonitor->$showSends()
+		}
+	}
+	event(OnPart,"NGLfserv")
+	{
+		%nickName = $0
+		if(%Nick_nr_queues{%nickName}) {
+			%i=0
+			while(%i < %Queues->$count()) {
+				if(%Queues->$at(%i)->%nick==%nickName) {
+					%retValue=$NGLfserv::corefunctions::channels("n",%Queues->$at(%i)->%triggerName,%nickName,0)
 					if(%retValue==0) {
-							notice -q %requesting %NGLlogo You must be on channel to use this trigger
-							halt
-							return
+						%Queues->$remove(%i)
+						%Nick_nr_queues{%nickName}--
+						%i--
 					}
-					if(%retValue==1) {
-							notice -q %requesting %NGLlogo This trigger does not allow this kind of access
-							halt
-							return
-					}
-					%nickStatus = $NGLfserv::corefunctions::channels("s",%triggerName,%requesting,0)
-					%access = $NGLfserv::corefunctions::channels("m",%triggerName,%requesting,0)
-					if((%nickStatus == "normal" && %access != 0) || (%nickStatus == "voice" && %access == 2)) {
-						notice -q %requesting %NGLlogo Sorry, this is a restricted trigger. You're not allowed
-						halt
-						return
-					}
-					if(%Sessions{}# >= %MaxSessions) {
-						notice -q %requesting %NGLlogo Sorry, too many users are accessing this fserv at the same time
-						halt
-						return
-					}
-					if(%Session{}#>0) {
-						foreach(%s, %Session{}) {
-							if(%s->%nick == %requesting) {
-								notice -q %requesting %NGLlogo Sorry, only one shell session per user is allowed
-								halt
-								return
-							}
-						}
-					}
-					if(%Triggers{%triggerName}->%password) {
-						if(!%triggerPassword) {
-							notice -q %requesting %NGLlogo Sorry, this is a password protected trigger
-							halt
-							return
-						}
-						else if(%Triggers{%triggerName}->%password != %triggerPassword) {
-							notice -q %requesting %NGLlogo Wrong password
-							halt
-							return
-						}
-					}
-					%Trig{%requesting} = %Triggers{%triggerName}
-					%WindowID{%requesting} = $console($context)
-					if(%DccReverse) {
-						dcc.chat -z %requesting
-					}
-					else {
-						dcc.chat %requesting
-					}
-					halt
 				}
+				%i++
 			}
-			event(OnCtcpRequest,"NGLfserv_NORESEND")
-			{
-				%requesting=$0
-				%ctcpName=$4
-				if($str.cmpnocase(%ctcpName,"NORESEND")==0) {
-					%i=0
-					%count=0
-					while (%i!=%Send->$count()) {
-						if(%Send->$at(%i)->%nick==%requesting) {
-							%Send->$at(%i)->%retries=%MaxResends
-							%count++
-						}
-						%i++
+			if($objects.exists(%NGLmonitor)) {
+				%NGLmonitor->$showQueues()
+			}
+		}
+		if(%Nick_nr_sends{%nickName}) {
+			%i = 0
+			%j = 0
+			while(%i < %Send->$count()) {
+				if(%Send->$at(%i)->%nick == %nickName) {
+					%retValue=$NGLfserv::corefunctions::channels("n",%Send->$at(%i)->%triggerName,%nickName,0)
+					if(%retValue==0) {
+						%Send->$at(%i)->%retries=%MaxResends
+						%vect[%j]=%Send->$at(%i)->%dcc_id
+						%j++
 					}
-					if(%count!=0) {
-						notice -q %requesting $k(%NGLc2)%NGLlogo: $k(%NGLc1)Resends for $k(%NGLc2)$r$r%count $k(%NGLc1)file\/s has been canceled
-					}
-					halt
 				}
+				%i++
 			}
-			event(OnCtcpRequest,NGLfserv_qget)
-			{
-				%requesting=$0
-				%ctcpName=$4
-				%parameter=$5
-				%triggerPassword = $6
-				if($str.cmpnocase(%ctcpName,"qget")==0)
-				{
-					%triggerName=$str.token(0,"|",%parameter)
-					%folder=$str.token(1,"|",%parameter)
-					%fileindex=$str.token(2,"|",%parameter)
-					if (!$str.isnumber(%folder) || !$str.isnumber(%fileindex)){
-						 notice -q %requesting %NGLlogo This is not a quick get valid code
-						 return
-					}
-					%trigger=%Triggers{%triggerName}
-					if(%trigger) {
-						%retValue=$NGLfserv::corefunctions::channels("n",%triggerName,%requesting,0)
-						if(%retValue==0) {
-							notice -q %requesting %NGLlogo You must be on channel to request this file
-							halt
-							return
+			for(%i=0; %i < %vect[]#; %i++) {
+				for(%j=0; %j<%Send->$count(); %j++) {
+					if(%Send->$at(%j)->%dcc_id == %vect[%i]) {
+						if($dcc.isFileTransfer(%vect[%i])) {
+							NGLfserv::corefunctions::ngldebug Annullo con abort il trasferimento %Send->$at(%j)->%file per %Send->$at(%j)->%nick
+							dcc.abort %vect[%i]
 						}
-						if(%retValue==1) {
-							notice -q %requesting %NGLlogo This trigger does not allow this kind of access
-							halt
-							return
-						}
-						%nickStatus = $NGLfserv::corefunctions::channels("s",%triggerName,%requesting,0)
-						%access = $NGLfserv::corefunctions::channels("m",%triggerName,%requesting,0)
-						if((%nickStatus == "normal" && %access != 0) || (%nickStatus == "voice" && %access == 2)) {
-							notice -q %requesting %NGLlogo Sorry, this is a restricted file. You're not allowed
-							halt
-							return
-						}
-						if(%Triggers{%triggerName}->%password) {
-							if(!%triggerPassword) {
-								notice -q %requesting %NGLlogo Sorry, this is a password protected trigger
-								halt
-								return
-							}
-							else if(%Triggers{%triggerName}->%password != %triggerPassword) {
-								notice -q %requesting %NGLlogo Wrong password
-								halt
-								return
-							}
-						}
-						%folder_obj=%trigger->$getFolderById(%folder)
-						%folderpath=%trigger->$getRealPath(%folder_obj)
-						%file=%trigger->$getFileById(|f%fileindex,%folder_obj)
-						%completepath=%folderpath%file
-						%size=%trigger->$fileSizeAt(%fileindex)
-	
-						if (%file){
-							NGLfserv::corefunctions::send "qget" %requesting %nickStatus %completepath %size $console($context) %triggerName
-						}
-						else notice -q %requesting $k(%NGLc2)%NGLlogo: $k(%NGLc1)No file corresponding to this quickget index
-						halt
+						else %Send->$remove(%j)
+						%j=%Send->$count()
 					}
 				}
 			}
-			event(OnDCCChatConnectionInProgress,"NGLfserv")
-			{
-				%id=$0
-				%requesting=$dcc.remoteNick(%id)
-				timer -s (test,5000,%requesting) {
-					%Trig{$0}=""
-					%WindowID{$0}=""
+			if($objects.exists(%NGLmonitor)) {
+				%NGLmonitor->$showSends()
+			}
+		}
+	}
+	event(OnQuit,"NGLfserv")
+	{
+		%nickName = $0
+		if(%Nick_nr_queues{%nickName}) {
+			%i=0
+			while(%i < %Queues->$count()) {
+				if(%Queues->$at(%i)->%nick==%nickName) {
+					%Queues->$remove(%i)
+					%i--
 				}
+				%i++
 			}
-			event(OnDccChatConnected,"NGLfserv")
-			{
-				%id=$0
-				%requesting=$dcc.remoteNick(%id)
-				if(!%Trig{%requesting}) return
-				%Session{%id}=$new(NGLfserv::classes::shell,0,usershell,%Trig{%requesting},$window(),%id,%requesting,%WindowID{%requesting},%NickStatus{%requesting})
-				%Trig{%requesting}=""
-				%WindowID{%requesting}=""
+			%Nick_nr_queues{%nickName}=""
+			if($objects.exists(%NGLmonitor)) {
+				%NGLmonitor->$showQueues()
 			}
-			event(OnDCCChatDisconnected,"NGLfserv")
-			{
-				%id=$0
-				if($objects.exists(%Session{%id})) {
-					delete %Session{%id}
-					%Session{%id}=""
+		}
+		if(%Nick_nr_sends{%nickName}) {
+			%i=0
+			%j=0
+			while(%i < %Send->$count()) {
+				if(%Send->$at(%i)->%nick==%nickName) {
+					%Send->$at(%i)->%retries=%MaxResends
+					%vect[%j]=%Send->$at(%i)->%dcc_id
+					%j++
 				}
+				%i++
 			}
-			event(OnDCCChatWindowClosing,"NGLfserv")
-			{
-				%id=$0
-				if($objects.exists(%Session{%id})) {
-					delete %Session{%id}
-					%Session{%id}=""
-				}
-			}
-			event(OnDCCChatError,"NGLfserv")
-			{
-				%id=$1
-				%requesting=$dcc.remoteNick(%id)
-				if(%Trig{%requesting}) %Trig{%requesting}=""
-				if($objects.exists(%Session{%id})) {
-					delete %Session{%id}
-					%Session{%id}=""
-				}
-				window.close -q
-			}
-			event(onDCCChatMessage,"NGLfserv")
-			{
-				%text=$0
-				%id=$1
-				if (%Session{%id}) %Session{%id}->$parseCommand(%text)
-			}
-			event(OnDCCFileTransferBegin,"NGLfserv")
-			{
-				if (!$objects.exists(%Send)) return
-				%id = $0
-				%i=0
-				while (%i!=%Send->$count())
-				{
-					if(%Send->$at(%i)->%nick==$dcc.remotenick(%id) && %Send->$at(%i)->%file==$file.extractfilename($dcc.localFileName(%id))) {
-						%Send->$at(%i)->%dcc_id=%id
-						if($objects.exists(%NGLmonitor)) {
-							%NGLmonitor->$showSends()
-							%NGLmonitor->$showQueues()
+			for(%i=0; %i < %vect[]#; %i++) {
+				for(%j=0; %j<%Send->$count(); %j++) {
+					if(%Send->$at(%j)->%dcc_id == %vect[%i]) {
+						if($dcc.isFileTransfer(%vect[%i])) {
+							NGLfserv::corefunctions::ngldebug Annullo con abort il trasferimento %Send->$at(%j)->%file per %Send->$at(%j)->%nick
+							dcc.abort %vect[%i]
 						}
-						break
-					}
-					%i++
-				}
-			}
-			event(OnDCCFileTransferSuccess,"NGLfserv")
-			{
-				%id=$1
-				%retvalue = $NGLfserv::corefunctions::queues("s", $console($dcc.ircContext(%id)), $dcc.remoteNick(%id), $file.extractfilename($dcc.localFileName(%id)))
-				if(%retvalue == "transferSuccess") {
-					%NGLSentBytes = $(%NGLSentBytes + $dcc.localFileSize($1))
-					%NGLSentFiles++
-					%cfg = $config.open("NGLfserv.kvc")
-					config.setsection %cfg general
-					config.write %cfg NGLSentBytes %NGLSentBytes
-					config.write %cfg NGLSentFiles %NGLSentFiles
-					config.close %cfg
-				}
-				if($objects.exists(%NGLmonitor)) {
-					%NGLmonitor->$showSends()
-					%NGLmonitor->$showQueues()
-				}
-			}
-			event(OnDCCFileTransferFailed,"NGLfserv")
-			{
-				%id=$2
-				NGLfserv::corefunctions::ngldebug Trasferimento fallito: $file.extractfilename($dcc.localFileName(%id)) per $dcc.remoteNick(%id)
-				NGLfserv::corefunctions::queues "t" $console($dcc.ircContext(%id)) $dcc.remoteNick(%id) $file.extractfilename($dcc.localFileName(%id))
-				if($objects.exists(%NGLmonitor)) {
-					%NGLmonitor->$showSends()
-					%NGLmonitor->$showQueues()
-				}
-			}
-			event(OnNickChange,"NGLfserv")
-			{
-				%oldNick = $0
-				%newNick = $3
-				if($objects.exists(%Queues) && %Nick_nr_queues{%oldNick}) {
-					%n=%Queues->$count()
-					for(%i=0;%i<%n;%i++) {
-						if(%Queues->$at(%i)->%nick==%oldNick) {
-							%Queues->$at(%i)->%nick=%newNick
-							if(!%Nick_nr_queues{%newNick}) {
-								%Nick_nr_queues{%newNick} = %Nick_nr_queues{%oldNick}
-								%Nick_nr_queues{%oldNick} = ""
-							}
-						}
-					}
-				}
-				if($objects.exists(%Send) && %Nick_nr_sends{%oldNick}) {
-					%n=%Send->$count()
-					for(%i=0;%i<%n;%i++) {
-						if(%Send->$at(%i)->%nick == %oldNick) {
-							%Send->$at(%i)->%nick=%newNick
-							if(!%Nick_nr_sends{%newNick}) {
-								%Nick_nr_sends{%newNick} = %Nick_nr_sends{%oldNick}
-								%Nick_nr_sends{%oldNick} = ""
-							}
-						}
-					}
-				}
-				if(%Session{}#>0) {
-					foreach(%s, %Session{})
-						if(%s->%nick == %oldNick) %s->%nick = %newNick
-				}
-				if($objects.exists(%NGLmonitor)) {
-					%NGLmonitor->$showQueues()
-					%NGLmonitor->$showSends()
-				}
-			}
-			event(OnPart,"NGLfserv")
-			{
-				%nickName = $0
-				if(%Nick_nr_queues{%nickName}) {
-					%i=0
-					while(%i < %Queues->$count()) {
-						if(%Queues->$at(%i)->%nick==%nickName) {
-							%retValue=$NGLfserv::corefunctions::channels("n",%Queues->$at(%i)->%triggerName,%nickName,0)
-							if(%retValue==0) {
-								%Queues->$remove(%i)
-								%Nick_nr_queues{%nickName}--
-								%i--
-							}
-						}
-						%i++
-					}
-					if($objects.exists(%NGLmonitor)) {
-						%NGLmonitor->$showQueues()
-					}
-				}
-				if(%Nick_nr_sends{%nickName}) {
-					%i = 0
-					%j = 0
-					while(%i < %Send->$count()) {
-						if(%Send->$at(%i)->%nick == %nickName) {
-							%retValue=$NGLfserv::corefunctions::channels("n",%Send->$at(%i)->%triggerName,%nickName,0)
-							if(%retValue==0) {
-								%Send->$at(%i)->%retries=%MaxResends
-								%vect[%j]=%Send->$at(%i)->%dcc_id
-								%j++
-							}
-						}
-						%i++
-					}
-					for(%i=0; %i < %vect[]#; %i++) {
-						for(%j=0; %j<%Send->$count(); %j++) {
-							if(%Send->$at(%j)->%dcc_id == %vect[%i]) {
-								if($dcc.isFileTransfer(%vect[%i])) {
-									NGLfserv::corefunctions::ngldebug Annullo con abort il trasferimento %Send->$at(%j)->%file per %Send->$at(%j)->%nick
-									dcc.abort %vect[%i]
-								}
-								else %Send->$remove(%j)
-								%j=%Send->$count()
-							}
-						}
-					}
-					if($objects.exists(%NGLmonitor)) {
-						%NGLmonitor->$showSends()
+						else %Send->$remove(%j)
+						%j=%Send->$count()
 					}
 				}
 			}
-			event(OnQuit,"NGLfserv")
-			{
-				%nickName = $0
-				if(%Nick_nr_queues{%nickName}) {
-					%i=0
-					while(%i < %Queues->$count()) {
-						if(%Queues->$at(%i)->%nick==%nickName) {
-							%Queues->$remove(%i)
-							%i--
-						}
-						%i++
-					}
-					%Nick_nr_queues{%nickName}=""
-					if($objects.exists(%NGLmonitor)) {
-						%NGLmonitor->$showQueues()
-					}
-				}
-				if(%Nick_nr_sends{%nickName}) {
-					%i=0
-					%j=0
-					while(%i < %Send->$count()) {
-						if(%Send->$at(%i)->%nick==%nickName) {
-							%Send->$at(%i)->%retries=%MaxResends
-							%vect[%j]=%Send->$at(%i)->%dcc_id
-							%j++
-						}
-						%i++
-					}
-					for(%i=0; %i < %vect[]#; %i++) {
-						for(%j=0; %j<%Send->$count(); %j++) {
-							if(%Send->$at(%j)->%dcc_id == %vect[%i]) {
-								if($dcc.isFileTransfer(%vect[%i])) {
-									NGLfserv::corefunctions::ngldebug Annullo con abort il trasferimento %Send->$at(%j)->%file per %Send->$at(%j)->%nick
-									dcc.abort %vect[%i]
-								}
-								else %Send->$remove(%j)
-								%j=%Send->$count()
-							}
-						}
-					}
-					%Nick_nr_sends{%nickName}=""
-					if($objects.exists(%NGLmonitor)) {
-						%NGLmonitor->$showSends()
-					}
-				}
+			%Nick_nr_sends{%nickName}=""
+			if($objects.exists(%NGLmonitor)) {
+				%NGLmonitor->$showSends()
 			}
+		}
+	}
+	event(onIRC,"NGLfserv")
+	{
+		#We must get the server name here
+		return
+		if(!%SendsLoaded) {
+			timer -s (LoadSends,%LoadSendDelay) {
+				NGLfserv::config::loadSendAndQueues
+			}
+			%SendsLoaded = $true
+		}
+	}
 }
 

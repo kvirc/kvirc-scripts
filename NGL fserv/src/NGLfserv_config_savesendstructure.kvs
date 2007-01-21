@@ -1,26 +1,25 @@
 alias(NGLfserv::config::savesendstructure)
 {
-	// %send structure reminder :=)
-	/*%type = $0
+	/* Send structure
 	%fl_send = $new(object)
-	%fl_send->%nick = $1
-	%fl_send->%nickStatus = $2
-	%fl_send->%completepath = $3
-	%fl_send->%size = $4
-	%fl_send->%ircContext = $5
-	%fl_send->%triggerName= $6
-	%shell = $7
-	%fl_send->%file = $file.extractfilename(%fl_send->%completepath)
-	%fl_send->%retries = 0
-	%fl_send->%initialNick = %fl_send->%nick
+		->%nick
+		->%nickStatus
+		->%completepath
+		->%size
+		->%ircContext
+		->%triggerName
+		->%file
+		->%retries
+		->%initialNick
 	*/
+
 	%c=$0
 	%send=$1
+	
 	config.write %c nick %send->%nick
 	config.write %c nickStatus %send->%nickStatus
 	config.write %c completepath %send->%completepath
 	config.write %c size %send->%size
-	config.write %c ircContext %send->%ircContext
 	config.write %c triggername %send->%triggerName
 }
 
