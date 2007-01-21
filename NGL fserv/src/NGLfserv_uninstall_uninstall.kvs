@@ -8,11 +8,15 @@ alias(NGLfserv::uninstall::uninstall)
 	
 	// removes files
 	NGLfserv::uninstall::uninstallfiles
+	
+	// removes pics directory. If on Windows checks for thumbs.db
+	if($file.exists($file.localdir("pics/NGLfserv/Thumbs.db"))) file.remove $file.localdir("pics/NGLfserv/Thumbs.db")
+	file.rmdir $file.localdir("pics/NGLfserv")	
 			
 	// removes classes
 	NGLfserv::uninstall::uninstallclasses
 	
-	// removes popup
+	// removes popups
 	timer -s (uninstall,1000){
 		setmenu -q -i=7 "...::NGL File Server::..."
 		delpopupitem channeltextview NGLfserv.menu
@@ -21,7 +25,8 @@ alias(NGLfserv::uninstall::uninstall)
 		delpopupitem channel NGLfserv.menu
 		defpopup(NGLfserv_nick) {}
 	}
-	 // removes configs files
+	
+	// removes configs files
 	if($dialog.yesno("NGL File Server",$tr("Do you want to remove configuration files too?")) == 1){
 		%file[]=$file.ls($file.localdir("config/scripts/"),f,NGLfserv*)
 		foreach(%f,%file[]) file.remove $file.localdir("config/scripts/")/%f

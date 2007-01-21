@@ -16,9 +16,10 @@ include "utils/installer.kvs"
 
 # Get the path that this script was launched from
 %mypath = $file.extractPath($0)
-# The installer will copy our files and generate automatically
-# an uninstallation alias for them
+
+# The installer will copy our files and generate automatically an uninstallation alias for them
 %installer = $new(installer,0,myinstaller)
+
 # copy files in each subdirectory
 # the pics
 %installer->$copyFiles("%mypath/pics/","*.png",$file.localdir("pics/NGLfserv"))
@@ -26,11 +27,13 @@ include "utils/installer.kvs"
 
 # the translations
 #%installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
-# the documentation
-#%installer->$copyFiles("%mypath/help/en/NGL_FServer/","*.html",$file.localdir("help/en/NGL_FServer"))
-# then generate the uninstall alias
 
+# the documentation
+#%installer->$copyFiles("%mypath/help/en/NGLfserv/","*.html",$file.localdir("help/en/NGLfserv"))
+
+# then generate the uninstall alias
 %installer->$generateUninstallAlias("NGLfserv::uninstall::uninstallfiles");
+
 # finally kill the installer helper
 delete %installer
 
@@ -48,7 +51,6 @@ NGLfserv::classes::register
 NGLfserv::events::init
 NGLfserv::config::load
 NGLfserv::config::save
-
 
 defpopup("NGLfserv")
 {
