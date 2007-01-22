@@ -1,3 +1,6 @@
+[Noldor, 22 january 2007]
+- fixed checkboxes (from now we must use clicked signal instead of toggle signal)
+
 [LoSko, 21 january 2007]
 - wizard styling
 - removed Add Send/Enqueue from monitor and created a new nick pop-up for it
