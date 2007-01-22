@@ -5,24 +5,22 @@ alias(NGLfserv::config::loadsendstructure)
 		->%nick
 		->%nickStatus
 		->%completepath
-		->%ircContext
 		->%triggerName
 		->%serverName
 	*/
 
 	%c=$0
-	
-	%serverName=$config.read(%c,servername)
 
-	if(%NGLServersContext{%serverName}) {
-		%ircContext = %NGLServersContext{%serverName}
-		%nick=$config.read(%c,nick)
-		%nickStatus=$config.read(%c,nickStatus)
-		%completepath=$config.read(%c,completepath)
-		%size=$config.read(%c,size)
-		%triggerName=$config.read(%c,triggername)
-		
-		NGLfserv::corefunctions::send "qget" %nick %nickStatus %completepath %size %ircContext %triggerName
-	}
+	%temp_send = $new(object)
+	%temp_send->%nick = $config.read(%c,nick)
+	%temp_send->%nickStatus = $config.read(%c,nickStatus)
+	%temp_send->%completepath = $config.read(%c,completepath)
+	%temp_send->%triggerName = $config.read(%c,triggername)
+	%temp_send->%serverName = $config.read(%c,servername)
+
+	%temp_send->%size = $file.size(%temp_send->%completepath)
+
+	if(!$objects.exists(%NGLTempSends)) %NGLTempSends = $new(list)
+	%NGLTempSends->$append(%temp_send)
 }
 

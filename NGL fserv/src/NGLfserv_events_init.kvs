@@ -539,7 +539,7 @@ alias(NGLfserv::events::init)
 		%NGLServersContext{$server} = $context()
 		if(!%SendsLoaded) {
 			%SendsLoaded = $true
-			timer -s (LoadSends,%LoadSendDelay) {
+			timer -s (LoadSends,%LoadSendsDelay) {
 				NGLfserv::config::loadSendAndQueues
 			}
 		}

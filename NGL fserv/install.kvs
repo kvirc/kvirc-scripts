@@ -245,9 +245,11 @@ defpopup(NGLfserv_nick)
 				%fl_send->%nick = $1
 				%fl_send->%initialNick = %fl_send->%nick
 				%fl_send->%nickStatus = "op"
-				%fl_send->%ircContext = $console()
+				%fl_send->%ircContext = $context()
+				%fl_send->%console = $console(%fl_send->%ircContext)
+				%fl_send->%serverName = $server()
 
-				if($NGLfserv::corefunctions::dccStartSend(%fl_send->%ircContext, %fl_send->%nick, %fl_send->%completepath)) {
+				if($NGLfserv::corefunctions::dccStartSend(%fl_send->%console, %fl_send->%nick, %fl_send->%completepath)) {
 					%Send->$append(%fl_send)
 					if(!%Nick_nr_sends{%fl_send->%nick}) %Nick_nr_sends{%fl_send->%nick}=0
 					%Nick_nr_sends{%fl_send->%nick}++
@@ -271,7 +273,9 @@ defpopup(NGLfserv_nick)
 				%fl_send->%nick = $1
 				%fl_send->%initialNick = %fl_send->%nick
 				%fl_send->%nickStatus = "op"
-				%fl_send->%ircContext = $console()
+				%fl_send->%ircContext = $context()
+				%fl_send->%console = $console(%fl_send->%ircContext)
+				%fl_send->%serverName = $server()
 
 				%Queues->$append(%fl_send)
 				if(!%Nick_nr_queues{%fl_send->%nick}) %Nick_nr_queues{%fl_send->%nick}=0

@@ -1,18 +1,55 @@
 alias(NGLfserv::config::loadSendAndQueues)
 {
 	NGLfserv::corefunctions::ngldebug "Loading queues and sends"
+	
 	%c = $config.open("NGLfservSends.kvc","r")
 	%sections[]=$config.sectionlist(%c)
-	for (%i=0;%i>$length(%sections[]);%i++){
-		config.sesection %c %sections[%i]
+	for (%i=0;%i<$length(%sections[]);%i++){
+		config.setsection %c %sections[%i]
 		NGLfserv::config::loadsendstructure %c
 	}
 	config.close %c
+	
 	%c = $config.open("NGLfservQueues.kvc","r")
 	%sections[]=$config.sectionlist(%c)
-	for (%i=0;%i>$length(%sections[]);%i++){
-		config.sesection %c %sections[%i]
+	for (%i=0;%i<$length(%sections[]);%i++){
+		config.setsection %c %sections[%i]
 		NGLfserv::config::loadsendstructure %c
 	}
+	config.close %c
+
+	if($objects.exists(%NGLTempSends) && %NGLTempSends->$count() > 0) {
+		timer -p (StartSends,5000) {
+			if(!%NGLcount) %NGLcount = 0
+	
+			if(%NGLServersContext{%NGLTempSends->$at(%NGLcount)->%serverName}) {
+				%NGLTempSends->$at(%NGLcount)->%ircContext = %NGLServersContext{%NGLTempSends->$at(%NGLcount)->%serverName}
+				
+				awhois(%NGLTempSends->$at(%NGLcount)->%nick,%NGLcount){
+					if($1) {
+						NGLfserv::corefunctions::ngldebug "Starting send"$10
+						NGLfserv::corefunctions::send "qget" %NGLTempSends->$at($10)->%nick %NGLTempSends->$at($10)->%nickStatus %NGLTempSends->$at($10)->%completepath %NGLTempSends->$at($10)->%size %NGLTempSends->$at($10)->%ircContext %NGLTempSends->$at($10)->%triggerName
+					}
+					else {
+						NGLfserv::corefunctions::ngldebug "Aborting send"$10
+					}
+				}
+			}
+			
+			%NGLcount++
+			if(%NGLcount >= %NGLTempSends->$count()) {
+				delete %NGLTempSends
+				%NGLServersContext{}=
+				%NGLcount = ""
+				killtimer
+			}
+		}
+	}
+	else {
+		%NGLServersContext{}=""
+	}
+
+	if($file.exists($file.localdir()/config/scripts/NGLfservSends.kvc)) file.remove $file.localdir()/config/scripts/NGLfservSends.kvc
+	if($file.exists($file.localdir()/config/scripts/NGLfservQueues.kvc)) file.remove $file.localdir()/config/scripts/NGLfservQueues.kvc
 }
 

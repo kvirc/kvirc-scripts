@@ -5,7 +5,6 @@ alias(NGLfserv::config::savesendstructure)
 		->%nick
 		->%nickStatus
 		->%completepath
-		->%size
 		->%triggerName
 		->%serverName
 	*/
@@ -16,7 +15,6 @@ alias(NGLfserv::config::savesendstructure)
 	config.write %c nick %send->%nick
 	config.write %c nickStatus %send->%nickStatus
 	config.write %c completepath %send->%completepath
-	config.write %c size %send->%size
 	config.write %c triggername %send->%triggerName
 	config.write %c servername %send->%serverName
 }
