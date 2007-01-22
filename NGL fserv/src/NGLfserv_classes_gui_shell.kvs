@@ -58,7 +58,7 @@ alias(NGLfserv::classes::gui::shell)
 			$$->%gb2->$setTooltip($tr("If you have a standard welcome file, load it from here.<p><i>Press return once you've typed the path</i>"))
 	
 			objects.connect $$->%btUseFile clicked $$ useFile
-			objects.connect $$->%ckbUseFile toggled $$ toggleUseFile
+			objects.connect $$->%ckbUseFile clicked $$ toggleUseFile
 			objects.connect $$->%triggerComboBox activated $$ triggerChanged
 			objects.connect $$->%lineeditFile returnPressed $$ welcomeFileChangedFromLineedit
 						

@@ -9,16 +9,30 @@ alias(NGLfserv::classes::customwidgets::checkbox)
 			%label->$setText($tr($0))
 			$$->$setStretchFactor($$->%ckbox,10)
 			$$->$setStretchFactor(%label,90)
-			if ($str.left($1,1)!="%") {$$->%ckbox->$setChecked($1);return;}
-			$$->%ckbox->%pointer=$1
-			%tmp=\%check\=$1
-			eval %tmp
-			$$->%ckbox->$setChecked(%check)
-			privateimpl($$->%ckbox,toggleEvent)
-			{
-				if ($$->%pointer==1 || !$$->%pointer) {$$->$emit(toggled,$0);return;}
-				eval $$->%pointer\=$0
-				$$->$emit(toggled,$0)
+			if ($str.left($1,1)!="%") {
+				$$->%ckbox->$setChecked($1);
+			}
+			else{
+				$$->%ckbox->%pointer=$1
+				%tmp=\%check\=$1
+				eval %tmp
+				$$->%ckbox->$setChecked(%check)
+			}
+			if ($version(s)>20070122){
+				privateimpl($$->%ckbox,clickEvent)
+				{
+					if ($$->%pointer==1 || !$$->%pointer) {$$->$parent->$emit(clicked,$0);return;}
+					eval $$->%pointer\=$0
+					$$->$parent->$emit(clicked,$0)
+				}
+			}
+			else{
+				privateimpl($$->%ckbox,toggleEvent)
+				{
+					if ($$->%pointer==1 || !$$->%pointer) {$$->$parent->$emit(clicked,$0);return;}
+					eval $$->%pointer\=$0
+					$$->$parent->$emit(clicked,$0)
+				}
 			}
 		}
 		setChecked()
@@ -28,12 +42,6 @@ alias(NGLfserv::classes::customwidgets::checkbox)
 		isChecked()
 		{
 			return $$->%ckbox->$isChecked()
-		}
-		toggleEvent()
-		{
-			if ($$->%pointer==1 || !$$->%pointer) {$$->$emit(toggled,$0);return;}
-			eval $$->%pointer\=$0
-			$$->$emit(toggled,$0)
 		}
 	}
 }

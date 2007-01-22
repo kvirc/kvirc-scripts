@@ -41,30 +41,37 @@ alias(NGLfserv::classes::gui::channels)
 			
 			// setup connections		
 			objects.connect $$->%listboxChannels currentItemChange $$ selectionChange
-			objects.connect $$->%ckbRespToList toggled $$ checkHandler
-			objects.connect $$->%ckbRespToFind toggled $$ checkHandler
-			objects.connect $$->%ckbRespToMyQueues toggled $$ checkHandler
-			objects.connect $$->%ckbUseQuickGet toggled $$ checkHandler
-			objects.connect $$->%ckbDisplayNoOccurrenceFound toggled $$ checkHandler
-			objects.connect $$->%ckbMultipleResultsPerLine toggled $$ checkHandler
-			objects.connect $$->%ckbFindFilter toggled $$ checkHandler
+			objects.connect $$->%ckbRespToList clicked $$ checkHandler
+			objects.connect $$->%ckbRespToFind clicked $$ checkHandler
+			objects.connect $$->%ckbRespToMyQueues clicked $$ checkHandler
+			objects.connect $$->%ckbUseQuickGet clicked $$ checkHandler
+			objects.connect $$->%ckbDisplayNoOccurrenceFound clicked $$ checkHandler
+			objects.connect $$->%ckbMultipleResultsPerLine clicked $$ checkHandler
+			objects.connect $$->%ckbFindFilter clicked $$ checkHandler
 		}
 		checkHandler()
 		{
 			/* gestione "finti" eventi checkbox che vengono triggerati quando si passa da una tab a questa
 			   L'evento viene triggerato quando la cb passa dallo stato di true a false
 			   Noi non facciamo altro che contare quante cb sono variate e scartarle qui nell'evento
+			   Fixed from 22 jan 07
 			*/
-			if ($$->%flagcb){
-				if ($$->%flagcount<$$->%nrfakecheckbox){
-					$$->%flagcount++
-					return
-				}
-				else{
-					$$->%flagcount=0
-					$$->%flagcb=0
+			// FIXME: removing this code when noone uses  KVIrc older than 22 jan 07)
+			if ($version(s)<20070122){
+				if ($$->%flagcb){
+					if ($$->%flagcount<$$->%nrfakecheckbox){
+						$$->%flagcount++
+						return
+					}
+					else{
+						$$->%flagcount=0
+						$$->%flagcb=0
+					}
 				}
 			}
+			// trick end 
+	
+			
 			%src=$$->$signalSender()
 			%channelName=$$->%listboxChannels->$currentText()
 			if (!%channelName) return
@@ -111,20 +118,24 @@ alias(NGLfserv::classes::gui::channels)
 			if (!$objects.exists($$->%listboxChannels)) return
 			// Inizio trick x evitare l'azzeramento delle checkbox quando si torna a questa tab
 			// Qui contiamo quante cb  triggerano l'evento del toggle x poi scartare i relativi eventi
-			$$->%flagcount=0
-			$$->%nrfakecheckbox=0
-			$$->%gb_channelproperties->$setEnabled($false)
-			$$->%gb_findproperties->$setEnabled($false)
-			if ($$->%ckbRespToList->$isChecked) $$->%nrfakecheckbox++
-			if ($$->%ckbRespToFind->$isChecked) $$->%nrfakecheckbox++
-			if ($$->%ckbRespToMyQueues->$isChecked) $$->%nrfakecheckbox++
-			if ($$->%ckbUseQuickGet->$isChecked) $$->%nrfakecheckbox++
-			if ($$->%ckbDisplayNoOccurrenceFound->$isChecked) $$->%nrfakecheckbox++
-			if ($$->%ckbMultipleResultsPerLine->$isChecked) $$->%nrfakecheckbox++
-			if ($$->%ckbFindFilter->$isChecked) $$->%nrfakecheckbox++
-			// Se almeno una delle cb è true allora attiviamo il flag x avvertire l'evento
-			if ($$->%nrfakecheckbox) $$->%flagcb=$true
-			// fine trick
+			// Fixed from 22 jan 07
+			// FIXME: removing this code when noone uses  KVIrc older than 22 jan 07)	
+			if ($version(s)<20070122){
+				$$->%flagcount=0
+				$$->%nrfakecheckbox=0
+				$$->%gb_channelproperties->$setEnabled($false)
+				$$->%gb_findproperties->$setEnabled($false)
+				if ($$->%ckbRespToList->$isChecked) $$->%nrfakecheckbox++
+				if ($$->%ckbRespToFind->$isChecked) $$->%nrfakecheckbox++
+				if ($$->%ckbRespToMyQueues->$isChecked) $$->%nrfakecheckbox++
+				if ($$->%ckbUseQuickGet->$isChecked) $$->%nrfakecheckbox++
+				if ($$->%ckbDisplayNoOccurrenceFound->$isChecked) $$->%nrfakecheckbox++
+				if ($$->%ckbMultipleResultsPerLine->$isChecked) $$->%nrfakecheckbox++
+				if ($$->%ckbFindFilter->$isChecked) $$->%nrfakecheckbox++
+				// Se almeno una delle cb è true allora attiviamo il flag x avvertire l'evento
+				if ($$->%nrfakecheckbox) $$->%flagcb=$true
+				// fine trick
+			}
 	
 			$$->%ckbRespToList->$setChecked($false)
 			$$->%ckbRespToFind->$setChecked($false)
