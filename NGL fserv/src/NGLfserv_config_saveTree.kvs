@@ -4,17 +4,18 @@ alias(NGLfserv::config::saveTree)
 		if (%trigger->$somethingHasChanged){
 			%c = $config.open("NGLfservtriggertree"%trigger->$triggerName()".kvc",w)
 			%i=0
-			NGLfserv::corefunctions::ngldebug save nr %trigger->%realRootFolder->$count()
-			while (%i<%trigger->%realRootFolder->$count()){
-				config.setsection %c realnode%i
-				config.write %c realrootfolder %trigger->%realRootFolder->$item(%i)->%realRootFolder
-				config.write %c pathfromtrigger %trigger->%realRootFolder->$item(%i)->%pathFromTrigger
-				config.write %c realnodedir %trigger->%realRootFolder->$item(%i)->%node->%text
+			debug count extra dir trigger %trigger->$triggerName %trigger->$extraDirsCount()
+			while (%i<%trigger->$extraDirsCount()){
+				debug 
+				config.setsection %c extradir%i
+				config.write %c extradirpath %trigger->$extraDir(%i)->%extraDirPath
+				config.write %c pathfromtrigger %trigger->$extraDir(%i)->%pathFromTrigger
 				%i++
 			}
 			%ns=%trigger->$saveNotSharedInfo(%c)
 			config.setsection %c general
-			config.write %c realnodes %trigger->%realRootFolder->$count()
+			config.write %c extradirs %trigger->$extraDirsCount()
+			config.write %c realtriggerpath %trigger->$getRealTriggerPath()
 			config.write %c notshared %ns
 			config.close %c
 			%trigger->$setChanged($false)

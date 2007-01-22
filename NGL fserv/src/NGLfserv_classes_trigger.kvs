@@ -5,10 +5,12 @@ alias(NGLfserv::classes::trigger)
 		function constructor()
 		{
 			// creo la lista in cui verranno memorizzati i nodi "reali" cioè i vari punti di ingresso sul disco
-			$$->%realRootFolder=$new(list,$this)
+			$$->%extraDirs=$new(list,$this)
 			$$->%index=0
 			objects.connect $this triggerbusy %G_fserverbusyhandler fserverbusyevent
 			objects.connect $this triggerready %G_fserverbusyhandler fserverNotBusyEvent
+			objects.connect $$ scancompleted $$ checkextradirs
+	
 		}
 		function rootPath()
 		{
@@ -61,56 +63,37 @@ alias(NGLfserv::classes::trigger)
 			if ($$->%activechannels{$0}) return $true
 			else return $false
 		}
-		
-		function getRealRootFolder()
+		setRealTriggerPath()
 		{
-		
-			return $0->%realRootFolder
+			 $$->%realTriggerPath=$0
 		}
-	/*	
-		function removeFile(file)
+		function getRealTriggerPath()
 		{
-			// funzione che rimuove un file da un nodo utilizzando come parametro il nome del file
-			%i=0
-			%len=$$->%node->%idx_file()
-			for(%i=0;%i<%len;%i++) if ($$->%node->%file_list[%i]==$0) break;
-			$$->$removeFileAt(%i)
-		 }
-		 */
+		
+			return $$->%realTriggerPath
+		}
 		 function removeNode(virtual node)
 		{
-			if ($0->%realRootFolder) 
-				$$->$removeRealRootFolder($0)
+			if ($0->%extraDirPath) 
+				$$->$removeExtraDir($0)
 			delete $0
 		}
-		function removeRealRootFolder(node)
+		function removeExtraDir(node)
 		{
-			%i=0
-			while($$->%realRootFolder->$item(%i)->%node!=$0 && $$->%realRootFolder->$count()>%i) {
-					%i++
+			for(%i=0;%i<$length($$->%extraDirs->$count);%i++;){
+				if ($$->%extraDirs->$item(%i)->%node==$0) break
 			}
-			delete $$->%realRootFolder->$item(%i)
-			$$->%realRootFolder->$remove(%i)
+			delete $$->%extraDirs->$item(%i)
+			$$->%extraDirs->$remove(%i)
 		}
-		/*
-		removeFileAt(index)
+		function extraDirsCount()
 		{
-			// restituisce il nome del file dell'indice index (come nodo di riferimento viene utilizzato quello in $$->%index)
-		 	%idx=$0
-		 	if (%idx==0 && $$->%idx_file==1) {
-		 	 	$$->%node->%files_list[]=;
-		 	 	//$$->%idx_file=0;
-		 		return
-		 	 }
-		 	else {
-		 		%len=$($length($$->%node->%files_list[]-$0))
-		 		for (%i=%idx;%i<%len;%i++){
-		 			 $$->%node->%files_list[%i]=$$->%node->%files_list[$(%i+1)]
-		 		}
-		 		//$$->%node->%idx_file --
-		 	}
+			return $$->%extraDirs->$count()
 		}
-		*/
+		function extraDir(index)
+		{
+			return $$->%extraDirs->$item($0)
+		}
 		// aggiunge il nodo "root" al trigger: a differenza delle successive dirs che si potranno aggiungere, questa verrà aggiungta 
 		// eliminando tutta la parte del percorso, perdendo quindi anche il nome della cartella di origine.
 		// Esempio: la dir c:\\mp3\ sparirà e nel trigger ci saranno i files e dirs figli di essa.
@@ -119,10 +102,10 @@ alias(NGLfserv::classes::trigger)
 			%rootpath = $str.replace($0,"/","\\")
 			if($str.right(%rootpath, 1) != "/") %rootpath .= "/"		
 			$$->%firstnode=$$->$addNode("",$this,%rootpath)
+			$$->%realTriggerPath = $str.replace($0,"/","\\")
 			$$->%rootnode=$$->%firstnode
 			$$->%triggerName=$1
 			$$->%rootpath=%rootpath
-			//$$->$startTimer(1000)
 			$$->%time=$hptimestamp()
 			$$->%time_available=0.300
 			$$->%speedmeter=0
@@ -144,22 +127,19 @@ alias(NGLfserv::classes::trigger)
 			%node->%index=$$->%index
 			$$->%index++
 			%node->%text=$0
-			if ($2){
-				%node->%realRootFolder=$2	
-				%realnode=$new(object,$this)
-				%realnode->%realRootFolder=$2
-				%realnode->%node=%node
-				$$->%node=%node->$parent()
-			//	NGLfserv::corefunctions::ngldebug appendo al nodo parent $$->%node->%text
-				%realnode->%pathFromTrigger=$$->$getLocalTriggerPath()
-			//	NGLfserv::corefunctions::ngldebug percorso rispetto al trigger %realnode->%pathFromTrigger
-				$$->%realRootFolder->$append(%realnode)
-			//	NGLfserv::corefunctions::ngldebug appeso alla lista dei real root folder con numero $$->%realRootFolder->$count
-			}
-			%node->%idx_file=0
 			return %node
 		}
-		
+		function appendExtraDir()
+		{
+			%node=$new(object,$this)
+			%node->%extraDirPath=$0/
+			%node->%pathFromTrigger=$1
+			if ($2) {
+				%node->%node=$2
+				$2->%extraDirPath=$0/
+			}
+			$$->%extraDirs->$append(%node)
+		}
 		function firstNode()
 		{
 			return $$->%firstnode
@@ -175,10 +155,13 @@ alias(NGLfserv::classes::trigger)
 			// estraiamo il nome della dir 
 			%dir_name = $file.extractfilename($str.left(%rootpath,$($str.len(%rootpath)-1)))
 			// e verifichiamo se già esiste nel nodo parent
-			debug adding with parent $1
-			if ($$->$checkFolderExists(%dir_name,$1)) return $false
+			if ($$->$checkFolderExists(%dir_name,$1)) {
+				debug %dir_name già esiste
+				return $false
+			}
 			// aggiungiamo il nodo al parent
-			%node=$$->$addNode(%dir_name,$1,$file.extractPath(%rootpath)"/")
+			%node=$$->$addNode(%dir_name,$1)
+			debug parent $1->%text e rooth %rootpath
 			// e memorizziamo lil nodo e la path per utilizzarli come riferimento nello scan in background
 			$$->%rootnode=%node
 			$$->%rootpath=%rootpath
@@ -190,102 +173,100 @@ alias(NGLfserv::classes::trigger)
 			$$->%count=0
 			$$->%oldcount=0
 			$$->$emit(triggerBusy)
+			$$->%noupdate=$true
+			$$->%addnode=$1
 			$$->$scanSubFolders(%rootpath,%node)
 			$$->$startTimer(1000)
 			return %node
 		}
 		function update()
 		{
-			$$->%realRootFolder->$moveFirst()
-			$$->$updateStart($$->%realRootFolder,$true)
+			$$->$updateStart($true)
 		}
 		function updateStart()
 		{
-			//	NGLfserv::corefunctions::ngldebug "Updating"
-				
-				$$->%rootpath=$0->$current()->%realRootFolder
-				$$->%realTemp=$new(list,$$)
-				while ($0->$count()){
-					%realnode=$new(object,$this)
-				//	%realnode->%node=$0->$item(0)->%node
-					%realnode->%realRootFolder=$0->$item(0)->%realRootFolder
-					%realnode->%pathFromTrigger=$0->$item(0)->%pathFromTrigger
-					if ($1) %realnode->%dir=$0->$item(0)->%node->%text
-					else %realnode->%dir=$0->$item(0)->%dir
-					delete $0->$item(0)
-					$0->$remove(0)
-					$$->%realTemp->$append(%realnode)
-				}
-				$$->%rootpath=$$->%rootpath$$->%realTemp->$item(0)->%dir
-				$0->$moveFirst()
-				if ($1){	
-					$$->%nsi=$$->$getNotSharedInfo()
-					delete $$->$firstNode()
-				}
-				NGLfserv::corefunctions::ngldebug "start background HD scanning"	
-				if ($$->%firstNodeEmpty){
-					NGLfserv::corefunctions::ngldebug first node is empty
-					NGLfserv::corefunctions::ngldebug add node with path $$->%rootpath
-					$$->%firstnode=$$->$addNode("",$this,"")
-					$$->%firstNodeEmpty=$false
-					$$->%intimer=$true
-					$$->%rootnode=$$->$addFolder($$->%rootpath,$$->%firstnode)
-					$$->%intimer=$false
-				}
-				else{
-					$$->%firstnode=$$->$addNode("",$this,$$->%rootpath)
-					$$->%rootnode=$$->%firstnode
-					NGLfserv::corefunctions::ngldebug add main node with path $$->%rootpath
-				}
+			$$->%update=$true
+			$$->%extraDirs->$moveFirst()
+			$$->%rootpath=$$->%realTriggerPath
+			if ($0){	
+				$$->%nsi=$$->$getNotSharedInfo()
+				delete $$->$firstNode()
+			}
+			NGLfserv::corefunctions::ngldebug "start background HD scanning"	
+	
+			if ($$->%firstNodeEmpty){
+				NGLfserv::corefunctions::ngldebug first node is empty
+				NGLfserv::corefunctions::ngldebug add fake dir
+				$$->%firstnode=$$->$addNode("",$this,"")
+				$$->%firstNodeEmpty=$true
+				//$$->%rootnode=$$->$addFolder($$->%rootpath,$$->%firstnode)
+			}
+			else{	
+				$$->%firstnode=$$->$addNode("",$this)	
+				$$->%rootnode=$$->%firstnode
+				NGLfserv::corefunctions::ngldebug add main node with path $$->%rootpath
 				$$->%time=$hptimestamp()
 				$$->%count=0
 				$$->%oldcount=0
+				$$->%time_available=0.300			
 				$$->$scanSubFolders($$->%rootpath,$$->%rootnode)
-				$$->%realTemp->$moveFirst()
-				$$->%time_available=0.300
 				$$->%speedmeter=0
-				$$->%updateTimer=$$->$startTimer(1000)
-						
+				$$->$startTimer(1000)
+			}			
+		}
+		function checkextradirs()
+		{
+			if (!$$->%update) {
+				$$->$emit(updated,$$->%addnode)
+				$$->%addnode=
+					return
+			}		
+			if (!$$->%extraDirs->$current()) {
+				$$->%update=$false
+				NGLfserv::corefunctions::ngldebug  NO EXTRA DIRS: scan trigger $k(4,0)$$->%triggerName$k  completed :=)
+				if ($objects.exists($$->%nsi)){
+					$$->$createDirFilesNotShared($$->%nsi)
+					delete $$->%nsi
+					$$->%nsi=
+				}
+				$$->%changed=$true
+				$$->$emit(triggerReady)
+				$$->$emit(updated,$$->%firstnode)	
 			}
+			else{
+				while (!$file.exists($$->%extraDirs->$current()->%extraDirPath)){
+					$$->%extraDirs->$moveNext()
+					if (!$$->%extraDirs->$current()){
+						$$->%update=$false
+						$$->$emit(updated,$$->%firstnode)	
+						return
+					}		
+				}
+				%rootpath=$$->%extraDirs->$current()->%extraDirPath
+				NGLfserv::corefunctions::ngldebug adding extra dir with  path Fromtrigger $$->%extraDirs->$current()->%pathFromTrigger
+				NGLfserv::corefunctions::ngldebug extra dir path $$->%extraDirs->$current()->%extraDirPath
+				($$->%firstNodeEmpty) 
+					%parent_node=$$->%firstNode()
+				else 
+					%parent_node=$$->$getFolderObjFromPath($$->%extraDirs->$current()->%pathFromTrigger)
+				NGLfserv::corefunctions::ngldebug aggiungo un nuovo nodo in base a questo percorso %rootpath
+				%node=$$->$addFolder(%rootpath,%parent_node)
+				$$->%extraDirs->$current()->%node=%node
+				%node->%extraDirPath=%rootpath
+				$$->%extraDirs->$moveNext()
+				
+			}				
+		}
 		function timerEvent()
 		{
-			$$->%intimer=$true
 			$$->%time=$hptimestamp()
 			$$->%count=0
 			//debug in timer
 			if (!$$->$scanSubFolders($$->%rootpath,$$->%rootnode)) {
-				NGLfserv::corefunctions::ngldebug scanned $$->%count nodes in $$->%time_available ms
+				//NGLfserv::corefunctions::ngldebug scanned $$->%count nodes in $$->%time_available ms
 				$$->$resetFlag()
-				//NGLfserv::corefunctions::ngldebug update $$->%updateTimer
-				if ($0!=$$->%updateTimer){
-					$$->$killtimers();NGLfserv::corefunctions::ngldebug scan completed;
-					$$->$emit(scancompleted,$$->%rootnode->$parent())
-					$$->$emit(triggerReady)
-				}
-				else{
-					%a=$$->%realTemp->$moveNext()
-					if ($$->%realTemp->$current){
-						//debug ok al prossimo rootfolder
-						while (!$file.exists($$->%realTemp->$current()->%realRootFolder)){
-							$$->%realTemp->$moveNext()
-							if (!$$->%realTemp->$current()){
-								$$->$endScan()
-								return
-							}		
-						}
-						//debug esiste $$->%realTemp->$current()->%realRootFolder$$->%realTemp->$current()->%dir/
-						$$->%rootpath=$$->%realTemp->$current()->%realRootFolder$$->%realTemp->$current()->%dir/
-					//	debug pathFromtrigger $$->%realTemp->$current()->%pathFromTrigger
-						$$->%realTemp->$current()->%node=$$->$getFolderObjFromPath($$->%realTemp->$current()->%pathFromTrigger)
-						NGLfserv::corefunctions::ngldebug aggiungo un nuovo nodo in base a questo percorso $$->%rootpath
-						$$->%rootnode=$$->%realTemp->$current()->%node
-						$$->$addFolder($$->%rootpath,$$->%realTemp->$current()->%node)
-					}
-					else{
-						$$->$endScan()
-						return
-					}
-				}
+				$$->$killtimers()
+				$$->$emit(scancompleted)
 			}
 			else{
 				NGLfserv::corefunctions::ngldebug scanned $$->%count nodes in $$->%time_available ms with 
@@ -306,29 +287,22 @@ alias(NGLfserv::classes::trigger)
 				$$->%oldcount=$$->%count
 				*/
 			}
-			$$->%intimer=$false			
-		}
-		function endScan()
-		{
-			$$->$killtimers()
-			$$->%intimer=$false			
-			for (%i=0;%i<$$->%realTemp;%i++) delete $$->%realTemp->$item(%i)
-			delete $$->%realTemp
-			if ($objects.exists($$->%nsi)){
-				$$->$createDirFilesNotShared($$->%nsi)
-				delete $$->%nsi
-				$$->%nsi=
-			}
-			//	NGLfserv::corefunctions::ngldebug scan completed;
-			$$->%updateTimer=$false
-			$$->%changed=$true
-			$$->$emit(triggerReady)
-			$$->$emit(scancompleted,$$->%rootnode->$parent())	
 		}
 		function scanSubFolders()
 		{
-			if ($version(s)<20070116) $$->$oldScanSubFolders($0,$1)
-			else $$->$fastScanSubFolders($0,$1)
+			$$->%count=0
+			$$->%time=$hptimestamp()
+			
+			if ($version(s)<20070116) {
+				NGLfserv::corefunctions::ngldebug "KVIrc version too older: switching to old scanfiles routine"
+				return $$->$oldScanSubFolders($0,$1)
+			}
+			
+			else {
+				NGLfserv::corefunctions::ngldebug "Using fast scan drive routine!"
+				return $$->$oldScanSubFolders($0,$1)
+			}	
+			
 		}
 		function oldScanSubFolders()
 		{
@@ -339,17 +313,16 @@ alias(NGLfserv::classes::trigger)
 					 %offset=0
 					 $$->%cache[]=$file.ls(%path,f)
 				}
-			else
-			%offset=$1->%thisNodeCompleted
-			%len=$length($$->%cache[])
-			$$->%count+=$(%len-%offset)
-			$$->%node=%parent_node
-			for(%j=%offset;%j<%len;%j++){
-				if ($$->%cache[%j]) 
-			 	$$->$appendFile($$->%cache[%j],$file.size(%path\/$$->%cache[%j]))
-				if (($hptimestamp-$$->%time)>$$->%time_available) break
-			}
-			if (%j==%len) {$1->%thisNodeCompleted=-1;$$->%cache[]=;}
+				else
+				%offset=$1->%thisNodeCompleted
+				%len=$length($$->%cache[])
+				$$->%count+=$(%len-%offset)
+				for(%j=%offset;%j<%len;%j++){
+					if ($$->%cache[%j]) 
+			 		$$->$appendFile(%parent_node,$$->%cache[%j],$file.size(%path\/$$->%cache[%j]))
+					if (($hptimestamp-$$->%time)>$$->%time_available) break
+				}
+				if (%j==%len) {$1->%thisNodeCompleted=-1;$$->%cache[]=;}
 				else $1->%thisNodeCompleted=$(%j+1)
 			}
 			if (($hptimestamp-$$->%time)>$$->%time_available) return $true
@@ -362,7 +335,7 @@ alias(NGLfserv::classes::trigger)
 				if ((%folders[%ind]!="..") && (%folders[%ind]!=".")) {
 					if (%i<%len) %node=%children[%i]
 					else %node=$$->$addNode(%folders[%ind],%parent_node)
-					if (!%node->%allSubFoldersScanned || %node->%realRootFolder){
+					if (!%node->%allSubFoldersScanned || %node->%extraDirPath){
 			  			if (!$$->$oldScanSubFolders(%path%folders[%ind]"/",%node)){
 			  				%node->%allSubFoldersScanned=$true()
 						}
@@ -376,50 +349,47 @@ alias(NGLfserv::classes::trigger)
 		}
 		function fastScanSubFolders()
 		{
-			# nella prima parte di $scanfolders() aggiungiamo i files alla lista del nodo attuale
 			%path=$0
+	
 			%parent_node=$1
-			if ($1->%thisNodeCompleted!="-1"){
-				
-				$1->%files_list[]<+$file.ls(%path,f)
-				$1->%file_size[]<+$file.allSizes(%path)
-				$1->%thisNodeCompleted=-1
-			}
-			if (($hptimestamp-$$->%time)>$$->%time_available) return $true;
-		 	%folders[]=$file.ls(%path,dn)
-		 	%children[]=%parent_node->$children()
-		 	%fl=$false
+			%children[]=%parent_node->$children()
 		 	%len=$length(%children[]);
-		 	%i=0
-			for (%ind=0;%ind<%folders[]#;%ind++) {
-				if ((%folders[%ind]!="..") && (%folders[%ind]!=".")) {
-					if (%i<%len) %node=%children[%i]
-					else %node=$$->$addNode(%folders[%ind],%parent_node)
-					if (!%node->%allSubFoldersScanned || %node->%realRootFolder){
-			  			if (!$$->$fastScanSubFolders(%path%folders[%ind]"/",%node)){
-			  				%node->%allSubFoldersScanned=$true()
-						}
-			   			else %fl=$true			
-			   		}
-			   		%i++
-				}
-				if (%fl) break
+		 	%folders[]=$file.ls(%path,dn)	
+		 	if (!$1->%files_list[]#) {
+				 		
+		 		$1->%files_list[]<+$file.ls(%path,f)
+				$$->%count+=$length($1->%files_list[])
+				$1->%file_size[]<+$file.allSizes(%path)
+				//$1->%thisNodeCompleted=$true
+				if (($hptimestamp-$$->%time)>$$->%time_available) return $true	
 			}
-			if (%fl) return $true
+			if ($length(%folders[])<2) return
+			if (!%len) %start=2
+		 	else{
+		 		%start=$(2+%len-1)
+		 		if ($$->$fastScanSubFolders(%path%folders[%start]"/",%children[$(%len-1)])) return $true
+		 		%start++
+		 	}
+		 	for (%ind=%start;%ind<%folders[]#;%ind++) {
+		 		if ($$->$fastScanSubFolders(%path%folders[%ind]"/",$$->$addNode(%folders[%ind],%parent_node))) {
+			 		%fl=$true
+			 		break
+			 	}		 	
+			}
+			if (%fl) return $true;
 		}
 		
-		function appendFile(file,size)
+		function appendFile(node,file,size)
 		{
-				$$->%node->%files_list[$$->%node->%idx_file]=$0
-				$$->%node->%file_size[$$->%node->%idx_file]=$1
-				$$->%node->%idx_file++
+				
+				$0->%files_list[]<+$1
+				$0->%file_size[]<+$2
 		}
 	
 		function resetFlag()
 		{
 			$$->$reset($$->%firstnode)
-			
-		}
+			}
 		function reset()
 		{
 			$0->%allSubFoldersScanned=
@@ -433,7 +403,7 @@ alias(NGLfserv::classes::trigger)
 		# come parametro gli passiamo il "root" che indica la radice di questo ramo: puÃƒÂ² essere il root generale
 		# o in caso di triggers, una sezione specifica dell'albero
 		
-		function getVirtualFolderPath()
+		function getVirtualFolderPath(node)
 		{
 			%item=$0
 			while(%item->$parent()->$parent()) {
@@ -461,14 +431,14 @@ alias(NGLfserv::classes::trigger)
 			return %found
 		}
 			
-		function getFileById()
+		function getFileById(node,id)
 		{
-			$$->%node=$1
-			%fl=$0
+			%node=$0
+			%fl=$1
 			%child_idx=$str.rightfromfirst($str.lowcase(%fl),"|f")
 			if (!$str.isnumber(%child_idx)) return $false
-			if ((%child_idx>=$$->$filesCount()) || (%child_idx<0)) return $false
-			else return $$->$fileAt(%child_idx)
+			if ((%child_idx>=$$->$filesCount(%node)) || (%child_idx<0)) return $false
+			else return $$->$fileAt(%node,%child_idx)
 		}	
 		
 		function getFolderObjFromPath()
@@ -476,13 +446,11 @@ alias(NGLfserv::classes::trigger)
 			%path=$0
 			if ($1) %father=$1
 			else %father=$$->%firstnode
-			%index=0
-			
+			%index=0		
 			while ($str.token(%index,"/",%path)){
 				%found=$false
 				%token= $str.token(%index,"/",%path) 
-				%children[]=%father->$children()
-				
+				%children[]=%father->$children()		
 				for (%i=0;%i<$length(%children[]);%i++) {
 					 if ($$->$text(%children[%i]) ==%token) {
 						%father=%children[%i]
@@ -498,7 +466,7 @@ alias(NGLfserv::classes::trigger)
 	
 		function getLocalTriggerPath()
 		{
-			%item=$$->%node
+			%item=$0
 			%path=%item->%text"/"
 			 while(%item!=$$) {
 				%item=%item->$parent()
@@ -506,16 +474,21 @@ alias(NGLfserv::classes::trigger)
 			}
 			return %path	
 		}
-		function getRealPath()
+		function getRealPath(node)
 		{
 			
 			%item=$0
-			%path=%item->%text"/"
-			while(!%item->%realRootFolder) {
+			if (%item==$$->%firstNode) debug sono nel nodo principale
+			else debug non SONO
+			//%path=%item->%text"/"
+			while((!%item->%extraDirPath) && (%item!=$$->%firstNode)) {
+					debug risalgo %item->%text
+					%path<+%item->%text"/"
 					%item=%item->$parent()
-					%path=%item->%text"/"%path
-			}		
-			return %item->%realRootFolder%path
+					//%path=%item->%text"/"%path
+			}
+			if (%item!=$$->%firstNode) return %item->%extraDirPath%path
+			else return $$->%realTriggerPath%path
 		}
 	
 		internal function checkFolderExists()
@@ -527,21 +500,21 @@ alias(NGLfserv::classes::trigger)
 			return $false
 		}
 		
-		function filesList()
+		function filesList(node)
 		{
-			return $$->%node->%files_list[]
+			return $0->%files_list[]
 		}
 		
-		function sizesList()
+		function sizesList(node)
 		{
-			return $$->%node->%file_size[]
+			return $0->%file_size[]
 		}
 			
 		
 		
-		function filesCount()
+		function filesCount(node)
 		{
-			return $length($$->%node->%files_list[])
+			return $length($0->%files_list[])
 		}
 		
 		function somethingHasChanged()
@@ -552,38 +525,37 @@ alias(NGLfserv::classes::trigger)
 		{
 			$$->%changed=$0
 		}
-		function fileSizeAt(index)
+		function fileSizeAt(node,index)
 		{
-		 	return $$->%node->%file_size[$0]
+		 	return $0->%file_size[$1]
 		}
-		function fileAt(index)
+		function fileAt(node,index)
 		{
-			return $$->%node->%files_list[$0]
+			return $0->%files_list[$1]
 		}
-		function fileIndex(file)
+		function fileIndex(node,file)
 		{
-			for (%i=0;%i<$length($$->%node->%files_list[]);%i++) {
-				if ($$->%node->%files_list[%i]==$0) return %i
+			for (%i=0;%i<$length($0->%files_list[]);%i++) {
+				if ($0->%files_list[%i]==$1) return %i
 			}
 			return -1
 		}
 			
-		function setText(text,node)
+		function setText(node,text)
 		{
-			$$->%node->%text=$0
+			$0->%text=$1
 		}
 		function text(node)
 		{
 			return $0->%text
 		}
-		function isFileNotShared()
+		function isFileNotShared(node,file)
 		{
-			if ($$->%node->$parent()->%dirNotShared || $$->%node->%filesNotShared{$$->%node->%files_list[$0]}) return $true
+			if ($0->$parent()->%dirNotShared || $0->%filesNotShared{$0->%files_list[$1]}) return $true
 			else return $false
 		}
-		function setFoldersNotShared()
+		function setFoldersNotShared(node)
 		{
-			//$0->%dirNotShared=$true
 			$0->%filesNotShared{}=
 			%folder[]=$0->$children()
 			%len=$length(%folder[])
@@ -591,7 +563,7 @@ alias(NGLfserv::classes::trigger)
 				if (!%folder[%i]->%dirNotShared) $$->$setFoldersNotShared(%folder[%i])
 			}	
 		}
-		function setFoldersShared()
+		function setFoldersShared(node)
 		{
 			$0->%dirNotShared=
 			$0->%filesNotShared{}=
@@ -599,24 +571,25 @@ alias(NGLfserv::classes::trigger)
 			%len=$length(%folder[])
 			for(%i=0;%i<%len;%i++;) $$->$setFoldersShared(%folder[%i])	
 		}
-		function  setFileNotShared()
+		function  setFileNotShared(node,file)
 		{
-			$$->%node->%filesNotShared{$0}=$true
+			$0->%filesNotShared{$1}=$true
 		}
-		function  setFileShared()
+		function  setFileShared(node,file)
 		{
-			$$->%node->%filesNotShared{$0}=
-			if ($$->%node->%filesNotShared{}#) $keys($$->%node->%filesNotShared{})
+			$0->%filesNotShared{$1}=
+			if ($0->%filesNotShared{}#) $keys($0->%filesNotShared{})
 			
 		}
-		function fileExists(file)
+		function fileExists(node,file)
 		{
-			%file=$str.lowcase($0)
-			%len=$$->$filesCount()
-			for (%i=0;%i<%len;%i++) if (%file==$str.lowcase($$->$fileAt(%i))) return $$->$fileAt(%i)
+			%file=$str.lowcase($1)
+			%node=$0
+			%len=$$->$filesCount(%node)
+			for (%i=0;%i<%len;%i++) if (%file==$str.lowcase($$->$fileAt(%node,%i))) return $$->$fileAt(%node,%i)
 			return $false
 		}
-		function createDirFilesNotShared()
+		function createDirFilesNotShared(node)
 		{
 			for (%i=0;%i<$0->$count();%i++){
 				%obj=$0->$item(%i)
@@ -646,22 +619,22 @@ alias(NGLfserv::classes::trigger)
 		}
 		function scanNotShared()
 		{
-			$$->%node=$0
-			if ($length($$->%node->%filesNotShared{})){
+			%node=$0
+			if ($length(%node->%filesNotShared{})){
 				%folder=$new(object,$$->%infons)
-				%folder->%pathfromtrigger=$$->$getLocalTriggerPath()		
-				foreach(%file,$keys($$->%node->%filesNotShared{}))  %tmp=%tmp%file|
+				%folder->%pathfromtrigger=$$->$getLocalTriggerPath(%node)		
+				foreach(%file,$keys(%node->%filesNotShared{}))  %tmp=%tmp%file|
 				%folder->%files=%tmp
 				$$->%infons->$append(%folder)
 			}
-			%folder[]=$$->%node->$children()
+			%folder[]=%node->$children()
 			%len=$length(%folder[])
 			for (%i=0;%i<%len;%i++;){
 				if (!%folder[%i]->%dirNotShared) $$->$scanNotShared(%folder[%i])
 				else{
-					$$->%node=%folder[%i]
+					%node=%folder[%i]
 					%dir=$new(object,$$->%infons)
-					%dir->%pathfromtrigger=$$->$getLocalTriggerPath()
+					%dir->%pathfromtrigger=$$->$getLocalTriggerPath(%node)
 					$$->%infons->$append(%dir)
 				}
 			}
@@ -678,16 +651,16 @@ alias(NGLfserv::classes::trigger)
 		}
 		function scanTreeForNotShared()
 		{
-			$$->%node=$0
-			if ($length($$->%node->%filesNotShared{})){
+			%node=$0
+			if ($length(%node->%filesNotShared{})){
 				config.setsection $$->%c notshared$$->%ns
 				$$->%ns++
-				config.write $$->%c pathfromtrigger $$->$getLocalTriggerPath()
-				foreach(%file,$keys($$->%node->%filesNotShared{}))  %tmp=%tmp%file|
+				config.write $$->%c pathfromtrigger $$->$getLocalTriggerPath(%node)
+				foreach(%file,$keys(%node->%filesNotShared{}))  %tmp=%tmp%file|
 				config.write $$->%c files %tmp
-				NGLfserv::corefunctions::ngldebug files notshared of $$->%node->%text are %tmp
+				NGLfserv::corefunctions::ngldebug files notshared of %node->%text are %tmp
 			}
-			%folder[]=$$->%node->$children()
+			%folder[]=%node->$children()
 			%len=$length(%folder[])
 			for (%i=0;%i<%len;%i++;){
 				if (!%folder[%i]->%dirNotShared) $$->$scanTreeForNotShared(%folder[%i])
@@ -695,8 +668,8 @@ alias(NGLfserv::classes::trigger)
 					NGLfserv::corefunctions::ngldebug completamente non sharata %folder[%i]->%text
 					config.setsection $$->%c notshared$$->%ns
 					$$->%ns++
-					$$->%node=%folder[%i]
-					config.write $$->%c pathfromtrigger $$->$getLocalTriggerPath()
+					%node=%folder[%i]
+					config.write $$->%c pathfromtrigger $$->$getLocalTriggerPath(%node)
 				}
 			}
 		}

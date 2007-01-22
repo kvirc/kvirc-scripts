@@ -69,9 +69,9 @@ alias(NGLfserv::config::load)
 	
 	// MaxSessions
 	%MaxSessions = $config.read(%c,"MaxSessions",5)
-
-	// LoadSendDelay
-	%LoadSendsDelay = $config.read(%c,"LoadSendsDelay",30000)
+ 	
+	// LoadSendDelay 
+	%LoadSendsDelay = $config.read(%c,"LoadSendsDelay",30000) 
 	
 	%G_NGLdebug=$config.read(%c,"NGLdebug",0)
 	
@@ -130,60 +130,38 @@ alias(NGLfserv::config::load)
 	}
 	config.close %c
 	%Asyncio=$new(NGLfserv::classes::asynchLoad)
-		%instances=$new(list,%Asyncio)
 	foreach(%trigger,$keys(%Triggers{})){
-	
 		%c = $config.open("NGLfservtriggertree"%trigger".kvc",rw)
 		config.setsection %c general
-		%realnodes=$config.read(%c,"realnodes",0)
+		debug add $config.read(%c,"realTriggerPath")
+		if ($file.exists($config.read(%c,"realTriggerPath"))){
+			%Triggers{%trigger}->%c=%c
+			%add=$true
+			 %Asyncio->$addtrigger(%Triggers{%trigger})
+			 %Triggers{%trigger}->$setRealTriggerPath($config.read(%c,"realTriggerPath"))
+		}
+		%extradirs=$config.read(%c,"extradirs",0)
 		%i=0
-		//%keylist[]=$config.sectionlist(%c)
-		/*for(%i=0;%i<$length(%keylist[]);%i++;)
-		{
-		*/
-		%realrootfolderslist=$new(list,%instances)
-		%instances->$append(%realrootfolderslist)
-		%realrootfolderslist->%trigger=%Triggers{%trigger}
-		%realrootfolderslist->%c=%c
-		%inst=$false
-		//debug trigger
-		while (%i<%realnodes){
-			config.setsection %c realnode%i
+		while (%i<%extradirs){
+			config.setsection %c extradir%i
 			//config.setsection %c %keylist[%i]
-			%rrf=$config.read(%c,"realRootFolder")
-			if (%rrf)
-			{
-				if ($file.exists(%rrf$config.read(%c,"realnodedir")))
-				{
-					%instance_node=$new(object,%instance)
-					%instance_node->%realRootFolder=%rrf
-					%instance_node->%pathFromTrigger=$config.read(%c,"pathFromTrigger")
-					%instance_node->%dir=$config.read(%c,"realnodedir")
-					if (%instance_node->%dir=="\/") %instance_node->%dir=""
-					%realrootfolderslist->$append(%instance_node)
-					//debug creo istanza con il %rrf
-					if (!%inst){
-						objects.connect %Triggers{%trigger} scancompleted %Asyncio nexttrigger
-						%inst=$true
-					}
-				}
-				else{
-					NGLfserv::corefunctions::ngldebug la dir $config.read(%c,"realRootFolder")$config.read(%c,"realnodedir") non esiste: rimuovo il nodo dalla config!
-					config.clearsection %c realnode%i
-					if (!$config.read(%c,"realnodedir")){
-						%Triggers{%trigger}->$setFirstEmptyNode()
-					}
-				}
+			%extradirpath=$config.read(%c,"extradirpath")
+			debug checking extradir %extradirpath
+			if ($file.exists(%extradirpath)){
+				%pathFromTrigger=$config.read(%c,"pathFromTrigger")
+				%Triggers{%trigger}->$appendExtraDir(%extradirpath,%pathFromTrigger)
+			}
+			else{
+				NGLfserv::corefunctions::ngldebug la dir $config.read(%c,"extradirpath") non esiste !
+				config.clearsection %c extradir%i
 			}
 			%i++
 		}
-		if (!%inst){
-			 %Triggers{%trigger}->%noNode=$true
-			  config.close %c
-		}
-	
 	}
-	if (%Asyncio->$start(%instances))
+	if (!%Asyncio->$start()) delete %Asyncio
+	else return
+	// FIX ME
+	if (%Asyncio->$start())
 		%G_fserverbusyhandler->$setAliasCallback("NGLfserv::config::loadSendAndQueues")
 	else delete %Asyncio
 }

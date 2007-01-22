@@ -1,5 +1,10 @@
 [Noldor, 22 january 2007]
 - fixed checkboxes (from now we must use clicked signal instead of toggle signal)
+- rewritten virtual tree code and fast load/save tree info (need to remove old config files)
+- completed dirview gui (maybe instable... need testing)
+- added simple wildcards filter in fserver shell navigation
+N.B.: THIS VERSION IS A WIP AND CAN BE VERY UNSTABLE DUE TO THE INTERNAL NEW RECODING AND IT IS NOT YET FULL TESTED! USE IT AT OWN RISK :)
+
 
 [LoSko, 21 january 2007]
 - wizard styling
