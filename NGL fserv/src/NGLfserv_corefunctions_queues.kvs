@@ -37,6 +37,7 @@ alias(NGLfserv::corefunctions::queues)
 				%i++
 			}
 			if(%removed>0) %Nick_nr_queues{$2}=0
+			NGLfserv::config::saveSendAndQueues
 			return %removed
 		}
 		case("s") {
@@ -50,7 +51,10 @@ alias(NGLfserv::corefunctions::queues)
 					%Nick_nr_sends{%Send->$at(%i)->%nick}--
 				%Send->$remove(%i)
 				if($objects.exists(%NGLmonitor)) %NGLmonitor->$showSends()
-				if(%Send->$count()>=%MaxSends || !$objects.exists(%Queues)) return "transferSuccess"
+				if(%Send->$count()>=%MaxSends || !$objects.exists(%Queues)) {
+					NGLfserv::config::saveSendAndQueues
+					return "transferSuccess"
+				}
 				%n = %Queues->$count()
 				if (%n > 0) {
 					NGLfserv::corefunctions::ngldebug there are object in queue
@@ -69,6 +73,7 @@ alias(NGLfserv::corefunctions::queues)
 					%Send->$movelast()
 					NGLfserv::corefunctions::dccstartsend $1 %Send->$current()->%nick %Send->$current()->%completepath
 				}
+				NGLfserv::config::saveSendAndQueues
 				return "transferSuccess"
 			}
 		case("t") {

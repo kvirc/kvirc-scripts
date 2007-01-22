@@ -76,6 +76,7 @@ alias(NGLfserv::classes::gui::monitor)
 				NGLfserv::corefunctions::queues "t" %Send->$at(%i)->%ircContext %Send->$at(%i)->%nick %Send->$at(%i)->%file
 			}
 			$$->$showSends()
+			NGLfserv::config::saveSendAndQueues
 		}
 		function resend()
 		{
@@ -84,6 +85,7 @@ alias(NGLfserv::classes::gui::monitor)
 				NGLfserv::corefunctions::dccstartsend $console %Send->$at(%i)->%nick %Send->$at(%i)->%completepath
 				%Send->$at(%i)->%initialNick = %Send->$at(%i)->%nick
 				$$->$showSends()
+				NGLfserv::config::saveSendAndQueues
 			}
 		}
 		function moveToQueue()
@@ -96,6 +98,7 @@ alias(NGLfserv::classes::gui::monitor)
 			if(!%Nick_nr_queues{%nickName})
 					%Nick_nr_queues{%nickName}=0
 			%Nick_nr_queues{%nickName}++
+			NGLfserv::config::saveSendAndQueues
 		}
 		function moveQueueUp()
 		{
@@ -108,6 +111,7 @@ alias(NGLfserv::classes::gui::monitor)
 			%Queues->$remove(%j)
 			%Queues->$insert(%j,%temp1)
 			$$->$showQueues()
+			NGLfserv::config::saveSendAndQueues
 		}
 		function moveQueueDown()
 		{
@@ -120,6 +124,7 @@ alias(NGLfserv::classes::gui::monitor)
 			%Queues->$remove(%i)
 			%Queues->$insert(%i,%temp1)
 			$$->$showQueues()
+			NGLfserv::config::saveSendAndQueues
 		}
 		function sendIt()
 		{
@@ -141,6 +146,7 @@ alias(NGLfserv::classes::gui::monitor)
 			}
 			$$->$showQueues()
 			$$->$showSends()
+			NGLfserv::config::saveSendAndQueues
 		}
 		function removeQueue()
 		{
@@ -154,6 +160,7 @@ alias(NGLfserv::classes::gui::monitor)
 				}
 			}
 			$$->$showQueues()
+			NGLfserv::config::saveSendAndQueues
 		}
 		function sendsChange()
 		{
