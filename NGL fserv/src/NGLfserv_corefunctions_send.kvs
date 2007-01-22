@@ -65,6 +65,7 @@ alias(NGLfserv::corefunctions::send)
 			%Send->$append(%fl_send)
 			if(!%Nick_nr_sends{%fl_send->%nick}) %Nick_nr_sends{%fl_send->%nick}=0
 			%Nick_nr_sends{%fl_send->%nick}++
+			NGLfserv::config::saveSendAndQueues
 		}
 		return
 	}
@@ -76,6 +77,7 @@ alias(NGLfserv::corefunctions::send)
 			if($NGLfserv::corefunctions::dccStartSend(%fl_send->%console, %fl_send->%nick, %fl_send->%completepath)) {
 				%Send->$append(%fl_send)
 				%Nick_nr_sends{%fl_send->%nick}++
+				NGLfserv::config::saveSendAndQueues
 			}
 			return
 		}
@@ -130,6 +132,7 @@ alias(NGLfserv::corefunctions::send)
 		if(%type=="shell") %shell->$msg($k(%NGLc1)"Adding your file to queue slot "$k(%NGLc2)$r$r$(%queuePosition + 1)$k(%NGLc1)". The file will send when the next send slot is open.")
 			else notice -q %fl_send->%nick $k(%NGLc1)"Adding your file to queue slot "$k(%NGLc2)$r$r$(%queuePosition + 1)$k(%NGLc1)". The file will send when the next send slot is open."
 		if($objects.exists(%NGLmonitor)) %NGLmonitor->$showQueues()
+		NGLfserv::config::saveSendAndQueues
 	}
 	else {
 		if(%type=="shell") %shell->$msg($k(%NGLc1)"Sorry, all of your queue slots are full.")

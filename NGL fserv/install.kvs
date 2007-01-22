@@ -256,6 +256,7 @@ defpopup(NGLfserv_nick)
 					if($objects.exists(%NGLmonitor)) {
 						%NGLmonitor->$showSends()
 					}
+					NGLfserv::config::saveSendAndQueues
 				}
 			}
 		}
@@ -283,6 +284,7 @@ defpopup(NGLfserv_nick)
 				if($objects.exists(%NGLmonitor)) {
 					%NGLmonitor->$showQueues()
 				}
+				NGLfserv::config::saveSendAndQueues
 			}
 		}
 	}
