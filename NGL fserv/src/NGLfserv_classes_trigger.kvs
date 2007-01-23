@@ -245,7 +245,7 @@ alias(NGLfserv::classes::trigger)
 				%rootpath=$$->%extraDirs->$current()->%extraDirPath
 				NGLfserv::corefunctions::ngldebug adding extra dir with  path Fromtrigger $$->%extraDirs->$current()->%pathFromTrigger
 				NGLfserv::corefunctions::ngldebug extra dir path $$->%extraDirs->$current()->%extraDirPath
-				($$->%firstNodeEmpty) 
+				if($$->%firstNodeEmpty) 
 					%parent_node=$$->%firstNode()
 				else 
 					%parent_node=$$->$getFolderObjFromPath($$->%extraDirs->$current()->%pathFromTrigger)
