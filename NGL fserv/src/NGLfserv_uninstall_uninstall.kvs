@@ -22,6 +22,7 @@ alias(NGLfserv::uninstall::uninstall)
 		delpopupitem channeltextview NGLfserv.menu
 		defpopup(NGLfserv_channel) {}
 		delpopupitem defaulttextview NGLfserv.menu
+		delpopupitem querytextview NGLfserv.menu
 		delpopupitem channel NGLfserv.menu
 		defpopup(NGLfserv_nick) {}
 	}

@@ -295,6 +295,11 @@ defpopup -m (defaulttextview)
 	extpopup(%NGLlogo,NGLfserv_nick,13,NGLfserv.menu)
 }
 
+defpopup -m (querytextview)
+{
+	extpopup(%NGLlogo,NGLfserv_nick,13,NGLfserv.menu)
+}
+
 defpopup -m (channel)
 {
 	extpopup(%NGLlogo,NGLfserv_nick,13,NGLfserv.menu)
