@@ -42,8 +42,6 @@ parse %mypath/utils/installer.kvs
 %installer->$copyFiles("%mypath/pics/","*.png",$file.localdir("pics"))
 # the translations
 %installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
-# the documentation
-%installer->$copyFiles("%mypath/help/en/nowplaying/","*.html",$file.localdir("help/en/nowplaying"))
 # then generate the uninstall alias
 %installer->$generateUninstallAlias("HelLTriX::bindip::uninstallfiles")
 # finally kill the installer helper
@@ -57,11 +55,11 @@ alias(HelLTriX::bindip::update)
 	# Fake DCC IP updater
 	# Retrieve bind IP for DCC request from config file
 	if(!$option(boolDccSendFakeAddressByDefault))
-		return
+		option boolDccSendFakeAddressByDefault 1
 
 	# Download the page
-	http.asyncGet -e=o -w=h -q (http://ip.dnsexit.com, $file.localdir("ip.html")){
-		%tmpFile=$file.read($file.localdir("ip.html"))
+	http.asyncGet -e=o -w=h -q (http://ip.dnsexit.com, $file.localdir("tmp/ip.html")){
+		%tmpFile=$file.read($file.localdir("tmp/ip.html"))
 		%newIP=$str.replace(%tmpFile,""," ")
 
 		# Update DCC bind IP
