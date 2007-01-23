@@ -356,12 +356,17 @@ alias(NGLfserv::classes::shell)
 				if(%id) {
 					%a=$($dcc.transferredBytes(%id)/100)
 					%b=$($dcc.localFileSize(%id)/100)
-					%percent=$(100*%a/%b)\%
+					%c=$((%b-%a)/($dcc.averageSpeed(%id)/100))
+					if($($date("e",%c)-1) > 0) %eta .= $($date("e",%c)-1)d" "
+					if($($date("k",%c)-1) > 0) %eta .= $($date("k",%c)-1)h" "
+					if($date("M",%c) > 0) %eta .= $date("M",%c)m" "
+					if($date("S",%c) > 0) %eta .= $date("S",%c)s" "
+					%progress=done at $k(%NGLc2)$r$r$(100*%a/%b)\%$k(%NGLc1), ETA: $k(%NGLc2)$r$r%eta$k(%NGLc1)
 				}
 				else {
 					%percent=Waiting
 				}
-				NGLfserv::corefunctions::say $$->%shellwindow $k(%NGLc1)#$(%i+1) $k(%NGLc2)%Send->$at(%i)->%file$k(%NGLc1), to $k(%NGLc2)%Send->$at(%i)->%nick$k(%NGLc1), done at $k(%NGLc2)$r$r%percent$k(%NGLc1), size: $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc(%Send->$at(%i)->%size)
+				NGLfserv::corefunctions::say $$->%shellwindow $k(%NGLc1)#$(%i+1) $k(%NGLc2)%Send->$at(%i)->%file$k(%NGLc1), to $k(%NGLc2)%Send->$at(%i)->%nick$k(%NGLc1), %progress, size: $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc(%Send->$at(%i)->%size)
 			}
 		}
 		function msg()
