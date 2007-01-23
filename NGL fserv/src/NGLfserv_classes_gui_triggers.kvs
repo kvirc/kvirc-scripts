@@ -164,7 +164,7 @@ alias(NGLfserv::classes::gui::triggers)
 					$$->%ckbUsePswd->$setChecked($false)
 				}
 				//%Triggers{%triggerName}->$setName(%Triggers{%triggerName}->$firstNode())
-				$$->%root_dir->$setText(%Triggers{%triggerName}->$getRealRootFolder(%Triggers{%triggerName}->$firstNode()))
+				$$->%root_dir->$setText(%Triggers{%triggerName}->$getRealTriggerPath())
 				$$->%root_dir->$parent()->$setTitle(%triggerName" root path")
 				if(!%Triggers{%triggerName}->$channels()) return
 				foreach(%ch,%Triggers{%triggerName}->$activeChannels()){
@@ -208,7 +208,7 @@ alias(NGLfserv::classes::gui::triggers)
 				}
 				%ta=$0
 				%tt=%ta->$firstNode()
-				$$->%root_dir->$setText($0->$getRealRootFolder(%tt))
+				$$->%root_dir->$setText($0->$getRealTriggerPath())
 				$$->%lineEditTrigger->$clear()
 				if(!$1)	NGLfserv::corefunctions::nglok "Trigger has been successfully added"
 				else NGLfserv::corefunctions::nglok "Trigger root path has been successfully changed"
@@ -243,7 +243,7 @@ alias(NGLfserv::classes::gui::triggers)
 			%path = $$->%root_dir->$text()
 			if($str.right(%path,1)!="\/") %path .= \/
 			if($file.type(%path)=="d") {
-				if(%path != %Triggers{%triggerName}->$getRealRootFolder(%Triggers{%triggerName}->$firstNode())) {
+				if(%path != %Triggers{%triggerName}->$getRealTriggerPath()) {
 					$$->$removeTrigger("rootPathChanged")
 					%trigger=$new(NGLfserv::classes::trigger,0)
 					%trigger->$addFirstNode(%path,%triggerName)
@@ -255,7 +255,7 @@ alias(NGLfserv::classes::gui::triggers)
 			}
 			else {
 				NGLfserv::corefunctions::nglwarning "Invalid path. Please insert a correct folder path"
-				$$->%root_dir->$setText(%Triggers{%triggerName}->$getRealRootFolder(%Triggers{%triggerName}->$firstNode()))
+				$$->%root_dir->$setText(%Triggers{%triggerName}->$getRealTriggerPath())
 			}
 		}
 	
@@ -386,7 +386,7 @@ alias(NGLfserv::classes::gui::triggers)
 			%triggerName=$$->%listboxTriggers->$currentText()
 			$$->%box_root->$setEnabled($false)
 			if (!%triggerName) return
-			$$->%root_dir->$setText(%Triggers{%triggerName}->$getRealRootFolder(%Triggers{%triggerName}->$firstNode()))
+			$$->%root_dir->$setText(%Triggers{%triggerName}->$getRealTriggerPath())
 			$$->%box_root->$setEnabled($true)
 			$$->%gbPassword->$setEnabled($true)
 			if(%Triggers{%triggerName}->%password) %bflag = $true
