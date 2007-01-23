@@ -98,13 +98,12 @@ alias(NGLfserv::classes::gui::globals)
 			%maxCache->$setTooltip($tr("<b>(Advanced)</b> Maxium number of cached results"))
 			%main_layout->$addWidget(%gbFind,1,1)
 				
-			// Box debug
-			%gbDebug=$new(NGLfserv::classes::customwidgets::groupbox,$$,gbDebug,"Debug",5,20)
-			%gbDebug->$setColumnLayout(1,Vertical)
-			%debug_box=$new(NGLfserv::classes::customwidgets::box,%gbDebug,box,vertical)
-			%debug_box->$setSpacing(1)
-			%debug_box->$addWidget(checkbox,"Enable Debugging","\%G_NGLdebug")
-			%main_layout->$addWidget(%gbDebug,1,2)
+			// Box other
+			%gb=$new(NGLfserv::classes::customwidgets::groupbox,$$,gb,"Other",5,20)
+			%gb->$setColumnLayout(1,Horizontal)
+			$$->%ckbDebug=$new(NGLfserv::classes::customwidgets::checkbox,%gb,cb,"Enable debug","\%G_NGLdebug")
+			$$->%ckbNGLVersion=$new(NGLfserv::classes::customwidgets::checkbox,%gb,cb,"Respond to NGLVERSION","\%NGLRespondToNGLVersion")
+			%main_layout->$addWidget(%gb,1,2)
 					
 			objects.connect $$->%spinBoxInstantSend valueChanged $$ commit
 			objects.connect $$->%spinBoxResendInterval valueChanged $$ commit

@@ -24,6 +24,7 @@ alias(NGLfserv::config::save)
 	config.write %c UsePswd %UsePswd
 	config.write %c CloneDetection %CloneDetection
 	config.write %c LoadSendsDelay %LoadSendsDelay
+	config.write %c NGLRespondToNGLVersion %NGLRespondToNGLVersion
 	
 	config.write %c Triggersnumber $length(%Triggers{})
 	if (!$length(%Triggers{})) {

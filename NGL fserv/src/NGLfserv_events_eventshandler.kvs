@@ -10,6 +10,8 @@ alias(NGLfserv::events::eventshandler)
 			eventctl --enable OnChannelMessage NGLfserv_!myqueues
 			eventctl --enable OnCtcpRequest NGLfserv_trigger
 			eventctl --enable OnCtcpRequest NGLfserv_qget
+			eventctl --enable OnCtcpRequest NGLfserv_NORESEND
+			eventctl --enable OnCtcpRequest NGLfserv_NGLVERSION
 			eventctl --enable OnDCCChatConnectionInProgress NGLfserv
 			eventctl --enable OnDccChatConnected NGLfserv
 			eventctl --enable OnDCCChatDisconnected NGLfserv
@@ -31,6 +33,8 @@ alias(NGLfserv::events::eventshandler)
 			eventctl --disable OnChannelMessage NGLfserv_!myqueues
 			eventctl --disable OnCtcpRequest NGLfserv_trigger
 			eventctl --disable OnCtcpRequest NGLfserv_qget
+			eventctl --disable OnCtcpRequest NGLfserv_NORESEND
+			eventctl --disable OnCtcpRequest NGLfserv_NGLVERSION
 			eventctl --disable OnDCCChatConnectionInProgress NGLfserv
 			eventctl --disable OnDccChatConnected NGLfserv
 			eventctl --disable OnDCCChatDisconnected NGLfserv
@@ -52,6 +56,8 @@ alias(NGLfserv::events::eventshandler)
 			eventctl --unregister OnChannelMessage NGLfserv_!myqueues
 			eventctl --unregister OnCtcpRequest NGLfserv_trigger
 			eventctl --unregister OnCtcpRequest NGLfserv_qget
+			eventctl --unregister OnCtcpRequest NGLfserv_NORESEND
+			eventctl --unregister OnCtcpRequest NGLfserv_NGLVERSION
 			eventctl --unregister OnDCCChatConnectionInProgress NGLfserv
 			eventctl --unregister OnDccChatConnected NGLfserv
 			eventctl --unregister OnDCCChatDisconnected NGLfserv

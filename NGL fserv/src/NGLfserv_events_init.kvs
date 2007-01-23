@@ -304,6 +304,15 @@ alias(NGLfserv::events::init)
 			}
 		}
 	}
+	event(OnCtcpRequest,"NGLfserv_NGLVERSION")
+	{
+		%requesting=$0
+		%ctcpName=$4
+		if($str.cmpnocase(%ctcpName,"NGLVERSION")==0 && %NGLRespondToNGLVersion) {
+			notice -q %requesting Running NGL File Server version $addon.version(NGLfserv)
+			halt
+		}
+	}
 	event(OnDCCChatConnectionInProgress,"NGLfserv")
 	{
 		%id=$0
