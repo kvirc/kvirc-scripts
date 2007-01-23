@@ -55,13 +55,14 @@ alias(NGLfserv::classes::gui::sharedfiles)
 			objects.connect $$->%check clicked $$ updateFolders
 			objects.connect %G_fserverbusyhandler busy $$ fservBusyEvent
 			objects.connect %G_fserverbusyhandler notbusy $$ fservNotBusyEvent
+			
 		}
 		checkitem()
 		{
 			$$->%remove->$setEnabled($false)
-			if (!$0->%virtual_node) return
+			if (!$objects.exists($0->%virtual_node)) return
 			else{
-				if ($0->%virtual_node->%realRootFolder) $$->%remove->$setEnabled($true)
+				if ($0->%virtual_node->%extraDirPath) $$->%remove->$setEnabled($true)
 			}
 		}
 		addFolder()
@@ -90,9 +91,8 @@ alias(NGLfserv::classes::gui::sharedfiles)
 			if (%triggername){
 				$$->%gbFiles->$setTitle(%triggername" files")
 				%trigger=%Triggers{%triggername}
-				$$->%dirview->$clear()
-				$$->%dirview->$setTree(%trigger)
-				objects.connect %trigger scancompleted $$ status
+				$$->%dirview->$createTree(%trigger)
+				objects.connect %trigger updated $$ status
 				if (!$$->%busy)
 				$$->%dirview->$showTree()
 				else $$->%dirviewnotshowed=$true
@@ -103,15 +103,21 @@ alias(NGLfserv::classes::gui::sharedfiles)
 			$$->%info_widget->$append("Updating completed!")
 			$$->%check->$setEnabled($true)
 			$$->%dirview->$setEnabled($true)
+			//%trigger=%Triggers{%triggername}
+			//$$->%dirview->$clear()
+			//$$->%dirview->$setTree(%trigger)
+			//$$->%dirview->$showTree()
 		}
 		fservBusyEvent()
 		{
+			return
 			$$->$setEnabled($false)
 			$$->$parent()->$changeTab($$,"Busy",120)
 			$$->%busy=$true
 		}
 		fservNotBusyEvent()
 		{
+			debug NOT BUSY
 			$$->$setEnabled($true)
 			$$->$parent()->$changeTab($$,&Shared Files,161)
 			$$->%busy=$false
@@ -127,7 +133,7 @@ alias(NGLfserv::classes::gui::sharedfiles)
 			if ($objects.exists($$->%comboboxTriggers)){
 				if ($length(%Triggers{})){
 					$$->%comboboxTriggers->$setEnabled($true)
-					//$$->%box_buttons->$setEnabled($true)
+					$$->%box_buttons->$setEnabled($true)
 					$$->%dirView->$setEnabled($true)
 					foreach(%tr,%Triggers{}) $$->%comboboxTriggers->$insertItem(%tr->$triggerName())
 					$$->%comboboxTriggers->$setEnabled($true)
