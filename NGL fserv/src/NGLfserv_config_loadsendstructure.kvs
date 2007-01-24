@@ -10,6 +10,7 @@ alias(NGLfserv::config::loadsendstructure)
 	*/
 
 	%c=$0
+	%list=$1
 
 	%temp_send = $new(object)
 	%temp_send->%nick = $config.read(%c,nick)
@@ -20,7 +21,6 @@ alias(NGLfserv::config::loadsendstructure)
 
 	%temp_send->%size = $file.size(%temp_send->%completepath)
 
-	if(!$objects.exists(%NGLTempSends)) %NGLTempSends = $new(list)
-	%NGLTempSends->$append(%temp_send)
+	%list->$append(%temp_send)
 }
 

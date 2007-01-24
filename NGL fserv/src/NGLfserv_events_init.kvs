@@ -547,14 +547,14 @@ alias(NGLfserv::events::init)
 	event(onIRC,"NGLfserv")
 	{
 		if(%NGLatKVIrcStartUp) {
-			%NGLServersContext{$server} = $context()
 			if(!%SendsLoaded) {
 				%SendsLoaded = $true
 				timer -s (LoadSends,%LoadSendsDelay) {
+					unset %NGLatKVIrcStartUp
 					NGLfserv::config::loadSendAndQueues
 				}
-				unset %NGLatKVIrcStartUp
 			}
+			%NGLContext{$context()} = $server()
 		}
 	}
 }

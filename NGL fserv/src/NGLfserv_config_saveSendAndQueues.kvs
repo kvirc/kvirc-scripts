@@ -1,16 +1,24 @@
 alias(NGLfserv::config::saveSendAndQueues)
 {
-	%c = $config.open("NGLfservSends.kvc","w")
-	for (%i=0;%i<%Send->$count();%i++){
-		config.setsection %c send%i
-		NGLfserv::config::savesendstructure %c %Send->$at(%i)
+	if(%Send->$count()) {
+		%c = $config.open("NGLfservSends.kvc","w")
+		for (%i=0;%i<%Send->$count();%i++){
+			config.setsection %c send%i
+			NGLfserv::config::savesendstructure %c %Send->$at(%i)
+		}
+		config.close %c
+	} else {
+		if($file.exists($file.localdir()/config/scripts/NGLfservSends.kvc)) file.remove $file.localdir()/config/scripts/NGLfservSends.kvc
 	}
-	config.close %c
-	%c = $config.open("NGLfservQueue.kvc","w")
-	for (%i=0;%i<%Queues->$count();%i++){
-		config.setsection %c queue%i
-		NGLfserv::config::savesendstructure %c %Queues->$at(%i)
+	if(%Queues->$count()) {
+		%c = $config.open("NGLfservQueues.kvc","w")
+		for (%i=0;%i<%Queues->$count();%i++){
+			config.setsection %c queue%i
+			NGLfserv::config::savesendstructure %c %Queues->$at(%i)
+		}
+		config.close %c
+	} else {
+		if($file.exists($file.localdir()/config/scripts/NGLfservQueues.kvc)) file.remove $file.localdir()/config/scripts/NGLfservQueues.kvc
 	}
-	config.close %c
 }
 
