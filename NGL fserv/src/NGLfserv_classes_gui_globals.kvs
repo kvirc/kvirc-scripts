@@ -115,6 +115,7 @@ alias(NGLfserv::classes::gui::globals)
 		
 			objects.connect $$->%spinBoxInstantSend valueChanged $$ commit
 			objects.connect $$->%spinBoxResendInterval valueChanged $$ commit
+			objects.connect $$->%spinBoxLoadSendsDelay valueChanged $$ commit
 			objects.connect $$->%comboBoxPriorityType activated $$ commit
 					
 			privateimpl($$->%comboBoxColor1,activatedEvent) 
@@ -131,6 +132,7 @@ alias(NGLfserv::classes::gui::globals)
 			%source=$$->$signalSender()
 			if (%source==$$->%spinBoxInstantSend) %InstantSendSize=$(%source->$value()*1024)
 			else if (%source==$$->%spinBoxResendInterval) %ResendInterval=$(%source->$value()*1000)
+			else if (%source==$$->%spinBoxLoadSendsDelay) %LoadSendsDelay=$(%source->$value()*1000)
 			else if (%source==$$->%comboBoxPriorityType) %PriorityType=%source->$currentItem()
 		}
 	}

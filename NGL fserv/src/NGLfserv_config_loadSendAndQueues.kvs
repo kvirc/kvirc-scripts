@@ -19,30 +19,23 @@ alias(NGLfserv::config::loadSendAndQueues)
 		NGLfserv::config::loadsendstructure %c %NGLTempQueues
 	}
 	config.close %c
-	
-	NGLfserv::corefunctions::ngldebug "Breakpoint 1"
 
 	if($objects.exists(%NGLTempSends) && %NGLTempSends->$count() > 0) {
-		NGLfserv::corefunctions::ngldebug "Breakpoint 2"
 		// We must re-check the server name. It could have been changed in this lapse of time
 		foreach(%c,$keys(%NGLContext{})) {
-			NGLfserv::corefunctions::ngldebug "Breakpoint 3"
 			if($server(%c)) %NGLServersContext{$server(%c)} = %c
 		}
-		if(%NGLTempSends->$count()) %nSends = %NGLTempSends->$count()
-		else %nSends = 0
-		if(%NGLTempQueues->$count()) %nQueues = %NGLTempQueues->$count()
-		else %nQueues = 0
-		%nTotal = $(%nSends + %nQueues)
-		NGLfserv::corefunctions::ngldebug Sends %nSends Queues %nQueues
+		if(%NGLTempSends->$count()) %NGLnSends = %NGLTempSends->$count()
+		else %NGLnSends = 0
+		if(%NGLTempQueues->$count()) %NGLnQueues = %NGLTempQueues->$count()
+		else %NGLnQueues = 0
+		%NGLnTotal = $(%NGLnSends + %NGLnQueues)
 		timer -p (StartSends,5000) {
 			if(!%NGLcount) %NGLcount = 0
-			NGLfserv::corefunctions::ngldebug NGLcount %NGLcount NGLServersContext{} %NGLServersContext{}
-			if(%NGLcount < %nSends && %NGLServersContext{} && $str.contains(%NGLTempSends->$at(%NGLcount)->%serverName,$keys(%NGLServersContext{}))) {
-				NGLfserv::corefunctions::ngldebug "Breakpoint 4"
+			if(%NGLcount < %NGLnSends && %NGLServersContext{} && %NGLServersContext{%NGLTempSends->$at(%NGLcount)->%serverName}) {
 				%NGLTempSends->$at(%NGLcount)->%ircContext = %NGLServersContext{%NGLTempSends->$at(%NGLcount)->%serverName}
-				%currContext = $context()
-				rebind %NGLTempSends->$at(%NGLcount)->%ircContext
+				%winid = $window()
+				rebind $console(%NGLTempSends->$at(%NGLcount)->%ircContext)
 				awhois(%NGLTempSends->$at(%NGLcount)->%nick,%NGLcount){
 					if($1) {
 						NGLfserv::corefunctions::ngldebug "Breakpoint 5"
@@ -74,13 +67,13 @@ alias(NGLfserv::config::loadSendAndQueues)
 						NGLfserv::corefunctions::ngldebug "Aborting send"$10
 					}
 				}
-				rebind %currContext
+				rebind %winid
 			}
-			else if(%NGLcount >= %nSends && %NGLcount < %nTotal && %NGLServersContext{} && $str.contains(%NGLTempQueues->$at($(%NGLcount - %nSends))->%serverName,$keys(%NGLServersContext{}))) {
-				%NGLTempQueues->$at($(%NGLcount - %nSends))->%ircContext = %NGLServersContext{%NGLTempQueues->$at($(%NGLcount - %nSends))->%serverName}	
-				%currContext = $context()
-				rebind %NGLTempQueues->$at(%NGLcount)->%ircContext
-				awhois(%NGLTempQueues->$at($(%NGLcount - %nSends))->%nick,$(%NGLcount - %nSends)){
+			else if(%NGLcount >= %NGLnSends && %NGLcount < %NGLnTotal && %NGLServersContext{} && %NGLServersContext{%NGLTempQueues->$at($(%NGLcount - %NGLnSends))->%serverName}) {
+				%NGLTempQueues->$at($(%NGLcount - %NGLnSends))->%ircContext = %NGLServersContext{%NGLTempQueues->$at($(%NGLcount - %NGLnSends))->%serverName}	
+				%winid = $window()
+				rebind $console(%NGLTempQueues->$at($(%NGLcount - %NGLnSends))->%ircContext)
+				awhois(%NGLTempQueues->$at($(%NGLcount - %NGLnSends))->%nick,$(%NGLcount - %NGLnSends)){
 					if($1) {
 						NGLfserv::corefunctions::ngldebug "Queueing"$10
 						
@@ -108,15 +101,18 @@ alias(NGLfserv::config::loadSendAndQueues)
 						NGLfserv::corefunctions::ngldebug "Removing queue"$10
 					}
 				}
-				rebind %currContext
+				rebind %winid
 			}
 			%NGLcount++
-			if(%NGLcount >= %nTotal) {
+			if(%NGLcount >= %NGLnTotal) {
 				delete %NGLTempSends
 				delete %NGLTempQueues
 				%NGLContext{}=""
 				%NGLServersContext{}=""
 				unset %NGLcount
+				unset %NGLnSends
+				unset %NGLnQueues
+				unset %NGLnTotal
 				NGLfserv::config::saveSendAndQueues
 				killtimer
 			}
