@@ -132,7 +132,7 @@ alias(NGLfserv::classes::find)
 							%fileName=$str.token(0,"?",%fd)
 							%token = $k(%NGLc1)"["$k(%NGLc2)%fileName $k(%NGLc1)Size: $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc($str.token(1,"?",%fd))$k(%NGLc1)
 							if(%FservChannels{$$->%channel}->$getUseQuickGet()) {
-								%token .= " Qget: $k(%NGLc2)/ctcp "$me" qget "$$->%instances_mirror->$item(%i)->$trigger()"|"$str.token(2,"?",%fd)"|"$str.token(3,"?",%fd)$k(%NGLc1)"] "
+								%token .= "$k(4,0) You can quick get it typing: $k() $k(%NGLc2)/ctcp "$me" qget "$$->%instances_mirror->$item(%i)->$trigger()"|"$str.token(2,"?",%fd)"|"$str.token(3,"?",%fd)$k(%NGLc1)"] "
 							}
 							else {
 								%token .= "] "

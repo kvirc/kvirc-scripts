@@ -19,9 +19,9 @@ alias(NGLfserv::events::init)
 				%normalAdsCount=0
 				%normalAdsRowCount=0
 				%normalAds[0] = %normalAdsPrefix
-
+	
 				// %TDCCAdsPrefix = $k(%NGLc1)"["$k(%NGLc2)TDCC active$k(%NGLc1)"] - Triggers:["
-
+	
 				#-------Gives a shape to the trigger notice
 				foreach(%tr,%FservChannels{$chan.name}->%rootFolders{}) {
 					if (!%tr->%noNode){
@@ -106,7 +106,7 @@ alias(NGLfserv::events::init)
 				}
 			}
 	}
-
+	
 	event(OnChannelMessage,"NGLfserv_!trigger")
 	{
 		%requesting=$0
@@ -292,10 +292,10 @@ alias(NGLfserv::events::init)
 				}
 				%folder_obj=%trigger->$getFolderById(%folder)
 				%folderpath=%trigger->$getRealPath(%folder_obj)
-				%file=%trigger->$getFileById(|f%fileindex,%folder_obj)
+				%file=%trigger->$getFileById(%folder_obj,|f%fileindex)
 				%completepath=%folderpath%file
-				%size=%trigger->$fileSizeAt(%fileindex)
-
+				%size=%trigger->$fileSizeAt(%folder_obj,%fileindex)
+	
 				if (%file){
 					NGLfserv::corefunctions::send "qget" %requesting %nickStatus %completepath %size $context %triggerName
 				}
