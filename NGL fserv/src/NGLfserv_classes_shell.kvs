@@ -24,7 +24,7 @@ alias(NGLfserv::classes::shell)
 					}
 				}
 				else if($str.left($$->%trigger->%welcomeMessage,1)=="H") {
-					eval say -r=$$->%shellwindow $str.rightfromfirst($$->%trigger->%welcomeMessage,"H")
+					$$->$msg($str.rightfromfirst($$->%trigger->%welcomeMessage,"H"))
 				}
 			}
 			$$->$msg([\\])
@@ -220,7 +220,6 @@ alias(NGLfserv::classes::shell)
 					}
 				}
 			}
-			//$$->%trigger->$setNode($$->%here)
 		}
 		function parseCommandDir()
 		{
@@ -264,7 +263,7 @@ alias(NGLfserv::classes::shell)
 					}
 				}
 			}
-					#say -r=$$->%shellwindow End of list
+			#say -r=$$->%shellwindow End of list
 		}
 		function toFolder()
 		{
@@ -330,8 +329,6 @@ alias(NGLfserv::classes::shell)
 			%file=$$->%trigger->$fileExists($$->%here,%filetmp)
 			if (%file){
 				%path=$$->%trigger->$getRealPath(%folder)
-				debug il file con percorso %path esiste? $file.exists(%path)
-				
 				 return $$->%trigger->$getRealPath(%folder)
 			}
 			else $$->$msg("File "%filetmp" does not exist")
