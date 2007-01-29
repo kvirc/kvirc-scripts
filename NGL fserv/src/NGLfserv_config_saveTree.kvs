@@ -4,9 +4,7 @@ alias(NGLfserv::config::saveTree)
 		if (%trigger->$somethingHasChanged){
 			%c = $config.open("NGLfservtriggertree"%trigger->$triggerName()".kvc",w)
 			%i=0
-			debug count extra dir trigger %trigger->$triggerName %trigger->$extraDirsCount()
 			while (%i<%trigger->$extraDirsCount()){
-				debug 
 				config.setsection %c extradir%i
 				config.write %c extradirpath %trigger->$extraDir(%i)->%extraDirPath
 				config.write %c pathfromtrigger %trigger->$extraDir(%i)->%pathFromTrigger

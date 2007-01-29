@@ -287,10 +287,7 @@ alias(NGLfserv::classes::dirview)
 					$$->%trigger->$appendExtradir(%rootpath,$$->%trigger->$getLocalTriggerPath(%parent->%virtual_node),%check)
 				}
 				else
-					if (!%check)  NGLfserv::corefunctions::nglwarning "Folder already present!"
-	
-		
-					
+					if (!%check)  NGLfserv::corefunctions::nglwarning "Folder already present!"				
 			}
 		 }
 		 function deleteChildren()
@@ -300,9 +297,7 @@ alias(NGLfserv::classes::dirview)
 		}
 		function refreshView()
 		{
-			debug refreshing view $0
 			if ($0==$$->%trigger->$firstNode() || $0==$$->%trigger){
-				debug è cambiato il nodo principale
 				$$->$deleteChildren($$)
 				$$->%virtual_node=$$->%trigger->$firstNode()
 				$$->$showNode($$)

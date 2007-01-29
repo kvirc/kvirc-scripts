@@ -156,12 +156,10 @@ alias(NGLfserv::classes::trigger)
 			%dir_name = $file.extractfilename($str.left(%rootpath,$($str.len(%rootpath)-1)))
 			// e verifichiamo se già esiste nel nodo parent
 			if ($$->$checkFolderExists(%dir_name,$1)) {
-				debug %dir_name già esiste
 				return $false
 			}
 			// aggiungiamo il nodo al parent
 			%node=$$->$addNode(%dir_name,$1)
-			debug parent $1->%text e rooth %rootpath
 			// e memorizziamo lil nodo e la path per utilizzarli come riferimento nello scan in background
 			$$->%rootnode=%node
 			$$->%rootpath=%rootpath
@@ -350,17 +348,14 @@ alias(NGLfserv::classes::trigger)
 		function fastScanSubFolders()
 		{
 			%path=$0
-	
 			%parent_node=$1
 			%children[]=%parent_node->$children()
 		 	%len=$length(%children[]);
 		 	%folders[]=$file.ls(%path,dn)	
 		 	if (!$1->%files_list[]#) {
-				 		
 		 		$1->%files_list[]<+$file.ls(%path,f)
 				$$->%count+=$length($1->%files_list[])
 				$1->%file_size[]<+$file.allSizes(%path)
-				//$1->%thisNodeCompleted=$true
 				if (($hptimestamp-$$->%time)>$$->%time_available) return $true	
 			}
 			if ($length(%folders[])<2) return
@@ -380,16 +375,15 @@ alias(NGLfserv::classes::trigger)
 		}
 		
 		function appendFile(node,file,size)
-		{
-				
-				$0->%files_list[]<+$1
-				$0->%file_size[]<+$2
+		{			
+			$0->%files_list[]<+$1
+			$0->%file_size[]<+$2
 		}
 	
 		function resetFlag()
 		{
 			$$->$reset($$->%firstnode)
-			}
+		}
 		function reset()
 		{
 			$0->%allSubFoldersScanned=
@@ -478,14 +472,9 @@ alias(NGLfserv::classes::trigger)
 		{
 			
 			%item=$0
-			if (%item==$$->%firstNode) debug sono nel nodo principale
-			else debug non SONO
-			//%path=%item->%text"/"
 			while((!%item->%extraDirPath) && (%item!=$$->%firstNode)) {
-					debug risalgo %item->%text
 					%path<+%item->%text"/"
 					%item=%item->$parent()
-					//%path=%item->%text"/"%path
 			}
 			if (%item!=$$->%firstNode) return %item->%extraDirPath%path
 			else return $$->%realTriggerPath%path

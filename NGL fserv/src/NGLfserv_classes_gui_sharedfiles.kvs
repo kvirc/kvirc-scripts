@@ -117,7 +117,6 @@ alias(NGLfserv::classes::gui::sharedfiles)
 		}
 		fservNotBusyEvent()
 		{
-			debug NOT BUSY
 			$$->$setEnabled($true)
 			$$->$parent()->$changeTab($$,&Shared Files,161)
 			$$->%busy=$false
