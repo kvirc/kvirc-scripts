@@ -1,0 +1,996 @@
+alias(dama4)
+{
+	# Dama my Noldor\Grifisx
+	# 0 = Field Empty;            ;1 = Player1 piece            ;2=Player 1 Crown
+	# 3 = Player2 piece;            ;4 = Player2 Crown            ;5=White check
+	#
+	
+	# creiamo una miniclasse derivata da pixmap giusto x comodità :D In modo da caricare la pixmap direttamente all'istanziamento dell'oggetto
+	class(mdmpixmap,pixmap)
+	{
+		constructor
+		{
+			$$->$load($file.localdir($0))
+		}
+	}
+	# classe che gestisce una lista di oggetti: principalmente usate per gestire i frames delle varie animazioni
+	class(mdmlist,object)
+	{
+		constructor
+		{
+			# inizializza il contatore di oggetti presenti nella lista
+			$$->%max=0
+			# inizializzazione indice
+			$$->%idx=0
+			# inizializzazione dell'array interno
+			$$->%obj[]=""
+		}
+			# metodo che aggiunge un oggetto alla lista inserendolo all'indice corrente e incrementanto indice e contatore oggetti
+		add()
+		{
+			$$->%obj[$$->%idx]=$0
+			$$->%idx ++;
+			$$->%max ++;
+		}
+			# ritorna il primo oggetto della lista e incrementa l'indice corrente a 1
+		first()
+		{
+			$$->%idx=1
+			return $$->%obj[0]
+		}
+			# restituisce l'ultimo oggetto della lista e decrementa l'indice corrente di 1
+		last()
+		{
+			$$->%idx=$($$->%max-1)
+			%ret=$$->%obj[$$->%idx]
+			$$->%idx --;
+			return %ret
+		}
+			# restituisce l'elemento corrente della lista e incrementa l'indice
+		next()
+		{
+			if ($$->%idx==$$->%max) return 0
+			%ret=$$->%obj[$$->%idx]
+			$$->%idx ++
+			return %ret
+		}
+			# restituisce l'elemento corrente della lista e decrementa l'indice
+		prev()
+		{
+			if ($$->%idx<0) return 0
+			%ret=$$->%obj[$$->%idx]
+			$$->%idx --
+			return %ret
+		}
+		
+	}
+		# classe che gestisce l'intera "vita" di una singola pedina
+		# l'oggetto già contiene, tra le altre info, il puntatore alla pixmap da usare in tutte le situazioni;
+		# in questo modo quando dovremo disegnarla basterà richiamare uno dei metodi
+		#$pixmap()...$pixSel(), $pixOver() che restituiranno sempre la pixmap corretta
+		# sia essa pedina o dama...alla parte che disegna poco importa :-)
+	
+	class(pedina,object)
+	{
+		# qui forgiamo la nostra "creatura" :)
+		constructor(colore pedina,pos x,pos y,direzioni di movimenti consentite)
+		{
+			#inizializzazione di alcune proprietà
+			$$->%color=$0
+			$$->%m_posx=$1
+			$$->%m_posy=$2
+			# proprietà che gestisce la direzione in cui può muoversi una pedina
+			if ($0=="B") $$->%movement_verse=1 
+			else $$->%movement_verse=2
+			$$->%player=$0
+		}
+		
+		# metodo che setta i puntatori alle pixmap (immagini) che rappresenteranno graficamente la nostra pedina
+		setPixmaps()
+		{	
+			$$->%m_pixmap=$0
+			$$->%m_pix_over=$1
+			$$->%m_pix_sel=$2
+			$$->%m_pixCrown=$3
+			$$->%m_pixCrown_sel=$4
+			$$->%m_pixCrown_over=$5
+		}
+	
+		#muove alle coordinate x,y rispetto alla "damiera" 
+		mv()
+		{
+			$$->%m_posx=$0
+			$$->%m_posy=$1
+		}
+	
+		# setta le coordinate grafiche della pedina
+		setXY()
+		{
+			$$->%m_pX=$0
+			$$->%m_pY=$1
+		}
+	
+		# restituisce il puntatore alla pixmap  grafica della pedina in stato normale
+		pixmap()
+		{
+			return $$->%m_pixmap
+		}
+	
+		# restituisce la coordinata x rispetto alla "damiera"
+		boardX()
+		{
+			return $$->%m_posx
+		}
+	
+		# restituisce la coordinata y rispetto alla "damiera"
+		boardY()
+		{
+			return $$->%m_posy
+		}
+	
+		# restituisce la coordinata grafica x
+		x ()
+		{
+			return $$->%m_pX
+		}
+	
+		# restituisce la coordinata grafica y
+		y ()
+		{
+			return $$->%m_pY
+		}
+	
+		# restituisce la larghezza della pixmap 
+		w ()
+		{
+			return 26
+			return $$->%m_pWidth
+		}
+	
+		# restituisce l''altezza della pixmap
+		h ()
+		{
+			return  26
+			#$$->%m_pHeight
+		}
+	
+		# restituisce il puntatore alla pixmap grafica della pedina in stato "selected"
+		pixSel()
+		{
+			return $$->%m_pix_sel
+		}
+	
+		# restituisce il puntatore alla pixmap  grafica della pedina in stato "over"
+		pixOver()
+		{
+			return $$->%m_pix_over
+		}
+	
+		# inizializza lo stato grafico della pedina diventata "dama", sostituendo i puntatori con quelli relativi al nuovo "status"
+		setChipCrown()
+		{
+			$$->%m_pixmap=$$->%m_pixCrown
+			$$->%m_pix_sel=$$->%m_pixCrown_sel
+			$$->%m_pix_over=$$->%m_pixCrown_over
+			# setta la proprietà relativa al movimento in modo da consentire la mossa in tutte le diagonali 
+			$$->%movement_verse=3
+		}
+	
+		# restituisce 1 se la pedina è una "dama" o viceversa 0
+		isCrown()
+		{
+			if ($$->%movement_verse==3) return 1
+			else return 0
+		}
+	
+		# restituisce il giocatore che corrisponde al colore della pedina
+		player()
+		{
+			return $$->%player
+		}
+	
+		# metodo che verifica se una mossa sia valida: restituisce false o la direzione della mossa
+		canMove()
+		{
+			# memorizziamo in %dir la direzione del movimento;
+			%dir=$$->$checkDir($$->%m_posx,$$->%m_posy,$0,$1)
+			# se non è un movimento diagonale $chekDir restituirà "False" e la mossa non sarà possibile
+			if (%dir == "False") return %dir
+			# verifichiamo se sia di $2  posizioni diagonali
+			if (!$$->$isValidMove($$->%m_posx,$$->%m_posy,$0,$1,$2)) return "False"
+			# se non è una dama verifichiamo che la pedina in quella direzione si possa muovere
+			if ($$->%movement_verse != 3)
+			{
+				# x farlo confrontiamo il verso consentito alla nostra pedina con le direzioni possibili
+				if ($$->%movement_verse == 1) {if ((%dir!=1) && (%dir!=2)) return "False";}
+				else 
+				if ((%dir!=0) && (%dir!=3)) return "False"; 
+			}
+			# ok la pedina si può muovere in questa direzione: ritorniamo la direzione
+			return %dir
+		}
+	
+		# setta la direzione della mossa: 0 (Nordest);1 (Sudest);2 (Sudovest);3 (Nordovest)
+		checkDir()
+		{
+			# controllo che verifica se sia o meno un movimento in diagonale
+			if (($2 == $0) || ($3 == $1)) return "False" 
+	
+			# con un paio di confronti riusciamo a determinare la direzione della mossa
+	              	if($2 < $0)
+	            		{
+				if($3 < $1) return 3
+	             		   	else return 2                
+	    		}
+			if($3 > $1) return 1
+	                	else return 0
+	  	}
+		
+		# metodo che controlla di quante caselle ci stiamo spostando in diagonale e se sono consentite;1  casella x un move normale, 2 x una "mangiata"
+		isValidMove()
+		{
+			# piccolo "hack" x aggirare un bugghetto di KVIrc relativo ai calcoli matematici con le variabili parametriche $0,$1....,$N
+			%x1=$0
+			%y1=$1
+			%x2=$2
+			%y2=$3
+			# calcoliamo il valore assoluto delle differenze tra le coordinate sorgenti e destinazione in modo da non dover fare confronti
+			# x vedere il verso della pedina (Black dall'alto verso il basso e White viceversa)
+			%maxdiff=$($4^2)
+			%diff_x=$($(%x2-%x1)^2)
+			%diff_y=$($(%y2-%y1)^2)
+			# se le differenze superano il max consentito (1 o 2) allora la mossa non è valida
+			if ((%diff_x > %maxdiff) || (%diff_y) > %maxdiff) return  0
+			else return 1
+		}
+	}
+	
+	# questa classe gestisce tutto quello che riguarda la mossa in se e la sua rappresentazione grafica
+	class (mossa,object)
+	{
+		 # inizializzazione di alcure variabili
+		constructor
+		{
+			$$->%from_x=0
+			$$->%from_y=0
+			$$->%to_x=0
+			$$->%to_y=0
+			$$->%from_chip=0
+			$$->%to_chip=0
+		}
+	
+		# settiamo l'oggetto pedina sorgente
+		setFrom()
+		{
+			$$->%from_chip=$0
+		}
+	
+		# settiamo l'oggetto pedina destinazione (usato solamente quando si mangia)
+		setTo()
+		{
+			$$->%to_chip=$0
+		}
+	
+		# setta l'offset per  la progressione grafica durante un "move"
+		setDir()
+		{
+			# l'offset varia da -2 a +2 sugli assi xy in base alla direzione della nostra mossa
+			$$->%x_offset=2
+			$$->%y_offset=-2
+			$$->%dir = $0
+			if (($0 == 1) || ($0 == 2) ) $$->%y_offset=2
+			if (($0 == 2) || ($0 == 3)) $$->%x_offset=-2
+			# se è stato settato il %to_chip vuol dire che non abbiamo bisogno di settare le coordinate finali xè è una mangiata
+			if (!$$->%to_chip) return
+			$$->%x_end=$$->%to_chip->$x()
+			$$->%y_end=$$->%to_chip->$y()
+		}
+		
+		# setta la posizione grafica x della pedina
+		setxPos()
+		{
+			$$->%x_pos=$0
+		}
+		
+		# setta la posizione grafica y della pedina
+		setyPos()
+		{
+			$$->%y_pos=$0
+		}
+		
+		# calcola la prossima coppia di coordinate xy in base all'offset (quest'ultimo viene elaborato una volta sola prima che inizi l'animazione)
+		moveToNextFrame()
+		{
+			$$->%x_pos += $$->%x_offset
+			$$->%y_pos += $$->%y_offset
+		}
+	
+		# setta le coordinate xy finali rispetto alla "damiera"
+		setEndXYBoard()
+		{
+			$$->%endx_board=$0
+			$$->%endy_board=$1
+		}
+	
+		# restituisce la coordinata x finale rispetto alla "damiera"
+		endXBoard()
+		{
+			return $$->%endx_board
+		}
+	
+		# e la coordinata y
+		endYBoard()
+		{
+			return $$->%endy_board
+		}
+	
+		# restituisce la coordinata x finale del move
+		xend()
+		{
+			return $$->%x_end
+		}
+		
+		# e la coordinata y
+		yend()
+		{
+			return $$->%y_end
+		}
+			
+		# metodo che verifica se l'animazione è conclusa (relativo al "move")
+		# in pratica calcola se abbiamo superato o centrato le coordinate xy grafiche finali
+		# (purtroppo la "damiera" ha le caselle leggermente diverse e quindi tocca fare in questo modo x non vedere 
+		# fuggire la pedina :D
+		moveEnd()
+		{
+			switch ($$->%dir)
+			{
+				case (0)
+				{ 
+					return $(($$->%x_pos>=$$->%x_end) && ($$->%y_pos<=$$->%y_end))
+				}
+				case (1)
+				{ 
+					return $(($$->%x_pos>=$$->%x_end) && ($$->%y_pos>=$$->%y_end))
+				}
+				case (2)
+				{ 
+					return $(($$->%x_pos<=$$->%x_end) && ($$->%y_pos>=$$->%y_end))
+				}
+				case (3)
+				{ 
+					return $(($$->%x_pos<=$$->%x_end) && ($$->%y_pos<=$$->%y_end))
+				}
+			}
+			# disperazione totale: spero che sto echo non venga mai visualizzato :P ci sarebbe da preoccuparsi :D
+			echo la pedina si è persa :°°°°°°°°°°°°°D
+		}
+		
+		# ritorna la coordinata grafica X relativa alla pedina sorgente
+		x()
+		{
+			return $$->%x_pos
+		}
+	
+		# e quella y
+		y()
+		{
+			return $$->%y_pos
+		}
+	
+		# queste sono le tre fasi relative all'animazione "mangia"
+		# La fase 1 memorizza la lista di frames relative al teletrasporto iniziale della pedina mangiante
+		phase1()
+		{
+			if ($0->%player=="W") $$->%p_phase1=$$->$parent()->%white_eating_anim
+				else $$->%p_phase1=$$->$parent()->%black_eating_anim
+			$$->%frame=$$->%p_phase1->$first()
+			$$->%phase=1
+		}
+		
+		# la fase 2 gestisce la lista di frames relative alla ricomparsa, nella casella di destinazione, della pedina che effetua la "presa"
+		phase2()
+		{
+			# puntatore all'animazione (animazione che cicla al contrario)
+			$$->%p_phase2=$$->%p_phase1
+			# coordinate xy grafiche della casella di destinazione
+			$$->%ph2_posX=$0
+			$$->%ph2_posY=$1
+			# coordinate xy riferite alla "damiera" 
+			$$->%ph2_XB=$2
+			$$->%ph2_YB=$3
+		}
+		
+		# Infine la fase 3 imposta l'animazione della disintegrazione della pedina "presa" :D
+		phase3()
+		{
+			if ($0->%player=="W") $$->%p_phase3=$$->$parent()->%white_eated_anim
+				else $$->%p_phase3=$$->$parent()->%black_eated_anim
+			$$->%to_chip=$0
+		}
+	
+		# metodi che ritornano i puntatori alle liste di animazioni relative alle 3 fasi
+		p1()
+		{
+			return $$->%p_phase1
+		}
+		p2()
+		{
+			return $$->%p_phase2
+		}
+		p3()
+		{
+			return $$->%p_phase3
+		}
+	
+		# ritorna la pixmap relativa al fotogramma attuale 
+		frame()
+		{
+			return $$->%frame
+		}
+	
+		# ritorna il numero della fase
+		phase()
+		{
+			return $$->%phase
+		}
+	
+		# passa alla prossima fase delle animazioni
+		nextPhase()
+		{
+			$$->%phase++
+			if ($$->%phase == 2) $$->%frame=$$->%p_phase2->$last()
+			else $$->%frame=$$->%p_phase3->$first()
+		}
+	} 
+	
+	class (dama,widget)
+	{
+	########################-DAMA CORE-#####################
+	#									#
+	#########################################################
+	        	constructor()
+		{
+			# inizializza un pò di robbaccia : sopratutto pixmap varie :D	
+		           	$$->%xstart_= -1
+	                	$$->$setMouseTracking(1)
+	                	$$->%isMyTurn=$0
+	                	$$->%myEnemy=$1
+			#####-->
+			$$->%moveFlag=0;
+			$$->%player_="B";
+			#####-->
+			$$->%clicked=0
+	                	$$->%workspace=$new(pixmap)
+	                	$$->%workspace->$resize(341,341)
+	                	$$->%cacheW=$new(pixmap)
+	               	$$->%cacheW->$resize(26,26)    
+	                	$$->%cache_sel=$new(pixmap)
+	                	$$->%cache_sel->$resize(26,26)
+			$$->%cacheAnim=$new(pixmap)
+			$$->%cacheAnim->$resize(26,26)              
+			$$->%checker=$new(mdmpixmap,0,,"pics/dama/checker.png") 
+			$$->%black=$new(mdmpixmap,0,,"pics/dama/black.png")
+			$$->%white=$new(mdmpixmap,0,,"pics/dama/white.png")
+			$$->%over=$new(mdmpixmap,0,,"pics/dama/over.png")
+			$$->%sel=$new(mdmpixmap,0,,"pics/dama/selected.png")
+			# crowned
+			$$->%blackC=$new(mdmpixmap,0,,"pics/dama/blackcrowned.png")
+			$$->%whiteC=$new(mdmpixmap,0,,"pics/dama/whitecrowned.png")
+			# selected crowned
+			$$->%blackC_sel=$new(mdmpixmap,0,,"pics/dama/blackcrownedselected.png")
+			$$->%whiteC_sel=$new(mdmpixmap,0,,"pics/dama/whitecrownedselected.png")
+			# over crowned
+			$$->%blackC_over=$new(mdmpixmap,0,,"pics/dama/blackcrownedover.png")
+			$$->%whiteC_over=$new(mdmpixmap,0,,"pics/dama/whitecrownedover.png")
+			# crea le liste relative alle animazioni
+			$$->%white_eated_anim=$new(mdmlist,$$)
+			$$->%white_eating_anim=$new(mdmlist,$$)
+			$$->%black_eated_anim=$new(mdmlist,$$)
+			$$->%black_eating_anim=$new(mdmlist,$$)
+			%anim=0
+			# inizializza i frames delle animazioni
+			while(%anim != 9)
+			{
+	                        		%file=white%anim"\.png"
+				%white_eated=$new(mdmpixmap,$$,,"pics/dama/biancamangiata/"%file)
+	  	              	%white_eating=$new(mdmpixmap,$$,,"pics/dama/biancamangia/"%file)
+	  			%file=black%anim"\.png"
+				%black_eating=$new(mdmpixmap,$$,,"pics/dama/neramangia/"%file)
+				%black_eated=$new(mdmpixmap,$$,,"pics/dama/neramangiata/"%file)
+				$$->%white_eated_anim->$add(%white_eated)
+				$$->%white_eating_anim->$add(%white_eating)
+				$$->%black_eated_anim->$add(%black_eated)
+				$$->%black_eating_anim->$add(%black_eating)
+	                          	             	%anim++
+	                	} 
+	                          	$$->$resize(341,341)
+	                	$$->$init()
+	  	}
+		destructor()
+		{
+			return
+			# da verificare
+			delete $$->%cacheW
+			delete $$->%cacheB                 
+	              	delete $$->%checker
+	              	delete $$->%workspace
+	        	}
+		init()
+	             	{
+			# crea la matrice relativa alla "damiera" e la "riempie" di pedine
+			%tbl[]=$array(	1,5,1,5,1,5,1,5,\
+					5,1,5,1,5,1,5,1,\
+					1,5,1,5,1,5,1,5,\
+					5,0,5,0,5,0,5,0,\
+					0,5,0,5,0,5,0,5,\
+					5,3,5,3,5,3,5,3,\
+					3,5,3,5,3,5,3,5,\
+					5,3,5,3,5,3,5,3)
+	
+			# tabelle relative alle coordinate grafiche
+			$$->%posx[] = $array(19,58,98,138,177,216,256,295)
+			$$->%posy[] = $array(19,59,99,139,177,217,256,295)
+	
+			# crea le liste che ci permetteranno di monitorare le "mangiate" obbligatorie
+			$$->%white_list=$new(mdmlist,$$)
+			$$->%black_list=$new(mdmlist,$$)
+	
+			# crea la rappresentazione grafica della "damiera" inizializzando gli oggetti "pedina"
+			%x=0
+			%y=0
+			%count=0
+			while (%count != %tbl[]#)
+			{
+				if ((%tbl[%count] != 1) && (%tbl[%count] != 3)) $$->%board{%x,%y}=%tbl[%count]
+				else{
+				if (%tbl[%count] == 1) 
+				{ 
+					$$->%board{%x,%y}=$new(pedina,$$,"","B",%x,%y)
+					$$->%black_list->$add($$->%board{%x,%y})
+					$$->%board{%x,%y}->$setPixmaps($$->%black,$$->%over,$$->%sel,\
+										$$->%blackC,$$->%blackC_sel,$$->%blackC_over)
+				}
+				else
+				{ 	
+					$$->%board{%x,%y}=$new(pedina,$$,"","W",%x,%y)
+					$$->%white_list->$add($$->%board{%x,%y})
+					$$->%board{%x,%y}->$setPixmaps($$->%white,$$->%over,$$->%sel,\
+										$$->%whiteC,$$->%whiteC_sel,$$->%whiteC_over)
+				}
+					$$->%board{%x,%y}->$setXY($$->%posx[%x],$$->%posy[%y]);
+				}
+	
+				%x++;
+				if (%x == 8) {%x=0;%y ++;}
+				%count ++;
+			}
+	
+			# disegna la "damiera"
+			objects.bitBlt $$->%workspace 0 0 $$->%checker 0 0 341 341
+	
+			# e tutte le pedine, scorrendo la matrice della "damiera"
+			%y=295
+			%idy=0        
+			while (%idy<=7)
+			{
+				%idx=0
+				%x=20
+				while(%idx<=7)
+				{
+					if (($$->%board{%idx,%idy} !=5) && ($$->%board{%idx,%idy} != 0))
+					{
+					if(($$->%board{%idx,%idy}->$player=="B") || ($$->%board{%idx,%idy}->$player=="W") ) 
+						objects.bitBlt $$->%workspace $$->%posx[%idx] $$->%posy[%idy] $$->%board{%idx,%idy}->$pixmap()  0 0 26 26;
+					}
+					if (%idx==0 && %idy==2) 
+					{
+						$$->%xx=%idx
+						$$->%yy=%idy
+					}
+					%idx++;
+					%x +=40;
+				}
+				%idy++;
+				%y +=39;
+			} 
+	
+			# variabili da rivedere: probabili rimasugli della vecchia versione :D
+			$$->%oldchip="Z"
+			$$->%cache=0;
+			
+			$$->%animstep = 5
+			$$->%eat = 0
+			$$->%move=0
+			$$->%flag_anim=0
+		}         
+	
+		# metodo che forse verrà soppiantato: controlla se attorno alla pedina ci stia una pedina nemica
+		isEnemyAround()
+		{
+			%x=$0
+			%y=$1
+			%enemy=$2
+			if ($$->%board{$(%x-1),$(%y-1)} == %enemy) {if ($$->%board{$(%x-2),$(%y-2)} == 0) return 1;}
+			if ($$->%board{$(%x+1),$(%y-1)} == %enemy) {if($$->%board$(%x+2),$(%y-2)} == 0)return 1;}
+			if ($$->%board{$(%x-1),$(%y+1)} == %enemy) {	if($$->%board{$(%x-2),$(%y+2)} == 0)return 1;}
+			if ($$->%board{$(%x+1),$(%y+1)} == %enemy) {	if($$->%board{$(%x+2),$(%y+2)} == 0)return 1;}
+			return 0
+		}
+	
+		# cuore della dama: qui settiamo le fasi della mossa o della "presa"
+	        	mouseReleaseEvent()
+	        	{
+			# se c'è un'animazione in corso sospendi tutto
+			if ($$->%flag_anim)return
+	       		# convertiamo le coordinate del mouse nelle coordinate della matrice
+			%sel[]=$split(",",$$->$getXY($1,$2));
+			# se la casella è diversa da 0 significa che è una casella bianca: mossa non valida
+			 if ($$->%board{%sel[0],%sel[1]} == 5) return
+			# se non c'è l'oggetto $$->%move vuol dire che non abbiamo ancora selezionato il src
+			if(!$$->%move)
+			{
+				# controlliamo che ci sia un oggetto pedina 
+				%chip=$$->$thereIsaChip($$->%board{%sel[0],%sel[1]});
+				# se no usciamo
+				if (!%chip) return
+				# verifichiamo che sia una pedina del giocatore 
+				if ($$->%player_!=%chip->$player()) return;
+				# creaiamo la mossa
+				$$->%move=$new(mossa,$$)
+				# e memorizziamo nella struttura la pedina sorgente
+				$$->%move->%from_chip=%chip
+				# disegnamo la pixmap "selected"
+				objects.bitBlt $$->%workspace %chip->$x() %chip->$y() %chip->$pixSel() 0 0 26 26
+				# e aggiorniamo la grafica
+				$$->$repaint(0)	
+			}
+			else
+			{
+				# controlliamo che ci sia una mossa o una "presa"
+				%dst=$$->$thereIsaChip($$->%board{%sel[0],%sel[1]});
+				# controlliamo se la casella è occupata 
+				if ((%dst != "False") && (%dst != 0)) 
+				{
+					# se è la stessa di prima
+					if (%dst==$$->%move->%from_chip) 
+					{
+						# allora x prima cosa copiamo la pixmap dalla cache di "over"  x evitare un sovrapporsi di pedine
+						objects.bitBlt $$->%workspace %dst->$x() %dst->$y() $$->%cacheW  0 0 26 26;
+						# settiamo il contenuto della cache over a true
+						$$->%cache=1
+						# copiamo la pixmap "over"
+						objects.bitBlt $$->%workspace %dst->$x() %dst->$y() %dst->$pixOver()  0 0 26 26;
+						# deletiamo l'oggetto move
+						delete $$->%move;
+						# e azzeriamo la variabile
+						$$->%move=0;
+						# aggiorniamo la grafica
+						$$->$repaint(0);
+					}
+					return
+				}
+				# verifichiamo se sia solo un "move" 
+				%dir=$$->%move->%from_chip->$canMove(%sel[0],%sel[1],1)
+				if ( %dir != "False")
+				{
+					# verifichiamo che sia una mossa consentita: $canMove restistuisce la direzione o "False" 
+					# se la pedina non può muovere in quella direzione
+					%x=%sel[0]
+					%y=%sel[1]
+					# ok controlli superati: possiamo settare destinazione
+					$$->%move->%to_chip=0
+					$$->%move->%x_end=$$->%posx[%x]
+					$$->%move->%y_end=$$->%posy[%y]
+					$$->%move->$setEndXYboard(%x,%y)
+					#  la direzione dell'animazione 
+					$$->%move->$setDir(%dir) 
+					$$->%move->$setXPos($$->%move->%from_chip->$x())
+					$$->%move->$setYPos($$->%move->%from_chip->$y())
+					# e muovere la pedina
+					$$->%flag_anim=1
+					$$->$doMove(1)
+				}
+				else 
+				{
+					# verifichiamo che il giocatore possa effettuare la "presa" in quella direzione
+					%dir=$$->%move->%from_chip->$canMove(%sel[0],%sel[1],2) 
+					if(%dir == "False") return 
+					# controlliamo che tipo di pedina c'è 
+				 	%who=$$->$who($$->%move->%from_chip,%dir)
+					# se è una casella vuota ritorna
+					if (!%who) return
+					# idem se è una pedina del giocatore
+					if (%who->$player()  == $$->%player_) return
+					# verifichiamo se sia una pedina che cerca di mangiare una dama: in tal caso ritorniamo
+					if ((!$$->%move->%from_chip->$isCrown()) && (%who->$isCrown)) return  
+					# settiamo la destinazione
+					$$->%move->%to_chip=%dst
+					# inizializziamo le tre fasi dell'animazione
+					$$->%move->$phase1($$->%move->%from_chip)
+					$$->%move->$phase2($$->%posx[%sel[0]],$$->%posy[%sel[1]],%sel[0],%sel[1])
+					$$->%move->$phase3(%who)
+					# animazione in corso: nessuno si muova :D
+					$$->%flag_anim=1
+					# ok, la pedina è servita: si mangia!
+					$$->$doMove(2)
+				}
+					
+			}	
+	        	}
+	
+		# metodo che ci restituisce l'oggetto che si frappone tra la src e la destinazione: in pratica la pedina da mangiare!
+		who()
+		{
+			%chip=$0
+			%dir=$1
+			switch (%dir)
+			{
+				# non facciamo altro che invocare il metodo che ci dice se c'è un oggetto pedina in una data posizione
+				# In pratica in base alla direzione della mossa noi passiamo la coppia corretta di coordinate
+				case (0)
+				{
+					return $$->$thereIsaChip($$->%board{$(%chip->$boardX()+1),$(%chip->$boardY()-1)})
+				}
+				case (1)
+				{
+					return $$->$thereIsaChip($$->%board{$(%chip->$boardX()+1),$(%chip->$boardY()+1)})
+				}
+				case (2)
+				{
+					return $$->$thereIsaChip($$->%board{$(%chip->$boardX()-1),$(%chip->$boardY()+1)})
+				}
+				case (3)
+				{
+					return $$->$thereIsaChip($$->%board{$(%chip->$boardX()-1),$(%chip->$boardY()-1)})
+				}
+			}
+		}
+	
+		# metodo che converte le coordinate xy del mouse in coordinate xy della "damiera" restituendole con un array
+		getXY()
+		{
+			%x=$($0+8)
+			%y=$($1+8)
+			%i=1
+			while (%x > $$->%posx[%i])
+			{
+				%i++
+				if (%i >7) break
+			}
+			%i1=1
+			while (%y > $$->%posy[%i1])
+			{
+				%i1++
+				if (%i1 >7) break
+			}
+			%selX=$(%i-1)
+			%selY=$(%i1-1)
+			return $array(%selX,%selY)
+		}
+	
+		# gestione del'effetto "over"
+		mouseMoveEvent()
+		{
+			# ritorna se c'è un'animazione in corso
+			if ($$->%flag_anim)return
+			# converte le coordinate del mouse in quelle della matrice della nostra "damiera"
+			%sel[]=$split(",",$$->$getXY($1,$2));
+			# verifica che ci sia un oggetto pedina
+			%chip=$$->$thereIsaChip($$->%board{%sel[0],%sel[1]});
+			# controlla se la pedina sia cambiata
+			if (%chip == $$->%oldChip) return;
+			# se si riporta alla normalità la vecchia pedina evidenziata
+			$$->$drawFromCache($$->%oldChip);
+			# la pedina di adesso diventa quella "vecchia" del prossimo passaggio
+			$$->%oldChip=$$->%board{%sel[0],%sel[1]};
+			# se in questa casella non c'è nessuna pedina ritorna
+			if (!%chip ) return;
+			# oppure ritorna se la pedina non è di questo giocatore
+			if ($$->%player_!=%chip->$player()) return;
+			# se c'è una selezione in corso
+			if ($$->%move)
+			{
+				# e siamo proprio su quella selezione: ritorna xè l'altro effetto ha priorità maggiore
+				if ((%chip->$x()==$$->%move->%from_chip->$x()) && (%chip->$y()==$$->%move->%from_chip->$y())) {$$->%cache=0;return;}
+			}
+			# memorizziamo nella cache il contenuto della casella grafica
+			$$->$saveToCache(%chip);
+			# disegniamo l'effetto "over"
+			objects.bitBlt $$->%workspace %chip->$x() %chip->$y() %chip->$pixOver() 0 0 26 26
+			# aggiorniamo la grafica
+			$$->$repaint(0)	
+		 }     
+		
+		# disegna dalla cache sulla "damiera"
+		drawFromCache()
+		{
+			# se non c'è niente nella cache ritorniamo
+			if (!$$->%cache) return
+			# idem se c'è una selezione in corso e siamo sulla stessa casella
+			if ($$->%move)
+			{
+				if (($0->$x()==$$->%move->%from_chip->$x()) && ($0->$y()==$$->%move->%from_chip->$y())) {$$->%cache=0;return;}
+			}	
+			# copiamo il contenuto della cache sulla "damiera"		
+			objects.bitBlt $$->%workspace  $0->$x() $0->$y() $$->%cacheW 0 0 26 26 
+			# azzeriamo la cache (tramite l'apposito flag)
+			$$->%cache=0;
+			# aggiorniamo il tutto
+			$$->$repaint(0)
+		}
+	
+		# salva dalla "damiera" alla cache
+		saveToCache
+		{
+			objects.bitBlt $$->%cacheW  0 0  $$->%workspace $0->$x() $0->$y() 26 26
+			$$->%cache=1;
+		}
+	
+		# controlla se c'è un oggetto pedina o meno alle coordinate della "damiera" xy
+		thereIsaChip()
+		{
+		%tmp=$0
+		# waiting for the new parser
+		# if ($typeOf(%tmp) != "hobject") return $false
+		if ((%tmp == 5) || (%tmp == 0)) return 0
+		else return %tmp;
+		}
+	
+		####################
+		# Dama graphic core: 	#
+		###################
+	
+		# timerEvent che gestisce le animazioni  
+	      	timerEvent()
+		{
+			# ci conserviamo l'id del timer: ci servirà x disattivarlo quando saremo al termine dell'animazione
+			%id = $0
+			# controlliamo se è un'animazione di tipo "move"
+			if ($$->%anim_type == 1)
+			{
+				# x prima cosa disegnamo la casella nera dietro la pedina prendendola dalla pixmap checker che contiene una scacchiera vuota
+				objects.bitBlt $$->%workspace $$->%move->$x() $$->%move->$y() $$->%checker  $$->%move->$x() $$->%move->$y() 26 26
+				# e muoviamo la pedina
+				$$->%move->$moveToNextFrame()
+				# e poi la disegnamo
+				objects.bitBlt $$->%workspace $$->%move->$x() $$->%move->$y()  $$->%move->%from_chip->$pixmap() 0 0 26 26
+				# controlliamo se la traiettoria è conclusa
+				%end=$$->%move->$moveEnd()
+				# se si killiamo il timer e aggiorniamo la "damiera"
+				if (%end) {$$->$killtimer(%id);$$->$refreshBoard();}
+			}
+			else
+			# o se invece è una "presa"
+			if ($$->%anim_type == 2)
+			{
+				# in teoria dovrebbe servire a evitare l'alone grigio che ogni tanto sporca la grafica, ma non funge ^^...
+				# da FIXARE anche se non so come :°°°°°D
+				# Sto difetto è strano xè prima di disegnare la pedina,  disegno sempre lo sfondo che c'è dietro... 
+				# esattamente nel rettangolo delal pedina stessa.
+				# Quindi come può succedere che rimangano pixel a sporcare ? E comunque dopo l'ultimo fotogramma, ripulisco sempre la zona rimasta vuota 
+			
+				if ($$->%clear) {objects.bitBlt $$->%workspace $$->%x  $$->%y $$->%checker $$->%x  $$->%y 26 26;$$->%clear=0;}
+				# swicth x separare le tre fasi di una "presa"
+				switch ($$->%move->$phase())
+				{
+					# fase 1:
+					case (1)
+					{
+					# disegnamo la casella nera
+					objects.bitBlt $$->%workspace $$->%move->%from_chip->$x() $$->%move->%from_chip->$y() $$->%checker  $$->%move->%from_chip->$x() $$->%move->%from_chip->$y() 26 26
+					# e poi il fotogramma della pedina
+					objects.bitBlt $$->%workspace $$->%move->%from_chip->$x() $$->%move->%from_chip->$y() $$->%move->%frame 0 0 26 26
+					# x poi passare al prossimo fotogramma
+					$$->%move->%frame=$$->%move->$p1()->$next()
+					# se l'animazione di questa fase è conclusa, passiamo alla prossima
+					if (!$$->%move->%frame) {$$->%move->$nextPhase();$$->%x=$$->%move->%from_chip->$x();$$->%y=$$->%move->%from_chip->$y();$$->%clear=1;}
+					break
+					}
+					# fase 2:
+					case (2)
+					{
+					# solita casella nera
+					objects.bitBlt $$->%workspace $$->%move->%ph2_posX $$->%move->%ph2_posY $$->%checker  $$->%move->%ph2_posX $$->%move->%ph2_posY 26 26
+					# fotogramma animazione
+					objects.bitBlt $$->%workspace $$->%move->%ph2_posX $$->%move->%ph2_posY $$->%move->%frame 0 0 26 26
+					# qui in pratica playamo la prima animazione ma con il verso contrario
+					$$->%move->%frame=$$->%move->$p2()->$prev()
+					# check di fine animazione e passaggio alla prossima fase
+					if (!$$->%move->%frame) {objects.bitBlt $$->%workspace $$->%move->%ph2_posX $$->%move->%ph2_posY  $$->%move->%from_chip->$pixmap() 0 0 26 26;$$->%move->$nextPhase();}
+					}
+					# fase 3:
+					case (3)
+					{
+					# solita routine :D
+					objects.bitBlt $$->%workspace $$->%move->%to_chip->$x() $$->%move->%to_chip->$y() $$->%checker  $$->%move->%to_chip->$x() $$->%move->%to_chip->$y() 26 26
+					objects.bitBlt $$->%workspace $$->%move->%to_chip->$x() $$->%move->%to_chip->$y() $$->%move->%frame 0 0 26 26
+					$$->%move->%frame=$$->%move->$p3()->$next()
+					# e controllo finale x poi fare un refresh delle posizioni
+					if (!$$->%move->%frame)  {$$->$killtimer(%id);$$->$refreshAfterAnim();}
+					}
+				}
+			}
+			# aggiorniamo la grafica
+			$$->$repaint(0)
+		}
+	
+		# da lo start alle animazioni: come parametro possiamo avere i valori 1 (animazione move) o 2 (animazione "presa")
+		doMove()
+		{
+			$$->%anim_type=$0
+			# start del timer che muoverà il tutto a 60ms
+			$$->$starttimer(30)
+		}
+	
+		# aggiorna la "damiera" dopo una "presa"
+		refreshAfterAnim()
+		{
+			#  l'ultimo fotogramma è ricoperto qui (la casella della pedina "presa")
+			objects.bitBlt $$->%workspace $$->%move->%to_chip->$x() $$->%move->%to_chip->$y() $$->%checker  $$->%move->%to_chip->$x() $$->%move->%to_chip->$y() 26 26
+			# azzero la casella src
+			$$->%board{$$->%move->%from_chip->$boardX(),$$->%move->%from_chip->$boardY()}=0
+			# azzero la casella della pedina "presa"
+			$$->%board{$$->%move->%to_chip->$boardX(),$$->%move->%to_chip->$boardY()}=0
+			# aggiorno la "damiera" con lo spostamento dell'oggetto pedina
+			$$->%board{$$->%move->%ph2_XB,$$->%move->%ph2_YB}=$$->%move->%from_chip
+			# aggiorno le coordinate della pedina spostata
+			# prima quelle relative alla "damiear":
+			$$->%move->%from_chip->$mv($$->%move->%ph2_XB,$$->%move->%ph2_YB)
+			# poi quelle grafiche
+			$$->%move->%from_chip->$setXY( $$->%move->%ph2_posX, $$->%move->%ph2_posY)
+			# e passo alla fase di cambio turno
+			$$->$changeTurn()
+		}
+	
+		# aggiorna la "damiera" dopo un move
+		refreshboard()
+		{
+			# azzeramento casella src
+		 	$$->%board{$$->%move->%from_chip->$boardX(),$$->%move->%from_chip->$boardY()}=0
+			# aggiornamento casella con pedina
+		 	$$->%board{$$->%move->$endXboard(),$$->%move->$endYboard()}=$$->%move->%from_chip
+			# nuove coordinate "damiera" x la pedina
+			$$->%move->%from_chip->$mv($$->%move->$endXboard(),$$->%move->$endYboard())
+			# e nuove coordinate grafiche
+			$$->%move->%from_chip->$setXY($$->%move->$xend(),$$->%move->$yend())
+			# cambio turno
+			$$->$changeTurn()
+		}
+	
+		# ultimi checks prima di cambiare giocatore
+		changeTurn()
+		{
+			# verifichiamo se la pedina è a dama: in caso affermativo aggiorniamo la pixmap
+			if ((($$->%move->%from_chip->%player =="B") && ($$->%move->%from_chip->$boardY()==7)) || \
+				  ((($$->%move->%from_chip->%player =="W") && ($$->%move->%from_chip->$boardY()==0))))
+					$$->$refreshCrown();
+			# cambio turno
+			if ($$->%player_ =="B") $$->%player_ ="W"
+				else $$->%player_ ="B"
+			# deletiamo la mossa
+			delete $$->%move
+			# e azzeriamo il puntatore
+			$$->%move=0
+			# animazione finita: l'altro giocatore può muovere
+			$$->%flag_anim=0
+		}
+	
+		refreshCrown()
+		{
+			# chiama il metodo che setta la pedina come "dama"
+			$$->%move->%from_chip->$setChipCrown();
+			# disegnamo la nuova pixmap
+			objects.bitBlt $$->%workspace $$->%move->%from_chip->$x() $$->%move->%from_chip->$y()  $$->%move->%from_chip->$pixmap() 0 0 26 26
+		}
+	
+		paintEvent()
+		{
+			# riversiamo la nostra "damiera" aggiornata sulla widget che visualizza a video
+			objects.bitBlt $$ 0 0 $$->%workspace 0 0 341 341
+		}            	
+	}
+	%DamaGUI=$new(dama)
+	%DAMAGUI->$show()
+}
+
+
