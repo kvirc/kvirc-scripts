@@ -1,0 +1,76 @@
+# K.I.S.S. - The KVIrc Icons Style Setup
+# Written by HelLViS69 (2007)
+
+# This addon is pretty simple. It does a single thing and it attempts
+# to do it really well. With the comments, the script structure
+# should be really straightforward.
+
+# register the script: this must be the first instruction executed
+# since it will abort with an error when a greater version is already installed
+addon.register("kiss","2.0.0","K.I.S.S. - The KVIrc Icons Style Setup",$tr("Allows to change KVIrc icons sets","kiss"),"3.2.6",kiss_32.png)
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	
+	# This is an automatically generated alias that will erase the installed files
+	KISS::uninstallfiles
+
+	# Kill all our aliases
+	alias(KISS::gui){}
+	alias(KISS::uninstallfiles){}
+
+	# Kill our actions
+	action.destroy KISS::gui
+	
+	# And finally our toolbar
+	toolbar.destroy kiss
+	
+	# Done
+}
+
+# Ok, addon.register succeeded. We can go on with the installation.
+
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+# copy files in each subdirectory
+# the pics
+%installer->$copyFiles("%mypath/pics/","*",$file.localdir("pics/KISS"))
+# the translations
+%installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("KISS::uninstallfiles")
+# finally kill the installer helper
+delete %installer
+
+# Fetch the sources
+include %mypath/src/main.kvs
+
+# set the script's configuration callback
+# so it can be invoked via GUI from the Addon Management dialog
+# and via addon.configure
+
+addon.setconfigurecallback("kiss")
+{
+	KISS::gui
+}
+
+action.create(KISS::gui,$tr("Configure","kiss")" K.I.S.S.",$tr("Allows configuring the \"K.I.S.S.\" addon","kiss"),kiss_32.png,kiss_16.png)
+{
+	KISS::gui
+}
+
+# create and display our toolbar (we could even avoid that since the user
+# can simply drag the actions anywhere he wants), but let's really avoid relying on user's interaction
+# and do everything by ourselves.
+toolbar.create kiss "K.I.S.S." kiss_16.png
+toolbar.additem kiss KISS::gui
+toolbar.show kiss
+
+# Done: the addon is installed and running: enjoy :)
+# HelLViS69 03.02.2007
