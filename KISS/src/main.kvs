@@ -115,7 +115,7 @@ alias(KISS::gui)
 			{
 				foreach(%file,%files[])
 				{
-					debug file.copy -o "%m_szPicsRoot/%file" $file.localdir(pics)"/%file"
+					file.copy -o "%m_szPicsRoot/%file" $file.localdir(pics)"/%file"
 				}
 			}
 			
@@ -124,7 +124,7 @@ alias(KISS::gui)
 			{
 				foreach(%file,%files[])
 				{
-					debug file.copy -o "%m_szCorePicsRoot/%file" $file.localdir(pics/coresmall)"/%file"
+					file.copy -o "%m_szCorePicsRoot/%file" $file.localdir(pics/coresmall)"/%file"
 				}
 			}
 			
@@ -140,5 +140,3 @@ alias(KISS::gui)
 	%kiss=$new(KISS::gui)
 	%kiss->$show()
 }
-
-
