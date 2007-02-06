@@ -9,7 +9,7 @@ alias(NGLfserv::classes::gui::channels)
 			%hbox->$setSpacing(2)
 		
 			// creating left column/channels list
-			%gb=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,"Channels list",5,20,Vertical,1)
+			%gb=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,$tr("Channels list"),5,20,Vertical,1)
 			$$->%listboxChannels=$NGLfserv::corefunctions::addWidget(listbox,%gb)
 			%hbox->$setStretchFactor(%gb,70)
 			
@@ -18,17 +18,17 @@ alias(NGLfserv::classes::gui::channels)
 			%hbox->$setStretchFactor(%vbox,30)
 			
 			// channel properties
-			$$->%gb_channelproperties=$NGLfserv::corefunctions::addWidget(groupbox,%vbox,"Properties",5,20,Horizontal,1)
-			$$->%ckbRespToList=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_channelproperties,"Respond to !list")
-			$$->%ckbRespToMyQueues=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_channelproperties,"Respond to !myqueues")
+			$$->%gb_channelproperties=$NGLfserv::corefunctions::addWidget(groupbox,%vbox,$tr("Properties"),5,20,Horizontal,1)
+			$$->%ckbRespToList=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_channelproperties,$tr("Reply to !list"))
+			$$->%ckbRespToMyQueues=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_channelproperties,$tr("Respond to !myqueues"))
 			
 			// find properties
-			$$->%gb_findproperties=$NGLfserv::corefunctions::addWidget(groupbox,%vbox,"@find properties",5,20,Horizontal,1)
-			$$->%ckbRespToFind=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,"Respond to @find")
-			$$->%ckbUseQuickGet=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,"Display quickget code")
-			$$->%ckbDisplayNoOccurrenceFound=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,"Display \"No files found\"")
-			$$->%ckbMultipleResultsPerLine=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,"Mutiple results per line")
-			$$->%ckbFindFilter=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,"Enable filtering")
+			$$->%gb_findproperties=$NGLfserv::corefunctions::addWidget(groupbox,%vbox,$tr("@find properties"),5,20,Horizontal,1)
+			$$->%ckbRespToFind=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,$tr("Reply to @find"))
+			$$->%ckbUseQuickGet=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,$tr("Display quickget code"))
+			$$->%ckbDisplayNoOccurrenceFound=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,$tr("Display \"No files found\""))
+			$$->%ckbMultipleResultsPerLine=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,$tr("Mutiple results per line"))
+			$$->%ckbFindFilter=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,$tr("Enable filtering"))
 	
 			// set tooltips
 			$$->%ckbRespToList->$setTooltip($tr("The File Server will respond when !list is typed in channel, providing the list of your shared files"))
@@ -95,9 +95,9 @@ alias(NGLfserv::classes::gui::channels)
 			%channelName=$$->%listboxChannels->$currentText()
 			if(%channelName){
 				$$->%gb_channelproperties->$setEnabled($true)
-				$$->%gb_channelproperties->$setTitle(%channelName" properties")
+				$$->%gb_channelproperties->$setTitle(%channelName $tr(" properties"))
 				$$->%gb_findproperties->$setEnabled($true)
-				$$->%gb_findproperties->$setTitle(%channelName" @find pppproperties")
+				$$->%gb_findproperties->$setTitle(%channelName $tr("@find properties"))
 				$$->%ckbRespToList->$setChecked(%FservChannels{%channelName}->$getRespToList())
 				$$->%ckbRespToFind->$setChecked(%FservChannels{%channelName}->$getRespToFind())
 				$$->%ckbRespToMyQueues->$setChecked(%FservChannels{%channelName}->$getRespToMyQueues())
@@ -151,8 +151,8 @@ alias(NGLfserv::classes::gui::channels)
 				}
 			}
 			else {
-				$$->%gb_channelproperties->$setTitle("Properties")
-				$$->%gb_findproperties->$setTitle("@find properties")
+				$$->%gb_channelproperties->$setTitle($tr("Properties"))
+				$$->%gb_findproperties->$setTitle($tr("@find properties"))
 			}
 		}
 	}

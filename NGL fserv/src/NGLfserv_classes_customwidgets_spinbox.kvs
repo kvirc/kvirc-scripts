@@ -1,0 +1,57 @@
+alias(NGLfserv::classes::customwidgets::spinbox)
+{
+	class(NGLfserv::classes::customwidgets::spinbox,hbox)
+	{
+		constructor(text,pointer)
+		{
+			%label=$new(label,$$)
+			%label->$setText($0)
+			$$->%spinbox=$new(spinbox,$$)
+			$$->%spinbox->$setMinimumWidth(80)
+			$$->$setStretchFactor(%label,1)
+			if ($2) $$->%spinbox->$setMaxValue($2)
+			if ($3) $$->%spinbox->$setSuffix($3)
+			if ($4) $$->%spinbox->$setLineStep($4)
+			
+			if ($str.isnumber($1) || ($str.left($1,1)!="%")){ 
+				$$->%spinbox->$setValue($1);
+				objects.connect $$->%spinbox valueChanged $$ valueChangedEvent
+			}
+			else {
+				%tmp=\%text\=$1
+				eval %tmp
+				$$->%spinbox->$setValue(%text)
+				$$->%spinbox->%pointer=$1
+				privateimpl($$->%spinbox,valueChangedEvent){
+					eval $$->%pointer\=$0
+				}
+			}
+		}
+		valueChangedEvent()
+		{
+			$$->$emit(valueChanged,$0)
+		}
+		commit()
+		{
+			if ($$->%spinbox->%pointer) eval $$->%spinbox->%pointer\=$$->%spinbox->$value()
+		}
+		setMaxValue()
+		{
+			$$->%spinbox->$setMaxValue($0)
+		}
+		setSuffix()
+		{
+			$$->%spinbox->$setSuffix($0)
+		}
+		setLineStep()
+		{
+			$$->%spinbox->$setLineStep($0)
+		}
+		value()
+		{
+			return $$->%spinbox->$value()
+		}
+			
+	}
+}
+

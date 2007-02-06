@@ -4,39 +4,76 @@ alias(NGLfserv::classes::gui::gui)
 	{
 		constructor()
 		{
-			$$->%tabTriggers=$new(NGLfserv::classes::gui::triggers,$$)
-			$$->%tabChannels=$new(NGLfserv::classes::gui::channels,$$)
-			$$->%tabSharedFiles=$new(NGLfserv::classes::gui::sharedfiles,$$)
-			$$->%tabShell=$new(NGLfserv::classes::gui::shell,$$)
-			$$->%tabGlobals=$new(NGLfserv::classes::gui::globals,$$)
-	
 			$$->$setMargin(5)
 			$$->$setTabPosition(Top)
 	
-			$$->$addTab($$->%tabTriggers,&Triggers,42)
-			$$->$setTabToolTip($$->%tabTriggers,$tr("Filling up this section is required to use the File Server. You're asked to do three steps:<br><ul><li>Specify a trigger (a keyword) to identify the files you want to share.</li><li>For each trigger type the channels in witch it will be active.</li><li><b>(Optional)</b> For each channel specify trigger properties</li></ul>"))
+			%tabTriggers=$$->$addTab(NGLfserv::classes::gui::triggers,$tr("&Triggers"),42)
+			$$->$setTabToolTip(%tabTriggers,$tr("Filling up this section is required to use the File Server. You're asked to do three steps:<br><ul><li>Specify a trigger (a keyword) to identify the files you want to share.</li><li>For each trigger type the channels in witch it will be active.</li><li><b>(Optional)</b> For each channel specify trigger properties</li></ul>"))
 	
-			$$->$addTab($$->%tabChannels,&Channels,31)
-			$$->$setTabToolTip($$->%tabChannels,$tr("Specify properties for channels on witch you share you files"))
+			%tabChannels=$$->$addTab(NGLfserv::classes::gui::channels,$tr("&Channels"),31)
+			$$->$setTabToolTip(%tabChannels,$tr("Specify properties for channels on witch you share you files"))
 	
-			$$->$addTab($$->%tabSharedFiles,&Shared Files,161)
-			$$->%busywidget=$$->%tabSharedFiles
-			$$->$setTabToolTip($$->%tabSharedFiles,$tr("Manage your shared files"))
+			%tabSharedFiles=$$->$addTab(NGLfserv::classes::gui::sharedfiles,$tr("&Shared Files"),161)
+			$$->%busywidget=%tabSharedFiles
+			$$->$setTabToolTip(%tabSharedFiles,$tr("Manage your shared files"))
 			
-			$$->$addTab($$->%tabShell,"S&hell",9)
-			$$->$setTabToolTip($$->%tabShell,$tr("Specify options regarding navigation shell"))
+			%tabShell=$$->$addTab(NGLfserv::classes::gui::shell,$tr("S&hell"),9)
+			$$->$setTabToolTip(%tabShell,$tr("Specify options regarding navigation shell"))
 	
-			$$->$addTab($$->%tabGlobals,"&Globals",260)
-			$$->$setTabToolTip($$->%tabGlobals,$tr("Specify options that applies globally to the File Server"))
+			%tabGlobals=$$->$addTab(NGLfserv::classes::gui::globals,$tr("&Globals"),260)
+			$$->$setTabToolTip(%tabGlobals,$tr("Specify options that applies globally to the File Server"))
 		
 			%size[]=$$->$sizeHint()
 			$$->$setMinimumWidth(%size[0])
 			$$->$setMinimumHeight(%size[1])
-			$$->$setCaption(%NGLlogo" - Options")
+			$$->$setCaption(%NGLlogo $tr(" - Options"))
 			$$->$setIcon(20)
 			$$->$centerToScreen()
+			%G_animlogo->$start()
 			$$->$show()
 			$$->$raise()
+		}
+		internal addTab()
+		{
+			%container=$new(vbox,$$)
+			%insidewidget=$new($0,%container)
+			$$->%interfaces_list[]<+%insidewidget
+			/*
+			%commitcontainer=$new(hbox,%container)
+			%logo=%G_animlogo->$addLogoHandler(%commitcontainer)
+			%commitcontainer->$setStretchFactor(%logo,50)
+			
+			%commitbox=$new(hbox,%commitcontainer)
+			%commitcontainer->$setStretchFactor(%commitbox,50)
+			%container->$setStretchFactor(%commitcontainer,10)
+			%container->$setStretchFactor(%insidewidget,90)
+			
+			%okBtn=$NGLfserv::corefunctions::addWidget(button,%commitbox,$tr("Ok"))
+			%okBtn->$setImage("Ok")
+			
+			%applyBtn=$NGLfserv::corefunctions::addWidget(button,%commitbox,$tr("Apply"))
+			%applyBtn->$setImage("Ok")
+			
+			objects.connect %applyBtn clicked $$ commit
+			objects.connect %okBtn clicked $$ accept
+			
+			%cancelBtn=$NGLfserv::corefunctions::addWidget(button,%commitbox,$tr("Cancel"))
+			%cancelBtn->$setImage("cancel")
+			
+			//%int[]=%container->$sizeHint()
+			//%commitbox->$setMaximumWidth(%int[0])
+			*/
+			 $$->$tabWidget::addTab(%container,$1,$2)
+			 return %container
+		}
+		commit ()
+		{
+			foreach(%interface,$$->%interfaces_list[]) %interface->$commit()
+		}
+		accept()
+		{
+			$$->$commit()
+			$$->$hide()
 		}
 		internal closeEvent()
 		{

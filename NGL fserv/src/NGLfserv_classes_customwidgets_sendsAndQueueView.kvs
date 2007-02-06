@@ -1,14 +1,14 @@
-alias(NGLfserv::classes::sendsAndQueueView)
+alias(NGLfserv::classes::customwidgets::sendsAndQueueView)
 {
-	class(NGLfserv::classes::sendsAndQueueView,listview)
+	class(NGLfserv::classes::customwidgets::sendsAndQueueView,listview)
 	{
 		function constructor()
 		{
 			$$->$addColumn(\#,-1)
-			$$->$addColumn(Filename,-1)
-			$$->$addColumn(Nick,-1)
-			$$->$addColumn(Progress,-1)
-			$$->$addColumn(Filesize,-1)
+			$$->$addColumn($tr("Filename"),-1)
+			$$->$addColumn($tr("Nick"),-1)
+			$$->$addColumn($tr("Progress"),-1)
+			$$->$addColumn($tr("Filesize"),-1)
 			$$->$setSelectionMode("Single")
 			$$->$setAllColumnsShowFocus($true)
 			$$->$setSorting(0,$true)
@@ -50,14 +50,14 @@ alias(NGLfserv::classes::sendsAndQueueView)
 						if(%b!=0)
 							%item->$setText(3,$(100*%a/%b)\%)
 						else
-							%item->$setText(3,"Waiting")
+							%item->$setText(3,$tr("Waiting"))
 					}
 					else {
-						%item->$setText(3,"Waiting")
+						%item->$setText(3,$tr("Waiting"))
 					}
 				}
 				else {
-					%item->$setText(3,"Waiting")
+					%item->$setText(3,$tr("Waiting"))
 				}
 				%item->$setText(4,$NGLfserv::corefunctions::calc(%Send->$at(%i)->%size))
 			}
@@ -74,14 +74,14 @@ alias(NGLfserv::classes::sendsAndQueueView)
 						if(%b!=0)
 							%vector[%i]->$setText(3,$(100*%a/%b)\%)
 						else
-							%vector[%i]->$setText(3,"Waiting")
+							%vector[%i]->$setText(3,$tr("Waiting"))
 					}
 					else {
-						%vector[%i]->$setText(3,"Waiting")
+						%vector[%i]->$setText(3,$tr("Waiting"))
 					}
 				}
 				else {
-					%vector[%i]->$setText(3,"Waiting")
+					%vector[%i]->$setText(3,$tr("Waiting"))
 				}
 			}
 		}

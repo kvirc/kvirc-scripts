@@ -19,6 +19,8 @@ alias(NGLfserv::config::load)
 		// maximum queues
 		%MaxQueues=$config.read(%c,"MaxQueues",10)
 		
+		%RemoveNickOnPartOrQuitFromQueue=$config.read(%c,"RemoveNickOnPartOrQuitFromQueue",$false)
+		
 		// each users maximum queues
 		%EachQueues=$config.read(%c,"EachQueues",2)
 		
@@ -82,7 +84,6 @@ alias(NGLfserv::config::load)
 		
 		%triggersnumber=$config.read(%c,Triggersnumber)
 		// moving to first trigger
-		
 		NGLfserv::corefunctions::ngldebug triggers to load %triggersnumber
 		%nochannel=$true
 		%cnt=0
@@ -101,10 +102,11 @@ alias(NGLfserv::config::load)
 		
 				%Triggers{%triggername}=$new(NGLfserv::classes::trigger,0)
 				%Triggers{%triggername}->$setName(%triggername)
-				%Triggers{%triggername}->%welcomeMessage=%welcomemessage
-				%Triggers{%triggername}->%password=%password
+				%Triggers{%triggername}->$setWelcomeMessage(%welcomemessage)
+				%Triggers{%triggername}->$setPassword(%password)
 				%chan=0
 			// searching for trigger's channels
+			
 				while ($config.read(%c,"channel"%chan)) {
 					%nochannel=$false
 					%channelname=$config.read(%c,"channel"%chan)
@@ -117,8 +119,8 @@ alias(NGLfserv::config::load)
 				}
 			}
 			%cnt++
+			if (%cnt>10) {debug CRASH;break;}
 		}
-		
 		if (!$length(%Triggers{})) return
 		if (!%nochannel) {
 			config.setsection %c channelsgeneraloptions
@@ -137,11 +139,12 @@ alias(NGLfserv::config::load)
 			%c = $config.open("NGLfservtriggertree"%trigger".kvc",rw)
 			config.setsection %c general
 			if ($file.exists($config.read(%c,"realTriggerPath"))){
-				%Triggers{%trigger}->%c=%c
-				%add=$true
-				 %Asyncio->$addtrigger(%Triggers{%trigger})
-				 %Triggers{%trigger}->$setRealTriggerPath($config.read(%c,"realTriggerPath"))
+				%Triggers{%trigger}->$setRealTriggerPath($config.read(%c,"realTriggerPath"))
 			}
+			else config.write %c realTriggerPath ""
+			%Triggers{%trigger}->%c=%c
+			%Asyncio->$addtrigger(%Triggers{%trigger})
+				
 			%extradirs=$config.read(%c,"extradirs",0)
 			%i=0
 			while (%i<%extradirs){

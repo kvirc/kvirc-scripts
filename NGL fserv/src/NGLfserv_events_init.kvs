@@ -3,6 +3,7 @@ alias(NGLfserv::events::init)
 	event(OnKVIrcStartup,"NGLfserv")
 	{
 		%NGLatKVIrcStartUp = $true
+		trload nglfserv $file.localdir(locale)
 		NGLfserv::config::load
 		setmenu -q -i=7 %NGLlogo NGLfserv
 	}
@@ -15,7 +16,7 @@ alias(NGLfserv::events::init)
 		if((%str=="!list") ||(%str=="!list $me")){
 			if(%FservChannels{$chan.name}->$getRespToList()==$false) return
 			if(%FservChannels{$chan.name}->%rootFolders{}#>0){
-				%normalAdsPrefix = $k(%NGLc1)"["$k(%NGLc2)Fserve active$k(%NGLc1)"] - Triggers:["
+				%normalAdsPrefix = $k(%NGLc1)"["$k(%NGLc2)$tr("Fserve active")$k(%NGLc1)"]" - $tr("Triggers:")"["
 				%normalAdsCount=0
 				%normalAdsRowCount=0
 				%normalAds[0] = %normalAdsPrefix
@@ -78,7 +79,7 @@ alias(NGLfserv::events::init)
 				if(!%FservChannels{$chan.name}->$getRespToFind() || !%str) return
 				if (%FservChannels{$chan.name}->$cache->$noOccurence(%str)) {
 					NGLfserv::corefunctions::ngldebug "Using cache!"
-					if (%DisplayNoOccurenceFound) notice -q %nick $k(%NGLc2)%NGLlogo: $k(%NGLc1)No file has been found
+					if (%DisplayNoOccurenceFound) notice -q %nick $k(%NGLc2)%NGLlogo: $k(%NGLc1)$tr("No file has been found")
 				}
 				else {
 					%search=$new(NGLfserv::classes::searchHandler,0,search,%str,$(%FindMsg+1),%requesting,$chan.name)
@@ -114,7 +115,7 @@ alias(NGLfserv::events::init)
 		if(!%FservChannels{$chan.name}) return
 		if(%Triggers{%triggerName}) {
 			if (%Triggers{%triggerName}->$isBusy()){
-				notice -q %requesting %NGLlogo Sorry, this trigger is in updating contents mode... please wait 1 minute and retry!
+				notice -q %requesting %NGLlogo $tr("Sorry, this trigger is in updating contents mode... please wait 1 minute and retry!")
 				return
 			}
 			if (!%Triggers{%triggerName}->%noNode){
@@ -126,7 +127,7 @@ alias(NGLfserv::events::init)
 						if($chan.isop(%requesting,$channel($chan.name))) %nickStatus = "op"
 						%access = %Triggers{%triggerName}->%activeChannels{$chan.name}->$getAccessType()
 						if((%nickStatus == "normal" && %access != 0) || (%nickStatus == "voice" && %access == 2)) {
-							notice -q %requesting %NGLlogo Sorry, this is a restricted trigger. You're not allowed
+							notice -q %requesting %NGLlogo $tr("Sorry, this is a restricted trigger. You're not allowed")
 							return
 						}
 						if(%DccReverse) {
@@ -155,9 +156,9 @@ alias(NGLfserv::events::init)
 				if(%Queues->$at(%i)->%nick==%requesting) {
 					%found++
 					if(%found==1) {
-						msg -q %requesting $k(%NGLc2)%NGLlogo: $k(%NGLc1)Your queued files:
+						msg -q %requesting $k(%NGLc2)%NGLlogo: $k(%NGLc1)$tr("Your queued files:")
 					}
-					msg -q %requesting $k(%NGLc1)"["$k(%NGLc2)%Queues->$at(%i)->%file $k(%NGLc1)Size: $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc(%Queues->$at(%i)->%size)$k(%NGLc1)"]" queued at $k(%NGLc2)#$(%i+1)
+					msg -q %requesting $k(%NGLc1)"["$k(%NGLc2)%Queues->$at(%i)->%file $k(%NGLc1)$tr("Size:") $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc(%Queues->$at(%i)->%size)$k(%NGLc1)"]" $tr("queued at") $k(%NGLc2)#$(%i+1)
 				}
 			}
 		}
@@ -170,31 +171,31 @@ alias(NGLfserv::events::init)
 		if(%Triggers{%triggerName}) {
 			%retValue=$NGLfserv::corefunctions::channels("n",%triggerName,%requesting,0)
 			if(%retValue==0) {
-					notice -q %requesting %NGLlogo You must be on channel to use this trigger
+					notice -q %requesting %NGLlogo $tr("You must be on channel to use this trigger")
 					halt
 					return
 			}
 			if(%retValue==1) {
-					notice -q %requesting %NGLlogo This trigger does not allow this kind of access
+					notice -q %requesting %NGLlogo $tr("This trigger does not allow this kind of access")
 					halt
 					return
 			}
 			%nickStatus = $NGLfserv::corefunctions::channels("s",%triggerName,%requesting,0)
 			%access = $NGLfserv::corefunctions::channels("m",%triggerName,%requesting,0)
 			if((%nickStatus == "normal" && %access != 0) || (%nickStatus == "voice" && %access == 2)) {
-				notice -q %requesting %NGLlogo Sorry, this is a restricted trigger. You're not allowed
+				notice -q %requesting %NGLlogo $tr("Sorry, this is a restricted trigger. You're not allowed")
 				halt
 				return
 			}
 			if(%Sessions{}# >= %MaxSessions) {
-				notice -q %requesting %NGLlogo Sorry, too many users are accessing this fserv at the same time
+				notice -q %requesting %NGLlogo $tr("Sorry, too many users are accessing this fserv at the same time")
 				halt
 				return
 			}
 			if(%Session{}#>0) {
 				foreach(%s, %Session{}) {
 					if(%s->%nick == %requesting) {
-						notice -q %requesting %NGLlogo Sorry, only one shell session per user is allowed
+						notice -q %requesting %NGLlogo $tr("Sorry, only one shell session per user is allowed")
 						halt
 						return
 					}
@@ -202,12 +203,12 @@ alias(NGLfserv::events::init)
 			}
 			if(%Triggers{%triggerName}->%password) {
 				if(!%triggerPassword) {
-					notice -q %requesting %NGLlogo Sorry, this is a password protected trigger
+					notice -q %requesting %NGLlogo $tr("Sorry, this is a password protected trigger")
 					halt
 					return
 				}
 				else if(%Triggers{%triggerName}->%password != %triggerPassword) {
-					notice -q %requesting %NGLlogo Wrong password
+					notice -q %requesting %NGLlogo $tr("Wrong password")
 					halt
 					return
 				}
@@ -238,7 +239,7 @@ alias(NGLfserv::events::init)
 				%i++
 			}
 			if(%count!=0) {
-				notice -q %requesting $k(%NGLc2)%NGLlogo: $k(%NGLc1)Resends for $k(%NGLc2)$r$r%count $k(%NGLc1)file\/s has been canceled
+				notice -q %requesting $k(%NGLc2)%NGLlogo: $k(%NGLc1)$tr("Resends for") $k(%NGLc2)$r$r%count $k(%NGLc1)$tr("file\/s has been canceled")
 			}
 			halt
 		}
@@ -255,37 +256,37 @@ alias(NGLfserv::events::init)
 			%folder=$str.token(1,"|",%parameter)
 			%fileindex=$str.token(2,"|",%parameter)
 			if (!$str.isnumber(%folder) || !$str.isnumber(%fileindex)){
-					notice -q %requesting %NGLlogo This is not a quick get valid code
+					notice -q %requesting %NGLlogo $tr("This is not a quick get valid code")
 					return
 			}
 			%trigger=%Triggers{%triggerName}
 			if(%trigger) {
 				%retValue=$NGLfserv::corefunctions::channels("n",%triggerName,%requesting,0)
 				if(%retValue==0) {
-					notice -q %requesting %NGLlogo You must be on channel to request this file
+					notice -q %requesting %NGLlogo $tr("You must be on channel to request this file")
 					halt
 					return
 				}
 				if(%retValue==1) {
-					notice -q %requesting %NGLlogo This trigger does not allow this kind of access
+					notice -q %requesting %NGLlogo $tr("This trigger does not allow this kind of access")
 					halt
 					return
 				}
 				%nickStatus = $NGLfserv::corefunctions::channels("s",%triggerName,%requesting,0)
 				%access = $NGLfserv::corefunctions::channels("m",%triggerName,%requesting,0)
 				if((%nickStatus == "normal" && %access != 0) || (%nickStatus == "voice" && %access == 2)) {
-					notice -q %requesting %NGLlogo Sorry, this is a restricted file. You're not allowed
+					notice -q %requesting %NGLlogo $tr("Sorry, this is a restricted file. You're not allowed")
 					halt
 					return
 				}
 				if(%Triggers{%triggerName}->%password) {
 					if(!%triggerPassword) {
-						notice -q %requesting %NGLlogo Sorry, this is a password protected trigger
+						notice -q %requesting %NGLlogo $tr("Sorry, this is a password protected trigger")
 						halt
 						return
 					}
 					else if(%Triggers{%triggerName}->%password != %triggerPassword) {
-						notice -q %requesting %NGLlogo Wrong password
+						notice -q %requesting %NGLlogo $tr("Wrong password")
 						halt
 						return
 					}
@@ -299,7 +300,7 @@ alias(NGLfserv::events::init)
 				if (%file){
 					NGLfserv::corefunctions::send "qget" %requesting %nickStatus %completepath %size $context %triggerName
 				}
-				else notice -q %requesting $k(%NGLc2)%NGLlogo: $k(%NGLc1)No file corresponding to this quickget index
+				else notice -q %requesting $k(%NGLc2)%NGLlogo: $k(%NGLc1)$tr("No file corresponding to this quickget index")
 				halt
 			}
 		}
@@ -309,7 +310,7 @@ alias(NGLfserv::events::init)
 		%requesting=$0
 		%ctcpName=$4
 		if($str.cmpnocase(%ctcpName,"NGLVERSION")==0 && %NGLRespondToNGLVersion) {
-			notice -q %requesting Running NGL File Server version $addon.version(NGLfserv)
+			notice -q %requesting $tr("Running NGL File Server version") $addon.version(NGLfserv)
 			halt
 		}
 	}
@@ -450,7 +451,7 @@ alias(NGLfserv::events::init)
 	event(OnPart,"NGLfserv")
 	{
 		%nickName = $0
-		if(%Nick_nr_queues{%nickName}) {
+		if(%Nick_nr_queues{%nickName} && %RemovePartedNickFromQueue) {
 			%i=0
 			while(%i < %Queues->$count()) {
 				if(%Queues->$at(%i)->%nick==%nickName) {

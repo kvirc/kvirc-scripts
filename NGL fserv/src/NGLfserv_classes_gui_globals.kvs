@@ -7,133 +7,117 @@ alias(NGLfserv::classes::gui::globals)
 			%main_layout=$new(layout,$this)
 			%main_layout->$setSpacing(2)
 					
-			// Box send properties
-			%gb=$new(NGLfserv::classes::customwidgets::groupbox,$$,gb,"Sends properties",5,20)
-			%gb->$setColumnLayout(1,Vertical)
-			%box_labels=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
-			%box_labels->$setSpacing(1)
-			%box_labels->$addGroup("label",$array("Max sends:","Sends per user:","Max resends:","Instant send limit:","Resend interval:","Load delay:"))
-			%box_params=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
-			%box_params->$setSpacing(1)
-			%maxSends = %box_params->$addWidget(spinbox,"\%MaxSends",80,100)
-			%eachSends = %box_params->$addWidget(spinbox,"\%EachSends",80,100)
-			%maxResends = %box_params->$addWidget(spinbox,"\%MaxResends",80,100)
-			$$->%spinBoxInstantSend=%box_params->$addWidget(spinbox,$(%InstantSendSize / 1024),80,10240)
-			$$->%spinBoxInstantSend->$setSuffix("kB");
-			$$->%spinBoxInstantSend->$setLineStep(2);
-			$$->%spinBoxResendInterval=%box_params->$addWidget(spinbox,$(%ResendInterval / 1000),80)
-			$$->%spinBoxResendInterval->$setSuffix("s");
-			$$->%spinBoxLoadSendsDelay=%box_params->$addWidget(spinbox,$(%LoadSendsDelay / 1000),80)
-			$$->%spinBoxLoadSendsDelay->$setSuffix("s");
+			// Box send properties nglfserv
+	
+			%gb=$$->$addWidget(groupbox,$$,$tr("Send properties","nglfserv"),5,20,Horizontal,1)
+			%maxSends = $$->$addWidget(spinbox,%gb,$tr("Max sends"),"\%MaxSends",100)
+			%eachSends = $$->$addWidget(spinbox,%gb,$tr("Send per user"),"\%EachSends",100)
+			%maxResends = $$->$addWidget(spinbox,%gb,$tr("Max Resends"),"\%MaxResends",100)
+			$$->%spinBoxInstantSend=$$->$addWidget(spinbox,%gb,$tr("Instant send limit"),$(%InstantSendSize / 1024),10240,"kB",2)
+			$$->%spinBoxResendInterval=$$->$addWidget(spinbox,%gb,$tr("Resend interval"),$(%ResendInterval / 1000),,"s")
+			$$->%spinBoxLoadSendsDelay=$$->$addWidget(spinbox,%gb,$tr("Load delay"),$(%LoadSendsDelay / 1000),,"s")
 			%main_layout->$addWidget(%gb,0,0)
 					
 			// Box queue properties
-			%gb=$new(NGLfserv::classes::customwidgets::groupbox,$$,gb,"Queues properties",5,20)
-			%gb->$setColumnLayout(1,Vertical)
-			%box_labels=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
-			%box_labels->$setSpacing(1)
-			%box_labels->$addGroup("label",$array("Queue slots:","Slots per user:","Priority to:"))
-			%box_params=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
-			%box_params->$setSpacing(1)		
-			%maxQueues = %box_params->$addWidget(spinbox,"\%MaxQueues",60,1000)
-			%maxQueues->$setMaxValue(999)
-			%eachQueues = %box_params->$addWidget(spinbox,"\%EachQueues",60,100)
-			$$->%comboBoxPriorityType=%box_params->$addWidget(combobox,$array("-","o","ov"))
-			$$->%comboBoxPriorityType->$setMaximumWidth(60)
-			$$->%comboBoxPriorityType->$setCurrentItem(%PriorityType)
+			%gb=$$->$addWidget(groupbox,$$,$tr("Queues properties"),5,20,Horizontal,1)
+			%remnickfromQueues = $$->$addWidget(checkbox,%gb,$tr("Remove nick on part/quit"),"\%RemoveNickOnPartOrQuitFromQueue",100)
+			
+			%maxQueues = $$->$addWidget(spinbox,%gb,$tr("Queue slots:"),"\%MaxQueues",999)
+			//%maxQueues->$setMaxValue(999)
+			
+			%eachQueues = $$->$addWidget(spinbox,%gb,$tr("Slots per user:"),"\%EachQueues",100)
+			
+			%comboBoxPriorityType=$$->$addWidget(combobox,%gb,$tr("Priority To:"),$array("-","o","ov"),"\%PriorityType")
 			%main_layout->$addWidget(%gb,0,1)
 	
 			// Box Dcc properties
-			%gb=$new(NGLfserv::classes::customwidgets::groupbox,$$,gb,"DCC Properties",5,20)
-			%gb->$setColumnLayout(1,Horizontal)
-			$$->%ckbReverse=$new(NGLfserv::classes::customwidgets::checkbox,%gb,cb,"Always use DCC Reverse","\%DccReverse")
-			$$->%ckbCloneDetection=$new(NGLfserv::classes::customwidgets::checkbox,%gb,cb,"Enable clone detection","\%CloneDetection")
+			%gb=$$->$addWidget(groupbox,$$,$tr("DCC Properties"),5,20,Horizontal,1)
+			%ckbReverse=$$->$addWidget(checkbox,%gb,$tr("Always use DCC Reverse"),"\%DccReverse")
+			%ckbCloneDetection=$$->$addWidget(checkbox,%gb,$tr("Enable clone detection"),"\%CloneDetection")
 			%main_layout->$addWidget(%gb,0,2)
 				
 			// Box color properties
-			%colors[]=$array(Dark Blue,Dark Green,Red,\
-					Dark Red,Violet,Orange,\
-					Yellow,Light Green,Light Blue,Light Grey,\
-					Blue,Light Violet,Dark Grey,Grey)
-			%gbColors=$new(NGLfserv::classes::customwidgets::groupbox,$$,gbColors,"File server colors",5,20)
-			%gbColors->$setColumnLayout(1,Vertical)
-			%box_colors_labels=$new(NGLfserv::classes::customwidgets::box,%gbColors,box,vertical)
-			%box_colors_labels->$setSpacing(1)
-			%box_colors_labels->$addGroup("label",$array("Primary Color:","Secondary Color:"),120)
-			%box_colors_params=$new(NGLfserv::classes::customwidgets::box,%gbColors,box,vertical)
-			%box_colors_params->$setSpacing(1)
-			$$->%comboBoxColor1=%box_colors_params->$addWidget(combobox,%colors[],100)
-			$$->%comboBoxColor2=%box_colors_params->$addWidget(combobox,%colors[],100)
-			$$->%comboBoxColor1->$setCurrentItem($(%NGLc1 - 2))
-			$$->%comboBoxColor2->$setCurrentItem($(%NGLc2 - 2))
+			%colors[]=$array($tr("Dark Blue"),$tr("Dark Green"),$tr("Red"),\
+					$tr("Dark Red"),$tr("Violet"),$tr("Orange"),\
+					$tr("Yellow"),$tr("Light Green"),$tr("Light Blue"),$tr("Light Grey"),\
+					$tr("Blue"),$tr("Light Violet"),$tr("Dark Grey"),$tr("Grey"))
+			%gbColors=$$->$addWidget(groupbox,$$,$tr("File server colors"),5,20,Horizontal,1)
+			
+			%comboBoxColor1=$$->$addWidget(combobox,%gbColors,$tr("Primary Color:"),%colors[],$(%NGLc1 - 2))
+			%comboBoxColor2=$$->$addWidget(combobox,%gbColors,$tr("Secondary Color:"),%colors[],$(%NGLc1 - 2))
+		
 			%main_layout->$addWidget(%gbcolors,1,0)
 			
 			// Box find properties
-			%gbFind=$new(NGLfserv::classes::customwidgets::groupbox,$$,gbFind,"@find properties",5,20)
-			%gbFind->$setColumnLayout(1,Vertical)
-			%box_find_labels=$new(NGLfserv::classes::customwidgets::box,%gbFind,box,vertical)
-			%box_find_labels->$addGroup(label,$array("Max results:","Max cache:"),100)
-			%box_find_params=$new(NGLfserv::classes::customwidgets::box,%gbFind,box,vertical)
-			%findMsgs = %box_find_params->$addWidget(spinbox,"\%FindMsg",60,100)
-			%maxCache = %box_find_params->$addWidget(spinbox,"\%MaxCacheFind",60,1000)
+			%gbFind=$$->$addWidget(groupbox,$$,$tr("@find properties"),5,20,Horizontal,1)
+			%findMsgs = $$->$addWidget(spinbox,%gbFind,$tr("Max results:"),"\%FindMsg",100)
+			%maxCache =$$->$addWidget(spinbox,%gbFind,$tr("Max cache"),"\%MaxCacheFind",1000)
 			%main_layout->$addWidget(%gbFind,1,1)
 				
 			// Box other
-			%gb=$new(NGLfserv::classes::customwidgets::groupbox,$$,gb,"Other",5,20)
-			%gb->$setColumnLayout(1,Horizontal)
-			$$->%ckbDebug=$new(NGLfserv::classes::customwidgets::checkbox,%gb,cb,"Enable debug","\%G_NGLdebug")
-			$$->%ckbNGLVersion=$new(NGLfserv::classes::customwidgets::checkbox,%gb,cb,"Respond to NGLVERSION","\%NGLRespondToNGLVersion")
+			%gb=$$->$addWidget(groupbox,$$,$tr("Other"),5,20,Horizontal,1)
+			
+			%ckbDebug=$$->$addWidget(checkbox,%gb,$tr("Enable debug"),"\%G_NGLdebug")
+			%ckbNGLVersion=$$->$addWidget(checkbox,%gb,$tr("Reply to NGLVERSION"),"\%NGLRespondToNGLVersion")
 			%main_layout->$addWidget(%gb,1,2)
-
-			// Tooltips sends
+				// Tooltips sends
 			%maxSends->$setTooltip($tr("Maximum number of contemporary sends (globally)"))
 			%eachSends->$setTooltip($tr("Maximum number of contemporary sends per user"))
 			%maxResends->$setTooltip($tr("Number of times a failed transfer will be retried"))
 			$$->%spinBoxInstantSend->$setTooltip($tr("Files with size smaller than this will be sent immediately"))
 			$$->%spinBoxResendInterval->$setTooltip($tr("Seconds elapsed before retrying a dcc-transfer<br><b>Note: </b>Values bigger than 15 seconds are discouraged"))
-			$$->%spinBoxLoadSendsDelay->$setTooltip($tr("Incomplete sends from previous sessions are saved: this is the delay before they start upon kvirc startup. If your connection to server takes more than this, consider increasing this value"))
-			
+			$$->%spinBoxLoadSendsDelay->$setTooltip($tr("<p>Incomplete sends from previous sessions are saved: this is the delay before they start upon kvirc startup. If your connection to server takes more than this, consider increasing this value.<\p>"))
 			// Tooltips queues
 			%maxQueues->$setTooltip($tr("Maximum number of contemporary queued files (globally)"))
 			%eachQueues->$setTooltip($tr("Maximum number of contemporary queued files per user"))
-			$$->%comboBoxPriorityType->$setTooltip($tr("You can set different priority type.<br> Users with priority will stay in queue before not-prioritized users.<br>-: Stands for no priority<br>o: Stands for priority to opped users<br>ov: Stands for opped and voiced users"))
-			
+			%comboBoxPriorityType->$setTooltip($tr("You can set different priority type.<br> Users with priority will stay in queue before not-prioritized users.<br>-: Stands for no priority<br>o: Stands for priority to opped users<br>ov: Stands for opped and voiced users"))
 			// Tooltips DCC
-			$$->%ckbReverse->$setTooltip($tr("Dcc-Chats and Dcc-Sends will<br> be effectuated connecting to the remote host instead of listening on a local port. This is very useful for users with private addresses that are unreachable from the extern."))
-			$$->%ckbCloneDetection->$setTooltip($tr("Any user accessing the File Server will be scanned for clone detection and if recognized as a clone will be treated as a single user"))
+			%ckbReverse->$setTooltip($tr("Dcc-Chats and Dcc-Sends will<br> be effectuated connecting to the remote host instead of listening on a local port. This is very useful for users with private addresses that are unreachable from the extern."))
+			%ckbCloneDetection->$setTooltip($tr("Any user accessing the File Server<br> will be scanned for clone detection and if recognized as a clone will be treated as a single user"))
 			
 			// Tooltips colors
 			%gbColors->$setTooltip($tr("Set the colors of File Server messages"))
 			
 			// Tooltips @find
 			%findMsgs->$setTooltip($tr("Maximum number of reported found results"))
-			%maxCache->$setTooltip($tr("<b>(Advanced)</b> Maxium number of cached results"))
+			%maxCache->$setTooltip($tr("<b>(Advanced)</b> Maximum number of cached results"))
 			
 			// Tooltips other
-			$$->%ckbDebug->$setTooltip($tr("Enables debug messages. This could be useful to make a report of any anomaly you could find"))
-			$$->%ckbNGLVersion->$setTooltip($tr("File server will respond to command /ctcp nick NGLVERSION telling the script version in use"))
+			%ckbDebug->$setTooltip($tr("Enables debug messages. This could be useful to make a report of any anomaly you could find"))
+			%ckbNGLVersion->$setTooltip($tr("File server will respond to command /ctcp nick NGLVERSION telling the script version in use"))
 		
-			objects.connect $$->%spinBoxInstantSend valueChanged $$ commit
-			objects.connect $$->%spinBoxResendInterval valueChanged $$ commit
-			objects.connect $$->%spinBoxLoadSendsDelay valueChanged $$ commit
-			objects.connect $$->%comboBoxPriorityType activated $$ commit
+			objects.connect $$->%spinBoxInstantSend valueChanged $$ oldcommit
+			objects.connect $$->%spinBoxResendInterval valueChanged $$ oldcommit
+			objects.connect $$->%spinBoxLoadSendsDelay valueChanged $$ oldcommit
 					
-			privateimpl($$->%comboBoxColor1,activatedEvent) 
+			privateimpl(%comboBoxColor1,activatedEvent) 
 			{
 				%NGLc1=$($$->$currentItem() + 2)
 			}
-			privateimpl($$->%comboBoxColor2,activatedEvent) 
+			privateimpl(%comboBoxColor2,activatedEvent) 
 			{
 				%NGLc2=$($$->$currentItem() + 2)
 			}
 		}
+		addWidget()
+		{
+			%widget=$NGLfserv::corefunctions::addWidget($0,$1,$2,$3,$4,$5,$6)
+			if ($0!="label")	$$->%interfaces_list[]<+%widget
+			return %widget
+		}
 		commit()
+		{
+			foreach (%interface,$$->%interfaces_lists[]) %interface->$commit()
+			%InstantSendSize=$($$->%spinBoxInstantSend->$value()*1024)
+			%ResendInterval=$($$->%spinBoxResendInterval->$value()*1000)
+			%LoadSendsDelay=$($$->%spinBoxLoadSendsDelay->$value()*1000)
+		}	
+		oldcommit()
 		{
 			%source=$$->$signalSender()
 			if (%source==$$->%spinBoxInstantSend) %InstantSendSize=$(%source->$value()*1024)
-			else if (%source==$$->%spinBoxResendInterval) %ResendInterval=$(%source->$value()*1000)
 			else if (%source==$$->%spinBoxLoadSendsDelay) %LoadSendsDelay=$(%source->$value()*1000)
-			else if (%source==$$->%comboBoxPriorityType) %PriorityType=%source->$currentItem()
+			else %ResendInterval=$(%source->$value()*1000)
 		}
 	}
 }

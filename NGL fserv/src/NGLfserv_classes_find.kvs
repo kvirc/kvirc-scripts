@@ -123,16 +123,16 @@ alias(NGLfserv::classes::find)
 				%total_res=0
 				%tmp_res=0
 				%printed_res=0
-				msg -q $$->%nick $k(%NGLc2)%NGLlogo: $k(%NGLc1)\@Find result for "["$k(%NGLc2)$$->%string_to_find$k(%NGLc1)"]"
+				msg -q $$->%nick $k(%NGLc2)%NGLlogo: $k(%NGLc1)$tr("@Find result for") "["$k(%NGLc2)$$->%string_to_find$k(%NGLc1)"]"
 				for(%i=0;%i<$$->%instances_mirror->$count();%i++){
 					$$->%instances_mirror->$item(%i)->%trigger->$resetFlag()
 					if ($$->%instances_mirror->$item(%i)->$nrOccurrences()) {
-						msg -q $$->%nick $k(%NGLc1)On trigger\:"["$k(%NGLc2)\/ctcp $me  $$->%instances_mirror->$item(%i)->$trigger()$k(%NGLc1)"]"
+						msg -q $$->%nick $k(%NGLc1)$tr("On trigger:")"["$k(%NGLc2)\/ctcp $me  $$->%instances_mirror->$item(%i)->$trigger()$k(%NGLc1)"]"
 						foreach(%fd,$$->%instances_mirror->$item(%i)->$occurrences()){
 							%fileName=$str.token(0,"?",%fd)
-							%token = $k(%NGLc1)"["$k(%NGLc2)%fileName $k(%NGLc1)Size: $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc($str.token(1,"?",%fd))$k(%NGLc1)
+							%token = $k(%NGLc1)"["$k(%NGLc2)%fileName $k(%NGLc1)$tr("Size:") $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc($str.token(1,"?",%fd))$k(%NGLc1)
 							if(%FservChannels{$$->%channel}->$getUseQuickGet()) {
-								%token .= "$k(4,0) You can quick get it typing: $k() $k(%NGLc2)/ctcp "$me" qget "$$->%instances_mirror->$item(%i)->$trigger()"|"$str.token(2,"?",%fd)"|"$str.token(3,"?",%fd)$k(%NGLc1)"] "
+								%token .= "$k(4,0) $tr("You can quick get it typing:") $k() $k(%NGLc2)/ctcp "$me" qget "$$->%instances_mirror->$item(%i)->$trigger()"|"$str.token(2,"?",%fd)"|"$str.token(3,"?",%fd)$k(%NGLc1)"] "
 							}
 							else {
 								%token .= "] "
@@ -156,7 +156,7 @@ alias(NGLfserv::classes::find)
 					if(%buffer) msg -q $$->%nick %buffer
 					%tmp_res += $$->%instances_mirror->$item(%i)->$nrOccurrences()
 					if(%tmp_res>=%FindMsg){
-						msg -q $$->%nick $k(%NGLc2)Too many results to display
+						msg -q $$->%nick $k(%NGLc2)$tr("Too many results to display")
 						delete $$
 						halt
 					}
@@ -168,7 +168,7 @@ alias(NGLfserv::classes::find)
 				$$->%instances_mirror->$item(%i)->%trigger->$resetFlag()
 			// no occurence found
 			if(%FservChannels{$$->%channel}->$getDisplayNoOccurrenceFound())
-				notice -q $$->%nick $k(%NGLc2)%NGLlogo: $k(%NGLc1)No file has been found
+				notice -q $$->%nick $k(%NGLc2)%NGLlogo: $k(%NGLc1)$tr("No file has been found")
 			%FservChannels{$$->%channel}->$cache()->$append($$->%string_to_find)
 			delete $this
 			halt
@@ -180,7 +180,6 @@ alias(NGLfserv::classes::find)
 		// init find
 		constructor()
 		{
-			//$$->%index=0
 			$$->%tmp_results=0
 			$$->%flag_searchend=$false
 		}
@@ -243,9 +242,8 @@ alias(NGLfserv::classes::find)
 			}
 			if (($hptimestamp-$$->%time)>$$->%time_available || $$->%flag_searchend) return $true
 	 		%folders[]=%item->$children()
-	 		%fl=$false
 			for (%i=0;%i<%folders[]#;%i++) {
-				if (!%folders[%i]->%dirNotShared){
+				if (!%folders[%i]->%dirNotShared && !%folders[%i]->%extradirtemp){
 					if (!%folders[%i]->%allSubFoldersScanned){
 		  				if (!$$->$treeScan(%folders[%i]))
 		  					%item->%allSubFoldersScanned=$true()

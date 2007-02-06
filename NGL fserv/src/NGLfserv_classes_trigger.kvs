@@ -74,8 +74,10 @@ alias(NGLfserv::classes::trigger)
 		}
 		 function removeNode(virtual node)
 		{
-			if ($0->%extraDirPath) 
+			if ($0->%extraDirPath){
+				if ($0->%extradirtemp) $$->$removeExtraDirTemp($0)
 				$$->$removeExtraDir($0)
+			}
 			delete $0
 		}
 		function removeExtraDir(node)
@@ -94,7 +96,15 @@ alias(NGLfserv::classes::trigger)
 		{
 			return $$->%extraDirs->$item($0)
 		}
-		// aggiunge il nodo "root" al trigger: a differenza delle successive dirs che si potranno aggiungere, questa verrà aggiungta 
+		function setWelcomeMessage()
+		{
+		 	$$->%welcommessage=$0
+		 }
+		 function setPassword()
+		 {
+		 	$$->%password=$0
+		 }
+		// aggiunge il nodo "root" al trigger: a differenza delle successive dirs che si potranno aggiungere, questa verrà aggiunta 
 		// eliminando tutta la parte del percorso, perdendo quindi anche il nome della cartella di origine.
 		// Esempio: la dir c:\\mp3\ sparirà e nel trigger ci saranno i files e dirs figli di essa.
 		function addFirstNode()
@@ -116,7 +126,7 @@ alias(NGLfserv::classes::trigger)
 		}
 		function setFirstEmptyNode()
 		{
-			// flag attivato quando al load del trigger, risulta che il nodo principale non esiste sul disco
+			// il trigger non ha un percorso (è stata eliminata la cartella principale sul disco)
 			$$->%firstNodeEmpty=$true
 		}
 		
@@ -129,23 +139,53 @@ alias(NGLfserv::classes::trigger)
 			%node->%text=$0
 			return %node
 		}
+		
+		// aggiunge una extra dir alla lista, memorizzandone le info principali
 		function appendExtraDir()
 		{
 			%node=$new(object,$this)
-			%node->%extraDirPath=$0/
+			%node->%extraDirPath=$0
 			%node->%pathFromTrigger=$1
 			if ($2) {
 				%node->%node=$2
-				$2->%extraDirPath=$0/
+				$2->%extraDirPath=$0
 			}
 			$$->%extraDirs->$append(%node)
+			return %node
 		}
+		
+		function appendNotYetAcceptedExtradir()
+		{
+			%node=$$->$appendExtraDir($0,$1,$2)
+			$$->%extradirtemp[]<+%node
+			%node->%extradirtemp=$true
+		}
+		function reject()
+		{
+			foreach(%node,$$->%extradirtemp[])
+				if (%node) $$->$removeExtraDir(%node)
+			$$->%extradirtemp[]=
+		}
+		function commit()
+		{
+			foreach(%node,$$->%extradirtemp[])
+				%node->%extradirtemp=
+			$$->%extradirtemp[]=
+		}
+		function removeExtraDirTemp(node)
+		{
+			for(%i=0;%i<$length($$->%extradirtemp[]);%i++){
+				if ($$->%extradirtemp[%i]==$0) break
+			}
+			$$->%extradirtemp[%i]=
+		}
+		// ritorna il nodo principale del trigger
 		function firstNode()
 		{
 			return $$->%firstnode
 		}
 		
-		// aggiunge una dir a partire da un nodo
+		// aggiunge una dir a partire da un nodo parent
 		function addFolder(complete path, parent node)
 		{
 			// viene reso il path in standard unix
@@ -154,10 +194,8 @@ alias(NGLfserv::classes::trigger)
 			if($str.right(%rootpath, 1) != "/") %rootpath .= "/"
 			// estraiamo il nome della dir 
 			%dir_name = $file.extractfilename($str.left(%rootpath,$($str.len(%rootpath)-1)))
-			// e verifichiamo se già esiste nel nodo parent
-			if ($$->$checkFolderExists(%dir_name,$1)) {
-				return $false
-			}
+			// e verifichiamo se essa esiste
+			if ($$->$checkFolderExists(%dir_name,$1)) return $false
 			// aggiungiamo il nodo al parent
 			%node=$$->$addNode(%dir_name,$1)
 			// e memorizziamo lil nodo e la path per utilizzarli come riferimento nello scan in background
@@ -177,10 +215,14 @@ alias(NGLfserv::classes::trigger)
 			$$->$startTimer(1000)
 			return %node
 		}
+		
+		// aggiorna l'albero del trigger
 		function update()
 		{
 			$$->$updateStart($true)
 		}
+		
+		// aggiorna o ricrea l'albero del trigger
 		function updateStart()
 		{
 			$$->%update=$true
@@ -191,13 +233,13 @@ alias(NGLfserv::classes::trigger)
 				delete $$->$firstNode()
 			}
 			NGLfserv::corefunctions::ngldebug "start background HD scanning"	
-	
-			if ($$->%firstNodeEmpty){
+			debug CHECK $$->%realTriggerPath
+			if (!$$->%realTriggerPath){
 				NGLfserv::corefunctions::ngldebug first node is empty
 				NGLfserv::corefunctions::ngldebug add fake dir
 				$$->%firstnode=$$->$addNode("",$this,"")
 				$$->%firstNodeEmpty=$true
-				//$$->%rootnode=$$->$addFolder($$->%rootpath,$$->%firstnode)
+				$$->$emit(scancompleted)
 			}
 			else{	
 				$$->%firstnode=$$->$addNode("",$this)	
@@ -212,6 +254,8 @@ alias(NGLfserv::classes::trigger)
 				$$->$startTimer(1000)
 			}			
 		}
+		
+		// subroutine che si occupa di aggiornare le extra dirs
 		function checkextradirs()
 		{
 			if (!$$->%update) {
@@ -244,7 +288,7 @@ alias(NGLfserv::classes::trigger)
 				NGLfserv::corefunctions::ngldebug adding extra dir with  path Fromtrigger $$->%extraDirs->$current()->%pathFromTrigger
 				NGLfserv::corefunctions::ngldebug extra dir path $$->%extraDirs->$current()->%extraDirPath
 				if($$->%firstNodeEmpty) 
-					%parent_node=$$->%firstNode()
+					%parent_node=$$->%firstNode
 				else 
 					%parent_node=$$->$getFolderObjFromPath($$->%extraDirs->$current()->%pathFromTrigger)
 				NGLfserv::corefunctions::ngldebug aggiungo un nuovo nodo in base a questo percorso %rootpath
@@ -252,9 +296,10 @@ alias(NGLfserv::classes::trigger)
 				$$->%extraDirs->$current()->%node=%node
 				%node->%extraDirPath=%rootpath
 				$$->%extraDirs->$moveNext()
-				
 			}				
 		}
+		
+		// temporizzatore per le operazioni su disco
 		function timerEvent()
 		{
 			$$->%time=$hptimestamp()
@@ -286,6 +331,8 @@ alias(NGLfserv::classes::trigger)
 				*/
 			}
 		}
+		
+		// imposta, a seconda del KVIrc installato, la routine di scansione del disco
 		function scanSubFolders()
 		{
 			$$->%count=0
@@ -302,6 +349,9 @@ alias(NGLfserv::classes::trigger)
 			}	
 			
 		}
+		
+		// vecchio metodo per fare lo scan delle cartelle: usato solo per compatibilità con le vecchie versioni di KVIrc
+		// DEPRECATED
 		function oldScanSubFolders()
 		{
 			%path=$0
@@ -345,6 +395,8 @@ alias(NGLfserv::classes::trigger)
 			}
 			if (%fl) return $true
 		}
+		
+		// ultima versione della funzione ricorsiva e temporizzata di scan sul disco
 		function fastScanSubFolders()
 		{
 			%path=$0
@@ -374,16 +426,22 @@ alias(NGLfserv::classes::trigger)
 			if (%fl) return $true;
 		}
 		
+		// usata per retrocompatibilità: appende i nomi dei files del nodo alla lista interna
+		// DEPRECATED
 		function appendFile(node,file,size)
 		{			
 			$0->%files_list[]<+$1
 			$0->%file_size[]<+$2
 		}
 	
+		// resetta il flag usato dalla scansione del disco
 		function resetFlag()
 		{
 			$$->$reset($$->%firstnode)
 		}
+		
+		// resetta il flag usato dalla scansione del disco
+		// parte ricorsiva
 		function reset()
 		{
 			$0->%allSubFoldersScanned=
@@ -407,11 +465,14 @@ alias(NGLfserv::classes::trigger)
 			return %path
 		}
 		
+		// restituisce il nodo partendo dal proprio id
 		function getFolderById()
 		{
 			return $$->$scanTreeFolder($$->%firstnode,$0)
 		}
 		
+		// restituisce il nodo partendo dal proprio id
+		// parte ricorsiva
 		function scanTreeFolder()
 		{
 			if ($0->%index==$1) return $0
@@ -424,7 +485,8 @@ alias(NGLfserv::classes::trigger)
 			NGLfserv::corefunctions::ngldebug ritorno %found
 			return %found
 		}
-			
+		
+		// restituisce il file del nodo node identificato da id	
 		function getFileById(node,id)
 		{
 			%node=$0
@@ -435,6 +497,7 @@ alias(NGLfserv::classes::trigger)
 			else return $$->$fileAt(%node,%child_idx)
 		}	
 		
+		// retituise il nodo a partire dalla sua path
 		function getFolderObjFromPath()
 		{
 			%path=$0
@@ -458,7 +521,8 @@ alias(NGLfserv::classes::trigger)
 			return %father
 		}
 	
-		function getLocalTriggerPath()
+		// restituisce la path locale rispetto al trigger del nodo node
+		function getLocalTriggerPath(node)
 		{
 			%item=$0
 			%path=%item->%text"/"
@@ -468,6 +532,8 @@ alias(NGLfserv::classes::trigger)
 			}
 			return %path	
 		}
+		
+		// restituisce la path reale del nodo
 		function getRealPath(node)
 		{
 			
@@ -480,7 +546,8 @@ alias(NGLfserv::classes::trigger)
 			else return $$->%realTriggerPath%path
 		}
 	
-		internal function checkFolderExists()
+		// controlla se la dir folder esiste rispetto al nodo node
+		internal function checkFolderExists(folder,node)
 		{
 			%children[]=$1->$children()
 			for (%i=0;%i<$length(%children[]);%i++){
@@ -489,23 +556,26 @@ alias(NGLfserv::classes::trigger)
 			return $false
 		}
 		
+		// ritorna i files del nodo 
 		function filesList(node)
 		{
 			return $0->%files_list[]
 		}
 		
+		// ritorna le sizes dei files contenuti nel nodo
 		function sizesList(node)
 		{
 			return $0->%file_size[]
 		}
 			
 		
-		
+		// restituisce il numero dei files del nodo
 		function filesCount(node)
 		{
 			return $length($0->%files_list[])
 		}
 		
+		// flag utilizzato per indicare alla routine di salvataggio che qualcosa nel trigger è stata aggiornata
 		function somethingHasChanged()
 		{
 			return $$->%changed
@@ -514,14 +584,20 @@ alias(NGLfserv::classes::trigger)
 		{
 			$$->%changed=$0
 		}
-		function fileSizeAt(node,index)
+		
+		// restituisce la size del file all'indice idx
+		function fileSizeAt(node,idx)
 		{
 		 	return $0->%file_size[$1]
 		}
-		function fileAt(node,index)
+		
+		// restituisce il file all'indice idx
+		function fileAt(node,idx)
 		{
 			return $0->%files_list[$1]
 		}
+		
+		// restituisce l'indice del file
 		function fileIndex(node,file)
 		{
 			for (%i=0;%i<$length($0->%files_list[]);%i++) {
@@ -530,18 +606,82 @@ alias(NGLfserv::classes::trigger)
 			return -1
 		}
 			
+		// setta il nome del nodo
 		function setText(node,text)
 		{
 			$0->%text=$1
 		}
+		
+		// restituisce il nome del nodo
 		function text(node)
 		{
 			return $0->%text
 		}
-		function isFileNotShared(node,file)
+		
+		// funzione booleana che verifica se il file è sharato o meno
+		function isFileNotChecked(node,file)
 		{
 			if ($0->$parent()->%dirNotShared || $0->%filesNotShared{$0->%files_list[$1]}) return $true
 			else return $false
+		}
+		function isFileNotShared(node,file)
+		{
+			$$->$isFileNotChecked($0,$1)
+		}
+		
+		// setta il file come non sharato
+		function setFileNotChecked()
+		{
+			$$->$setFileNotShared($0,$1)
+		}
+		function  setFileNotShared(node,file)
+		{
+			$0->%filesNotShared{$1}=$true
+		}
+		
+		function setFileChecked()
+		{
+			$$->$setFileShared($0,$1)
+		}
+		// setta il file come sharato
+		function  setFileShared(node,file)
+		{
+			$0->%filesNotShared{$1}=
+			if ($0->%filesNotShared{}#) $keys($0->%filesNotShared{})
+			
+		}
+		
+		// funzione booleana che controlla se il file esiste
+		function fileExists(node,file)
+		{
+			%file=$str.lowcase($1)
+			%node=$0
+			%len=$$->$filesCount(%node)
+			for (%i=0;%i<%len;%i++) if (%file==$str.lowcase($$->$fileAt(%node,%i))) return $$->$fileAt(%node,%i)
+			return $false
+		}
+		
+		function isItemHighlighted()
+		{
+			return $0->%extraDirPath
+		}
+		
+		function setDirNotChecked(node)
+		{
+			$0->%dirNotShared=$true
+		}
+		function setDirChecked(node)
+		{
+			$0->%dirNotShared=
+		}
+		function isDirNotChecked(node)
+		{
+			return $0->%dirNotShared
+		}
+		// setta come NON sharata la dir node con tutte le subdir
+		function setFoldersNotChecked()
+		{
+			$$->$setFoldersNotShared($0)
 		}
 		function setFoldersNotShared(node)
 		{
@@ -552,6 +692,13 @@ alias(NGLfserv::classes::trigger)
 				if (!%folder[%i]->%dirNotShared) $$->$setFoldersNotShared(%folder[%i])
 			}	
 		}
+		
+		function seFoldersChecked()
+		{
+			$$->$setFoldersShared($0)
+		}
+		
+		// setta come sharata la dir node con tutte le subdir
 		function setFoldersShared(node)
 		{
 			$0->%dirNotShared=
@@ -560,24 +707,9 @@ alias(NGLfserv::classes::trigger)
 			%len=$length(%folder[])
 			for(%i=0;%i<%len;%i++;) $$->$setFoldersShared(%folder[%i])	
 		}
-		function  setFileNotShared(node,file)
-		{
-			$0->%filesNotShared{$1}=$true
-		}
-		function  setFileShared(node,file)
-		{
-			$0->%filesNotShared{$1}=
-			if ($0->%filesNotShared{}#) $keys($0->%filesNotShared{})
-			
-		}
-		function fileExists(node,file)
-		{
-			%file=$str.lowcase($1)
-			%node=$0
-			%len=$$->$filesCount(%node)
-			for (%i=0;%i<%len;%i++) if (%file==$str.lowcase($$->$fileAt(%node,%i))) return $$->$fileAt(%node,%i)
-			return $false
-		}
+		
+		
+		
 		function createDirFilesNotShared(node)
 		{
 			for (%i=0;%i<$0->$count();%i++){

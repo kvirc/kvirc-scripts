@@ -1,125 +1,129 @@
 alias(NGLfserv::config::loadSendAndQueues)
 {
-	NGLfserv::corefunctions::ngldebug "Loading queues and sends"
-	
-	%c = $config.open("NGLfservSends.kvc","r")
-	%sections[]=$config.sectionlist(%c)
-	if($length(%sections[])) %NGLTempSends = $new(list)
-	for (%i=0;%i<$length(%sections[]);%i++){
-		config.setsection %c %sections[%i]
-		NGLfserv::config::loadsendstructure %c %NGLTempSends
-	}
-	config.close %c
-	
-	%c = $config.open("NGLfservQueues.kvc","r")
-	%sections[]=$config.sectionlist(%c)
-	if($length(%sections[])) %NGLTempQueues = $new(list)
-	for (%i=0;%i<$length(%sections[]);%i++){
-		config.setsection %c %sections[%i]
-		NGLfserv::config::loadsendstructure %c %NGLTempQueues
-	}
-	config.close %c
-
-	if($objects.exists(%NGLTempSends) && %NGLTempSends->$count() > 0) {
-		// We must re-check the server name. It could have been changed in this lapse of time
-		foreach(%c,$keys(%NGLContext{})) {
-			if($server(%c)) %NGLServersContext{$server(%c)} = %c
+		NGLfserv::corefunctions::ngldebug "Loading queues and sends"
+		
+		%c = $config.open("NGLfservSends.kvc","r")
+		%sections[]=$config.sectionlist(%c)
+		if($length(%sections[])) %NGLTempSends = $new(list)
+		for (%i=0;%i<$length(%sections[]);%i++){
+			config.setsection %c %sections[%i]
+			NGLfserv::config::loadsendstructure %c %NGLTempSends
 		}
-		if(%NGLTempSends->$count()) %NGLnSends = %NGLTempSends->$count()
-		else %NGLnSends = 0
-		if(%NGLTempQueues->$count()) %NGLnQueues = %NGLTempQueues->$count()
-		else %NGLnQueues = 0
-		%NGLnTotal = $(%NGLnSends + %NGLnQueues)
-		timer -p (StartSends,5000) {
-			if(!%NGLcount) %NGLcount = 0
-			if(%NGLcount < %NGLnSends && %NGLServersContext{} && %NGLServersContext{%NGLTempSends->$at(%NGLcount)->%serverName}) {
-				%NGLTempSends->$at(%NGLcount)->%ircContext = %NGLServersContext{%NGLTempSends->$at(%NGLcount)->%serverName}
-				%winid = $window()
-				rebind $console(%NGLTempSends->$at(%NGLcount)->%ircContext)
-				awhois(%NGLTempSends->$at(%NGLcount)->%nick,%NGLcount){
-					if($1) {
-						NGLfserv::corefunctions::ngldebug "Breakpoint 5"
-						NGLfserv::corefunctions::ngldebug "Starting send"$10
-						
-						%fl_send = $new(object)
-						%fl_send->%completepath = %NGLTempSends->$at($10)->%completepath
-						%fl_send->%size = %NGLTempSends->$at($10)->%size
-						%fl_send->%file = $file.extractfilename(%fl_send->%completepath)
-						%fl_send->%retries = 0
-						%fl_send->%nick = %NGLTempSends->$at($10)->%nick
-						%fl_send->%initialNick = %fl_send->%nick
-						%fl_send->%nickStatus = %NGLTempSends->$at($10)->%nickStatus
-						%fl_send->%ircContext = %NGLTempSends->$at($10)->%ircContext
-						%fl_send->%console = $console(%fl_send->%ircContext)
-						%fl_send->%serverName = %NGLTempSends->$at($10)->%serverName
-						%fl_send->%triggerName = %NGLTempSends->$at($10)->%triggerName
-
-						if($NGLfserv::corefunctions::dccStartSend(%fl_send->%console, %fl_send->%nick, %fl_send->%completepath)) {
-							%Send->$append(%fl_send)
-							if(!%Nick_nr_sends{%fl_send->%nick}) %Nick_nr_sends{%fl_send->%nick}=0
-							%Nick_nr_sends{%fl_send->%nick}++
-							if($objects.exists(%NGLmonitor)) {
-								%NGLmonitor->$showSends()
+		config.close %c
+		
+		%c = $config.open("NGLfservQueues.kvc","r")
+		%sections[]=$config.sectionlist(%c)
+		if($length(%sections[])) %NGLTempQueues = $new(list)
+		for (%i=0;%i<$length(%sections[]);%i++){
+			config.setsection %c %sections[%i]
+			NGLfserv::config::loadsendstructure %c %NGLTempQueues
+		}
+		config.close %c
+		
+		NGLfserv::corefunctions::ngldebug "Breakpoint 1"
+	
+		if($objects.exists(%NGLTempSends) && %NGLTempSends->$count() > 0) {
+			NGLfserv::corefunctions::ngldebug "Breakpoint 2"
+			// We must re-check the server name. It could have been changed in this lapse of time
+			foreach(%c,$keys(%NGLContext{})) {
+				NGLfserv::corefunctions::ngldebug "Breakpoint 3"
+				if($server(%c)) %NGLServersContext{$server(%c)} = %c
+			}
+			if(%NGLTempSends->$count()) %nSends = %NGLTempSends->$count()
+			else %nSends = 0
+			if(%NGLTempQueues->$count()) %nQueues = %NGLTempQueues->$count()
+			else %nQueues = 0
+			%nTotal = $(%nSends + %nQueues)
+			NGLfserv::corefunctions::ngldebug Sends %nSends Queues %nQueues
+			timer -p (StartSends,5000) {
+				if(!%NGLcount) %NGLcount = 0
+				NGLfserv::corefunctions::ngldebug NGLcount %NGLcount NGLServersContext{} %NGLServersContext{}
+				if(%NGLcount < %nSends && %NGLServersContext{} && $str.contains(%NGLTempSends->$at(%NGLcount)->%serverName,$keys(%NGLServersContext{}))) {
+					NGLfserv::corefunctions::ngldebug "Breakpoint 4"
+					%NGLTempSends->$at(%NGLcount)->%ircContext = %NGLServersContext{%NGLTempSends->$at(%NGLcount)->%serverName}
+					%currContext = $context()
+					rebind %NGLTempSends->$at(%NGLcount)->%ircContext
+					awhois(%NGLTempSends->$at(%NGLcount)->%nick,%NGLcount){
+						if($1) {
+							NGLfserv::corefunctions::ngldebug "Breakpoint 5"
+							NGLfserv::corefunctions::ngldebug "Starting send"$10
+							
+							%fl_send = $new(object)
+							%fl_send->%completepath = %NGLTempSends->$at($10)->%completepath
+							%fl_send->%size = %NGLTempSends->$at($10)->%size
+							%fl_send->%file = $file.extractfilename(%fl_send->%completepath)
+							%fl_send->%retries = 0
+							%fl_send->%nick = %NGLTempSends->$at($10)->%nick
+							%fl_send->%initialNick = %fl_send->%nick
+							%fl_send->%nickStatus = %NGLTempSends->$at($10)->%nickStatus
+							%fl_send->%ircContext = %NGLTempSends->$at($10)->%ircContext
+							%fl_send->%console = $console(%fl_send->%ircContext)
+							%fl_send->%serverName = %NGLTempSends->$at($10)->%serverName
+							%fl_send->%triggerName = %NGLTempSends->$at($10)->%triggerName
+	
+							if($NGLfserv::corefunctions::dccStartSend(%fl_send->%console, %fl_send->%nick, %fl_send->%completepath)) {
+								%Send->$append(%fl_send)
+								if(!%Nick_nr_sends{%fl_send->%nick}) %Nick_nr_sends{%fl_send->%nick}=0
+								%Nick_nr_sends{%fl_send->%nick}++
+								if($objects.exists(%NGLmonitor)) {
+									%NGLmonitor->$showSends()
+								}
 							}
 						}
-					}
-					else {
-						NGLfserv::corefunctions::ngldebug "Aborting send"$10
-					}
-				}
-				rebind %winid
-			}
-			else if(%NGLcount >= %NGLnSends && %NGLcount < %NGLnTotal && %NGLServersContext{} && %NGLServersContext{%NGLTempQueues->$at($(%NGLcount - %NGLnSends))->%serverName}) {
-				%NGLTempQueues->$at($(%NGLcount - %NGLnSends))->%ircContext = %NGLServersContext{%NGLTempQueues->$at($(%NGLcount - %NGLnSends))->%serverName}	
-				%winid = $window()
-				rebind $console(%NGLTempQueues->$at($(%NGLcount - %NGLnSends))->%ircContext)
-				awhois(%NGLTempQueues->$at($(%NGLcount - %NGLnSends))->%nick,$(%NGLcount - %NGLnSends)){
-					if($1) {
-						NGLfserv::corefunctions::ngldebug "Queueing"$10
-						
-						%fl_send = $new(object)
-						%fl_send->%completepath = %NGLTempQueues->$at($10)->%completepath
-						%fl_send->%size = %NGLTempQueues->$at($10)->%size
-						%fl_send->%file = $file.extractfilename(%fl_send->%completepath)
-						%fl_send->%retries = 0
-						%fl_send->%nick = %NGLTempQueues->$at($10)->%nick
-						%fl_send->%initialNick = %fl_send->%nick
-						%fl_send->%nickStatus = %NGLTempQueues->$at($10)->%nickStatus
-						%fl_send->%ircContext = %NGLTempQueues->$at($10)->%ircContext
-						%fl_send->%console = $console(%fl_send->%ircContext)
-						%fl_send->%serverName = %NGLTempQueues->$at($10)->%serverName
-						%fl_send->%triggerName = %NGLTempQueues->$at($10)->%triggerName
-
-						%Queues->$append(%fl_send)
-						if(!%Nick_nr_queues{%fl_send->%nick}) %Nick_nr_queues{%fl_send->%nick}=0
-						%Nick_nr_queues{%fl_send->%nick}++
-						if($objects.exists(%NGLmonitor)) {
-							%NGLmonitor->$showQueues()
+						else {
+							NGLfserv::corefunctions::ngldebug "Aborting send"$10
 						}
 					}
-					else {
-						NGLfserv::corefunctions::ngldebug "Removing queue"$10
-					}
+					rebind %currContext
 				}
-				rebind %winid
-			}
-			%NGLcount++
-			if(%NGLcount >= %NGLnTotal) {
-				delete %NGLTempSends
-				delete %NGLTempQueues
-				%NGLContext{}=""
-				%NGLServersContext{}=""
-				unset %NGLcount
-				unset %NGLnSends
-				unset %NGLnQueues
-				unset %NGLnTotal
-				NGLfserv::config::saveSendAndQueues
-				killtimer
+				else if(%NGLcount >= %nSends && %NGLcount < %nTotal && %NGLServersContext{} && $str.contains(%NGLTempQueues->$at($(%NGLcount - %nSends))->%serverName,$keys(%NGLServersContext{}))) {
+					%NGLTempQueues->$at($(%NGLcount - %nSends))->%ircContext = %NGLServersContext{%NGLTempQueues->$at($(%NGLcount - %nSends))->%serverName}	
+					%currContext = $context()
+					rebind %NGLTempQueues->$at(%NGLcount)->%ircContext
+					awhois(%NGLTempQueues->$at($(%NGLcount - %nSends))->%nick,$(%NGLcount - %nSends)){
+						if($1) {
+							NGLfserv::corefunctions::ngldebug "Queueing"$10
+							
+							%fl_send = $new(object)
+							%fl_send->%completepath = %NGLTempQueues->$at($10)->%completepath
+							%fl_send->%size = %NGLTempQueues->$at($10)->%size
+							%fl_send->%file = $file.extractfilename(%fl_send->%completepath)
+							%fl_send->%retries = 0
+							%fl_send->%nick = %NGLTempQueues->$at($10)->%nick
+							%fl_send->%initialNick = %fl_send->%nick
+							%fl_send->%nickStatus = %NGLTempQueues->$at($10)->%nickStatus
+							%fl_send->%ircContext = %NGLTempQueues->$at($10)->%ircContext
+							%fl_send->%console = $console(%fl_send->%ircContext)
+							%fl_send->%serverName = %NGLTempQueues->$at($10)->%serverName
+							%fl_send->%triggerName = %NGLTempQueues->$at($10)->%triggerName
+	
+							%Queues->$append(%fl_send)
+							if(!%Nick_nr_queues{%fl_send->%nick}) %Nick_nr_queues{%fl_send->%nick}=0
+							%Nick_nr_queues{%fl_send->%nick}++
+							if($objects.exists(%NGLmonitor)) {
+								%NGLmonitor->$showQueues()
+							}
+						}
+						else {
+							NGLfserv::corefunctions::ngldebug "Removing queue"$10
+						}
+					}
+					rebind %currContext
+				}
+				%NGLcount++
+				if(%NGLcount >= %nTotal) {
+					delete %NGLTempSends
+					delete %NGLTempQueues
+					%NGLContext{}=""
+					%NGLServersContext{}=""
+					unset %NGLcount
+					NGLfserv::config::saveSendAndQueues
+					killtimer
+				}
 			}
 		}
-	}
-
-	// if($file.exists($file.localdir()/config/scripts/NGLfservSends.kvc)) file.remove $file.localdir()/config/scripts/NGLfservSends.kvc
-	// if($file.exists($file.localdir()/config/scripts/NGLfservQueues.kvc)) file.remove $file.localdir()/config/scripts/NGLfservQueues.kvc
+	
+		// if($file.exists($file.localdir()/config/scripts/NGLfservSends.kvc)) file.remove $file.localdir()/config/scripts/NGLfservSends.kvc
+		// if($file.exists($file.localdir()/config/scripts/NGLfservQueues.kvc)) file.remove $file.localdir()/config/scripts/NGLfservQueues.kvc
 }
 

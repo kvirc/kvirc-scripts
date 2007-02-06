@@ -4,38 +4,41 @@ alias(NGLfserv::classes::gui::sharedfiles)
 	{
 		constructor()
 		{
-			$$->$setCaption(".:Shared Files:.")
+			$$->$setCaption($tr(".:Shared Files:."))
 			%main = $NGLfserv::corefunctions::addWidget(vbox,$$)
-			
+			debug LOAD
+			trload -v nglfserv
+			// $file.localdir(locale)
+			debug LOADED
 			// main horizontal layout
 			%hbox=$NGLfserv::corefunctions::addWidget(hbox,%main)
 			%hbox->$setSpacing(2)
 						
 			// trigger choose section
-			%gb=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,"Trigger",5,20,Horizontal,1)
+			%gb=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,$tr("Trigger"),5,20,Horizontal,1)
 			%hbox->$setStretchFactor(%gb,40)
 			$$->%comboboxTriggers=$new(combobox,%gb)
 	
 			// Add/Remove section
-			$$->%box_buttons=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,"Add/Remove Extra dirs",5,20,Horizontal,2)
+			$$->%box_buttons=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,$tr("Add/Remove Extra dirs"),5,20,Horizontal,2)
 			%hbox->$setStretchFactor($$->%box_buttons,40)		
-			%add=$NGLfserv::corefunctions::addWidget(button,$$->%box_buttons,"Add")
+			%add=$NGLfserv::corefunctions::addWidget(button,$$->%box_buttons,$tr("Add"))
 			%add->$setImage(redfolder)
-			$$->%remove=$NGLfserv::corefunctions::addWidget(button,$$->%box_buttons,"Remove")
+			$$->%remove=$NGLfserv::corefunctions::addWidget(button,$$->%box_buttons,$tr("Remove"))
 			$$->%remove->$setImage(redfoldercancel)
 			$$->%remove->$setEnabled($false)
 			
 			// Update section
-			%gb=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,"Update trigger",5,20,Horizontal,1)
-			$$->%check=$NGLfserv::corefunctions::addWidget(button,%gb,"Update")
+			%gb=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,$tr("Update trigger"),5,20,Horizontal,1)
+			$$->%check=$NGLfserv::corefunctions::addWidget(button,%gb,$tr("Update"))
 			$$->%check->$setImage(ok)
 			%hbox->$setStretchFactor(%gb,20)
 	
 			// Dirview section
 			%hbox=$NGLfserv::corefunctions::addWidget(hbox,%main)
 			%hbox->$setSpacing(2)
-			$$->%gbFiles=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,"Trigger files",5,20,Horizontal,1)
-			$$->%dirview=$NGLfserv::corefunctions::addWidget(NGLfserv::classes::dirview,$$->%gbFiles)
+			$$->%gbFiles=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,$tr("Trigger files"),5,20,Horizontal,1)
+			$$->%dirview=$NGLfserv::corefunctions::addWidget(dirview,$$->%gbFiles)
 	
 			// Output section
 			$$->%info_widget=$NGLfserv::corefunctions::addWidget(multilineedit,$$->%gbFiles)
@@ -57,6 +60,12 @@ alias(NGLfserv::classes::gui::sharedfiles)
 			objects.connect %G_fserverbusyhandler notbusy $$ fservNotBusyEvent
 			
 		}
+		commit()
+		{
+			foreach(%trigger,%Triggers{})
+				%trigger->$commit()
+		}
+				
 		checkitem()
 		{
 			$$->%remove->$setEnabled($false)
@@ -67,12 +76,12 @@ alias(NGLfserv::classes::gui::sharedfiles)
 		}
 		addFolder()
 		{
-			if (!$$->%dirview->%item_clicked) {echo vuoto;$$->%dirview->%item_clicked=$$->%dirview;}
+			if (!$$->%dirview->%item_clicked) $$->%dirview->%item_clicked=$$->%dirview
 			$$->%dirview->$addTo($$->%dirview->%item_clicked)
 		}
 		removeFolder()
 		{
-			if (!$$->%dirview->%item_clicked) NGLfserv::corefunctions::nglwarning "You must choose a file or folder first!"
+			if (!$$->%dirview->%item_clicked) NGLfserv::corefunctions::nglwarning $tr("You must choose a file or folder first!")
 			else{
 				if ($$->%dirview->%item_clicked!=$$->%dirview)
 					$$->%dirview->$remove($$->%dirview->%item_clicked)
@@ -82,14 +91,14 @@ alias(NGLfserv::classes::gui::sharedfiles)
 		{
 			$$->%check->$setEnabled($false)
 			$$->%dirview->$setEnabled($false)
-			$$->%info_widget->$append("Updating shared dirs/files...")
+			$$->%info_widget->$append($tr("Updating shared dirs/files..."))
 			$$->%dirview->%trigger->$update()
 		}
 		newTrigger()
 		{
 			%triggername=$$->%comboboxTriggers->$textAt($0)
 			if (%triggername){
-				$$->%gbFiles->$setTitle(%triggername" files")
+				$$->%gbFiles->$setTitle("%triggername $tr("files")")
 				%trigger=%Triggers{%triggername}
 				$$->%dirview->$createTree(%trigger)
 				objects.connect %trigger updated $$ status
@@ -100,7 +109,7 @@ alias(NGLfserv::classes::gui::sharedfiles)
 		}
 		status()
 		{
-			$$->%info_widget->$append("Updating completed!")
+			$$->%info_widget->$append($tr("Update completed!"))
 			$$->%check->$setEnabled($true)
 			$$->%dirview->$setEnabled($true)
 			//%trigger=%Triggers{%triggername}
@@ -112,13 +121,13 @@ alias(NGLfserv::classes::gui::sharedfiles)
 		{
 			return
 			$$->$setEnabled($false)
-			$$->$parent()->$changeTab($$,"Busy",120)
+			$$->$parent()->$changeTab($$,$tr("Busy"),120)
 			$$->%busy=$true
 		}
 		fservNotBusyEvent()
 		{
 			$$->$setEnabled($true)
-			$$->$parent()->$changeTab($$,&Shared Files,161)
+			$$->$parent()->$changeTab($$,$tr("&Shared Files"),161)
 			$$->%busy=$false
 			if ($$->%dirviewnotshowed  && $$->$isVisible())
 				$$->%dirview->$showTree()

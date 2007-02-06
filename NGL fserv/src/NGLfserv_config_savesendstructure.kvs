@@ -8,7 +8,7 @@ alias(NGLfserv::config::savesendstructure)
 		->%triggerName
 		->%serverName
 	*/
-
+	
 	%c=$0
 	%send=$1
 	

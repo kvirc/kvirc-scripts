@@ -1,0 +1,42 @@
+alias(NGLfserv::classes::customwidgets::combobox)
+{
+	class(NGLfserv::classes::customwidgets::combobox,hbox)
+	{
+		constructor(text,items list)
+		{
+			%label=$new(label,$$)
+			%label->$setText($0)
+			$$->%combobox=$new(combobox,$$)
+			$$->%combobox->$setMinimumWidth(80)
+			$$->$setStretchFactor(%label,1)
+			//$$->%combobox->$setMaximumWidth(80)
+			foreach(%item,$1) $$->%combobox->$insertItem(%item)
+			if ($str.left($2,1)!="%"){
+				if ($2) $$->%combobox->$setCurrentItem($2);
+			}
+			else {
+				%tmp=\%idx\=$2
+				eval %tmp
+				$$->%combobox->$setCurrentItem(%idx)
+				$$->%combobox->%pointer=$2
+				privateimpl($$->%combobox,activatedEvent){
+					eval $$->%pointer\=$0
+				}
+			}
+		}
+		commit()
+		{
+			if ($$->%combobox->%pointer) eval $$->%combobox->%pointer\=$$->%combobox->$currentItem()
+		}
+		setCurrentItem()
+		{
+			$$->%combobox->$setCurrentItem($0)
+		}
+		current()
+		{
+			return $$->%combobox->$current()
+		}
+			
+	}
+}
+

@@ -3,11 +3,15 @@ alias(NGLfserv::classes::register)
 	%classes[]=$array(\
 			NGLfserv::classes::NGLfserver,\
 			NGLfserv::classes::gui::gui,\
-			NGLfserv::classes::customwidgets::box,\
 			NGLfserv::classes::customwidgets::checkbox,\
+			NGLfserv::classes::customwidgets::spinbox,\
 			NGLfserv::classes::customwidgets::button,\
 			NGLfserv::classes::customwidgets::groupbox,\
 			NGLfserv::classes::customwidgets::label,\
+			NGLfserv::classes::customwidgets::combobox,\
+			NGLfserv::classes::customwidgets::lineedit,\
+			NGLfserv::classes::customwidgets::sendsAndQueueView,\
+			NGLfserv::classes::customwidgets::dirview,\
 			NGLfserv::classes::gui::triggers,\
 			NGLfserv::classes::gui::sharedfiles,\
 			NGLfserv::classes::gui::channels,\
@@ -15,10 +19,9 @@ alias(NGLfserv::classes::register)
 			NGLfserv::classes::gui::shell,\
 			NGLfserv::classes::gui::monitor,\
 			NGLfserv::classes::gui::wiz,\
+			NGLfserv::classes::gui::animhandler,\
 			NGLfserv::classes::chanGeneralProperties,\
 			NGLfserv::classes::chanTriggerProperties,\
-			NGLfserv::classes::sendsAndQueueView,\
-			NGLfserv::classes::dirview,\
 			NGLfserv::classes::find,\
 			NGLfserv::classes::cache,\
 			NGLfserv::classes::icon,\

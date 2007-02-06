@@ -1,52 +1,32 @@
 alias(NGLfserv::classes::gui::shell)
 {
-	class(NGLfserv::classes::gui::shell,widget)
+	class(NGLfserv::classes::gui::shell,hbox)
 	{
 		constructor()
 		{
-			%main_layout=$new(layout,$this)
-			%main_layout->$setSpacing(2)
-			%main_layout->$setColStretch(1,1)
-			%main=$new(NGLfserv::classes::customwidgets::box,$$,box,vertical)
-	
 			// Box shell properties
-			%gb=$new(NGLfserv::classes::customwidgets::groupbox,$$,gb,"Shell properties",5,20)
-			%gb->$setColumnLayout(1,Vertical)
-			%box_send_labels=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
-			%box_send_labels->$setSpacing(1)
-			%box_send_labels->$addGroup("label",$array("Max sessions:","Max shell life:","Max user idle:"))
-			%box_send_params=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
-			%box_send_params->$setSpacing(1)
-			%maxSessions = %box_send_params->$addWidget(spinbox,"\%MaxSessions",60,100)
-				
-			$$->%spinBoxMaxShellLife=%box_send_params->$addWidget(spinbox,$(%MaxShellLife/1000),60,600)
-						
-			$$->%spinBoxMaxShellLife->$setSuffix("s");
-			$$->%spinBoxMaxUserIdle=%box_send_params->$addWidget(spinbox,$(%MaxUserIdle/1000),60,600)
-			$$->%spinBoxMaxUserIdle->$setSuffix("s");
-			%main_layout->$addWidget(%gb,0,0)
+			%gb=$$->$addWidget(groupbox,$$,$tr("Shell properties"),5,20,Horizontal,1)
+			$$->$setStretchfactor(%gb,30)
+			%maxSessions = $$->$addWidget(spinbox,%gb,$tr("Max sessions"),"\%MaxSessions",100,"s")	
+			$$->%spinBoxMaxShellLife=$$->$addWidget(spinbox,%gb,$tr("Max shell life"),$(%MaxShellLife/1000),600,"s")
+			$$->%spinBoxMaxUserIdle=$$->$addWidget(spinbox,%gb,$tr("Max user idle"),$(%MaxUserIdle/1000),600,"s")
 	
 			// Box welcome message
-			%gb=$new(NGLfserv::classes::customwidgets::groupbox,$$,gb,"Welcome message",5,20)
-			%gb->$setColumnLayout(1,Horizontal)
-			%trg=$new(NGLfserv::classes::customwidgets::box,%gb,horizontal)
-			%trg->$addWidget(label,"Trigger: ")
-			$$->%triggerComboBox=%trg->$addWidget(combobox)
+			%gb=$$->$addWidget(groupbox,$$,$tr("Welcome message"),5,20,Horizontal,1)
+			$$->$setStretchFactor(%gb,70)
+			$$->%triggerComboBox=$$->$addWidget(combobox,%gb,$tr("Trigger"),0)
 	
 			// Box message write
-			$$->%gb1=$new(NGLfserv::classes::customwidgets::groupbox,%gb,gb1,"Message",5,20)
-			$$->%gb1->$setColumnLayout(1,Horizontal)
-			$$->%msgText = $new(multilineedit,$$->%gb1)
+			$$->%gb1=$$->$addWidget(groupbox,%gb,$tr("Message"),5,20,Horizontal,1)
+			$$->%msgText = $$->$addWidget(multilineedit,$$->%gb1)
 	
 			// Box welcome file
-			$$->%ckbUseFile = $new(NGLfserv::classes::customwidgets::checkbox,%gb,cb,"Use external file")
+			$$->%ckbUseFile = $$->$addWidget(checkbox,%gb,$tr("Use external file"))
 	
-			$$->%gb2=$new(NGLfserv::classes::customwidgets::groupbox,%gb,gb2,"External file",5,20)
-			$$->%gb2->$setColumnLayout(1,Vertical)
-			$$->%lineeditFile = $new(lineedit,$$->%gb2)
-			$$->%btUseFile = $new(button,$$->%gb2)
+			$$->%gb2=$$->$addWidget(groupbox,%gb,"External file",5,20,Vertical,1)
+			$$->%lineeditFile = $$->$addWidget(lineedit,$$->%gb2)
+			$$->%btUseFile = $$->$addWidget(button,$$->%gb2,$tr("Browse"))
 			$$->%btUseFile->$setText("Browse")
-			%main_layout->$addWidget(%gb,0,1)
 	
 			%maxSessions->$setTooltip($tr("Maximum number of contemporary opened navigation shells"))
 			$$->%spinBoxMaxShellLife->$setTooltip($tr("Maximum time of navigation before auto-closing"))
@@ -77,7 +57,18 @@ alias(NGLfserv::classes::gui::shell)
 				$$->$parent()->$parent()->$parent()->$save()
 			}
 		}
-	
+		addWidget()
+		{
+			%widget=$NGLfserv::corefunctions::addWidget($0,$1,$2,$3,$4,$5,$6)
+			if ($0!="label")	$$->%interfaces_list[]<+%widget
+			return %widget
+		}
+		commit()
+		{
+			foreach (%interface,$$->%interfaces_lists[]) %interface->$commit()
+			%MaxShellLife=$($int($$->%spinBoxMaxShellLife->$value())*1000)
+			%MaxUserIdle=$($int($$->%spinBoxMmaxUserIdle->$value())*1000)
+		}
 		hideEvent()
 		{
 			$$->$save()
@@ -146,7 +137,7 @@ alias(NGLfserv::classes::gui::shell)
 		useFile()
 		{
 			%triggerName=$$->%triggerComboBox->$current()
-			dialog.file --modal (open,"Choose a text file",,"*.txt",$$->%lineeditFile,%Triggers{%triggerName},$$->%msgText)
+			dialog.file --modal ($tr("open"),$tr("Choose a text file"),,"*.txt",$$->%lineeditFile,%Triggers{%triggerName},$$->%msgText)
 			{
 				if($0) {
 					$1->$setText($0)
@@ -166,7 +157,7 @@ alias(NGLfserv::classes::gui::shell)
 				}
 			}
 			else {
-				NGLfserv::corefunctions::nglwarning "Invalid path. Please insert a correct file path"
+				NGLfserv::corefunctions::nglwarning $tr("Invalid path. Please insert a correct file path")
 				$$->%lineeditFile->$setText($str.rightfromfirst(%Triggers{%triggerName}->%welcomeMessage,"F"))
 			}
 		}

@@ -13,7 +13,11 @@ alias(NGLfserv::classes::NGLfserver)
 	
 			%G_icons=$new(NGLfserv::classes::icon,$$)
 			
-			%G_fserverbusyhandler=$new(NGlfserv::classes::globalbusyeventfilter,$$)
+			
+			%G_fserverbusyhandler=$new(NGlfserv::classes::globalbusyeventfilter)
+			%G_animlogo=$new(NGLfserv::classes::gui::animhandler,$$)
+			
+		
 			
 		}
 		destructor()

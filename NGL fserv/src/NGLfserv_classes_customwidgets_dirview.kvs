@@ -1,6 +1,6 @@
-alias(NGLfserv::classes::dirview)
+alias(NGLfserv::classes::customwidgets::dirview)
 {
-	class(NGLfserv::classes::dirview,listview)
+	class(NGLfserv::classes::customwidgets::dirview,listview)
 	{
 		function constructor()
 		{
@@ -20,8 +20,8 @@ alias(NGLfserv::classes::dirview)
 			$$->%pix_video_file->$load(%G_icons->$getIcon(video))
 			$$->%pix_default_file=$new(pixmap)
 			$$->%pix_default_file->$load(%G_icons->$getIcon(default))
-			$$->$addColumn(Shared,-1)
-			$$->$addColumn(Size or Dir,-1)
+			$$->$addColumn($tr("Shared"),-1)
+			$$->$addColumn($tr("Size or Dir"),-1)
 			$$->$setRootIsDecorated(1)
 			$$->$setSelectionMode("Single")
 			$$->$setSorting(-1,$false)
@@ -29,11 +29,11 @@ alias(NGLfserv::classes::dirview)
 		
 		function createTree()
 		{
-			if ($$->%trigger) $$->$deleteNode($$)
-			$$->%trigger=$0
-			$$->%virtual_node=$$->%trigger->$firstNode()
-			objects.connect $$->%trigger updated $$ refreshView
-			if ($$->%trigger->%noNode) {
+			if ($$->%rootnode) $$->$deleteNode($$)
+			$$->%rootnode=$0
+			$$->%virtual_node=$$->%rootnode->$firstNode()
+			objects.connect $$->%rootnode updated $$ refreshView
+			if ($$->%rootnode->%noNode) {
 				NGLfserv::corefunctions::ngldebug empty TREE 
 				$$->%nodata=$true
 				return $true
@@ -69,20 +69,21 @@ alias(NGLfserv::classes::dirview)
 		}
 		function showNode()
 		{
+			if (!$objects.exists($0->%virtual_node)) return
 			%folder[]=$0->%virtual_node->$children()
 			%virtual_node=$0->%virtual_node
-			$$->%trigger->$setNode(%virtual_node)
+			$$->%rootnode->$setNode(%virtual_node)
 			%listviewitem_node=$0
 			 // show sub-dir
 			%length_folder=$length(%folder[])
 			for (%i=0;%i!=%length_folder;%i++){
 				%item=$new(listviewitem,%listviewitem_node)
 				%item->$setCheckable($true)
-				if (%folder[%i]->%dirNotShared || !$$->$check(%listviewitem_node) || %folder[%i]->$parent()->%dirNotShared) %item->$setChecked($false)
+				if ($$->%rootnode->$isDirNotChecked(%folder[%i]) || !$$->$check(%listviewitem_node) || $$->%rootnode->$isDirNotChecked(%folder[%i]->$parent())) %item->$setChecked($false)
 				else %item->$setChecked($true)
-				%item->$setText(0,$$->%trigger->$text(%folder[%i]))				
+				%item->$setText(0,$$->%rootnode->$text(%folder[%i]))				
 				%item->$setText(1,"Dir")
-				if (%folder[%i]->%extraDirPath)
+				if ($$->%rootnode->$isItemHighlighted(%folder[%i]))
 					%item->$setPixmap(0,$$->%pix_redfolder)
 				else
 					%item->$setPixmap(0,$$->%pix_folder)
@@ -93,17 +94,17 @@ alias(NGLfserv::classes::dirview)
 			// show files
 			%i=0
 				
-			%len=$$->%trigger->$filesCount(%virtual_node)
+			%len=$$->%rootnode->$filesCount(%virtual_node)
 			for (%i=0;%i<%len;%i++){
 				%item_file=$new(listviewitem,%listviewitem_node)
 				%item_file->$setCheckable($true)
-				if ($$->%trigger->$isFileNotShared(%virtual_node,%i) || !$$->$check(%listviewitem_node)) %item_file->$setChecked($false)
+				if ($$->%rootnode->$isFileNotChecked(%virtual_node,%i) || !$$->$check(%listviewitem_node)) %item_file->$setChecked($false)
 				else %item_file->$setChecked($true);
 			
-				%item_file->$setText(0,$$->%trigger->$fileAt(%virtual_node,%i))
-				%item_file->$setText(1,$NGLfserv::corefunctions::calc($$->%trigger->$fileSizeAt(%virtual_node,%i)))
+				%item_file->$setText(0,$$->%rootnode->$fileAt(%virtual_node,%i))
+				%item_file->$setText(1,$NGLfserv::corefunctions::calc($$->%rootnode->$fileSizeAt(%virtual_node,%i)))
 							
-				switch($str.right($$->%trigger->$fileAt(%virtual_node,%i),3))
+				switch($str.right($$->%rootnode->$fileAt(%virtual_node,%i),3))
 				{
 					case (jpg)
 					{
@@ -229,28 +230,30 @@ alias(NGLfserv::classes::dirview)
 			%parent=$$->$getParentNode()
 			$$->$showNode(%parent)
 		}
+		
 		function remove()
 		{
 			if ($$->%item_clicked->%virtual_node){
-				if($dialog.yesno("NGL File Server",$tr("Do you want to remove $$->%item_clicked->$text(0)<br> with all its subfolders?"))){
-			 		$$->%trigger->$removeNode($$->%item_clicked->%virtual_node)
-			 		$$->%trigger->$setChanged($true)
+				if($dialog.yesno("NGL File Server",$tr("Do you want to remove") $$->%item_clicked->$text(0)<br> $tr("with all its subfolders?"))){
+			 		$$->%rootnode->$removeNode($$->%item_clicked->%virtual_node)
+			 		$$->%rootnode->$setChanged($true)
 					delete $$->%item_clicked
 				}
 			}
 			else{
-				if($dialog.yesno("NGL File Server",$tr("Do you want to remove $$->%item_clicked->$text(0)?"))){
+				if($dialog.yesno("NGL File Server",$tr("Do you want to remove") $$->%item_clicked->$text(0)?)){
 					$$->%item_clicked->$parent()->%virtual_node->$removeFile($$->%item_clicked->$text(0))
-					$$->%trigger->$setChanged($true)
+					$$->%rootnode->$setChanged($true)
 					delete $$->%item_clicked
 				}
 			}
 		 }
+		 
 		internal function itemCollapsedEvent()
 		{
 			$$->$deleteNode($0)
 			$new(listviewitem,$0)
-			if ($0->%virtual_node->%extraDirPath)
+			if ($$->%rootnode->$isItemHighlighted($0->%virtual_node))
 				$0->$setPixmap(0,$$->%pix_redfolder)
 			else
 				$0->$setPixmap(0,$$->%pix_folder)
@@ -261,7 +264,7 @@ alias(NGLfserv::classes::dirview)
 			
 			delete $0->$firstChild()
 			if (!$objects.exists($0->%virtual_node)) return
-			if ($0->%virtual_node->%extraDirPath)
+			if ($$->%rootnode->$isItemHighlighted($0->%virtual_node))
 				$0->$setPixmap(0,$$->%pix_redfolder_open)
 			else
 				$0->$setPixmap(0,$$->%pix_folder_open)
@@ -277,14 +280,16 @@ alias(NGLfserv::classes::dirview)
 			else %parent=%node->$parent()
 			if ($file.type($1)!="d") NGLfserv::corefunctions::nglwarning "You can add only folders!"
 			else{
-				%check=$$->%trigger->$addFolder(%path,%parent->%virtual_node)
+				if (!%parent->%virtual_node) %node=$$->%rootnode->$firstNode()
+				else %node=%parent->%virtual_node
+				%check=$$->%rootnode->$addFolder(%path,%node)
 				NGLfserv::corefunctions::ngldebug check %check
 				 if ($typeof(%check)=="hobject"){
-					$$->%trigger->$setChanged($true)
+					$$->%rootnode->$setChanged($true)
 					%rootpath = $str.replace(%path,"/","\\")
 					// fixato con la / 
 					if($str.right(%rootpath, 1) != "/") %roothpath .= "/"
-					$$->%trigger->$appendExtradir(%rootpath,$$->%trigger->$getLocalTriggerPath(%parent->%virtual_node),%check)
+					$$->%rootnode->$appendNotYetAcceptedExtradir(%rootpath,$$->%rootnode->$getLocalTriggerPath(%parent->%virtual_node),%check)
 				}
 				else
 					if (!%check)  NGLfserv::corefunctions::nglwarning "Folder already present!"				
@@ -293,13 +298,13 @@ alias(NGLfserv::classes::dirview)
 		 function deleteChildren()
 		 {
 		 	%children[]=$0->$children()
-			for (%i=0;%i<$length(%children[]);%i++) {delete %children[%i];}		
+			for (%i=0;%i<$length(%children[]);%i++) delete %children[%i]	
 		}
 		function refreshView()
 		{
-			if ($0==$$->%trigger->$firstNode() || $0==$$->%trigger){
+			if ($0==$$->%rootnode->$firstNode() || $0==$$->%rootnode){
 				$$->$deleteChildren($$)
-				$$->%virtual_node=$$->%trigger->$firstNode()
+				$$->%virtual_node=$$->%rootnode->$firstNode()
 				$$->$showNode($$)
 			}	 		
 		 	else{
@@ -309,18 +314,19 @@ alias(NGLfserv::classes::dirview)
 		 		$$->$itemExpandedEvent(%listviewnode)
 		 	}	
 		 }
+		 
 		 function itemClickedEvent()
 		 {
 		 	if ($objects.exists($0)){
 		 		if ($0->%virtual_node){
-		 		  	$$->$setChildrenShared($0,$0->$isChecked)
+		 		  	$$->$setChildrenChecked($0,$0->$isChecked)
 		 		  	if (!$0->$isChecked){ 
 		 		  		%i=$0
 		 		  		while(%i!=$$){ 
 		 		  			%i->$setChecked($false)
-		 		  			%i->%virtual_node->%dirNotShared=$true
-		 		  		 	if (!$$->%trigger->$checkChildrenNotShared(%i->%virtual_node->$parent())){
-		 		  		 		$$->%trigger->$setFoldersNotShared(%i->%virtual_node)
+		 		  			$$->%rootnode->$setDirNotChecked(%i->%virtual_node)
+		 		  		 	if (!$$->%rootnode->$checkChildrenNotChecked(%i->%virtual_node->$parent())){
+		 		  		 		$$->%rootnode->$setFoldersNotChecked(%i->%virtual_node)
 		 		  		 	 	break
 		 		  			}
 		 		  			else{
@@ -329,20 +335,20 @@ alias(NGLfserv::classes::dirview)
 		 		  		 }
 		 		  	}
 		 		  	else { 
-		 		  		$0->%virtual_node->%dirNotShared=
-		 		  		$$->%trigger->$setFoldersShared($0->%virtual_node)
+		 		  		$$->%rootnode->$setDirChecked($0->%virtual_node)
+		 		  		$$->%rootnode->$setFoldersChecked($0->%virtual_node)
 						$$->$setParentChecked($0)
 					}
 		 		  }
 		 		else{
 		 			%node=$0->$parent()->%virtual_node
 		 			if (!$0->$isChecked){ 
-		 				$$->%trigger->$setFileNotShared(%node,$0->$text(0))
+		 				$$->%rootnode->$setFileNotChecked(%node,$0->$text(0))
 		 				%i=$0->$parent()
 		 				while (%i !=$$){
-		 					 if ($$->%trigger->$checkChildrenNotShared(%i->%virtual_node)){
+		 					 if ($$->%rootnode->$checkChildrenNotChecked(%i->%virtual_node)){
 		 					 	%i->$setChecked($false)
-		 					 	%i->%virtual_node->%dirNotShared=$true
+		 					 	$$->%rootnode->$setDirChecked(%i->%virtual_node)
 		 		  			 	%i=%i->$parent()
 		 		  			 }
 		 		  		 	else {
@@ -351,24 +357,25 @@ alias(NGLfserv::classes::dirview)
 		 		  		 }
 		 		  	}
 		 		  	else { 
-		 		  		$$->%trigger->$setFileShared(%node,$0->$text(0))
+		 		  		$$->%rootnode->$setFileChecked(%node,$0->$text(0))
 		 		  		if ($0->$parent()!=$$){
 		 		  			%i=$0->$parent()
 		 		  			%i->$setChecked($true)
-		 		  			%i->%virtual_node->%dirNotShared=
+		 		  			$$->%rootnode->$setDirNotChecked(%i->%virtual_node)
 		 		  			$$->$setParentChecked(%i)
 		 		  		}		  		 
 		 		  	}
 		 		  }
 		 	}			
 		 }
+		 
 		 function setParentChecked
 		 {
 		 	%i=$0->$parent
 		 	%this=$0
 		 	while(%i!=$$){
-		 		if (%i->%virtual_node->%dirNotShared){
-		 			%i->%virtual_node->%dirNotShared=
+		 		if (%i->%virtual_node->$isDirNotChecked()){
+		 			%i->%virtual_node->$setDirNotChecked()
 		 			%i->$setChecked($true)
 		 			$$->$setChildrenNotShared(%i->%virtual_node,%this->%virtual_node)
 		 			%this=%i
@@ -377,7 +384,7 @@ alias(NGLfserv::classes::dirview)
 		 		else break
 		 	}		
 		 }
-		 function setChildrenNotShared()
+		 function setChildrenNotChecked()
 		 {
 		 	NGLfserv::corefunctions::ngldebug setting true
 		 	%exception=$1
@@ -388,12 +395,12 @@ alias(NGLfserv::classes::dirview)
 		 		if (%children[%i]!=%exception) {NGLfserv::corefunctions::ngldebug child %children[%i]->%text non sharato;%children[%i]->%dirNotShared=$true;}
 		 	}
 		 }
-		 function setChildrenShared()
+		 function setChildrenChildren()
 		 {
 		 	$0->$setChecked($1)
 			%folders[]=$0->$children()
 			%len=%folders[]#
-			for(%i=0;%i<%len;%i++) $$->$setChildrenShared(%folders[%i],$1)
+			for(%i=0;%i<%len;%i++) $$->$setChildrenChecked(%folders[%i],$1)
 		}
 		function getNode()
 		{

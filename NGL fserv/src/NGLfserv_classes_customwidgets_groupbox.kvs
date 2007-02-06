@@ -4,7 +4,7 @@ alias(NGLfserv::classes::customwidgets::groupbox)
 	{
 		constructor(title,inside spacing,inside margin, column layout, strip)
 		{
-			$$->$setTitle($tr($0))
+			$$->$setTitle($0)
 			if ($1) $$->$setInsideSpacing($1)
 			if ($2) $$->$setInsideMargin($2)
 			if ($3){

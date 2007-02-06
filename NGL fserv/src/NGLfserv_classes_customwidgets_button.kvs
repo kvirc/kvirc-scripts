@@ -4,7 +4,7 @@ alias(NGLfserv::classes::customwidgets::button)
 	{
 		constructor(text)
 		{
-			$$->$setText($tr($0))
+			$$->$setText($0)
 		}
 		setImage(icon)
 		{

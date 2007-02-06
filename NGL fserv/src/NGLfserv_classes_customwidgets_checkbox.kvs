@@ -6,9 +6,11 @@ alias(NGLfserv::classes::customwidgets::checkbox)
 		{
 			$$->%ckbox=$new(checkbox,$$)
 			%label=$new(label,$$)
-			%label->$setText($tr($0))
-			$$->$setStretchFactor($$->%ckbox,10)
-			$$->$setStretchFactor(%label,90)
+			%label->$setAlignment("Left")
+			%label->$setText($0)
+			//$$->$setStretchFactor($$->%ckbox,15)
+			$$->$setStretchFactor(%label,1)
+			$$->$setSpacing(2)
 			if ($str.left($1,1)!="%") {
 				$$->%ckbox->$setChecked($1);
 			}
@@ -21,9 +23,10 @@ alias(NGLfserv::classes::customwidgets::checkbox)
 			if ($version(s)>20070122){
 				privateimpl($$->%ckbox,clickEvent)
 				{
-					if ($$->%pointer==1 || !$$->%pointer) {$$->$parent->$emit(clicked,$0);return;}
+					%check=$$->$isChecked()
+					if ($$->%pointer==1 || !$$->%pointer) {$$->$parent->$emit(clicked,%check);return;}
 					eval $$->%pointer\=$0
-					$$->$parent->$emit(clicked,$0)
+					$$->$parent->$emit(clicked,%check)
 				}
 			}
 			else{
@@ -34,7 +37,15 @@ alias(NGLfserv::classes::customwidgets::checkbox)
 					$$->$parent->$emit(clicked,$0)
 				}
 			}
+			privateimpl($$->%ckbox,commit)
+			{
+				eval $$->%pointer\=$0
+			}
 		}
+		commit()
+		{
+			if ($$->%ckbox->%pointer) eval $$->%ckbox->%pointer\=$$->%ckbox->$isChecked()
+		} 
 		setChecked()
 		{
 			$$->%ckbox->$setChecked($0)

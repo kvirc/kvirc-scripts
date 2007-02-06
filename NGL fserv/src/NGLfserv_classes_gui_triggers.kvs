@@ -1,72 +1,55 @@
 alias(NGLfserv::classes::gui::triggers)
 {
-	class(NGLfserv::classes::gui::triggers,widget)
+	class(NGLfserv::classes::gui::triggers,vbox)
 	{
 		function constructor()
 		{
-			// Main layout
-			%main_layout=$new(layout,$this)
-			%main=$new(NGLfserv::classes::customwidgets::box,$$,box,vertical)
-			%hbox=%main->$addWidget(hbox)
+			%hbox=$NGLfserv::corefunctions::addWidget(hbox,$$)
 			%hbox->$setSpacing(2)
-			%gb=$new(NGLfserv::classes::customwidgets::groupbox,%hbox,gb,"Triggers",5,20)
-			%gb->$setColumnLayout(1,Horizontal)
+			%gb=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,$tr("Triggers"),5,20,Horizontal,1)
 	
 			// Triggers
-			$$->%listboxTriggers=$new(listbox,%gb)
-			$$->%lineEditTrigger=$new(lineedit,%gb)
-			%box_btn=$new(NGLfserv::classes::customwidgets::box,%gb,box,horizontal)
+			$$->%listboxTriggers=$NGLfserv::corefunctions::addWidget(listbox,%gb)
+			$$->%lineEditTrigger=$NGLfserv::corefunctions::addWidget(lineedit,%gb)
+			%box_btn=$NGLfserv::corefunctions::addWidget(hbox,%gb)
 			%box_btn->$setSpacing(1)
-			$$->%btAddTrigger=%box_btn->$addWidget("button","Add",)
+			$$->%btAddTrigger=$NGLfserv::corefunctions::addWidget(button,%box_btn,$tr("Add"))
 			$$->%btAddTrigger->$setENabled($false)
-			$$->%btRemTrigger=%box_btn->$addWidget("button","Remove")
+			$$->%btRemTrigger=$NGLfserv::corefunctions::addWidget(button,%box_btn,$tr("Remove"))
 			$$->%btRemTrigger->$setENabled($false)
 	
 			// Channels section
-			%gb=$new(NGLfserv::classes::customwidgets::groupbox,%hbox,gb,"Channels",5,20)
-			%gb->$setColumnLayout(1,Horizontal)
+			%gb=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,$tr("Channels"),5,20,Horizontal,1)
 			$$->%box_channels=%gb
-			$$->%listboxChannels=$new(listbox,%gb)
-			$$->%lineEditChannel=$new(lineedit,%gb)
-			%box_btn=$new(NGLfserv::classes::customwidgets::box,%gb,box,horizontal)
+			$$->%listboxChannels=$NGLfserv::corefunctions::addWidget(listbox,%gb)
+			$$->%lineEditChannel=$NGLfserv::corefunctions::addWidget(lineedit,%gb)
+			%box_btn=$NGLfserv::corefunctions::addWidget(hbox,%gb)
 			%box_btn->$setSpacing(1)
-			$$->%btAddChannel=%box_btn->$addWidget("button","Add",)
+			$$->%btAddChannel=$NGLfserv::corefunctions::addWidget(button,%box_btn,$tr("Add"))
 			$$->%btAddChannel->$setEnabled($false)
-			$$->%btRemChannel=%box_btn->$addWidget("button","Remove",)
+			$$->%btRemChannel=$NGLfserv::corefunctions::addWidget(button,%box_btn,$tr("Remove"))
 			$$->%btRemChannel->$setEnabled($false)
 	
 			// Root path
-			$$->%box_root=%main->$addWidget(hbox)
-			$$->%box_root->$setSpacing(1)
-			%gb=$new(NGLfserv::classes::customwidgets::groupbox,$$->%box_root,gb,"Trigger's root path",5,20)
-			%gb->$setColumnLayout(1,Vertical)
-			$$->%root_dir=$new(lineedit,%gb)
-			$$->%btChageRoot=$new(button,%gb)
-			$$->%btChageRoot->$setText("Change")
+			$$->%box_root=$NGLfserv::corefunctions::addWidget(groupbox,$$,$tr("Trigger's root path"),5,20,Horizontal,2)
+			$$->%root_dir=$NGLfserv::corefunctions::addWidget(lineedit,$$->%box_root)
+			$$->%btChageRoot=$NGLfserv::corefunctions::addWidget(button,$$->%box_root,$tr("Change"))
 	
 			// Trigger type section
-			%vbox=$new(vbox,%hbox)
-			%gb=$new(NGLfserv::classes::customwidgets::groupbox,%vbox,gb,"Trigger properties on channel",5,20)
-			%gb->$setColumnLayout(1,Vertical)
+			%vbox=$NGLfserv::corefunctions::addWidget(vbox,%hbox)
+			%gb=$NGLfserv::corefunctions::addWidget(groupbox,%vbox,$tr("Trigger properties on channel"),5,20,Horizontal,1)
 			%gb->$setEnabled($false)
 			$$->%box_triggertype=%gb
-			%box_trig_type=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
-			%box_trig_type->$setSpacing(1)
-			%box_trig_type->$addGroup(label,$array("Trigger type:",,"Access restricted to:"))
-			%box_trig_params=$new(NGLfserv::classes::customwidgets::box,%gb,box,vertical)
-	
-			$$->%ComboBoxTriggerType=%box_trig_params->$addWidget(combobox,$array(Ctcp,Remote,Both))
-			$$->%ComboBoxAccessType=%box_trig_params->$addWidget(combobox,$array(--------,Op & Voice,Op))
+			$$->%ComboBoxTriggerType=$NGLfserv::corefunctions::addWidget(combobox,%gb,$tr("Trigger type:"),$array($tr("Ctcp"),$tr("Remote"),$tr("Both")),0)
+			$$->%ComboBoxAccessType=$NGLfserv::corefunctions::addWidget(combobox,%gb,$tr("Access restricted to:"),$array(--------,$tr("Op & Voice"),$tr("Op")),0)
 	
 			// Password
-			$$->%gbPassword=$new(NGLfserv::classes::customwidgets::groupbox,%vbox,gb2,"Password",5,20)
-			$$->%gbPassword->$setColumnLayout(1,Horizontal)
+			$$->%gbPassword=$NGLfserv::corefunctions::addWidget(groupbox,%vbox,$tr("Password"),5,20,Horizontal,1)
 			$$->%gbPassword->$setEnabled($false)
-			$$->%ckbUsePswd = $new(NGLfserv::classes::customwidgets::checkbox,$$->%gbPassword,cb,"...use password access")
-			$$->%lineeditPswd = $new(lineedit,$$->%gbPassword)
+			$$->%ckbUsePswd = $NGLfserv::corefunctions::addWidget(checkbox,$$->%gbPassword,$tr("...use password access"))
+			$$->%lineeditPswd = $NGLfserv::corefunctions::addWidget(lineedit,$$->%gbPassword)
 			$$->%lineeditPswd->$setEchoMode(password)
 	
-			%main_layout->$addWidget(%main->$widget(),0,0)
 	
 			if($length(%Triggers{})) {
 				foreach(%tr,%Triggers{}) {
@@ -149,10 +132,10 @@ alias(NGLfserv::classes::gui::triggers)
 			if(%triggerName) {
 				$$->%box_root->$setEnabled($true)
 				$$->%box_triggertype->$setEnabled($false)
-				$$->%box_triggertype->$setTitle(%triggerName" properties on channel")
+				$$->%box_triggertype->$setTitle(%triggerName $tr("properties on channel"))
 				$$->%listboxChannels->$clear()
-				$$->%listboxChannels->$parent()->$setTitle(%triggerName" active channels")
-				$$->%gbPassword->$setTitle(%triggerName" password")
+				$$->%listboxChannels->$parent()->$setTitle(%triggerName $tr("active channels"))
+				$$->%gbPassword->$setTitle(%triggerName $tr("password"))
 				$$->$lineEditChanTextChanged($$->%lineEditChannel->$text())
 				if (%Triggers{%triggerName}->%password){
 					$$->%ckbUsePswd->$setChecked($true)
@@ -165,7 +148,7 @@ alias(NGLfserv::classes::gui::triggers)
 				}
 				//%Triggers{%triggerName}->$setName(%Triggers{%triggerName}->$firstNode())
 				$$->%root_dir->$setText(%Triggers{%triggerName}->$getRealTriggerPath())
-				$$->%root_dir->$parent()->$setTitle(%triggerName" root path")
+				$$->%root_dir->$parent()->$setTitle(%triggerName $tr("root path"))
 				if(!%Triggers{%triggerName}->$channels()) return
 				foreach(%ch,%Triggers{%triggerName}->$activeChannels()){
 					$$->%listboxChannels->$insertItem(%ch->$getChannelName())
@@ -177,11 +160,11 @@ alias(NGLfserv::classes::gui::triggers)
 		{
 			%triggerName=$$->%lineEditTrigger->$text()
 			if($str.contains(%triggerName,"[") || $str.contains(%triggerName,"]") || $str.contains(%triggerName," ")) {
-				NGLfserv::corefunctions::nglwarning "Trigger cannot contain [ ] or blank characters"
+				NGLfserv::corefunctions::nglwarning $tr("Trigger cannot contain [ ] or blank characters")
 				return
 			}
 			if(%Triggers{%triggerName})	{
-				NGLfserv::corefunctions::nglwarning "Trigger already present"
+				NGLfserv::corefunctions::nglwarning $tr("Trigger already present")
 				return
 			}
 			dialog.file --modal (dir,%NGLlogo,,,$$,%triggerName)
@@ -210,8 +193,8 @@ alias(NGLfserv::classes::gui::triggers)
 				%tt=%ta->$firstNode()
 				$$->%root_dir->$setText($0->$getRealTriggerPath())
 				$$->%lineEditTrigger->$clear()
-				if(!$1)	NGLfserv::corefunctions::nglok "Trigger has been successfully added"
-				else NGLfserv::corefunctions::nglok "Trigger root path has been successfully changed"
+				if(!$1)	NGLfserv::corefunctions::nglok $tr("Trigger has been successfully added")
+				else NGLfserv::corefunctions::nglok $tr("Trigger root path has been successfully changed")
 			}
 		}
 	
@@ -254,7 +237,7 @@ alias(NGLfserv::classes::gui::triggers)
 				}
 			}
 			else {
-				NGLfserv::corefunctions::nglwarning "Invalid path. Please insert a correct folder path"
+				NGLfserv::corefunctions::nglwarning $tr("Invalid path. Please insert a correct folder path")
 				$$->%root_dir->$setText(%Triggers{%triggerName}->$getRealTriggerPath())
 			}
 		}
@@ -296,11 +279,11 @@ alias(NGLfserv::classes::gui::triggers)
 						}
 						%i++
 					}
-
+	
 					file.remove $file.localdir("config/scripts/")"/NGLfservtriggertree"%triggerName".kvc"
 	
 					$$->%listboxChannels->$clear()
-					$$->%box_channels->$setTitle("Channels trigger:")
+					$$->%box_channels->$setTitle($tr("Channels trigger:"))
 					$$->%listboxTriggers->$removeItem($$->%listboxTriggers->$currentItem())
 					$$->%root_dir->$setText("")
 				}
@@ -313,12 +296,12 @@ alias(NGLfserv::classes::gui::triggers)
 				}
 			if(!%Triggers{}#) {
 				$$->%box_triggertype->$setEnabled($false)
-				$$->%box_triggertype->$setTitle("Trigger properties on channel")
+				$$->%box_triggertype->$setTitle($tr("Trigger properties on channel"))
 				$$->%gbPassword->$setEnabled($false)
-				$$->%gbPassword->$setTitle("Password")
+				$$->%gbPassword->$setTitle($tr("Password"))
 				$$->%root_dir->$parent()->$setEnabled($false)
-				$$->%root_dir->$parent()->$setTitle("Trigger's root path")
-				$$->%box_channels->$setTitle("Channels")
+				$$->%root_dir->$parent()->$setTitle($tr("Trigger's root path"))
+				$$->%box_channels->$setTitle($tr("Channels"))
 				$$->%btRemChannel->$setEnabled($false)
 			}
 		}
@@ -328,15 +311,15 @@ alias(NGLfserv::classes::gui::triggers)
 			%channelName=$$->%lineEditChannel->$text()
 	
 			if(%Triggers{%triggerName}->$channelExists(%channelName)) {
-				NGLfserv::corefunctions::nglwarning "Channel already present"
+				NGLfserv::corefunctions::nglwarning $tr("Channel already present")
 				return
 			}
 			if($str.contains(%triggerName," ")) {
-				NGLfserv::corefunctions::nglwarning "Channel cannot contain blank characters"
+				NGLfserv::corefunctions::nglwarning $tr("Channel cannot contain blank characters")
 				return
 			}
 			if($str.left(%channelName,1)!="#" && $str.left(%channelName,1)!="&" && $str.left(%channelName,1)!="'"){
-				NGLfserv::corefunctions::nglwarning "Please note that you must type channel's prefix too, if any.\n(#, &, ', or others...)"
+				NGLfserv::corefunctions::nglwarning $tr("Please note that you must type channel's prefix too, if any.\n(#, &, ', or others...)")
 			}
 			NGLfserv::corefunctions::channels a %channelName %triggerName
 			$$->%lineEditChannel->$clear()
@@ -351,7 +334,7 @@ alias(NGLfserv::classes::gui::triggers)
 			$$->%listboxChannels->$removeItem($$->%listboxChannels->$currentItem())
 			if(!%Triggers{%triggerName}->%activeChannels{}#) {
 				$$->%box_triggertype->$setEnabled($false)
-				$$->%box_triggertype->$setTitle("Trigger properties on channel")
+				$$->%box_triggertype->$setTitle($tr("Trigger properties on channel"))
 			}
 		}
 		lineEditTrigTextChanged()
@@ -372,7 +355,7 @@ alias(NGLfserv::classes::gui::triggers)
 			else %bflag=$false
 			$$->%btRemChannel->$setEnabled(%bflag)
 			if(%triggerName && %channelName) {
-				$$->%box_triggertype->$setTitle("%triggerName properties on %channelName")
+				$$->%box_triggertype->$setTitle(%triggerName $tr("properties on") %channelName)
 				$$->%box_triggertype->$setEnabled($true)
 				%type=%Triggers{%triggerName}->$getChannel(%channelName)->$getTriggerType
 				if(%type==10) %type=2
@@ -408,6 +391,9 @@ alias(NGLfserv::classes::gui::triggers)
 					if(%triggerName && %channelName)
 						%Triggers{%triggerName}->$getChannel(%channelName)->$setAccessType($$->%comboBoxAccessType->$currentItem())
 			}
+		}
+		commit()
+		{
 		}
 	}
 }

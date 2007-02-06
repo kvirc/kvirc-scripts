@@ -8,7 +8,8 @@ alias(NGLfserv::corefunctions::channels)
 	%chan=%FservChannels{$1}
 	
 	if($0!="n" && $0!="a" && $0!="s" && $0!="m")
-	if(!%chan) return $false
+		if(!%chan) return $false
+		
 	switch($0) {
 		case("a") {
 		#--------Adds channels & triggers to the Fserv database
@@ -27,7 +28,11 @@ alias(NGLfserv::corefunctions::channels)
 			%i=0
 			%exitCode=0
 			foreach(%ch,%Triggers{$1}->$activeChannels()) {
+				debug canale test %ch->$getChannelName()
 				%id=$channel(%ch->$getChannelName())
+	
+				debug id %id
+				debug check $2
 				if(%id!=0) {
 					if($chan.ison($2,%id)) {
 						%i++
@@ -43,6 +48,7 @@ alias(NGLfserv::corefunctions::channels)
 					break
 				}
 			}
+			debug exit code %exitCode
 			# ExitCodes 0: failed, 1: passed channels, 2: passed channels & triggers
 			return %exitCode
 		}

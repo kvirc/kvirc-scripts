@@ -1,3 +1,20 @@
+[Noldor, 06 February 2007]
+- First step to script localization: there are problems on .mo compilation on win.. Hope we fix it soon ;)... Anyway, now all string support $tr();
+- Working on the "new" gui: applly, cancel and ok button will appear very soon: need to manage some internal tab coding (tab channel and trigger).
+  At moment the gui is "invisible" and the new cool logo too :)
+- Added options to enable removing user from queue when it parts or quit channel.
+- Improved wizard appearence and internal code;
+- Fixed some minor bugs
+Code Changes:
+- New gui coding classes almost completed: now we need 1 line of code to add one control :)
+[Losko]
+- Implemented Load/Save queues/sends (still a little bit incomplete ;) ) 
+
+Known bugs:
+- Errors when fserver does not found a trigger path
+- Errors sometimes when add/remove extra dirs (this part of code is still instable)
+- Bugs in monitor engine
+
 [Noldor, 22 january 2007]
 - fixed checkboxes (from now we must use clicked signal instead of toggle signal)
 - rewritten virtual tree code and fast load/save tree info (need to remove old config files)

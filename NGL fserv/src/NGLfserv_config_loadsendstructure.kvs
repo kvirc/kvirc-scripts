@@ -8,19 +8,19 @@ alias(NGLfserv::config::loadsendstructure)
 		->%triggerName
 		->%serverName
 	*/
-
+	
 	%c=$0
 	%list=$1
-
+	
 	%temp_send = $new(object)
 	%temp_send->%nick = $config.read(%c,nick)
 	%temp_send->%nickStatus = $config.read(%c,nickStatus)
 	%temp_send->%completepath = $config.read(%c,completepath)
 	%temp_send->%triggerName = $config.read(%c,triggername)
 	%temp_send->%serverName = $config.read(%c,servername)
-
+	
 	%temp_send->%size = $file.size(%temp_send->%completepath)
-
+	
 	%list->$append(%temp_send)
 }
 
