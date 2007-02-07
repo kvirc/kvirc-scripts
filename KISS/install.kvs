@@ -7,7 +7,7 @@
 
 # register the script: this must be the first instruction executed
 # since it will abort with an error when a greater version is already installed
-addon.register("kiss","2.0.0","K.I.S.S. - The KVIrc Icons Style Setup",$tr("Allows to change KVIrc icons sets","kiss"),"3.2.6",kiss_32.png)
+addon.register("kiss","2.0.0","K.I.S.S. - The KVIrc Icons Style Setup",$tr("Allows to change KVIrc icons sets","kiss"),"3.2.6.20070124",kiss_32.png)
 {
 	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
 	
