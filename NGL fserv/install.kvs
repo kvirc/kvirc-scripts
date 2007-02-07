@@ -271,27 +271,30 @@ defpopup(NGLfserv_nick)
 
 	item($tr("Enqueue file","NGLfserv"),257) ($(%Send->$count()>0))
 	{
-		dialog.file(open,%NGLlogo,,,$0) {
+		dialog.file(openm,%NGLlogo,%G_dir,,$0) {
 			if ($0) {
-				%fl_send = $new(object)
-				%fl_send->%completepath = $0
-				%fl_send->%size = $file.size(%fl_send->%completepath)
-				%fl_send->%file = $file.extractfilename(%fl_send->%completepath)
-				%fl_send->%retries = 0
-				%fl_send->%nick = $1
-				%fl_send->%initialNick = %fl_send->%nick
-				%fl_send->%nickStatus = "op"
-				%fl_send->%ircContext = $context()
-				%fl_send->%console = $console(%fl_send->%ircContext)
-				%fl_send->%serverName = $server()
-
-				%Queues->$append(%fl_send)
-				if(!%Nick_nr_queues{%fl_send->%nick}) %Nick_nr_queues{%fl_send->%nick}=0
-				%Nick_nr_queues{%fl_send->%nick}++
-				if($objects.exists(%NGLmonitor)) {
-					%NGLmonitor->$showQueues()
+				%G_dir=$file.extractpath($0)
+				%files[]=$0
+				foreach(%file,%files[]){
+					%fl_send = $new(object)
+					%fl_send->%completepath = %file
+					%fl_send->%size = $file.size(%fl_send->%completepath)
+					%fl_send->%file = $file.extractfilename(%fl_send->%completepath)
+					%fl_send->%retries = 0
+					%fl_send->%nick = $1
+					%fl_send->%initialNick = %fl_send->%nick
+					%fl_send->%nickStatus = "op"
+					%fl_send->%ircContext = $context()
+					%fl_send->%console = $console(%fl_send->%ircContext)
+					%fl_send->%serverName = $server()
+					%Queues->$append(%fl_send)
+					if(!%Nick_nr_queues{%fl_send->%nick}) %Nick_nr_queues{%fl_send->%nick}=0
+					%Nick_nr_queues{%fl_send->%nick}++
+					if($objects.exists(%NGLmonitor)) {
+						%NGLmonitor->$showQueues()
+					}
 				}
-				NGLfserv::config::saveSendAndQueues
+					NGLfserv::config::saveSendAndQueues
 			}
 		}
 	}

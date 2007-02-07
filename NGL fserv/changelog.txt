@@ -1,3 +1,6 @@
+[Noldor, 07 February 2007]
+- Added multiple files enqueues
+
 [Noldor, 06 February 2007]
 - First step to script localization: there are problems on .mo compilation on win.. Hope we fix it soon ;)... Anyway, now all string support $tr();
 - Working on the "new" gui: applly, cancel and ok button will appear very soon: need to manage some internal tab coding (tab channel and trigger).
