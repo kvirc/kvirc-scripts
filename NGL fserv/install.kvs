@@ -269,7 +269,7 @@ defpopup(NGLfserv_nick)
 		}
 	}
 
-	item($tr("Enqueue file","NGLfserv"),257) ($(%Send->$count()>0))
+	item($tr("Enqueue files","NGLfserv"),257) ($(%Send->$count()>0))
 	{
 		dialog.file(openm,%NGLlogo,%G_dir,,$0) {
 			if ($0) {

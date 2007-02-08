@@ -15,7 +15,7 @@ alias(NGLfserv::classes::NGLfserver)
 			
 			
 			%G_fserverbusyhandler=$new(NGlfserv::classes::globalbusyeventfilter)
-			%G_animlogo=$new(NGLfserv::classes::gui::animhandler,$$)
+			//%G_animlogo=$new(NGLfserv::classes::gui::animhandler,$$)
 			
 		
 			

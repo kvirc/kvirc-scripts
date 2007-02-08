@@ -13,6 +13,9 @@ alias(NGLfserv::classes::customwidgets::combobox)
 			foreach(%item,$1) $$->%combobox->$insertItem(%item)
 			if ($str.left($2,1)!="%"){
 				if ($2) $$->%combobox->$setCurrentItem($2);
+				privateimpl($$->%combobox,activatedEvent){
+					$$->$parent()->$activatedEvent($0)
+				}
 			}
 			else {
 				%tmp=\%idx\=$2
@@ -20,7 +23,7 @@ alias(NGLfserv::classes::customwidgets::combobox)
 				$$->%combobox->$setCurrentItem(%idx)
 				$$->%combobox->%pointer=$2
 				privateimpl($$->%combobox,activatedEvent){
-					eval $$->%pointer\=$0
+					if ($$->%pointer) eval $$->%pointer\=$0
 				}
 			}
 		}
@@ -36,7 +39,20 @@ alias(NGLfserv::classes::customwidgets::combobox)
 		{
 			return $$->%combobox->$current()
 		}
+		currentItem()
+		{
+			return $$->%combobox->$currentItem()
+		}
+		clear()
+		{
+			$$->%combobox->$clear()
+		}
+		activatedEvent()
+		{
+			$emit("activated",$0)
+		}
 			
 	}
 }
+
 

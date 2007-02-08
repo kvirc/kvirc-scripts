@@ -29,7 +29,7 @@ alias(NGLfserv::classes::gui::gui)
 			$$->$setCaption(%NGLlogo $tr(" - Options"))
 			$$->$setIcon(20)
 			$$->$centerToScreen()
-			%G_animlogo->$start()
+			//%G_animlogo->$start()
 			$$->$show()
 			$$->$raise()
 		}

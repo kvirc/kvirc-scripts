@@ -44,7 +44,7 @@ alias(NGLfserv::classes::gui::globals)
 			%gbColors=$$->$addWidget(groupbox,$$,$tr("File server colors"),5,20,Horizontal,1)
 			
 			%comboBoxColor1=$$->$addWidget(combobox,%gbColors,$tr("Primary Color:"),%colors[],$(%NGLc1 - 2))
-			%comboBoxColor2=$$->$addWidget(combobox,%gbColors,$tr("Secondary Color:"),%colors[],$(%NGLc1 - 2))
+			%comboBoxColor2=$$->$addWidget(combobox,%gbColors,$tr("Secondary Color:"),%colors[],$(%NGLc2 - 2))
 		
 			%main_layout->$addWidget(%gbcolors,1,0)
 			

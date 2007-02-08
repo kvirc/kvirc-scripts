@@ -233,7 +233,6 @@ alias(NGLfserv::classes::trigger)
 				delete $$->$firstNode()
 			}
 			NGLfserv::corefunctions::ngldebug "start background HD scanning"	
-			debug CHECK $$->%realTriggerPath
 			if (!$$->%realTriggerPath){
 				NGLfserv::corefunctions::ngldebug first node is empty
 				NGLfserv::corefunctions::ngldebug add fake dir

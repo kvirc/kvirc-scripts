@@ -13,7 +13,7 @@ alias(NGLfserv::classes::gui::monitor)
 			%main_layout->$setMargin(5)
 			
 			%gb=$NGLfserv::corefunctions::addWidget(groupbox,$$,$tr("Sends"),5,20,Horizontal,1)
-			$$->%listViewSends=$new(sendsAndQueueView,%gb)
+			$$->%listViewSends=$NGLfserv::corefunctions::addWidget(sendsAndQueueView,%gb)
 			%main_layout->$addWidget(%gb,0,0)
 	
 			%gb=$NGLfserv::corefunctions::addWidget(groupbox,$$,$tr("Queues"),5,20,Horizontal,1)

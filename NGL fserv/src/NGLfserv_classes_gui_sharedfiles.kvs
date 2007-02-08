@@ -6,10 +6,8 @@ alias(NGLfserv::classes::gui::sharedfiles)
 		{
 			$$->$setCaption($tr(".:Shared Files:."))
 			%main = $NGLfserv::corefunctions::addWidget(vbox,$$)
-			debug LOAD
 			trload -v nglfserv
 			// $file.localdir(locale)
-			debug LOADED
 			// main horizontal layout
 			%hbox=$NGLfserv::corefunctions::addWidget(hbox,%main)
 			%hbox->$setSpacing(2)
