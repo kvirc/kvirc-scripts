@@ -1,0 +1,19 @@
+alias(KISS::uninstall)
+{
+	KISS::uninstallfiles
+	action.destroy KISS::gui
+	toolbar.destroy kiss
+	
+	file.rmdir $file.localdir("pics/KISS/ClassicIcons/coresmall")
+	file.rmdir $file.localdir("pics/KISS/ClassicIcons")
+	file.rmdir $file.localdir("pics/KISS/ClassicSmiles/coresmall")
+	file.rmdir $file.localdir("pics/KISS/ClassicSmiles")
+	file.rmdir $file.localdir("pics/KISS/NewIcons/coresmall")
+	file.rmdir $file.localdir("pics/KISS/NewIcons")
+	file.rmdir $file.localdir("pics/KISS")
+	
+	alias(KISS::gui){}
+	alias(KISS::uninstallfiles){}
+	alias(KISS::uninstall){}
+}
+

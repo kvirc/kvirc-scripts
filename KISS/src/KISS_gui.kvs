@@ -20,8 +20,8 @@ alias(KISS::gui)
 			%layout->$addWidget(%lbSpacer,9,1)
 			
 			%lbTitle=$new(label,$$)
-			%lbTitle->$setText(<b>K.I.S.S. - The KVIrc Icons Style Setup 2.0</b><br /> \
-				$tr("Created by","kiss") HelLViS69 &lt;hellvis69 at altervista dot org&gt;)
+			%lbTitle->$setText(<b>K.I.S.S. - The KVIrc Icons Style Setup 2.1</b><br /> \
+				$tr("Created by","kiss") HelLViS69 &lt;hellvis69 at netsons dot org&gt;)
 			%layout->$addMultiCellWidget(%lbTitle,0,1,0,2)
 			
 			%lbAsk=$new(label,$$)
@@ -69,62 +69,40 @@ alias(KISS::gui)
 		
 		toggle()
 		{
-			if(($$->%rbIcons1->$isChecked)||($$->%rbIcons2->$isChecked)||($$->%rbIcons3->$isChecked))
+			if(($$->%rbIcons1->$isChecked())||($$->%rbIcons2->$isChecked())||($$->%rbIcons3->$isChecked()))
 				$$->%btnOk->$setEnabled($true)
 			
-			if((!$$->%rbIcons1->$isChecked)&&(!$$->%rbIcons2->$isChecked)&&(!$$->%rbIcons3->$isChecked))
+			if((!$$->%rbIcons1->$isChecked())&&(!$$->%rbIcons2->$isChecked())&&(!$$->%rbIcons3->$isChecked()))
 				$$->%btnOk->$setEnabled($false)
 			
-			if($$->%rbIcons1->$isChecked)
-				$$->$install(1)
-			elseif($$->%rbIcons2->$isChecked)
-				$$->$install(2)
-			elseif($$->%rbIcons3->$isChecked)
-				$$->$install(3)
+			if($$->%rbIcons1->$isChecked())
+				$$->%m_szPicsRoot=$file.localdir("pics/KISS/ClassicIcons")
+			elseif($$->%rbIcons2->$isChecked())
+				$$->%m_szPicsRoot=$file.localdir("pics/KISS/ClassicSmiles")
+			elseif($$->%rbIcons3->$isChecked())
+				$$->%m_szPicsRoot=$file.localdir("pics/KISS/NewIcons")
+				
+			$$->$install()
 		}
 		
-		install($0=id of icon set)
+		install()
 		{
-			switch($0)
-			{
-				case(1)
-				{
-					%m_szPicsRoot=$file.localdir(pics/KISS/ClassicIcons)
-					break
-				}
-				case(2)
-				{
-					%m_szPicsRoot=$file.localdir(pics/KISS/ClassicSmiles)
-					break
-				}
-				case(3)
-				{
-					%m_szPicsRoot=$file.localdir(pics/KISS/NewIcons)
-					break
-				}
-				default
-				{
-					// Just for sanity check
-					debug [KISS]: $tr("You found a bug, please report it","kiss")
-				}
-			}
-			
-			%m_szCorePicsRoot=%m_szPicsRoot"/coresmall"
-			%files[]=$file.ls(%m_szPicsRoot,f,"*.png")
-			if(%files[]#)
+			%files[]=$file.ls($$->%m_szPicsRoot,f,"*.png")
+			if(%files[]#>0)
 			{
 				foreach(%file,%files[])
 				{
-					file.copy -o "%m_szPicsRoot/%file" $file.localdir(pics)"/%file"
+					file.copy -o "$$->%m_szPicsRoot/%file" $file.localdir("pics/%file")
 				}
 			}
 			
+			%m_szCorePicsRoot=$$->%m_szPicsRoot"/coresmall"
 			%files[]=$file.ls(%m_szCorePicsRoot,f,"*.png")
-			if(%files[]#)
+			if(%files[]#>0)
 			{
 				foreach(%file,%files[])
 				{
-					file.copy -o "%m_szCorePicsRoot/%file" $file.localdir(pics/coresmall)"/%file"
+					file.copy -o "%m_szCorePicsRoot/%file" $file.localdir("pics/coresmall/%file")
 				}
 			}
 			
@@ -140,3 +118,5 @@ alias(KISS::gui)
 	%kiss=$new(KISS::gui)
 	%kiss->$show()
 }
+
+

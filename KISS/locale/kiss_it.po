@@ -1,99 +1,93 @@
-# translation of kiss_it.po to
-# Translation of K.I.S.S.
-# Copyright (C) YEAR THE KVIrc'S COPYRIGHT HOLDER
+# KISS - The KVIrc Icon Style Setup
+# Copyright (C) 2007 KVIrc Project
 # This file is distributed under the same license as the KVIrc package.
-# HelLViS69 <hellvis69 at altervista dot org>, 2007.
+# Elvio "HelLViS69" Basello <hellvis69@netsons.org>, 2007.
 #
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: kiss_it\n"
+"Project-Id-Version: KISS 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-02-03 01:12+0100\n"
-"PO-Revision-Date: 2007-02-03 01:21+0100\n"
-"Last-Translator: \n"
-"Language-Team:  <it@li.org>\n"
+"POT-Creation-Date: 2007-10-10 16:43+0200\n"
+"PO-Revision-Date: 2007-10-10 16:44+0200\n"
+"Last-Translator: Elvio Basello <hellvis69@netsons.org>\n"
+"Language-Team: it <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.4\n"
 
-#: install.kvs:10
+#: ../install.kvs:10
 msgid "Allows to change KVIrc icons sets"
-msgstr "Permette di cambiare i set di icone di KVIrc"
+msgstr "Permette di cambiare le icone di KVIrc"
 
-#: install.kvs:63
-msgid "Configure"
-msgstr "Configura"
-
-#: install.kvs:63
+#: ../install.kvs:57
 msgid "Allows configuring the \"K.I.S.S.\" addon"
 msgstr "Permette di configurare l'addon \"K.I.S.S.\""
 
-#: main.kvs:24
+#: ../src/KISS_gui.kvs:24
 msgid "Created by"
 msgstr "Creato da"
 
-#: main.kvs:28
+#: ../src/KISS_gui.kvs:28
 msgid "What icon set would you like to install?"
 msgstr "Quale set di icone vuoi installare?"
 
-#: main.kvs:35
+#: ../src/KISS_gui.kvs:35
 msgid "Classic Icons"
 msgstr "Icone Classiche"
 
-#: main.kvs:36
+#: ../src/KISS_gui.kvs:36
 msgid ""
 "This set will install the classic old-style KVIrc icons.<br /> \t\t\t"
 "\tIndicated to users with a bit of melancholy :)"
 msgstr ""
-"Questo set installerà le classiche icone vecchio stile KVIrc.<br /> \t\t\t "
-"\tIndicato agli utenti con un pizzico di maliconia :)"
+"Questo set installerà le icone classiche di KVIrc.<br /> \t\t\t"
+"\tIndicato agli utenti melanconici :)"
 
-#: main.kvs:42
+#: ../src/KISS_gui.kvs:42
 msgid "Classic Smiles"
 msgstr "Smile Classici"
 
-#: main.kvs:43
+#: ../src/KISS_gui.kvs:43
 msgid ""
 "This set will install the brand new icon with the old-style<br /> \t\t\t"
 "\tKVIrc smiles, to make KVIrc modern with a bit of vintage style"
 msgstr ""
-"Questo set installerà le nuove icone con gli smile vecchio<br /> \t\t\t "
-"stile KVIrc, per rendere KVIrc moderno con un po' di stile vintage"
+"Questo set installerà le nuove icone con i vecchi smile<br /> \t\t\t"
+"\tdi KVIrc, per avere un KVIrc moderno con un tocco di stile vintage"
 
-#: main.kvs:49
+#: ../src/KISS_gui.kvs:49
 msgid "New Icons"
 msgstr "Nuove Icone"
 
-#: main.kvs:50
+#: ../src/KISS_gui.kvs:50
 msgid ""
 "This set will install the brand new icons, shipped with the<br /> \t\t\t"
 "\tKVIrc distribution"
 msgstr ""
-"Questo set installerà le nuove icone, distrubuite insieme<br /> \t\t\t "
-"\tal pacchetto di KVIrc"
+"Questo set installerà le nuove icone, fornite con la<br /> \t\t\t"
+"\tdistribuzione di KVIrc"
 
-#: main.kvs:58
+#: ../src/KISS_gui.kvs:58
 msgid "Install"
 msgstr "Installa"
 
-#: main.kvs:65
+#: ../src/KISS_gui.kvs:65
 msgid "Exit"
 msgstr "Esci"
 
-#: main.kvs:108
+#: ../src/KISS_gui.kvs:108
 msgid "You found a bug, please report it"
-msgstr "Hai trovato un bug, per favore segnalalo"
+msgstr "Hai trovato un bug, riferiscilo"
 
-#: main.kvs:131
+#: ../src/KISS_gui.kvs:131
 msgid ""
 "You have to restart KVIrc to make\n"
 "changes effective"
 msgstr ""
 "Devi riavviare KVIrc per rendere\n"
-"effettive le modifiche"
+"effettivi i cambiamenti"
 
-#: main.kvs:131
+#: ../src/KISS_gui.kvs:131
 msgid "OK"
 msgstr "OK"
-

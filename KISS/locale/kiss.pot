@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-02-03 01:12+0100\n"
+"POT-Creation-Date: 2007-10-10 16:43+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,74 +16,70 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: install.kvs:10
+#: ../install.kvs:10
 msgid "Allows to change KVIrc icons sets"
 msgstr ""
 
-#: install.kvs:63
-msgid "Configure"
-msgstr ""
-
-#: install.kvs:63
+#: ../install.kvs:57
 msgid "Allows configuring the \"K.I.S.S.\" addon"
 msgstr ""
 
-#: main.kvs:24
+#: ../src/KISS_gui.kvs:24
 msgid "Created by"
 msgstr ""
 
-#: main.kvs:28
+#: ../src/KISS_gui.kvs:28
 msgid "What icon set would you like to install?"
 msgstr ""
 
-#: main.kvs:35
+#: ../src/KISS_gui.kvs:35
 msgid "Classic Icons"
 msgstr ""
 
-#: main.kvs:36
+#: ../src/KISS_gui.kvs:36
 msgid ""
 "This set will install the classic old-style KVIrc icons.<br /> \t\t\t"
 "\tIndicated to users with a bit of melancholy :)"
 msgstr ""
 
-#: main.kvs:42
+#: ../src/KISS_gui.kvs:42
 msgid "Classic Smiles"
 msgstr ""
 
-#: main.kvs:43
+#: ../src/KISS_gui.kvs:43
 msgid ""
 "This set will install the brand new icon with the old-style<br /> \t\t\t"
 "\tKVIrc smiles, to make KVIrc modern with a bit of vintage style"
 msgstr ""
 
-#: main.kvs:49
+#: ../src/KISS_gui.kvs:49
 msgid "New Icons"
 msgstr ""
 
-#: main.kvs:50
+#: ../src/KISS_gui.kvs:50
 msgid ""
 "This set will install the brand new icons, shipped with the<br /> \t\t\t"
 "\tKVIrc distribution"
 msgstr ""
 
-#: main.kvs:58
+#: ../src/KISS_gui.kvs:58
 msgid "Install"
 msgstr ""
 
-#: main.kvs:65
+#: ../src/KISS_gui.kvs:65
 msgid "Exit"
 msgstr ""
 
-#: main.kvs:108
+#: ../src/KISS_gui.kvs:108
 msgid "You found a bug, please report it"
 msgstr ""
 
-#: main.kvs:131
+#: ../src/KISS_gui.kvs:131
 msgid ""
 "You have to restart KVIrc to make\n"
 "changes effective"
 msgstr ""
 
-#: main.kvs:131
+#: ../src/KISS_gui.kvs:131
 msgid "OK"
 msgstr ""
