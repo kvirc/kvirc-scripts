@@ -51,7 +51,10 @@ alias(NGLfserv::classes::customwidgets::combobox)
 		{
 			$emit("activated",$0)
 		}
-			
+		insertItem()
+		{
+			$$->%combobox->$insertItem($0)
+		}	
 	}
 }
 
