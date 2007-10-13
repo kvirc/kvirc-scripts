@@ -1,3 +1,5 @@
+// WARNING!!! Function $setCheckable crashes KVIRC on unix!!!
+
 alias(NGLfserv::classes::customwidgets::dirview)
 {
 	class(NGLfserv::classes::customwidgets::dirview,listview)
@@ -76,9 +78,9 @@ alias(NGLfserv::classes::customwidgets::dirview)
 			%listviewitem_node=$0
 			 // show sub-dir
 			%length_folder=$length(%folder[])
-			for (%i=0;%i!=%length_folder;%i++){
+			for (%i=0;%i<%length_folder;%i++){
 				%item=$new(listviewitem,%listviewitem_node)
-				%item->$setCheckable($true)
+				// %item->$setCheckable($true)
 				if ($$->%rootnode->$isDirNotChecked(%folder[%i]) || !$$->$check(%listviewitem_node) || $$->%rootnode->$isDirNotChecked(%folder[%i]->$parent())) %item->$setChecked($false)
 				else %item->$setChecked($true)
 				%item->$setText(0,$$->%rootnode->$text(%folder[%i]))				
@@ -91,13 +93,14 @@ alias(NGLfserv::classes::customwidgets::dirview)
 				%item_fake_child=$new(listviewitem,%item)
 				%item->%fake_child=%item_fake_child
 			}
+			
 			// show files
 			%i=0
 				
 			%len=$$->%rootnode->$filesCount(%virtual_node)
 			for (%i=0;%i<%len;%i++){
 				%item_file=$new(listviewitem,%listviewitem_node)
-				%item_file->$setCheckable($true)
+				// %item_file->$setCheckable($true)
 				if ($$->%rootnode->$isFileNotChecked(%virtual_node,%i) || !$$->$check(%listviewitem_node)) %item_file->$setChecked($false)
 				else %item_file->$setChecked($true);
 			
