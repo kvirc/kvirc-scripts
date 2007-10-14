@@ -1,3 +1,7 @@
+[LoSko, 14 October 2007]
+- Fixed some warning messages complaining about insertItem method
+- Temporarly fixed crash on shared tab folder on unix commenting out setCheckable function
+
 [Noldor, 07 February 2007]
 - Added multiple files enqueues
 
