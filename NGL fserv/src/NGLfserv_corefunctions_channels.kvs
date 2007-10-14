@@ -28,11 +28,8 @@ alias(NGLfserv::corefunctions::channels)
 			%i=0
 			%exitCode=0
 			foreach(%ch,%Triggers{$1}->$activeChannels()) {
-				debug canale test %ch->$getChannelName()
 				%id=$channel(%ch->$getChannelName())
 	
-				debug id %id
-				debug check $2
 				if(%id!=0) {
 					if($chan.ison($2,%id)) {
 						%i++
