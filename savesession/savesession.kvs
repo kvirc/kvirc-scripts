@@ -1,0 +1,35 @@
+dialog.file("save","Choose a name for the session script","","KVIrc scripts (*.kvs)")
+{
+	if($0 == "")
+		return;
+
+	%txt = "# Automatically generated session save" $lf
+	%txt .= $lf
+
+	%consoles = $window.list(console,all)
+	
+	foreach(%console,%consoles)
+	{
+		%ic = ${ eval -r=%console "return $ic"; }
+	
+		if($server($ic) != "")
+		{
+			%chans = $window.list(channel,%ic)
+			%cmd = ""
+			foreach(%chan,%chans)
+				%cmd .= "join "$chan.name(%chan)";"
+		
+			%queries = $window.list(query,%ic)
+			foreach(%query,%queries)
+				%cmd .= "query "$target(%query)";"
+	
+			%txt .= "server -u -c=\""%cmd"\"" $server(%ic) $lf
+		}
+	}
+
+	echo %txt
+	
+	file.write $0 %txt
+}
+
+
