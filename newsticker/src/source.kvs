@@ -119,6 +119,7 @@ class(newsticker::source)
 			# debug "FETCH TERMINATED: REMOVING BY SOURCE"
 			%hUnread = %l->$removeBySource(@%m_szName)
 			# debug "RUNNING PARSER"
+			#if(%r->$run($file.read("/root/download/test.rss"),%l,@%m_szName,%hUnread,@%m_bNotify,@%m_tLastNotification,$false))
 			if(%r->$run($file.read($2),%l,@%m_szName,%hUnread,@%m_bNotify,@%m_tLastNotification,$false))
 			{
 				# debug "Document parsed"

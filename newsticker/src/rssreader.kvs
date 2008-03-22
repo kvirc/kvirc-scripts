@@ -11,7 +11,7 @@ class(newsticker::rss::reader,xmlreader)
 
 	run($0 = data to parse,$1 = list to insert into,$2 = sourcename,$3 = unread hash by date,$4 = notify?,$5 = last notification,$6 = quiet)
 	{
-		# debug "PARSING("$0")"
+		#debug "PARSING("$0")"
 		@%m_lItems = $1
 		@%m_szSource = $2
 		@%m_hUnreadItems = $3
@@ -90,7 +90,7 @@ class(newsticker::rss::reader,xmlreader)
 		if(%i < 7)
 		{
 			// probably Day, DD Month YYYY hh:mm:ss (+XYZ)
-			%arry = $split(" ",@%m_szLastDate,"n")
+			%arry = $str.split(" ",@%m_szLastDate,"n")
 			%months = $array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
 			for(%i = 0;%i < 12;%i++)
 			{
@@ -98,15 +98,15 @@ class(newsticker::rss::reader,xmlreader)
 					break;
 			}
 			%month = $(%i+1)
-			%hms = $split(":",%arry[4])
+			%hms = $str.split(":",%arry[4])
 			%ret = %arry[3]"/"$(%month / 10)$(%month % 10)"/"%arry[1] %hms[0]":"%hms[1]
 		} else {
 			if($str.find(@%m_szLastDate,"T") > 0)
-				%tmp = $split("T",@%m_szLastDate,"n")
+				%tmp = $str.split("T",@%m_szLastDate,"n")
 			else
-				%tmp = $split(" ",@%m_szLastDate,"n")
-			%ymd = $split("-",%tmp[0])
-			%hms = $split(":",%tmp[1])
+				%tmp = $str.split(" ",@%m_szLastDate,"n")
+			%ymd = $str.split("-",%tmp[0])
+			%hms = $str.split(":",%tmp[1])
 			%ret = %ymd[0]"/"%ymd[1]"/"%ymd[2]" "%hms[0]":"%hms[1]
 		}
 
@@ -159,9 +159,9 @@ class(newsticker::rss::reader,xmlreader)
 		
 		%r->$set(@%m_szLastTitle,@%m_szLastLink,@%m_szLastDescription,@%m_szLastDate,@%m_szSource,%bUnread,%bNotified)
 
-		# debug "GOT ITEM -- TITLE:" %r->$title() "-- LINK:" %r->$link() "-- SOURCE:" %r->$source();
-		# debug "-- DESCRIPTION:" %r->$description()
-		# debug "-- DATE:" %r->$date()
+		#debug "GOT ITEM -- TITLE:" %r->$title() "-- LINK:" %r->$link() "-- SOURCE:" %r->$source();
+		#debug "-- DESCRIPTION:" %r->$description()
+		#debug "-- DATE:" %r->$date()
 		@%m_szLastTitle = ""
 		@%m_szLastLink = ""
 		@%m_szLastDescription = ""
