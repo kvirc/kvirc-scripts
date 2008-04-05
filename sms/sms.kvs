@@ -423,7 +423,7 @@ alias(class_gui)
 		getMaxSmsChar()
 		{
 			%index = 0
-			%tmp[]=$split($cr$lf,$file.read($file.localdir("config/scripts/sms/$0.conf")))
+			%tmp[]=$str.split($cr$lf,$file.read($file.localdir("config/scripts/sms/$0.conf")))
 			while ($str.left(%tmp[%index],10) != "MaxSmsChar")
 			{
 				if (%tmp[%index] == "}") return 0
@@ -464,7 +464,7 @@ alias(class_mdm)
 	{
 		constructor
 		{
-			%temp[]=$split(" ",$file.read($file.localdir("config/scripts/sms/testo.txt")))
+			%temp[]=$str.split(" ",$file.read($file.localdir("config/scripts/sms/testo.txt")))
 			$$->%Story[]=""
 			%i=0
 			%story_index=0
@@ -603,8 +603,8 @@ alias(class_mdm)
 			if ($$->%xpos_AnimPart2FrameLeft[$$->%idx_FL] == "")  $$->%x_startFL=$$->%x_lastFL	
 			if ($$->%xpos_AnimPart2FrameRight[$$->%idx_FR] == "") $$->%x_startFR=$$->%x_lastFR
 		
-			%tmp_left[]=$split("\,",$$->%xpos_AnimPart2FrameLeft[$$->%idx_FL])
-			%tmp_right[]=$split("\,",$$->%xpos_AnimPart2FrameRight[$$->%idx_FR])
+			%tmp_left[]=$str.split("\,",$$->%xpos_AnimPart2FrameLeft[$$->%idx_FL])
+			%tmp_right[]=$str.split("\,",$$->%xpos_AnimPart2FrameRight[$$->%idx_FR])
 	
 			%P->$setPen($$->%fade2,$$->%fade2,$$->%fade2)
 			%P->$setFont(28,"times",bold);  
@@ -752,7 +752,7 @@ alias(class_rubrica)
 		{
 			$$->%list_rubrica=$new(list)
 			if (!$file.exists($file.localdir("config/scripts/sms/rubrica.mdm"))) return
-			%tmp_rubrica[]=$split(",",$file.read($file.localdir("config/scripts/sms/rubrica.mdm")))
+			%tmp_rubrica[]=$str.split(",",$file.read($file.localdir("config/scripts/sms/rubrica.mdm")))
 			%i=0
 			while(%tmp_rubrica[%i])
 			{
@@ -779,7 +779,7 @@ alias(class_rubrica)
 		}
 		addToQueue()
 		{
-			%tmp_stringnumcell[]=$split(",",$$->$parent->%line_nrcell->$text)
+			%tmp_stringnumcell[]=$str.split(",",$$->$parent->%line_nrcell->$text)
 			%tmp_stringnumcell[$($$->$parent->%idx_section -1)]=$0
 			$$->%str=%tmp_stringnumcell[]
 			$$->$parent->%line_nrcell->$setText($$->%str)
@@ -797,7 +797,7 @@ alias(class_rubrica)
 		}
 		updateRubrica()
 		{
-			%tmp_cellstring[]=$split("\,",$$->$parent->%line_nrcell->$text())
+			%tmp_cellstring[]=$str.split("\,",$$->$parent->%line_nrcell->$text())
 			%str=%tmp_cellstring[$$->$parent->%idx_section]
 			%len=$str.len(%str)
 			if ((%len  == 0) || ($str.isnumber(%str) == 1)) return $$->$hide()
@@ -908,7 +908,7 @@ alias(class_sms)
 					}
 				}
 				$$->%Find=$config.read($$->%id_sms,Find)
-				if ($$->%Find != "0") $$->%Find[]=$split(",",$$->%Find)
+				if ($$->%Find != "0") $$->%Find[]=$str.split(",",$$->%Find)
 		 		$$->%Page=$config.read($$->%id_sms,Page)
 				$$->%Page=$str.replace($$->%Page,$$->%username,"<username>")
 				$$->%Host=$config.read($$->%id_sms,Host)
@@ -1070,7 +1070,7 @@ alias(class_smskernel)
 			$$->%config=$file.localdir(config/scripts/sms/$config.read(%id,accountprovider)".conf")
 			$$->%debug->%mle_debugProviderConfig->$insertLine($$->%config,0)
 			$$->%tmp=$$->%gui->%line_nrcell->$text()
-			if ($str.contains($$->%tmp,"\,") == 1) $$->%tmp[]=$split(",",$$->%tmp)
+			if ($str.contains($$->%tmp,"\,") == 1) $$->%tmp[]=$str.split(",",$$->%tmp)
 			else $$->%tmp[0]=$$->%tmp
 			$$->%destinations_array[] = ""
 			$$->%destinations_index = 0

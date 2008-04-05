@@ -33,7 +33,7 @@ alias(scriptmanager_install)
 	%uninstallalias = $3
 	%configurealias = $4
 
-	%newversiondata[] = $split(%newversion)
+	%newversiondata[] = $str.split(%newversion)
 
 	
 
@@ -44,7 +44,7 @@ alias(scriptmanager_install)
 	if(%oldversion != "")
 	{
 		# an older version already exists
-		%oldversiondata[] = $split(%oldversion,".")
+		%oldversiondata[] = $str.split(%oldversion,".")
 	}
 
 	config.write %cfg "%scriptshortname\_version" %newversion 

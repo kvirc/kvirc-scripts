@@ -431,8 +431,8 @@ alias(thecensor_loadconfig)
 	#-TheCensor
 	# Load all configurations
 	%c = $config.open("thecensor.kvc","r");
-	%Badwordlist[] = $split(",",$config.read(%c,"WordList"))
-	%CensoredChannels[] =$split(",",$config.read(%c,"ChannelsList"))
+	%Badwordlist[] = $str.split(",",$config.read(%c,"WordList"))
+	%CensoredChannels[] =$str.split(",",$config.read(%c,"ChannelsList"))
 	%TheCensorIsOn=$config.read(%c,"TheCensorIsOn",0)
 	%MyCensorIsOn=$config.read(%c,"MyCensorIsOn",0)
 	config.close %c

@@ -61,7 +61,7 @@ addon.setconfigurecallback("chanstats")
 # and via addon.help
 addon.sethelpcallback("chanstats")
 {
-	%tmp[] = $split("_",$system.getenv(LANG))
+	%tmp[] = $str.split("_",$system.getenv(LANG))
 	%localized_helpfile = %tmp\[0\]"/chanstats/index.html"
 	if ( $file.exists($str.replace($file.localdir("help/"%localized_helpfile),"/","\\")) )
 	{
@@ -504,7 +504,7 @@ alias(chanstats)
 					foreach(%section_name,%sections[])
 					{
 						#split section_name to get channel and network					
-						%tmp[] = $split("@",%section_name)
+						%tmp[] = $str.split("@",%section_name)
 						%chan_name = %tmp\[0\]						
 						%network_name = %tmp\[1\]
 			

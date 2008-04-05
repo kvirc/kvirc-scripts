@@ -137,7 +137,7 @@ defpopup(channel)
 		
 		if(%:isMeHalfOp)
 		{
-			foreach(%nick,$split(",",$0))
+			foreach(%nick,$str.split(",",$0))
 			{
 				if($chan.usermodelevel(%nick) <= $chan.usermodelevel($me))
 				{
@@ -150,7 +150,7 @@ defpopup(channel)
 	
 	item("/WHOIS" %:visible "("$tr("idle time")")",75)
 	{
-		foreach(%i,$split(",",$0))
+		foreach(%i,$str.split(",",$0))
 			whois %i %i
 	}
 	
@@ -177,7 +177,7 @@ defpopup(channel)
 		
 		item($tr("DNS for") %:visible,75)
 		{
-			foreach(%i,$split(",",$0))dns %i
+			foreach(%i,$str.split(",",$0))dns %i
 		}
 		
 		item($tr("Mask for") %:visible,75) (!%:multiple)
@@ -244,7 +244,7 @@ defpopup(channel)
 		
 		item($tr("&Kick") %:visible,110) (%:bCanKB)
 		{
-			foreach(%i,$split(",",$0))kick %i
+			foreach(%i,$str.split(",",$0))kick %i
 		}
 		
 		item($tr("K&ick") %:visible $tr("With..."),110) (%:bCanKB)
@@ -253,7 +253,7 @@ defpopup(channel)
 			{
 				if($0 == 0)
 				{
-					foreach(%i,$split(",",$2))kick %i $1
+					foreach(%i,$str.split(",",$2))kick %i $1
 				}
 			}
 		}

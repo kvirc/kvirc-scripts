@@ -616,7 +616,7 @@ alias(quiz_initialize)
 			%i = 0
 			while(%l->$canIterate() && (%i < 10))
 			{
-				%a[] = $split(":",%z)
+				%a[] = $str.split(":",%z)
 	
 				config.write %c "n%i\Nick" %a[2]
 				config.write %c "n%i\Pnts" %a[1]
@@ -670,7 +670,7 @@ alias(quiz_initialize)
 			%i = 0
 			while(%l->$canIterate() && (%i < 10))
 			{
-				%a[] = $split(":",%z)
+				%a[] = $str.split(":",%z)
 			
 				say -r=@%m_hWindow "[Quiz] $(%i+1) $b%a[2]$b %a[1]"
 			

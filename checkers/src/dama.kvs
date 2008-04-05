@@ -623,7 +623,7 @@ alias(dama4)
 			# se c'è un'animazione in corso sospendi tutto
 			if ($$->%flag_anim)return
 	       		# convertiamo le coordinate del mouse nelle coordinate della matrice
-			%sel[]=$split(",",$$->$getXY($1,$2));
+			%sel[]=$str.split(",",$$->$getXY($1,$2));
 			# se la casella è diversa da 0 significa che è una casella bianca: mossa non valida
 			 if ($$->%board{%sel[0],%sel[1]} == 5) return
 			# se non c'è l'oggetto $$->%move vuol dire che non abbiamo ancora selezionato il src
@@ -774,7 +774,7 @@ alias(dama4)
 			# ritorna se c'è un'animazione in corso
 			if ($$->%flag_anim)return
 			# converte le coordinate del mouse in quelle della matrice della nostra "damiera"
-			%sel[]=$split(",",$$->$getXY($1,$2));
+			%sel[]=$str.split(",",$$->$getXY($1,$2));
 			# verifica che ci sia un oggetto pedina
 			%chip=$$->$thereIsaChip($$->%board{%sel[0],%sel[1]});
 			# controlla se la pedina sia cambiata
