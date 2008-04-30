@@ -10,7 +10,7 @@ alias(NGLfserv::classes::customwidgets::groupbox)
 			if ($3){
 				if (!$4) %strip=1
 				else %strip=$4
-				$$->$setColumnLayout(%strip,$3)
+				$$->$setLayoutOrientation(%strip,$3)
 			}
 		}
 	}
