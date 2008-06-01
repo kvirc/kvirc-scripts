@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Version of the script
-version="1.0"
+version="1.1"
 
 # Choose the file types you want to include
 filetypes='*.kvs *.png *.po *.mo'

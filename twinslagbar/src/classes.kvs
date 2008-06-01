@@ -61,7 +61,7 @@ class(twins::lagbar::bar,dockwindow)
 		if(@$istesting())
 			%lag = @%m_uMaxLag
 		else if($option(boolUseLagMeterEngine) && $ic && $server && $me)
-			%lag = $($lag.lag/1000.)
+			%lag = $($lag/1000.)
 		else
 			%lag = -1.
 		if(%lag == -1.){
