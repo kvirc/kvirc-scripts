@@ -1,90 +1,67 @@
 alias(KISS::gui)
 {
 	if($classDefined(KISS::gui)) objects.killclass KISS::gui
+	
 	class(KISS::gui,dialog)
 	{
 		constructor()
 		{
 			$$->$setCaption("K.I.S.S. 2.3")
-			$$->$setMinimumWidth(600)
-			$$->$setMinimumHeight(600)
-			
+		
+			%vbox=$new(vbox,$$)
 			%layout=$new(layout,$$)
-			%layout->$setMargin(5)
-			%layout->$setResizeMode(Minimum)
-			
-			%lbSpacer=$new(label,$$)
-			%layout->$addMultiCellWidget(%lbSpacer,2,2,0,2)
-			%layout->$addMultiCellWidget(%lbSpacer,4,4,0,2)
-			%layout->$addMultiCellWidget(%lbSpacer,8,8,0,2)
-			%layout->$addWidget(%lbSpacer,9,1)
-			
-			%lbTitle=$new(label,$$)
+			%layout->$addWidget(%vbox,0,0)
+				
+			%lbTitle=$new(label,%vbox)
 			%lbTitle->$setText(<b>K.I.S.S. - The KVIrc Icons Style Setup 2.3</b><br /> \
-				$tr("Created by","kiss") HelLViS69 &lt;hellvis69 at netsons dot org&gt;)
-			%layout->$addMultiCellWidget(%lbTitle,0,1,0,2)
+				$tr("Created by","kiss") HelLViS69 &lt;hellvis69 at netsons dot org&gt <br>$tr("QT4 port and code optimization by","kiss") Noldor &lt;elfonol at gmail dot com&gt;)
 			
-			%lbAsk=$new(label,$$)
+			%lbAsk=$new(label,%vbox)
 			%lbAsk->$setText($tr("What icon set would you like to install?","kiss"))
-			%layout->$addMultiCellWidget(%lbAsk,3,3,0,2)
 			
-			%bgIcons=$new(buttongroup,$$)
-			%bgLayout=$new(layout,%bgIcons)
 			
-			$$->%rbIcons1=$new(radiobutton,%bgIcons)
+			%vbox_gr=$new(vbox,%vbox)
+			%vbox->$setAlignment(%vbox_gr,"Center")
+			$$->%rbIcons1=$new(radiobutton,%vbox_gr)
+			$$->%rbIcons1->$setChecked($true);
 			$$->%rbIcons1->$setText($tr("Classic Icons","kiss"))
 			$$->%rbIcons1->$setToolTip($tr("This set will install the classic old-style KVIrc icons.<br /> \
 				Indicated to users with a bit of melancholy :)","kiss"))
-			%bgLayout->$addWidget($$->%rbIcons1,0,0)
 			objects.connect $$->%rbIcons1 toggled $$ toggle
 			
-			$$->%rbIcons2=$new(radiobutton,%bgIcons)
+			$$->%rbIcons2=$new(radiobutton,%vbox_gr)
 			$$->%rbIcons2->$setText($tr("Classic Smiles","kiss"))
 			$$->%rbIcons2->$setToolTip($tr("This set will install the brand new icon with the old-style<br /> \
 				KVIrc smiles, to make KVIrc modern with a bit of vintage style","kiss"))
-			%bgLayout->$addWidget($$->%rbIcons2,1,0)
 			objects.connect $$->%rbIcons2 toggled $$ toggle
 			
-			$$->%rbIcons3=$new(radiobutton,%bgIcons)
+			$$->%rbIcons3=$new(radiobutton,%vbox_gr)
 			$$->%rbIcons3->$setText($tr("New Icons","kiss"))
 			$$->%rbIcons3->$setToolTip($tr("This set will install the brand new icons, shipped with the<br /> \
 				KVIrc distribution","kiss"))
-			%bgLayout->$addWidget($$->%rbIcons3,2,0)
 			objects.connect $$->%rbIcons3 toggled $$ toggle
-			%layout->$addWidget(%bgIcons,4,0)
 			
-			$$->%btnOk=$new(button,$$)
+			%hbox=$new(hbox,%vbox)
+			$$->%btnOk=$new(button,%hbox)
 			$$->%btnOk->$setImage(274)
 			$$->%btnOk->$setText($tr("Install","kiss"))
-			$$->%btnOk->$setEnabled($false)
-			%layout->$addWidget($$->%btnOk,9,0)
 			objects.connect $$->%btnOk clicked $$ install
 			
-			%btnCanc=$new(button,$$)
+			%btnCanc=$new(button,%hbox)
 			%btnCanc->$setImage(60)
 			%btnCanc->$setText($tr("Exit","kiss"))
-			%layout->$addWidget(%btnCanc,9,2)
 			objects.connect %btnCanc clicked $$ quit
+			@%btn_group=$new(buttongroup)
+			@%btn_group->$addButton($$->%rbIcons1)
+			@%btn_group->$addButton($$->%rbIcons2)
+			@%btn_group->$addButton($$->%rbIcons3)
 		}
-		
-		toggle()
-		{
-			if(($$->%rbIcons1->$isChecked())||($$->%rbIcons2->$isChecked())||($$->%rbIcons3->$isChecked()))
-				$$->%btnOk->$setEnabled($true)
-			
-			if((!$$->%rbIcons1->$isChecked())&&(!$$->%rbIcons2->$isChecked())&&(!$$->%rbIcons3->$isChecked()))
-				$$->%btnOk->$setEnabled($false)
-		}
-		
 		install()
 		{
-			if($$->%rbIcons1->$isChecked())
-				$$->%m_szPicsRoot=$file.localdir("pics/KISS/ClassicIcons")
-			elseif($$->%rbIcons2->$isChecked())
-				$$->%m_szPicsRoot=$file.localdir("pics/KISS/ClassicSmiles")
-			elseif($$->%rbIcons3->$isChecked())
-				$$->%m_szPicsRoot=$file.localdir("pics/KISS/NewIcons")
-				
+			%btn=@%btn_group->$checkedButton()
+			if (%btn==$$->%rbIcons1) %m_szPicsRoot=$file.localdir("pics/KISS/ClassicIcons");
+			else if (%btn==$$->%rbIcons2) %m_szPicsRoot=$file.localdir("pics/KISS/ClassicSmiles")
+			else %m_szPicsRoot=$file.localdir("pics/KISS/NewIcons")
 			%files[]=$file.ls($$->%m_szPicsRoot,f,"*.png")
 			if(%files[]#>0)
 			{
@@ -104,7 +81,7 @@ alias(KISS::gui)
 				}
 			}
 			
-			dialog.message("K.I.S.S. 2.0 - Info",$tr("You have to restart KVIrc to make\nchanges effective","kiss"),information,$tr("OK","kiss")){}
+			dialog.message("K.I.S.S. 2.3 - Info",$tr("You have to restart KVIrc to make\nchanges effective","kiss"),information,$tr("OK","kiss")){}
 		}
 		
 		quit()

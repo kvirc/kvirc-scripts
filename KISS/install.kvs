@@ -7,7 +7,7 @@
 
 # register the script: this must be the first instruction executed
 # since it will abort with an error when a greater version is already installed
-addon.register("kiss","2.1.0","K.I.S.S. - The KVIrc Icons Style Setup",$tr("Allows to change KVIrc icons sets","kiss"),"3.2.6.20070124",$file.localdir(pics/KISS/kiss_32.png))
+addon.register("kiss","2.3.0","K.I.S.S. - The KVIrc Icons Style Setup",$tr("Allows to change KVIrc icons sets","kiss"),"3.2.6.20070124",$file.localdir(pics/KISS/kiss_32.png))
 {
 	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
 	KISS::uninstall
@@ -43,7 +43,8 @@ parse %mypath/utils/installer.kvs
 delete %installer
 
 # Fetch the sources
-include %mypath/src/KISS_gui.kvs
+if ($str.findfirst($features,"QT4")!=-1)include %mypath/src/KISS_gui_QT4.kvs
+else include %mypath/src/KISS_gui.kvs
 include %mypath/src/KISS_uninstall.kvs
 
 # set the script's configuration callback
@@ -68,4 +69,4 @@ toolbar.additem kiss KISS::gui
 toolbar.show kiss
 
 # Done: the addon is installed and running: enjoy :)
-# HelLViS69 10.10.2007
+# HelLViS69 15.15.2008
