@@ -1,0 +1,32 @@
+# translation of chanops_de.po to german
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Szymon Stefanek <pragma at kvirc dot net>, 2005.
+# Markus Rennings <kvirc@mrmx.de>, 2008.
+msgid ""
+msgstr ""
+"Project-Id-Version: chanops_de\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-01-10 03:41+0100\n"
+"PO-Revision-Date: 2008-09-17 16:07+0200\n"
+"Last-Translator: Markus Rennings <kvirc@mrmx.de>\n"
+"Language-Team: german <de@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms:  nplurals=2; plural=(n != 1);\n"
+
+#: ../chanops.kvs:52
+msgid "Request /WHOIS"
+msgstr "/WHOIS abfragen"
+
+#: ../chanops.kvs:52
+msgid "Request WHOIS for selected users on a channel"
+msgstr "WHOIS für ausgewählte Benutzer eines Channels abfragen"
+
+#: ../chanops.kvs:59
+msgid "Channel Operations"
+msgstr "Channel-Operationen"
+

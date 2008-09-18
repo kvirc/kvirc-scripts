@@ -1,77 +1,79 @@
-# SOME DESCRIPTIVE TITLE.
+# translation of twinslagbar_de.po to german
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
+# Markus Rennings <kvirc@mrmx.de>, 2008.
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: twinslagbar_de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-08-02 15:45+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2008-09-18 00:59+0200\n"
+"Last-Translator: Markus Rennings <kvirc@mrmx.de>\n"
+"Language-Team: german <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms:  nplurals=2; plural=(n != 1);\n"
 
 #: ../src/actions.kvs:1
 msgid "Twins: Show Lag Bar"
-msgstr ""
+msgstr "Twins: Verzögerungsleiste anzeigen"
 
 #: ../src/actions.kvs:1
 msgid "Show the lag bar of the Twins script"
-msgstr ""
+msgstr "Zeigt die Verzögerungsleiste des Twins-Skriptes"
 
 #: ../src/classes.kvs:16
 msgid "Lag"
-msgstr ""
+msgstr "Verzögerung"
 
 #: ../src/classes.kvs:17
 msgid "Twins Lag Bar"
-msgstr ""
+msgstr "Twins Verzögerungsleiste"
 
 #: ../src/classes.kvs:155 ../src/classes.kvs:162
 msgid "Twins LagBar-?s"
-msgstr ""
+msgstr "Twins Verzögerungsleiste - ?s"
 
 #: ../src/classes.kvs:167
 msgid "Use it?"
-msgstr ""
+msgstr "Benutzen?"
 
 #: ../src/classes.kvs:174
 msgid "Max lag:"
-msgstr ""
+msgstr "maximale Verzögerung:"
 
 #: ../src/classes.kvs:186
 msgid "Width:"
-msgstr ""
+msgstr "Breite:"
 
 #: ../src/classes.kvs:198
 msgid "Colors"
-msgstr ""
+msgstr "Farben"
 
 #: ../src/classes.kvs:204
 msgid "Red"
-msgstr ""
+msgstr "Rot"
 
 #: ../src/classes.kvs:204
 msgid "Green"
-msgstr ""
+msgstr "Grün"
 
 #: ../src/classes.kvs:204
 msgid "Blue"
-msgstr ""
+msgstr "Blau"
 
 #: ../src/classes.kvs:217
 msgid "High"
-msgstr ""
+msgstr "Höhe"
 
 #: ../src/classes.kvs:217
 msgid "Medium"
-msgstr ""
+msgstr "Mittel"
 
 #: ../src/classes.kvs:217
 msgid "Low"
-msgstr ""
+msgstr "Niedrig"
+

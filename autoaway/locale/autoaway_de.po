@@ -1,0 +1,105 @@
+# translation of autoaway_de.po to german
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Markus Rennings <kvirc@mrmx.de>, 2008.
+msgid ""
+msgstr ""
+"Project-Id-Version: autoaway_de\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-04-16 05:15+0000\n"
+"PO-Revision-Date: 2008-09-17 16:05+0200\n"
+"Last-Translator: Markus Rennings <kvirc@mrmx.de>\n"
+"Language-Team: german <de@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms:  nplurals=2; plural=(n != 1);\n"
+
+#: ../install.kvs:4
+msgid "Automatic Away"
+msgstr "automatisch Abwesend"
+
+#: ../install.kvs:4
+msgid "Automatically enters away state after a period of inactivity"
+msgstr "Wechselt automatisch nach einer gewissen Zeit Inaktivität in den Abwesend-Modus"
+
+#: ../install.kvs:62
+msgid "felt asleep over the keyboard..."
+msgstr "über der Tastatur eingeschlafen..."
+
+#: ../install.kvs:65
+#, c-format
+msgid "felt asleep over the keyboard after \\%AutoAwayTime minutes of inactivity..."
+msgstr "über der Tastatur eingeschlafen nach \\%AutoAwayTime Minuten Inaktivität..."
+
+#: ../install.kvs:113
+msgid "Automatic Away Configuration"
+msgstr "Automatisch-Abwesend Einstellungen"
+
+#: ../install.kvs:121
+msgid "Enable Automatic Away"
+msgstr "Automatisch-Abwesend aktivieren"
+
+#: ../install.kvs:125
+#, c-format
+msgid ""
+"The Away Reason text will be used as parameter of the /AWAY command. It can "
+"contain color codes, identifiers and variables.<br>Hints: \\$k(fg,bg), \\$b, "
+"\\%AutoAwayTime"
+msgstr "Der Abwesenheitsgrund wird als Parameter für den /AWAY-Befehl genutzt. Er kann Farbcodes, Bezeichner und Variablen enthalten.<br>Hinweise: \\$k(Vg,Hg), \\$b, \\%AutoAwayTime"
+
+#: ../install.kvs:128
+msgid "Reason"
+msgstr "Grund"
+
+#: ../install.kvs:140
+msgid ""
+"This is the aproximate timeout after that KVIrc will automatically set away "
+"mode"
+msgstr "Dies ist die durchschnittliche Zeitspanne, nach der KVIrc automatisch den Abwesend-Status setzt"
+
+#: ../install.kvs:142
+msgid "Inactivity Timeout"
+msgstr "Inaktivitätszeitspanne"
+
+#: ../install.kvs:151
+msgid "minutes"
+msgstr "Minuten"
+
+#: ../install.kvs:158
+msgid ""
+"While setting away mode, the addon can also execute a /me command on all the "
+"channels and queries you are on.<br>Please be aware that away actions are "
+"often looked sospiciously by operators..."
+msgstr "Beim Setzen des Abwesend-Modus kann diese Erweiterung auch einen /me-Befehl in allen betretenen Channels und Queries ausführen.<br>Bitte beachten Sie, dass dieses oftmals nicht gern gesehen wird..."
+
+#: ../install.kvs:159
+msgid "Use Away Message"
+msgstr "Abwesend-Nachricht benutzen"
+
+#: ../install.kvs:175
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: ../install.kvs:182
+msgid "OK"
+msgstr "Ok"
+
+#: ../install.kvs:262 ../install.kvs:268
+msgid "Autoaway must be started in a connected IRC context"
+msgstr "Autoaway muss in einem verbundenen IRC-Kontext gestartet werden"
+
+#: ../install.kvs:294
+msgid "Entering AutoAway after"
+msgstr "Abwesend-Status setzen nach"
+
+#: ../install.kvs:294
+msgid "minutes of IRC context inactivity"
+msgstr "Minuten Inaktivität des IRC-Kontextes"
+
+#: ../install.kvs:310
+msgid "Autoaway can be running only in an IRC context"
+msgstr "Autoaway kann nur in einem IRC-Kontext ausgeführt werden"
+

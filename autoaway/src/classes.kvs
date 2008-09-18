@@ -64,7 +64,7 @@ class(autoaway::configure_dialog,dialog)
 		%l->$addMultiCellWidget(@%hInactivityTimeout,2,2,2,4)
 		objects.connect @%hEnabled "toggled" @%hInactivityTimeout "setEnabled"
 
-		%tip = $tr("While setting away mode, the addon can also execute a /me command on all the channels and queries you are on.<br>Please be aware that away actions are often looked sospiciously by operators...","autoaway");
+		%tip = $tr("While setting away mode, the addon can also execute a /me command on all the channels and queries you are on.<br>Please be aware that away actions are often looked suspiciously by operators...","autoaway");
 		@%hUseAwayMessage = $this->$createCheckBox($this,$tr("Use Away Message","autoaway"),%AutoAway{"UseAwayMessage"})
 		@%hUseAwayMessage->$setEnabled(%AutoAway{"Enabled"})
 		@%hUseAwayMessage->$setToolTip(%tip)

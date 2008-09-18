@@ -1,0 +1,123 @@
+# translation of nowplaying_de.po to german
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Markus Rennings <kvirc@mrmx.de>, 2008.
+msgid ""
+msgstr ""
+"Project-Id-Version: nowplaying_de\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2005-04-11 03:30+0000\n"
+"PO-Revision-Date: 2008-09-18 00:47+0200\n"
+"Last-Translator: Markus Rennings <kvirc@mrmx.de>\n"
+"Language-Team: german <de@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms:  nplurals=2; plural=(n != 1);\n"
+
+#: ../install.kvs:9
+msgid "Now Playing: The media advertiser"
+msgstr "Now Playing: Der Medienanzeiger"
+
+#: ../install.kvs:9
+msgid "Allows advertising and sharing the currently played media"
+msgstr "Erlaubt das Anzeigen und Teilen des grade gehörten Stücks"
+
+#: ../install.kvs:93
+msgid "Now Playing Script Configuration"
+msgstr "Now-Playing-Skript Einstellungen"
+
+#: ../install.kvs:102
+msgid "Output Format"
+msgstr "Ausgabeformat"
+
+#: ../install.kvs:105
+msgid "Use Colors"
+msgstr "Farben benutzen"
+
+#: ../install.kvs:106
+msgid "Bold Title"
+msgstr "fetter Titel"
+
+#: ../install.kvs:110
+msgid "Output Contents"
+msgstr "auzugebender Inhalt"
+
+#: ../install.kvs:113
+msgid "Show Year"
+msgstr "Jahr anzeigen"
+
+#: ../install.kvs:114
+msgid "Show Bitrate"
+msgstr "Bitrate anzeigen"
+
+#: ../install.kvs:115
+msgid "Show Sample Rate"
+msgstr "Sample-Rate anzeigen"
+
+#: ../install.kvs:116
+msgid "Show Channels"
+msgstr "Kanäle anzeigen"
+
+#: ../install.kvs:117
+msgid "Show File Size"
+msgstr "Dateigröße anzeigen"
+
+#: ../install.kvs:121
+msgid "Other"
+msgstr "Anderes"
+
+#: ../install.kvs:124
+msgid "Share Media"
+msgstr "Stück verteilen"
+
+#: ../install.kvs:128
+msgid "Share Timeout"
+msgstr ""
+
+#: ../install.kvs:133
+msgid "seconds"
+msgstr "Sekunden"
+
+#: ../install.kvs:138
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: ../install.kvs:144
+msgid "OK"
+msgstr "OK"
+
+#: ../install.kvs:205
+msgid "Seems that your media player is not playing at the moment (status:"
+msgstr "Es scheint, dass der Medienspieler zur Zeit nichts wiedergibt (Status:"
+
+#: ../install.kvs:211
+msgid "You can advertise the currently played media only on channels and queries"
+msgstr "Das aktuell gespielte Stück kann nur in Channels und Queries angeboten werden"
+
+#: ../install.kvs:302
+msgid "Advertise current media"
+msgstr "Aktuelles Stück anbieten"
+
+#: ../install.kvs:302
+msgid "nowplaying"
+msgstr "jetzt läuft"
+
+#: ../install.kvs:302
+msgid "Advertises the currently played media and shares it"
+msgstr "Bietet das aktuelle Stück zum Teilen an"
+
+#: ../install.kvs:307
+msgid "Configure \"Now Playing\""
+msgstr "\"Now Playing\" einrichten"
+
+#: ../install.kvs:307
+msgid "Allows configuring the \"Now Playing\" script addon"
+msgstr "Erlaubt die \"Now Playing\"-Erweiterung einzurichten"
+
+#: ../install.kvs:313
+msgid "Now Playing"
+msgstr "jetzt läuft"
+

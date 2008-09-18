@@ -1,0 +1,89 @@
+# translation of kiss_de.po to german
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Markus Rennings <kvirc@mrmx.de>, 2008.
+msgid ""
+msgstr ""
+"Project-Id-Version: kiss_de\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2007-10-10 16:43+0200\n"
+"PO-Revision-Date: 2008-09-16 19:10+0200\n"
+"Last-Translator: Markus Rennings <kvirc@mrmx.de>\n"
+"Language-Team: german <de@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms:  nplurals=2; plural=(n != 1);\n"
+
+#: ../install.kvs:10
+msgid "Allows to change KVIrc icons sets"
+msgstr "Erlaubt das Ändern der KVIrc Symbolsets"
+
+#: ../install.kvs:57
+msgid "Allows configuring the \"K.I.S.S.\" addon"
+msgstr "Erlaubt das Konfigurieren der \"K.I.S.S.\" Erweiterung"
+
+#: ../src/KISS_gui.kvs:24
+msgid "Created by"
+msgstr "Erstellt von"
+
+#: ../src/KISS_gui.kvs:28
+msgid "What icon set would you like to install?"
+msgstr "Welche Symbole sollen installiert werden?"
+
+#: ../src/KISS_gui.kvs:35
+msgid "Classic Icons"
+msgstr "klassische Symbole"
+
+#: ../src/KISS_gui.kvs:36
+msgid ""
+"This set will install the classic old-style KVIrc icons.<br /> \t\t\t"
+"\tIndicated to users with a bit of melancholy :)"
+msgstr "Dieses Set installiert die klassischen älteren KVIrc-Symbole.<br /> \t\t\t\tAngebracht für Nutzer mit ein kleinwenig Melancholie :)"
+
+#: ../src/KISS_gui.kvs:42
+msgid "Classic Smiles"
+msgstr "klassische Smilies"
+
+#: ../src/KISS_gui.kvs:43
+msgid ""
+"This set will install the brand new icon with the old-style<br /> \t\t\t"
+"\tKVIrc smiles, to make KVIrc modern with a bit of vintage style"
+msgstr "Dieses Set installiert die brandneuen Symbole mit den alten<br />\t\t\t\tKVIrc-Smiles, um KVIrc modern, mit einem bisschen Traditionellem, aussehen zu lassen"
+
+#: ../src/KISS_gui.kvs:49
+msgid "New Icons"
+msgstr "Neue Symbole"
+
+#: ../src/KISS_gui.kvs:50
+msgid ""
+"This set will install the brand new icons, shipped with the<br /> \t\t\t"
+"\tKVIrc distribution"
+msgstr "Dieses Set installiert die brandneuen Symbole, die mit KVIrc<br /> \t\t\t\tausgeliefert werden"
+
+#: ../src/KISS_gui.kvs:58
+msgid "Install"
+msgstr "Installieren"
+
+#: ../src/KISS_gui.kvs:65
+msgid "Exit"
+msgstr "Verlassen"
+
+#: ../src/KISS_gui.kvs:108
+msgid "You found a bug, please report it"
+msgstr "Sie haben einen Fehler gefunden, bitte melden Sie ihn"
+
+#: ../src/KISS_gui.kvs:131
+msgid ""
+"You have to restart KVIrc to make\n"
+"changes effective"
+msgstr ""
+"KVIrc muss neu gestartet werden, damit die\n"
+"Änderungen wirksam werden"
+
+#: ../src/KISS_gui.kvs:131
+msgid "OK"
+msgstr "OK"
+

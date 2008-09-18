@@ -1,324 +1,326 @@
-# SOME DESCRIPTIVE TITLE.
+# translation of twinsmediaplayer_de.po to german
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
+# Markus Rennings <kvirc@mrmx.de>, 2008.
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: twinsmediaplayer_de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-06-26 19:18+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2008-09-18 11:47+0200\n"
+"Last-Translator: Markus Rennings <kvirc@mrmx.de>\n"
+"Language-Team: german <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms:  nplurals=2; plural=(n != 1);\n"
 
 #: ../src/actions.kvs:1
 msgid "Twins: Show Mediaplayer"
-msgstr ""
+msgstr "Twins: Medienabspieler anzeigen"
 
 #: ../src/actions.kvs:1
 msgid "Show the mediaplayer of the Twins script"
-msgstr ""
+msgstr "Zeigt die Medienwiedergabe des Twins-Skriptes an"
 
 #: ../src/aliases.kvs:15
 msgid "is listening to"
-msgstr ""
+msgstr "hört gerade"
 
 #: ../src/aliases.kvs:89
 msgid ""
 "It is the 3rd time we attempt to start amarok. If you want to try again, "
 "type $b/\\%TwinsMediaPlayer.try=0$b before."
-msgstr ""
+msgstr "Es ist das dritte mal, dass wir versuchen Amarok zu starten. Wenn Sie es erneut versuchen wollen, geben Sie bitte vorher $b/\\%TwinsMediaPlayer.try=0$b ein."
 
 #: ../src/aliases.kvs:96
 #, c-format
 msgid "Starting Twins Media Player in$k(12) %iTime$k()s"
-msgstr ""
+msgstr "Starte Twins-Medienwiedergabe in $k(12) %iTime$k()s"
 
 #: ../src/classes.kvs:5
 msgid "Year"
-msgstr ""
+msgstr "Jahr"
 
 #: ../src/classes.kvs:6
 msgid "Genre"
-msgstr ""
+msgstr "Genre"
 
 #: ../src/classes.kvs:7
 msgid "Length"
-msgstr ""
+msgstr "Länge"
 
 #: ../src/classes.kvs:8
 msgid "Frequency"
-msgstr ""
+msgstr "Frequenz"
 
 #: ../src/classes.kvs:9
 msgid "Bitrate"
-msgstr ""
+msgstr "Bitrate"
 
 #: ../src/classes.kvs:10
 msgid "Freq"
-msgstr ""
+msgstr "Freq"
 
 #: ../src/classes.kvs:11
 msgid "unknown"
-msgstr ""
+msgstr "Unbekannt"
 
 #: ../src/classes.kvs:12
 msgid "stopped"
-msgstr ""
+msgstr "gestoppt"
 
 #: ../src/classes.kvs:13
 msgid "playing"
-msgstr ""
+msgstr "läuft"
 
 #: ../src/classes.kvs:14
 msgid "paused"
-msgstr ""
+msgstr "Pause"
 
 #: ../src/classes.kvs:40
 msgid "Twins Media Player"
-msgstr ""
+msgstr "Twins Media Player"
 
 #: ../src/classes.kvs:58
 msgid "Previous track"
-msgstr ""
+msgstr "vorheriges Stück"
 
 #: ../src/classes.kvs:64
 msgid "Rewind"
-msgstr ""
+msgstr "zurückspulen"
 
 #: ../src/classes.kvs:70
 msgid "Stop"
-msgstr ""
+msgstr "Stop"
 
 #: ../src/classes.kvs:76
 msgid "Pause"
-msgstr ""
+msgstr "Pause"
 
 #: ../src/classes.kvs:82
 msgid "Play"
-msgstr ""
+msgstr "Wiedergeben"
 
 #: ../src/classes.kvs:88
 msgid "Fast forward"
-msgstr ""
+msgstr "schneller Vorlauf"
 
 #: ../src/classes.kvs:94
 msgid "Next track"
-msgstr ""
+msgstr "nächstes Stück"
 
 #: ../src/classes.kvs:125
 msgid "Shuffle"
-msgstr ""
+msgstr "Shuffle"
 
 #: ../src/classes.kvs:135
 msgid "Repeat current track"
-msgstr ""
+msgstr "Aktuelles Stück wiederholen"
 
 #: ../src/classes.kvs:141
 msgid "Advertise the current track on a channel or in a query"
-msgstr ""
+msgstr "Aktuelles Stück im Channel oder Query anzeigen"
 
 #: ../src/classes.kvs:151
 msgid "Configure the media player"
-msgstr ""
+msgstr "Medienabspieler einrichten"
 
 #: ../src/classes.kvs:157
 msgid "Volume control"
-msgstr ""
+msgstr "Lautstärkenregelung"
 
 #: ../src/classes.kvs:173
 msgid "Current volume"
-msgstr ""
+msgstr "aktuelle Lautstärke"
 
 #: ../src/classes.kvs:180
 msgid "Volume"
-msgstr ""
+msgstr "Lautstärke"
 
 #: ../src/classes.kvs:185
 msgid "Open url or add files to playlist"
-msgstr ""
+msgstr "URL öffnen oder Dateien zur Abspielliste hinzufügen"
 
 #: ../src/classes.kvs:191
 msgid "Advertise and <i>offer</i> the current track on a channel or in a query"
-msgstr ""
+msgstr "Aktuelles Stück im Channel oder Query anzeigen und <i>anbieten</i>"
 
 #: ../src/classes.kvs:201
 msgid "Close the media player"
-msgstr ""
+msgstr "Medienabspieler schließen"
 
 #: ../src/classes.kvs:207
 msgid "Show the player"
-msgstr ""
+msgstr "Abspieler anzeigen"
 
 #: ../src/classes.kvs:213
 msgid "Hide the player"
-msgstr ""
+msgstr "Abspieler verstecken"
 
 #: ../src/classes.kvs:305
 msgid "No track being played"
-msgstr ""
+msgstr "Es wird kein Stück wiedergegeben"
 
 #: ../src/classes.kvs:492
 msgid "Status:"
-msgstr ""
+msgstr "Status:"
 
 #: ../src/classes.kvs:606
 msgid "Choose a file or an Mrl to play"
-msgstr ""
+msgstr "Wählen Sie eine Datei oder MRL zum wiedergeben"
 
 #: ../src/classes.kvs:610
 msgid "Choose a file "
-msgstr ""
+msgstr "Wählen Sie eine Datei"
 
 #: ../src/classes.kvs:615
 msgid "Play an mrl (ex.: http://..., or dvd://...):"
-msgstr ""
+msgstr "MRL (z. B. http://... oder dvd://...) wiedergeben:"
 
 #: ../src/classes.kvs:618
 msgid "Ok"
-msgstr ""
+msgstr "Ok"
 
 #: ../src/classes.kvs:635
 msgid "Play Mrl"
-msgstr ""
+msgstr "MRL abspielen"
 
 #: ../src/classes.kvs:635
 msgid "Your Mrl is empty!"
-msgstr ""
+msgstr "Die MRL ist leer!"
 
 #: ../src/classes.kvs:640
 msgid "Add File"
-msgstr ""
+msgstr "Datei hinzufügen"
 
 #: ../src/classes.kvs:657
 msgid "Confirm Quit"
-msgstr ""
+msgstr "Beenden bestätigen"
 
 #: ../src/classes.kvs:664
 msgid "Do you really want to close the Twins media Player?"
-msgstr ""
+msgstr "Möchten Sie Twins Media Player wirklich beenden?"
 
 #: ../src/classes.kvs:668
 msgid "Remember this choice?"
-msgstr ""
+msgstr "Diese Auswahl merken?"
 
 #: ../src/classes.kvs:716
 msgid "Twins Media Player Configuration"
-msgstr ""
+msgstr "Twins Media Player Einstellungen"
 
 #: ../src/classes.kvs:729
 msgid "Advertising"
-msgstr ""
+msgstr "Anzeigen"
 
 #: ../src/classes.kvs:733
 msgid "Choose the technical information you want to advertise"
-msgstr ""
+msgstr "Wählen Sie die technischen Informationen, die Sie anzeigen möchten"
 
 #: ../src/classes.kvs:756
 msgid "Announcement string"
-msgstr ""
+msgstr "Anzeigenzeichenkette"
 
 #: ../src/classes.kvs:766
 msgid "Separator string between tecnhical information"
-msgstr ""
+msgstr "Trennzeichen oder -zeichenkette zwischen den technischen Informationen"
 
 #: ../src/classes.kvs:785
 msgid "Timeout of file offers"
-msgstr ""
+msgstr "Zeitbeschränkung des Anbietens"
 
 #: ../src/classes.kvs:797
 msgid "Max length of offered file names"
-msgstr ""
+msgstr "maximale Länge der angebotenen Dateinamen"
 
 #: ../src/classes.kvs:811
 msgid "Look"
-msgstr ""
+msgstr "Aussehen"
 
 #: ../src/classes.kvs:814
 msgid "Window"
-msgstr ""
+msgstr "Fenster"
 
 #: ../src/classes.kvs:816
 msgid "Artist"
-msgstr ""
+msgstr "Künstler"
 
 #: ../src/classes.kvs:818
 msgid "Title"
-msgstr ""
+msgstr "Titel"
 
 #: ../src/classes.kvs:820
 msgid "Album"
-msgstr ""
+msgstr "Album"
 
 #: ../src/classes.kvs:834
 msgid "Player"
-msgstr ""
+msgstr "Abspieler"
 
 #: ../src/classes.kvs:843
 msgid "Choose your player"
-msgstr ""
+msgstr "Abspieler auswählen"
 
 #: ../src/classes.kvs:853
 msgid "Auto-detect"
-msgstr ""
+msgstr "automatisch ermitteln"
 
 #: ../src/classes.kvs:873
 msgid "Start && Quit"
-msgstr ""
+msgstr "Starten && Verlassen"
 
 #: ../src/classes.kvs:877
 msgid "Start mode"
-msgstr ""
+msgstr "Startmodus"
 
 #: ../src/classes.kvs:891
 msgid "Always start the media player with KVIrc"
-msgstr ""
+msgstr "Den Medienabspieler immer mit KVIrc starten"
 
 #: ../src/classes.kvs:892
 msgid "Let the user to manually start the media player"
-msgstr ""
+msgstr "Den Benutzer den Medienspieler manuell starten lassen"
 
 #: ../src/classes.kvs:893
 msgid "Remember the media player state of the last KVIrc session"
-msgstr ""
+msgstr "Den Status des Medienabspielers der letzten KVIrc-Sitzung merken"
 
 #: ../src/classes.kvs:901
 msgid "Confirm before quit"
-msgstr ""
+msgstr "Verlassen bestätigen"
 
 #: ../src/classes.kvs:938
 msgid "Foreground"
-msgstr ""
+msgstr "Vordergrund"
 
 #: ../src/classes.kvs:942 ../src/classes.kvs:950
 msgid "Enter an html color code like <b>white</b> or <b>#ffffff</b>"
-msgstr ""
+msgstr "HTML-Farbcode, wie z. B. <b>white</b> oder <b>#ffffff</b> eingeben"
 
 #: ../src/classes.kvs:946
 msgid "Background"
-msgstr ""
+msgstr "Hintergrund"
 
 #: ../src/classes.kvs:971
 msgid "Genre:"
-msgstr ""
+msgstr "Genre:"
 
 #: ../src/classes.kvs:973
 msgid "Length:"
-msgstr ""
+msgstr "Länge:"
 
 #: ../src/classes.kvs:975
 msgid "Bitrate:"
-msgstr ""
+msgstr "Bitrate:"
 
 #: ../src/classes.kvs:1004
 msgid "none"
-msgstr ""
+msgstr "Nichts"
 
 #: ../src/classes.kvs:1005
 msgid "Found:"
-msgstr ""
+msgstr "Gefunden:"
+

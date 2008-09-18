@@ -1,0 +1,35 @@
+# translation of ezbounce_de.po to german
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Markus Rennings <kvirc@mrmx.de>, 2008.
+msgid ""
+msgstr ""
+"Project-Id-Version: ezbounce_de\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2004-12-18 05:00+0100\n"
+"PO-Revision-Date: 2008-09-17 21:43+0200\n"
+"Last-Translator: Markus Rennings <kvirc@mrmx.de>\n"
+"Language-Team: german <de@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms:  nplurals=2; plural=(n != 1);\n"
+
+#: ../ezbounce.kvs:61
+msgid "Requests EZBounce statistics"
+msgstr "EZBounce-Statistiken abrufen"
+
+#: ../ezbounce.kvs:66
+msgid "Requests EZBounce to quit the current connection"
+msgstr "Veranlasst EZBounce die aktuelle Verbindung zu beenden"
+
+#: ../ezbounce.kvs:71
+msgid "Requests EZBounce to detach the current connection"
+msgstr "Veranlasst EZBounce, die akutelle Verbindung abzulösen"
+
+#: ../ezbounce.kvs:77
+msgid "EZ-Bounce utilities"
+msgstr "EZ-Bounce Utilities"
+
