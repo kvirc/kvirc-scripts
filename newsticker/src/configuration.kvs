@@ -145,13 +145,16 @@ class(newsticker::core::configuration::dialog,dialog)
 	internal createListViewItem($0 = name,$1 = url,$2 = topic,$3 = lang,$4 = enabled,$5 = use notifier,$6 = last notification)
 	{
 		%lvi = $new(listviewitem,@%m_hListView)
-		%lvi->$setCheckable($true);
+		if ($str.containsnocase($features(),"QT4"))
+			%lvi->$setFlags(editable,selectable,enabled,userCheckable)
+		else %lvi->$setCheckable($true);
 		if($4)
 		{
 			%lvi->$setPixmap(0,"newsticker_source_enabled_16.png")
 			%lvi->$setChecked($true);
 		} else {
 			%lvi->$setPixmap(0,"newsticker_source_disabled_16.png")
+			%lvi->$setChecked($false)
 		}
 		%lvi->$setText(0,$0)
 		if($5){
@@ -435,7 +438,8 @@ class(newsticker::core::configuration::source)
 		@%m_tLastNotification = $6
 	}
 }
-
+debug creating class configuration 2
+objects.killClass newsticker::core::configuration
 class(newsticker::core::configuration)
 {
 	// @%m_lSources list of newsticker::core::configuration::source, owned
@@ -553,7 +557,7 @@ class(newsticker::core::configuration)
 	internal load()
 	{
 		if(@%m_lSources)delete @%m_lSources
-		@%m_lSources = $new(list)
+		@%m_lSources = $new(list,0,standardList)
 
 		%c = $config.open("newsticker.kvc","r")
 
@@ -596,7 +600,7 @@ class(newsticker::core::configuration)
 	
 	sourceList()
 	{
-		return @%m_lSources
+	return @%m_lSources
 	}
 	
 	stripHtmlTags()
