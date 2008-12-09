@@ -53,16 +53,21 @@ delete %installer
 
 alias(HelLTriX::bindip::update)
 {
+	# Fake DCC IP updater
+	# Set bind IP for DCC request
 	option boolDccSendFakeAddressByDefault 1
-
+	
 	# Download the page
-	http.asyncGet -e=o -w=h -q (http://ip.dnsexit.com, $file.localdir("tmp/ip.html")){
+	http.asyncGet -e=o -w=h -q (http://ip.dnsexit.com, $file.localdir("tmp/ip.html"))
+	{
 		%tmpFile=$file.read($file.localdir("tmp/ip.html"))
 		%newIP=$str.replace(%tmpFile,""," ")
-
+	
 		# Update DCC bind IP
 		if($option(stringDefaultDccFakeAddress)!=%newIP)
-		        option stringDefaultDccFakeAddress %newIP
+			option stringDefaultDccFakeAddress %newIP
+	
+		#file.remove -q $file.localdir("tmp/ip.html")
 	}
 }
 
