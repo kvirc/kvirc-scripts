@@ -21,12 +21,15 @@ alias(newsticker::close)
 
 alias(newsticker::show)
 {
-	# On versions of KVIrc that support it, be nice and
-	# Avoid global namespace pollution: use $object.instances()
-	# to implement the singleton
 	if($version("s") >= "20061110")
 	{
-		if($objects.instances(newsticker::window))return
+		if($objects.instances(newsticker::window)) 
+		{
+			%dock=$objects.instances(newsticker::window)[0]
+			%dock->$dock(l)
+			%dock->$show()
+			return 		
+		}
 		%h = $new(newsticker::window,0)
 		%h->$dock(l)
 		%h->$show()
