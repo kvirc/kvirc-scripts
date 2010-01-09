@@ -26,6 +26,7 @@ alias(newsticker::show)
 		if($objects.instances(newsticker::window)) 
 		{
 			%dock=$objects.instances(newsticker::window)[0]
+			if (%dock->$isVisible()) return
 			%dock->$dock(l)
 			%dock->$show()
 			return 		

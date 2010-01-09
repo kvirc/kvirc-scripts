@@ -4,13 +4,11 @@ class(newsticker::rss::entrylist,list)
 	
 	constructor()
 	{
-		debug costruisco la lista
 		@%m_uUnreadCount = 0
 	}
 	
 	destructor()
 	{
-		debug dentro il distruttore
 		@$clear()
 	}
 	
@@ -31,7 +29,6 @@ class(newsticker::rss::entrylist,list)
 	
 	clear()
 	{
-		debug cancello la lista
 		@%m_uUnreadCount = 0
 		if(@$moveFirst())
 		{
