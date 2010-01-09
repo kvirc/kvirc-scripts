@@ -18,8 +18,8 @@ class(newsticker::window,dockwindow)
 	
 	constructor()
 	{
-		$$->$setCaption($tr("Newsticker","newsticker"))
-	
+		if ($str.containsnocase($features(),"QT4"))@$setWindowTitle($tr("Newsticker","newsticker"))
+		  else @$setCaption($tr("Newsticker","newsticker"))
 		@%m_hCurrentEntry = $new(newsticker::rss::entry)
 		@%m_bAutoDisplay = $true
 		@%m_tLastDisplayedEntryTimestamp = 0
@@ -28,7 +28,7 @@ class(newsticker::window,dockwindow)
 		objects.connect @%m_hController "newDataAvailable" $this "newDataAvailable"
 
 		@$setAllowedDockAreas("lrfm");
-		@$setResizeEnabled($true);
+		if (!$str.containsnocase($features(),"QT4")) @$setResizeEnabled($true);
 
 		@%m_hContainer = $new(widget,$this)
 		%l = $new(layout,@%m_hContainer)
@@ -91,14 +91,23 @@ class(newsticker::window,dockwindow)
 		%l->$addWidget(@%m_hSayButton,2,5)
 		objects.connect @%m_hSayButton "clicked" $this "sayClicked"
 
-
-		%l->$setColStretch(0,0)
-		%l->$setColStretch(1,0)
-		%l->$setColStretch(2,5)
-		%l->$setColStretch(3,0)
-		%l->$setColStretch(4,0)
-		%l->$setColStretch(5,0)
-
+		if ($str.containsnocase($features(),"QT4"))
+		{
+		      %l->$setColumnStretch(0,0)
+		      %l->$setColumnStretch(1,0)
+		      %l->$setColumnStretch(2,5)
+		      %l->$setColumnStretch(3,0)
+		      %l->$setColumnStretch(4,0)
+		      %l->$setColumnStretch(5,0)
+		}
+		else{
+		      %l->$setColStretch(0,0)
+		      %l->$setColStretch(1,0)
+		      %l->$setColStretch(2,5)
+		      %l->$setColStretch(3,0)
+		      %l->$setColStretch(4,0)
+		      %l->$setColStretch(5,0)
+		}
 		%l->$setRowStretch(0,500)
 		%l->$setRowStretch(1,0)
 		%l->$setRowStretch(2,0)

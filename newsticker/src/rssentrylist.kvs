@@ -4,76 +4,83 @@ class(newsticker::rss::entrylist,list)
 	
 	constructor()
 	{
+		debug costruisco la lista
 		@%m_uUnreadCount = 0
 	}
 	
 	destructor()
 	{
-		$this->$clear()
+		debug dentro il distruttore
+		@$clear()
 	}
 	
 	unreadCount()
 	{
-		return @%m_uUnreadCount;
+		return @%m_uUnreadCount
 	}
 	
 	decreaseUnreadCount()
 	{
 		@%m_uUnreadCount--
 	}
+	destructor()
+	{
+		debug dentro il distruttore
+		@$clear()
+	}
 	
 	clear()
 	{
+		debug cancello la lista
 		@%m_uUnreadCount = 0
-		if($this->$moveFirst())
+		if(@$moveFirst())
 		{
 			do {
-				delete $this->$current()
-			} while($this->$moveNext())
+				delete @$current()
+			} while(@$moveNext())
 		}
-		
-		$this->$list::clear()
+		@$list::clear()
 	}
 	
 	inSort($0 = newsticker::rss::entry)
 	{
 		if($0->$isUnread())@%m_uUnreadCount++
-		if(!$this->$moveFirst())
+		if(!@$moveFirst())
 		{
-			$this->$append($0)
+			@$append($0)
 			return
 		}
 		
 		%idx = 0
 		do {
-			%r = $this->$current();
+			%r = @$current();
 			if(%r->$date() > $0->$date())
 			{
-				$this->$insert(%idx,$0)
+				@$insert(%idx,$0)
 				return
 			}
 			%idx++
-		} while($this->$moveNext())
+		} while(@$moveNext())
 		# debug "IN SORT: APPENDING"
-		$this->$append($0)
+		@$append($0)
 	}
 	
 	removeBySource($0 = sourcename)
 	{
 		# debug "REMOVE BY SOURCE "$0
-		if(!$this->$moveFirst())return
+		if(!@$moveFirst())return
 
 		%idx = 0
 		%toremoveidx = 0
 		do {
-			if($this->$current()->$source() == $0)
+			if(@$current()->$source() == $0)
 			{
 				%toremove[%toremoveidx] = %idx
 				%toremoveidx++
 				#debug "GOT ONE TO REMOVE"
 			}
 			%idx++
-		} while($this->$moveNext())
+		} while(@$moveNext())
 		
 		%hUnread = $hash();
 
@@ -82,7 +89,7 @@ class(newsticker::rss::entrylist,list)
 		for(%idx = $(%toremoveidx - 1);%idx >= 0;%idx--)
 		{
 			#debug "REMOVING THAT ONE"
-			%r = $this->$at(%toremove[%idx])
+			%r = @$at(%toremove[%idx])
 			if(%r != $null)
 			{
 				%hUnread{%r->$date()}{isUnread} = %r->$isUnread()
@@ -90,7 +97,7 @@ class(newsticker::rss::entrylist,list)
 				if(%r->$isUnread())@%m_uUnreadCount--
 				#debug "...REALLY REMOVING"
 				delete %r
-				$this->$remove(%toremove[%idx])
+				@$remove(%toremove[%idx])
 			}
 		}
 		
@@ -100,12 +107,12 @@ class(newsticker::rss::entrylist,list)
 	firstUnNotified()
 	{
 
-		if(!$this->$moveFirst())return $null
+		if(!@$moveFirst())return $null
 
 		do {
-			if(!$this->$current()->$isNotified())
-				return $this->$current()
-		} while($this->$moveNext())
+			if(!@$current()->$isNotified())
+				return @$current()
+		} while(@$moveNext())
 
 		return $null
 	}

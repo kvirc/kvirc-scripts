@@ -1,0 +1,45 @@
+class(listviewwrapper,listview)
+{
+    constructor()
+    {
+	if ($str.containsnocase($features(),"QT4")) {@%qt4=$true;@%idx=0;}
+	else @%qt4=$false
+	
+    }
+    selectedItem()
+    {
+	if (!@%qt4)
+	{
+	  	return @$listview::selectedItem()
+	}
+	else
+	{
+	    return @$listview::selectedItems()[0]
+	}
+    }
+    nextSibling()
+    {
+	if (!@%qt4)
+	{
+	  	return @$listview::nextSibling()
+	}
+	else
+	{
+	    @%idx++
+	    return @$listview::topLevelItem(@%idx)
+	}
+    }
+    firstChild()
+    {
+	if (!@%qt4)
+	{
+	  	return @$listview::firstChild()
+	}
+	else
+	{
+	    return @$listview::topLevelItem(0)
+	}
+
+    }
+}
+    

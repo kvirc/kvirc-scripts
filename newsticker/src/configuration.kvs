@@ -2,8 +2,8 @@ class(newsticker::core::configuration::sourceeditor,dialog)
 {
 	constructor()
 	{
-		$$->$setCaption($tr("Edit source","newsticker"))
-
+		if ($str.containsnocase($features(),"QT4"))@$setWindowTitle($tr("Edit source","newsticker"))
+		  else @$setCaption($tr("Edit source","newsticker"))
 		%l = $new(layout,$this)
 
 		%lb = $new(label,$this)
@@ -53,7 +53,8 @@ class(newsticker::core::configuration::sourceeditor,dialog)
 		%l->$setSpacing(3)
 
 		%l->$setRowStretch(4,100)
-		%l->$setColStretch(1,100)
+		if ($str.containsnocase($features(),"QT4")) %l->$setColumnStretch(1,100)
+		  else %l->$setColStretch(1,100)
 	}
 
 	edit($0 = source,$1 = bIsNew)
@@ -197,7 +198,8 @@ class(newsticker::core::configuration::dialog,dialog)
 		#	debug "got item data:" %lvi->$text(0),%lvi->$text(3),%lvi->$text(1),%lvi->$text(2),%lvi->$isChecked()
 			%s->$set(%lvi->$text(0),%lvi->$text(4),%lvi->$text(2),%lvi->$text(3),%lvi->$isChecked(),$($tr("Yes","newsticker") == %lvi->$text(1)),%lvi->%lastNotification)
 			%l->$append(%s)
-			%lvi = %lvi->$nextSibling()
+			if ($str.containsnocase($features(),"QT4")) %lvi = @%m_hListView->$nextSibling()
+			else %lvi = %lvi->$nextSibling()
 		}
 
 		%c = $newsticker::core::configuration()
@@ -214,7 +216,7 @@ class(newsticker::core::configuration::dialog,dialog)
 		
 		%l = $new(layout,%w)
 
-		@%m_hListView = $new(listview,%w)
+		@%m_hListView = $new(listviewwrapper,%w)
 		%l->$addMultiCellWidget(@%m_hListView,0,0,0,4)
 
 		@%m_hListView->$addColumn($tr("Name","newsticker"),230)
@@ -250,11 +252,21 @@ class(newsticker::core::configuration::dialog,dialog)
 		%l->$setMargin(5)
 		%l->$setSpacing(2)
 		%l->$setRowStretch(0,100)
-		%l->$setColStretch(1,0)
-		%l->$setColStretch(1,100)
-		%l->$setColStretch(2,0)
-		%l->$setColStretch(3,0)
-		%l->$setColStretch(4,0)
+		if ($str.containsnocase($features(),"QT4"))
+		{
+		      %l->$setColumnStretch(1,0)
+		      %l->$setColumnStretch(1,100)
+		      %l->$setColumnStretch(2,0)
+		      %l->$setColumnStretch(3,0)
+		      %l->$setColumnStretch(4,0)
+		}
+		else{
+		      %l->$setColStretch(1,0)
+		      %l->$setColStretch(1,100)
+		      %l->$setColStretch(2,0)
+		      %l->$setColStretch(3,0)
+		      %l->$setColStretch(4,0)
+	      }
 	}
 
 	internal createOtherPage()
@@ -287,14 +299,15 @@ class(newsticker::core::configuration::dialog,dialog)
 
 		%l->$setMargin(15)
 		%l->$setSpacing(4)
-		%l->$setColStretch(0,1)
+		if ($str.containsnocase($features(),"QT4")) %l->$setColumnStretch(0,1)
+		else %l->$setColStretch(0,1)
 		%l->$setRowStretch(5,1)
 	}
 
 	constructor()
 	{
-		$$->$setCaption($tr("Newsticker Configuration","newsticker"))
-	
+		if ($str.containsnocase($features(),"QT4"))@$setWindowTitle($tr("Newsticker Configuration","newsticker"))
+		  else @$setCaption($tr("Newsticker Configuration","newsticker"))
 		%l = $new(layout,$this)
 
 		@%m_hTabWidget = $new(tabwidget,$this)
@@ -320,10 +333,17 @@ class(newsticker::core::configuration::dialog,dialog)
 		%l->$setMargin(5)
 		%l->$setSpacing(2)
 		%l->$setRowStretch(0,100)
-		%l->$setColStretch(0,100)
-		%l->$setColStretch(1,0)
-		%l->$setColStretch(2,0)
-
+		if ($str.containsnocase($features(),"QT4"))
+		{
+		      %l->$setColumnStretch(0,100)
+		      %l->$setColumnStretch(1,0)
+		      %l->$setColumnStretch(2,0)
+		}
+		else{
+		      %l->$setColStretch(0,100)
+		      %l->$setColStretch(1,0)
+		      %l->$setColStretch(2,0)
+		}
 		$$->$display()
 		
 		$$->$sourceListSelectionChanged()
@@ -439,7 +459,7 @@ class(newsticker::core::configuration::source)
 	}
 }
 debug creating class configuration 2
-objects.killClass newsticker::core::configuration
+if ($classDefined(newsticker::core::configuration)) objects.killClass newsticker::core::configuration
 class(newsticker::core::configuration)
 {
 	// @%m_lSources list of newsticker::core::configuration::source, owned
