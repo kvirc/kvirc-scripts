@@ -1,146 +1,141 @@
-alias(dump)
+# KVIrc 4 Objects Tree Dump  script
+# Written by Noldor  (2010)
+# This script allow you to see all kvirc's interface objects in a listview.
+ 
+
+class (kvirc4tree,listview)
 {
-	# Objects Tree Dump  script
-	# Written by Noldor & Grifisx  (2005)
-	# This script allow you to see all kvirc's interface objects in a listview.
-	# It's just an alias, install it and "/dump"  =) EnjoY! 
-	
-	class (mylistview,listview)
+	constructor()
 	{
-		
-		selectionChangedEvent
-		{
-			%tmp=$0
-			%i=0
-			while(%tmp->$classname != "mylistview")
-			{
-				%temp_object[%i]=%tmp->$text(0);
-				%i++;
-				%tmp=%tmp->$parent();
-			}
-			@$killPropertyChildren()
-			%i=%temp_object[]#
-			while(%i)
-			{
-				 %gerarchia=%gerarchia%temp_object[$(%i-1)]
-				if (%i !=1) %gerarchia=%gerarchia"->"
-				%i --;
-			}
-			//%tmp_property=$new(listviewitem,$$->$parent->%property)
-			$$->$parent->%property->$setTooltip(%gerarchia)
-			%ger=$str.replace(%gerarchia,",","->")
-			eval \%Wrapper\=\$new\(wrapper,0,test,%ger\) 
-			$$->$parent->%line_ger->$setText(%ger)
-			if (!%Wrapper)
-			{
-				echo"No such object!"
-				return
-			}
-			%array_property[]=%Wrapper->$listproperties(1)
-			%i=0
-			while(%i !=%array_property[]#)
-			{
-				%property=$str.section(%array_property[%i],"\,",0,0)
-				echo property %property
-				@%list_name[%i]=$new(listviewitem,$$->$parent->%property)
-				@%list_name[%i]->$setText(0,test)
-				@%list_name[%i]->$setText(0,%property)
-				@%list_name[%i]->$setText(1,$str.section(%array_property[%i],"\,",1,1))
-				@%list_name[%i]->$setText(2,%Wrapper->$property(%property,1))
-				@%list_name[%i]->$setRenameEnabled(2,$true)
-	
-				%i++;
-			}
-			
-		}
-		killPropertyChildren()
-		{
-			for(%i=0;%i<$length(@%list_name[]);%i++)
-				delete @%list_name[%i]
-			@%list_name[]= ""
-		}
-		itemRenamed
-		{
-			%property=$0->$text(0)
-			%value=$2
-			eval \%Wrapper\-\>\$setProperty\(%property\,%value\)
-		}
-		
+		@$addcolumn("Kvirc Widget Objects Tree",300)
+		@$setRootIsDecorated($true)
+		@$fillTree()
 	}
-	class (dump,widget)
+	filltree()
 	{
-		constructor
-		{	
-			%Flag=0
-			@$resize(800,600)
-			@%tree[]=$objects.dump(0)
-			
-			//@$setCaption("Kvir Objects Dump")	
-			@%lay=$new(layout,$$)
-			@%dump=$new(mylistview,$$)
-			//@%tree=$new(object)		
-			@%property=$new(listview,$$)
-	
-			privateimpl(@%property,itemRenamedEvent)
-			{
-				$$->$parent->%dump->$itemRenamed($0,$1,$2)
-			}
-			@%property->$setHeaderLabels(Property,Type,Value)
-			@%dump->$addcolumn("Kvirc Widget Objects Tree",300)
-			@%dump->$setRootIsDecorated(1)
-			@%lay->$addwidget(@%dump,0,0)
-			@%lay->$addwidget(@%property,0,1)		
-			@%line_find=$new(lineedit,$$)
-			@%line_ger=$new(lineedit,$$)
-			@%lay->$addwidget(@%line_find,1,0)
-			@%lay->$addwidget(@%line_ger,1,1)
-			objects.connect @%line_find returnPressed $$ find
-		}
-			createtree()
-			{
-			%string=$0
-			%i=0
-			while (%i != @%tree[]#)
-			{
-				if ($str.findfirst(@%tree[%i],"\>") == -1)
-				{
-					%parent_current[0]=$new(listviewitem,@%dump)
-					%child=0
-				}
-				else
-				{
-					%child=1;
-					while ($str.find(@%tree[%i],"\>",%child) != -1)
-					{
-						%child++;
-					}
-					%child--;
-					%parent_current[%child]=""
-					%parent_current[%child]=$new(listviewitem,%parent_current[$(%child-1)])
-				}
-					%parent_current[%child]->$setopen(1)
-					if ($str.findfirst(@%tree[%i],%string) != -1) %parent_current[%child]->$setpixmap(0,39)
-					%tmp=$str.mid(@%tree[%i],%child,$($str.len(@%tree[%i])-%child))
-					%parent_current[%child]->$settext(0,%tmp)
-				%i++;
-				}
-			@$show()
-			}
-		find()
+		%tree[]=$objects.dump(0)
+		for(%i=0;%i<$length(%tree[]);%i++)
 		{
-			%tmp=@%line_find->$text()
-			@%line_find->$setText("")
-			delete @%dump
-			@%dump=$new(mylistview,$$)
-			@%dump->$addcolumn("Kvirc Widget Objects Tree",300)
-			@%dump->$setRootIsDecorated(1)
-			@%lay->$addwidget(@%dump,0,0)
-			@%dump->$show
-			$$->$createtree(%tmp)
+			if ($str.findfirst(%tree[%i],"\>") == -1)
+			{
+				%parent_current[0]=$new(listviewitem,$$)
+				%child=0
+			}
+			else
+			{
+				%child=1;
+				while ($str.find(%tree[%i],"\>",%child) != -1)%child++;
+				%child--;
+				%parent_current[%child]=$new(listviewitem,%parent_current[$(%child-1)])
+			}
+			%parent_current[%child]->$setopen(1)
+			%tmp=$str.mid(%tree[%i],%child,$($str.len(%tree[%i])-%child))
+			%parent_current[%child]->$settext(0,%tmp)
 		}
 	}
-	%A=$new(dump)
-	%A->$createtree()
+	find()
+	{
+		@%strtofind=$0
+		@$recursiveFind($$)
+	}
+	recursiveFind()
+	{
+		%children[]=$0->$children()
+		for(%i=0;%i<$length(%children[]);%i++)
+		{
+			if ($str.findfirstnocase(%children[%i]->$text(0),@%strtofind) != -1)
+			{
+				%children[%i]->$setpixmap(0,39)
+				%par=%children[%i]->$parent()
+				while(%par!=$$)
+				{
+					%par->$setopen($true)
+					%par=%par->$parent()
+				}
+			}
+			else %children[%i]->$setpixmap(0,"")
+			@$recursiveFind(%children[%i])
+		}
+	}
 }
-
-
+class(kvirc4properties,listview)
+{
+	constructor()
+	{
+		@$setHeaderLabels(Property,Type,Value)
+	}
+	fillProperties()
+	{
+		@%populated=$false
+		%tmp=$0
+		while(%tmp!=@$signalSender())
+		{
+			%temp_object[]<+%tmp->$text(0);
+			%tmp=%tmp->$parent();
+		}
+		%children[]=@$children()
+		for(%i=0;%i<$length(%children[]);%i++) delete %children[%i]
+		%i=$length(%temp_object[])
+		while(%i)
+		{
+			 %gerarchia.=%temp_object[$(%i-1)]
+			if (%i !=1) %gerarchia.=","
+			%i --;
+		}
+		if ($objects.exists(@%wrapper)) delete @%wrapper
+		eval \@\%wrapper\=\$new\(wrapper,0,dumpwrapper,%gerarchia\)
+		$$->$parent->%line_ger->$setText(%ger)
+		if (!@%wrapper)
+		{
+			echo"No such object!"
+			return
+		}
+		%propertyes[]=@%wrapper->$listproperties(1)
+		for(%i=0;%i<$length(%propertyes[]);%i++)
+		{
+			%property=$str.section(%propertyes[%i],"\,",0,0)
+			%item=$new(listviewitem,$$)
+			%item->$setText(0,test)
+			%item->$setText(0,%property)
+			%item->$setText(1,$str.section(%propertyes[%i],"\,",1,1))
+			%item->$setText(2,@%wrapper->$property(%property,1))
+			%item->$setItemEditable($true)
+		}
+		@%populated=$true	
+	}
+	itemChangedEvent()
+	{
+		if(!@%populated) return
+		%property=$0->$text(0)
+		%value=$2
+		eval \@\%wrapper\-\>\$setProperty\(%property\,%value\)
+	}
+}
+class (dump,widget)
+{
+	constructor
+	{	
+		@$resize(800,600)
+		@$setWindowTitle("Kvirc Objects Dump")	
+		@%lay=$new(layout,$$)
+		@%KVIrctree=$new(KVIrc4tree,$$)
+		@%KVIrcproperties=$new(kvirc4properties,$$)
+		objects.connect @%KVIrctree selectionChanged @%KVIrcproperties fillProperties
+		@%lay->$addwidget(@%KVIrctree,0,0)
+		@%lay->$addwidget(@%KVIrcproperties,0,1)		
+		@%line_find=$new(lineedit,$$)
+		@%line_ger=$new(lineedit,$$)
+		@%lay->$addwidget(@%line_find,1,0)
+		@%lay->$addwidget(@%line_ger,1,1)
+		objects.connect @%line_find returnPressed $$ find
+	}
+	find()
+	{
+		%strToFind=@%line_find->$text()
+		@%line_find->$setText("")
+		@%KVIrctree->$find(%strToFind)
+	}
+	
+}
+%Dump=$new(dump)
+%Dump->$show()
