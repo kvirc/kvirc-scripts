@@ -1,4 +1,5 @@
 # Hack for the xgettext: this code will never be executed, but will be added to the translation file
+include qtwrapper.kvs
 if(0)
 {
 	#Year,Genre,Length,Frequency,Bitrate
@@ -14,7 +15,7 @@ if(0)
 	$tr("paused",twinsmediaplayer)
 }
 
-class(twins::mediaplayer::window,dockwindow)
+class(twins::mediaplayer::window,wrapperdockwindow)
 {
 
 	createToolButton($0 = $image)
@@ -392,8 +393,8 @@ class(twins::mediaplayer::window,dockwindow)
 			if(!%file) %share=$mediaplayer.mrl
 			else
 			{
-				if(!$isset(%TwinsMediaPlayer.sharecount))
-					%TwinsMediaPlayer.sharecount=1
+                                if(!$isset(%TwinsMediaPlayer_sharecount))
+                                        %TwinsMediaPlayer_sharecount=1
 				%nowplaying=$mediaplayer.nowplaying
 				for(%i=0;%i<%TwinsMediaPlayer{maxoffernamelength};%i++)
 				{
@@ -402,8 +403,8 @@ class(twins::mediaplayer::window,dockwindow)
 					if($str.contains("()[]  ",%c))%c="_"
 					%name .= %c
 				}
-				%name .= _%TwinsMediaPlayer.sharecount
-				%TwinsMediaPlayer.sharecount++
+                                %name .= %TwinsMediaPlayer_sharecount
+                                %TwinsMediaPlayer_sharecount++
 				sharedfile.add -t=$(%TwinsMediaPlayer{sharetimeout} * 60) -n=%name %file
 				%size = $file.size(%file)
 				%onemeg = $(1024 * 1024)
@@ -593,7 +594,7 @@ class(twins::mediaplayer::window,dockwindow)
 }
 
 // Play an mrl
-class(twins::mediaplayer::mrldialog,dialog)
+class(twins::mediaplayer::mrldialog,wrapperdialog)
 {
 	constructor()
 	{
@@ -651,7 +652,7 @@ class(twins::mediaplayer::mrldialog,dialog)
 }
 
 // Confirm before quit
-class(twins::mediaplayer::confirmbeforequit,dialog)
+class(twins::mediaplayer::confirmbeforequit,wrapperdialog)
 {
 	constructor()
 	{
@@ -708,7 +709,7 @@ class(twins::mediaplayer::confirmbeforequit,dialog)
 
 
 // Configuration
-class(twins::mediaplayer::config,dialog)
+class(twins::mediaplayer::config,wrapperdialog)
 {
 	constructor()
 	{
@@ -874,13 +875,16 @@ class(twins::mediaplayer::config,dialog)
 		%l{sq}->$setspacing(10)
 		@%m_hTabs->$addtab(%hTab{sq},$tr("Start && Quit",twinsmediaplayer),145)
 
-		// Restart Group
+		// Restart Groupstart &
 		%hStart = $new(groupbox,%hTab{sq})
 		%hStart->$settitle($tr("Start mode",twinsmediaplayer))
-		%lStart = $new(layout,%hStart)
-		%lStart->$setmargin(20)
-		%lStart->$setspacing(10)
 		%l{sq}->$addwidget(%hStart,0,0)
+		if (!$str.containsnocase($features(),"QT4"))
+		{
+			%lStart = $new(layout,%hStart)
+			%lStart->$setmargin(20)
+			%lStart->$setspacing(10)
+		}
 		// Setup
 		@%m_szStartMode = %TwinsMediaPlayer{startmode}
 		foreach(%state,on,off,remember)
@@ -894,10 +898,12 @@ class(twins::mediaplayer::config,dialog)
 		@%m_hStart{off}->$settext($tr("Let the user to manually start the media player",twinsmediaplayer))
 		@%m_hStart{remember}->$settext($tr("Remember the media player state of the last KVIrc session",twinsmediaplayer))
 		// Layout
-		%lStart->$addwidget(@%m_hStart{on},0,0)
-		%lStart->$addwidget(@%m_hStart{off},1,0)
-		%lStart->$addwidget(@%m_hStart{remember},2,0)
-
+		if (!$str.containsnocase($features(),"QT4"))
+		{
+			%lStart->$addwidget(@%m_hStart{on},0,0)
+			%lStart->$addwidget(@%m_hStart{off},1,0)
+			%lStart->$addwidget(@%m_hStart{remember},2,0)
+		}
 		// Confirm before quit
 		@%m_hConfirm = $new(checkbox,%hTab{sq})
 		@%m_hConfirm->$settext($tr("Confirm before quit",twinsmediaplayer))
@@ -927,9 +933,33 @@ class(twins::mediaplayer::config,dialog)
 		%ll->$addwidget(%close,1,2)
 
 	}
+	addColoBoxKVIrc4($0 = name,$1 = label)
+	{
+		%g = $new(groupbox,@%m_hTab{look})
+		%g->$settitle($1)
 
+		%hbox=$new(hbox,%g)
+		%labelfg = $new(label,%hbox)
+		%labelfg->$settext($tr("Foreground",twinsmediaplayer))
+
+		@%m_hColors{fg:$0} = $new(lineedit,%hbox)
+		@%m_hColors{fg:$0}->$settext(%TwinsMediaPlayer{color:fg:$0})
+		@%m_hColors{fg:$0}->$settooltip($tr("Enter an html color code like <b>white</b> or <b>#ffffff</b>",twinsmediaplayer))
+		objects.connect @%m_hColors{fg:$0} textchanged $$ updateWindowSample
+
+		%hbox=$new(hbox,%g)
+		%labelbg = $new(label,%hbox)
+		%labelbg->$settext($tr("Background",twinsmediaplayer))
+
+		@%m_hColors{bg:$0} = $new(lineedit,%hbox)
+		@%m_hColors{bg:$0}->$settext(%TwinsMediaPlayer{color:bg:$0})
+		@%m_hColors{bg:$0}->$settooltip($tr("Enter an html color code like <b>white</b> or <b>#ffffff</b>",twinsmediaplayer))
+		objects.connect @%m_hColors{bg:$0} textchanged $$ updateWindowSample
+		return %g
+	}
 	addColorBox($0 = name,$1 = label)
 	{
+		if ($str.containsnocase($features(),"QT4")) return @$addColoBoxKVIrc4($0,$1)
 		%g = $new(groupbox,@%m_hTab{look})
 		%g->$settitle($1)
 		%l = $new(layout,%g)

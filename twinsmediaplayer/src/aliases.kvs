@@ -89,16 +89,16 @@ alias(twins::mediaplayer::show)
 
 
 	// Hack for amarok
-	if(!$isset(%TwinsMediaPlayer.try)) %TwinsMediaPlayer.try=0
-	if($isset(%TwinsMediaPlayer.try) && %TwinsMediaPlayer.try > 2)
+        if(!$isset(%TwinsMediaPlayer_try)) %TwinsMediaPlayer_try=0
+        if($isset(%TwinsMediaPlayer_try) && %TwinsMediaPlayer_try > 2)
 	{
-		echo $tr("It is the 3rd time we attempt to start amarok. If you want to try again, type $b/\%TwinsMediaPlayer.try=0$b before.",twinsmediaplayer)
+                echo $tr("It is the 3rd time we attempt to start amarok. If you want to try again, type $b/\%TwinsMediaPlayer_try=0$b before.",twinsmediaplayer)
 		return
 	}
 	if($mediaplayer.player == "amarok" && $mediaplayer.status == "unknown")
 	{
 		%iTime=15
-		%TwinsMediaPlayer.try++
+                %TwinsMediaPlayer_try++
 		echo $tr("Starting Twins Media Player in$k(12) %iTime$k()s",twinsmediaplayer)
 		timer -s (twinsmediaplayerstart,%iTime"000")
 		{
