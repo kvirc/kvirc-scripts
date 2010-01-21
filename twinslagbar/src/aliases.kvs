@@ -59,6 +59,7 @@ alias(twins::lagbar::show)
 
 	if(!$objects.exists(%G_hTwinsLagBar{bar}))
 		%G_hTwinsLagBar{bar} = $new(twins::lagbar::bar)
+	%G_hTwinsLagBar{bar}->$dock(t)
 	%G_hTwinsLagBar{bar}->$show()
 }
 

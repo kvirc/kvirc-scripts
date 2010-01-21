@@ -2,63 +2,21 @@
 // The lag bar it self
 ///////////////////////////////////////////////////////////
 objects.killclass -q twins::lagbar::bar
-class(twins::lagbar::bar,dockwindow)
+class(twins::lagbar::lagsarea,widget)
 {
-	constructor
+	constructor()
 	{
-
-		// Config
-		twins::lagbar::core::config::load
-
-		// Main dock window
-		%G_hTwinsLagBar{bar} = $$
-		@$setCaption($tr("Twins Lag Bar",twinsmediaplayer))
-		@$settooltip($tr("Twins Lag Bar",twinsmediaplayer))
-		@$setAllowedDockAreas("t")
-		@$setOrientation("horizontal")
-		@$setResizeEnabled($true)
-
-		// Widget to add to dock
-		@%m_hContainer = $new(widget,$this)
-		%l = $new(layout,@%m_hContainer)
-
-		// The bar itself
-		@%m_hBar = $new(widget,@%m_hContainer)
-		@%m_hBar->$setminimumwidth(%TwinsLagBar{width})
-		@%m_hBar->$setminimumheight(25)
-		%l->$addwidget(@%m_hBar,0,0)
-		privateimpl(@%m_hBar,paintevent){@$emit("painted");}
-		objects.connect @%m_hBar painted $$ paint
-
-		// The painter
-		@%m_hPainter = $new(painter,@%m_hBar)
-
-		// Add container to dock area
-		@$addwidget(@%m_hContainer)
-
-		// Load config and paint
-		@$loadConfig
-
-		// Timer to get lag
-		@$starttimer(5000)
-
+	
 	}
-
-	timerEvent()
-	{
-		@%m_hBar->$repaint(1)
-	}
-
-	paint()
+	paintEvent()
 	{
 		if($isempty(@%m_uWidth)) return
-
+		%painter=$0
 		%pixPerbar = 6
 		%pixBorder = 1
-
 		%nbar = $math.floor($(1.*(@%m_uWidth/%pixPerBar)))
 		%lagPerBar = $(@%m_uMaxLag/%nbar)
-		if(@$istesting())
+		if(@%m_bTesting)
 			%lag = @%m_uMaxLag
 		else if($option(boolUseLagMeterEngine) && $ic && $server && $me)
 			%lag = $($lag/1000.)
@@ -73,13 +31,17 @@ class(twins::lagbar::bar,dockwindow)
 			%text = $str.printf("?.1fs",%lag)
 			%imax = $int($math.ceil($(%lag/%lagPerBar)))
 		}
-
 		%fontSize = $(@$height/2-4)
 		if(%fontSize>15) %fontSize=15
-		@%m_hPainter->$begin(@%m_hBar)
-		@%m_hPainter->$setfont(%fontSize,monospace,fixedpitch)
-		@%m_hPainter->$setfontsize(%fontSize)
-		@%m_hPainter->$setbrush(@%m_aColor{low})
+		%painter->$setfont(%fontSize,monospace,fixedpitch)
+		%painter->$setfontsize(%fontSize)
+		if(@%m_bTesting)
+			%text = "["$tr("test",twinslagbar)"] %text"
+		else
+				%text = $tr("Lag:",twinslagbar) %text
+		%painter->$drawtext(0,$(@$height/2-2),"%text")
+
+		eval \%painter\-\>\$setbrush(@%m_aColor{low})
 		%lagLev = $(@%m_uMaxLag/3.)
 
 //		if(%imax)
@@ -91,55 +53,97 @@ class(twins::lagbar::bar,dockwindow)
 			// Define the color according to a level
 			if(%i>=%imax)
 			{
-				@%m_hPainter->$end
-				@%m_hPainter->$begin(@%m_hBar)
-			} else if(%iLag>2.*%lagLev)
-				@%m_hPainter->$setbrush(@%m_aColor{high})
-			else if(%iLag>%lagLev)
-				@%m_hPainter->$setbrush(@%m_aColor{medium})
-
+				%painter->$setbrush(0,0,0,rgb,0)
+				//%painter->$begin(@%m_hBar)
+			} else if(%iLag>2.*%lagLev){
+				eval \%painter\-\>\$setbrush(@%m_aColor{high})
+			}
+			else if(%iLag>%lagLev){
+				eval \%painter\-\>\$setbrush(@%m_aColor{medium})
+			}
 			// Draw an element
-			@%m_hPainter->$drawrect(\
+			%painter->$drawrect(\
 				$(%pixPerbar*%i),\
-					$(@%m_hBar->$height/2+2),\
+					$(@$height/2+2),\
 				$(%pixPerbar-%pixBorder),\
-					$(@%m_hBar->$height/2-2))
+					$(@$height/2-2))
 		}
-		if(@$istesting())
-			%text = "["$tr("test",twinslagbar)"] %text"
-		else
-				%text = $tr("Lag:",twinslagbar) %text
-		@%m_hPainter->$drawtext(0,$(@%m_hBar->$height/2-2),"%text",-1,LTR)
-		@%m_hPainter->$end
+	}
+}
+class(twins::lagbar::bar,dockwindow)
+{
+	constructor
+	{
+
+		// Config
+		twins::lagbar::core::config::load
+
+		// Main dock window
+		%G_hTwinsLagBar{bar} = $$
+		@$setWindowTitle($tr("Twins Lag Bar",twinsmediaplayer))
+		@$settooltip($tr("Twins Lag Bar",twinsmediaplayer))
+		@$setAllowedDockAreas("l")
+		//@$setOrientation("horizontal")
+		//@$setResizeEnabled($true)
+
+		// Widget to add to dock
+		@%m_hContainer = $new(hbox,$this)
+		//%l = $new(layout,$$)
+
+		// The bar itself
+		@%m_hBar = $new(twins::lagbar::lagsarea,@%m_hContainer)
+		@%m_hBar->$setminimumwidth(%TwinsLagBar{width})
+		@%m_hBar->$setminimumheight(25)
+		//%l->$addwidget(@%m_hContainer,0,0)
+		//privateimpl(@%m_hBar,paintevent){@$emit("painted");}
+		//objects.connect @%m_hBar painted $$ paint
+
+		// The painter
+		//@%m_hPainter = $new(painter,@%m_hBar)
+
+		// Add container to dock area
+		@$addwidget(@%m_hContainer)
+
+		// Load config and paint
+		@$loadConfig
+
+		// Timer to get lag@
+		@$starttimer(5000)
+
 	}
 
+	timerEvent()
+	{
+		@%m_hBar->$repaint()
+	}
+	
 	setColor(type,[R,G,B])
 	{
-		@%m_aColor{$0} = $1
+		@%m_hBar->%m_aColor{$0} = $1
 	}
 
 	setWidth(width)
 	{
-		@%m_uWidth = $0
+		@%m_hBar->%m_uWidth = $0
 		@%m_hBar->$setminimumwidth($0)
 	}
 
 	setMaxLag(lag)
 	{
-		@%m_uMaxLag = $0
+		@%m_hBar->%m_uMaxLag = $0
 	}
 
 	setTesting($0 = 0/1)
 	{
-		@%m_bTesting = $0
+		@%m_hBar->%m_bTesting = $0
 		if(!$0) @$loadConfig()
 	}
 
-	istesting()
+	isTesting()
 	{
-		if($isempty(@%m_bTesting))
-			@%m_bTesting = 0
-		return @%m_bTesting
+		if($isempty(@%m_hBar->%m_bTesting))
+			@%m_hBar->%m_bTesting = 0
+		return @%m_hBar->%m_bTesting
 	}
 
 	loadConfig()
@@ -177,7 +181,7 @@ class(twins::lagbar::config,dialog)
 
 		// Main widget
 		%G_hTwinsLagBar{config} = $$
-		@$setCaption($str.printf($tr("Twins LagBar-?s",twinslagbar),$addon.version(twinslagbar)))
+		@$setWindowTitle($str.printf($tr("Twins LagBar-?s",twinslagbar),$addon.version(twinslagbar)))
 		%ll = $new(layout,$$)
 		%ll->$setmargin(20)
 		%ll->$setspacing(20)
@@ -192,7 +196,7 @@ class(twins::lagbar::config,dialog)
 		@%m_hStatus->$settext($tr("Use it?",twinslagbar))
 		@%m_hStatus->$setchecked(%TwinsLagbar{status})
 		%ll->$addmulticellwidget(@%m_hStatus,1,1,0,1)
-		objects.connect @%m_hStatus clicked $$ checkTest
+	//	objects.connect @%m_hStatus clicked $$ checkTest
 
 		// Max lag
 		%maxlag = $new(label,$$)
@@ -223,36 +227,36 @@ class(twins::lagbar::config,dialog)
 		%colors = $new(groupbox,$$)
 		%colors->$settitle($tr("Colors",twinslagbar))
 		%ll->$addmulticellwidget(%colors,1,3,2,3)
-		%lc = $new(layout,%colors)
-		%lc->$setmargin(20)
-		%lc->$setspacing(20)
+		%hbox=$new(hbox,%colors)
 		// Color specs
-		%cn = $array($tr("Red",twinslagbar),$tr("Green",twinslagbar),$tr("Blue",twinslagbar))
-		%bg = $array("FF0000","00FF00","0000FF")
-		%fg = $array("000000","000000","FFFFFF")
+		%cn[] = $array($tr("Red",twinslagbar),$tr("Green",twinslagbar),$tr("Blue",twinslagbar))
+		%bg[] = $array("red","green","blue")
+		%fg[] = $array("black","black","white")
+		//hack:a spacer
+		$new(label,%hbox)
+		
 		for(%i=0;%i<3;%i++)
 		{
-			%cns <+ $new(label,%colors)
+			%cns <+ $new(label,%hbox)
+			%cns[%i]->$setProperty(autoFillBackground,$true)
 			%cns[%i]->$settext(%cn[%i])
 			%cns[%i]->$setbackgroundcolor(%bg[%i])
 			%cns[%i]->$setforegroundcolor(%fg[%i])
-			%lc->$addwidget(%cns[%i],0,$(%i + 1))
 		}
 		// Spin boxes
 		%l = 0
 		%levels = $array($tr("High",twinslagbar),$tr("Medium",twinslagbar),$tr("Low",twinslagbar))
 		foreach(%level,high,medium,low)
 		{
-			%tags <+ $new(label,%colors)
+			%box{%level}=$new(hbox,%colors)
+			%tags <+ $new(label,%box{%level})
 			%tags[%l]->$settext(%levels[%l])
-			%lc->$addwidget(%tags[%l],$(%l + 1),0)
 			for(%i=0;%i<3;%i++)
 			{
-				@%m_hColor{%level} <+ $new(spinbox,%colors)
+				@%m_hColor{%level} <+ $new(spinbox,%box{%level})
 				@%m_hColor{%level}[%i]->$setminvalue(0)
 				@%m_hColor{%level}[%i]->$setmaxvalue(255)
 				@%m_hColor{%level}[%i]->$setvalue(%TwinsLagbar{colors:%level}[%i])
-				%lc->$addwidget(@%m_hColor{%level}[%i],$(%l + 1),$(%i + 1))
 				objects.connect @%m_hColor{%level}[%i] valueChanged $$ testIt
 			}
 			%l++
