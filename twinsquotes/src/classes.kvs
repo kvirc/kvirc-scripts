@@ -10,7 +10,7 @@ class(twins::quotes::config,dialog)
 		// Setup
 		twins::quotes::core::config::load
 		%G_hTwinsquotes{config} = $$
-		$$->$setCaption($tr("Twins Auto Op",twinsquotes))
+		$$->$setWindowTitle($tr("Twins Auto Op",twinsquotes))
 
 		// Layout
 		%lll = $new(layout,$$)
