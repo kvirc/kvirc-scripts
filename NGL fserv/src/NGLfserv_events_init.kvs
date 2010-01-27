@@ -228,7 +228,7 @@ alias(NGLfserv::events::init)
 	{
 		%requesting=$0
 		%ctcpName=$4
-		if($str.cmpnocase(%ctcpName,"NORESEND")==0) {
+		if($str.cmp(%ctcpName,"NORESEND")==0) {
 			%i=0
 			%count=0
 			while (%i!=%Send->$count()) {
@@ -250,7 +250,7 @@ alias(NGLfserv::events::init)
 		%ctcpName=$4
 		%parameter=$5
 		%triggerPassword = $6
-		if($str.cmpnocase(%ctcpName,"qget")==0)
+		if($str.cmp(%ctcpName,"qget")==0)
 		{
 			%triggerName=$str.token(0,"|",%parameter)
 			%folder=$str.token(1,"|",%parameter)
@@ -309,7 +309,7 @@ alias(NGLfserv::events::init)
 	{
 		%requesting=$0
 		%ctcpName=$4
-		if($str.cmpnocase(%ctcpName,"NGLVERSION")==0 && %NGLRespondToNGLVersion) {
+		if($str.cmp(%ctcpName,"NGLVERSION")==0 && %NGLRespondToNGLVersion) {
 			notice -q %requesting $tr("Running NGL File Server version") $addon.version(NGLfserv)
 			halt
 		}

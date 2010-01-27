@@ -276,7 +276,7 @@ alias(lolwriteColor)
 				%text =$0
 				while(%idx!=19)
 				{
-					%text=$str.replacenocase(%text,%lamah[%idx],%normal[%idx])
+					%text=$str.replace(%text,%lamah[%idx],%normal[%idx])
 					%idx++
 				}
 				say %text

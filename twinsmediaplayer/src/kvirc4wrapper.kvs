@@ -1,21 +1,21 @@
 class(wrapperdockwindow,dockwindow)
 {
-    setCaption()
-    {
-	if ($str.containsnocase($features(),"QT4")) @$setWindowTitle($0)
-	else @$dockwindow::setCaption($0)
-    }
-    setResizeEnabled()
-    {
-	if ($str.containsnocase($features(),"QT4")) return
-	else @$dockwindow::setResizeEnabled($0) 
-    }
+	setCaption()
+	{
+		if ($str.contains($features(),"QT4")) @$setWindowTitle($0)
+		else @$dockwindow::setCaption($0)
+	}
+	setResizeEnabled()
+	{
+		if ($str.contains($features(),"QT4")) return
+		else @$dockwindow::setResizeEnabled($0) 
+	}
 }
 class(wrapperdialog,dialog)
 {
-    setCaption()
-    {
-	if ($str.containsnocase($features(),"QT4")) @$setWindowTitle($0)
-	else @$dialog::setCaption($0)
-    }
+	setCaption()
+	{
+		if ($str.contains($features(),"QT4")) @$setWindowTitle($0)
+		else @$dialog::setCaption($0)
+	}
 }   

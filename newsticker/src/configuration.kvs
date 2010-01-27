@@ -2,7 +2,7 @@ class(newsticker::core::configuration::sourceeditor,dialog)
 {
 	constructor()
 	{
-		if ($str.containsnocase($features(),"QT4"))@$setWindowTitle($tr("Edit source","newsticker"))
+		if ($str.contains($features(),"QT4"))@$setWindowTitle($tr("Edit source","newsticker"))
 		  else @$setCaption($tr("Edit source","newsticker"))
 		%l = $new(layout,$this)
 
@@ -53,7 +53,7 @@ class(newsticker::core::configuration::sourceeditor,dialog)
 		%l->$setSpacing(3)
 
 		%l->$setRowStretch(4,100)
-		if ($str.containsnocase($features(),"QT4")) %l->$setColumnStretch(1,100)
+		if ($str.contains($features(),"QT4")) %l->$setColumnStretch(1,100)
 		  else %l->$setColStretch(1,100)
 	}
 
@@ -146,7 +146,7 @@ class(newsticker::core::configuration::dialog,dialog)
 	internal createListViewItem($0 = name,$1 = url,$2 = topic,$3 = lang,$4 = enabled,$5 = use notifier,$6 = last notification)
 	{
 		%lvi = $new(listviewitem,@%m_hListView)
-		if ($str.containsnocase($features(),"QT4"))
+		if ($str.contains($features(),"QT4"))
 			%lvi->$setFlags(editable,selectable,enabled,userCheckable)
 		else %lvi->$setCheckable($true);
 		if($4)
@@ -198,7 +198,7 @@ class(newsticker::core::configuration::dialog,dialog)
 		#	debug "got item data:" %lvi->$text(0),%lvi->$text(3),%lvi->$text(1),%lvi->$text(2),%lvi->$isChecked()
 			%s->$set(%lvi->$text(0),%lvi->$text(4),%lvi->$text(2),%lvi->$text(3),%lvi->$isChecked(),$($tr("Yes","newsticker") == %lvi->$text(1)),%lvi->%lastNotification)
 			%l->$append(%s)
-			if ($str.containsnocase($features(),"QT4")) %lvi = @%m_hListView->$nextSibling()
+			if ($str.contains($features(),"QT4")) %lvi = @%m_hListView->$nextSibling()
 			else %lvi = %lvi->$nextSibling()
 		}
 
@@ -252,7 +252,7 @@ class(newsticker::core::configuration::dialog,dialog)
 		%l->$setMargin(5)
 		%l->$setSpacing(2)
 		%l->$setRowStretch(0,100)
-		if ($str.containsnocase($features(),"QT4"))
+		if ($str.contains($features(),"QT4"))
 		{
 		      %l->$setColumnStretch(1,0)
 		      %l->$setColumnStretch(1,100)
@@ -299,14 +299,14 @@ class(newsticker::core::configuration::dialog,dialog)
 
 		%l->$setMargin(15)
 		%l->$setSpacing(4)
-		if ($str.containsnocase($features(),"QT4")) %l->$setColumnStretch(0,1)
+		if ($str.contains($features(),"QT4")) %l->$setColumnStretch(0,1)
 		else %l->$setColStretch(0,1)
 		%l->$setRowStretch(5,1)
 	}
 
 	constructor()
 	{
-		if ($str.containsnocase($features(),"QT4"))@$setWindowTitle($tr("Newsticker Configuration","newsticker"))
+		if ($str.contains($features(),"QT4"))@$setWindowTitle($tr("Newsticker Configuration","newsticker"))
 		  else @$setCaption($tr("Newsticker Configuration","newsticker"))
 		%l = $new(layout,$this)
 
@@ -333,7 +333,7 @@ class(newsticker::core::configuration::dialog,dialog)
 		%l->$setMargin(5)
 		%l->$setSpacing(2)
 		%l->$setRowStretch(0,100)
-		if ($str.containsnocase($features(),"QT4"))
+		if ($str.contains($features(),"QT4"))
 		{
 		      %l->$setColumnStretch(0,100)
 		      %l->$setColumnStretch(1,0)

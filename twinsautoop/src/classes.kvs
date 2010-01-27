@@ -308,7 +308,7 @@ class(twins::autoop::config,dialog)
 				%set{%chan} = 1
 
 				// Set from last selection
-				if($isset(@%m_aLast{chan}) && $str.equalnocase(%chan,@%m_aLast{chan}))
+				if($isset(@%m_aLast{chan}) && $str.equal(%chan,@%m_aLast{chan}))
 					@%m_hChan{c}->$setcurrentitem(%i)
 				%i++
 			}
@@ -335,7 +335,7 @@ class(twins::autoop::config,dialog)
 			@%m_hNet{c}->$insertitem(%net)
 
 			// Set from last selection
-			if($isset(@%m_aLast{net}) && $str.equalnocase(%net,@%m_aLast{net}))
+			if($isset(@%m_aLast{net}) && $str.equal(%net,@%m_aLast{net}))
 				@%m_hNet{c}->$setcurrentitem(%i)
 			%i++
 		}
@@ -767,7 +767,7 @@ class(twins::autoop::setuser,dialog)
 			if($isempty(@%m_hNet->$text())) @%m_hNet->$settext("*")
 			foreach(%type,op,voice,ban)
 				if($isempty(%set{%type}))
-					@%m_hFlags{%type}->$setchecked($str.containsnocase(\
+					@%m_hFlags{%type}->$setchecked($str.contains(\
 						",$regchan.property(@%m_hChan->$text(),@%m_hNet->$text(),auto%type:users),",",@%m_hUser->$text(),"))
 		}
 
@@ -828,7 +828,7 @@ class(twins::autoop::setuser,dialog)
 				%u = $reguser.match(%mask)
 				if($isset(%u))
 				{
-					if(!$str.equalnocase(%u,%user))
+					if(!$str.equal(%u,%user))
 					{
 						dialog.message -b (AutoOp,$tr("Mask",twinsautoop) %mask \
 							$str.printf($tr("already matches a registered user (?s). Please change this mask.",twinsautoop),%u),\
@@ -860,7 +860,7 @@ class(twins::autoop::setuser,dialog)
 				if(!$isset($regchan.property(%chan,%net,auto%action:status)))
 					regchan.setproperty %chan %net auto%action:status 1
 				%list = $regchan.property(%chan,%net,auto%action:users)
-				%bInList = $str.containsnocase(",%list,",",%user,")
+				%bInList = $str.contains(",%list,",",%user,")
 				if(@%m_hFlags{%action}->$ischecked)
 				{
 					if(!%bInList)
@@ -872,7 +872,7 @@ class(twins::autoop::setuser,dialog)
 				} else if(%bInList) {
 					// Remove user
 					foreach(%u,$str.split(",",%list))
-						if(!$str.equalnocase(%user,%u)) %newlist <, %u
+						if(!$str.equal(%user,%u)) %newlist <, %u
 					regchan.setproperty %chan %net auto%action:users %newlist
 				}
 			}

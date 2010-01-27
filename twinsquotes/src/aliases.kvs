@@ -75,7 +75,7 @@ alias(twins::quotes::search)
 		config.setsection %f %section
 		%text = $config.read(%f,text)
 		%date = $config.read(%f,date)
-		if( $str.matchnocase(%textpattern,%text) && \
+		if( $str.match(%textpattern,%text) && \
 		    ($isempty($sw(d)) || $str.match($sw(d),$int($date(d,%date)))) && \
 		    ($isempty($sw(m)) || $str.match($sw(m),$int($date(m,%date)))) && \
 		    ($isempty($sw(y)) || $str.match($sw(y),$int($date(y,%date)))) && \

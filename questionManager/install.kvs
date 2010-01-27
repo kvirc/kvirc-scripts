@@ -148,7 +148,7 @@ switch($0)
 		{
 			if(%Dizionariodomande{$2})
 			{
-				if(($str.containsnocase($3," reset by ")==0) && ($str.containsnocase($3,"ping")==0) && ($str.containsnocase($3,"netsplit")==0))
+				if(($str.contains($3," reset by ")==0) && ($str.contains($3,"ping")==0) && ($str.contains($3,"netsplit")==0))
 				{	
 					%Dizionariodomande{$2}=""
 					%i=0

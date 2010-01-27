@@ -129,7 +129,7 @@ alias(thecensor_check)
 	}
 	foreach(%w,%Badwordlist[])
 	{
-		if($str.containsnocase("$2",%w))
+		if($str.contains("$2",%w))
 		{
 			if(!%CensoredNick{%key})
 			{
@@ -399,7 +399,7 @@ privateImpl(%CensorCheckBox,mousePressEvent)
 		%CensoredMessage=$0
 		while(%Badwordlist[%idx] != "")
 		{
-			if($str.containsnocase("%CensoredMessage","%Badwordlist[%idx]"))
+			if($str.contains("%CensoredMessage","%Badwordlist[%idx]"))
 			{
 				%part2censor=$str.mid(%Badwordlist[%idx],1,$($str.len(%Badwordlist[%idx])-2))
 				%censoredWord=$str.replace(%Badwordlist[%idx],"\[\*\*\*\*\]",%part2censor)

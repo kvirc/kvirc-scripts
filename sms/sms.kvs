@@ -920,7 +920,7 @@ alias(class_sms)
 			nextPage()
 			{
 				$$->$close()
-				if ($str.findfirstnocase($$->%Page1,$$->%stringuserpasserror) != -1)
+				if ($str.findfirst($$->%Page1,$$->%stringuserpasserror) != -1)
 				{
 					
 				if($$->%debug) $$->$emit("Debug","Sms","nextPage","Sms sended:","wrong user/pass")
@@ -947,7 +947,7 @@ alias(class_sms)
 					if ($$->%section > $$->%sections) 
 					{
 					if($$->%debug) $$->$emit("Debug","Sms","nextPage","end of sections")
-					if ($str.findfirstnocase($$->%Page1,$$->%stringsmssendedok) != -1) %string="sms inviato correttamente"	
+					if ($str.findfirst($$->%Page1,$$->%stringsmssendedok) != -1) %string="sms inviato correttamente"	
 			 			else %string="Errore nell'invio"	
 					$$->$emit(sended,%string)
 					if($$->%debug) $$->$emit("Debug","Sms","nextPage","Operation response",%string)

@@ -323,7 +323,7 @@ alias(twins::autoop::set::user)
 				%users = $regchan.property(%chan,%net,auto%action:users)
 				if(%a)
 				{
-					if(!$str.containsnocase(",%users,",",%nick,"))
+					if(!$str.contains(",%users,",",%nick,"))
 					{
 						%users <, %nick
 						regchan.setproperty %chan %net auto%action:users %users
@@ -332,10 +332,10 @@ alias(twins::autoop::set::user)
 						echo -i=17 %nick $tr("already has an auto",twinsautoop)%action $tr("on",twinsautoop) %chan [%net]
 					%ok = 1
 				} else {
-					if($str.containsnocase(",%users,",",%nick,"))
+					if($str.contains(",%users,",",%nick,"))
 					{
 						foreach(%u,$str.split(",",%users))
-							if(!$str.equalnocase(%nick,%u)) %newusers <, %u
+							if(!$str.equal(%nick,%u)) %newusers <, %u
 						regchan.setproperty %chan %net auto%action:users %newusers
 						echo -i=17 $tr("Auto",twinsautoop)%action $tr("removed for") %nick $tr("on",twinsautoop) %chan [%net]
 					} else

@@ -82,7 +82,7 @@ defpopup (twins::autoop::user)
 			{
 				%:tao{status}{%action} = $regchan.property($chan.name,$my.network,auto%action:status)
 				%:tao{isuser}{%action} = \
-					$str.containsnocase(",$regchan.property($chan.name,$my.network,auto%action:users),",\
+					$str.contains(",$regchan.property($chan.name,$my.network,auto%action:users),",\
 					",%:regnick,")
 			}
 			if($isempty(%:regnick)) %:regnick = $0

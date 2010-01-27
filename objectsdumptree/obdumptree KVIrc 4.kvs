@@ -43,7 +43,7 @@ alias(dump1)
 			%children[]=$0->$children()
 			for(%i=0;%i<$length(%children[]);%i++)
 			{
-				if ($str.findfirstnocase(%children[%i]->$text(0),@%strtofind) != -1)
+				if ($str.findfirst(%children[%i]->$text(0),@%strtofind) != -1)
 				{
 					%children[%i]->$setpixmap(0,39)
 					%par=%children[%i]->$parent()

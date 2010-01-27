@@ -19,16 +19,16 @@ class(twins::mediaplayer::window,wrapperdockwindow)
 {
 
 	createToolButton($0 = $image)
-        {
-        	%tb = $new(toolbutton,@%m_hContainer)
-                %tb->$setImage($0)
-                %tb->$setUsesBigPixmap($false)
-                %tb->$setUsesTextLabel($false)
-                %tb->$setAutoRaise($true)
-                %tb->$setMaximumWidth(24)
-                %tb->$setMaximumHeight(24)
-                return %tb
-        }
+	{
+		%tb = $new(toolbutton,@%m_hContainer)
+		%tb->$setImage($0)
+		%tb->$setUsesBigPixmap($false)
+		%tb->$setUsesTextLabel($false)
+		%tb->$setAutoRaise($true)
+		%tb->$setMaximumWidth(24)
+		%tb->$setMaximumHeight(24)
+		return %tb
+	}
 
 	constructor()
 	{
@@ -445,7 +445,7 @@ class(twins::mediaplayer::window,wrapperdockwindow)
 		if($str.isunsignednumber(%freq)) %r{frequency} = "$(%freq / 1000) kHz"
 		%r{file} = $mediaplayer.localfile
 		%r{genre} = $mediaplayer.genre
-		if($str.containsnocase(" other unknown "," %r{genre} "))%r{genre}=
+		if($str.contains(" other unknown "," %r{genre} "))%r{genre}=
 
 		return %r
 	}
@@ -879,7 +879,7 @@ class(twins::mediaplayer::config,wrapperdialog)
 		%hStart = $new(groupbox,%hTab{sq})
 		%hStart->$settitle($tr("Start mode",twinsmediaplayer))
 		%l{sq}->$addwidget(%hStart,0,0)
-		if (!$str.containsnocase($features(),"QT4"))
+		if (!$str.contains($features(),"QT4"))
 		{
 			%lStart = $new(layout,%hStart)
 			%lStart->$setmargin(20)
@@ -898,7 +898,7 @@ class(twins::mediaplayer::config,wrapperdialog)
 		@%m_hStart{off}->$settext($tr("Let the user to manually start the media player",twinsmediaplayer))
 		@%m_hStart{remember}->$settext($tr("Remember the media player state of the last KVIrc session",twinsmediaplayer))
 		// Layout
-		if (!$str.containsnocase($features(),"QT4"))
+		if (!$str.contains($features(),"QT4"))
 		{
 			%lStart->$addwidget(@%m_hStart{on},0,0)
 			%lStart->$addwidget(@%m_hStart{off},1,0)
@@ -959,7 +959,7 @@ class(twins::mediaplayer::config,wrapperdialog)
 	}
 	addColorBox($0 = name,$1 = label)
 	{
-		if ($str.containsnocase($features(),"QT4")) return @$addColoBoxKVIrc4($0,$1)
+		if ($str.contains($features(),"QT4")) return @$addColoBoxKVIrc4($0,$1)
 		%g = $new(groupbox,@%m_hTab{look})
 		%g->$settitle($1)
 		%l = $new(layout,%g)

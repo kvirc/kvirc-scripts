@@ -18,7 +18,7 @@ class(newsticker::window,dockwindow)
 	
 	constructor()
 	{
-		if ($str.containsnocase($features(),"QT4"))@$setWindowTitle($tr("Newsticker","newsticker"))
+		if ($str.contains($features(),"QT4"))@$setWindowTitle($tr("Newsticker","newsticker"))
 		  else @$setCaption($tr("Newsticker","newsticker"))
 		@%m_hCurrentEntry = $new(newsticker::rss::entry)
 		@%m_bAutoDisplay = $true
@@ -28,7 +28,7 @@ class(newsticker::window,dockwindow)
 		objects.connect @%m_hController "newDataAvailable" $this "newDataAvailable"
 
 		@$setAllowedDockAreas("lrfm");
-		if (!$str.containsnocase($features(),"QT4")) @$setResizeEnabled($true);
+		if (!$str.contains($features(),"QT4")) @$setResizeEnabled($true);
 
 		@%m_hContainer = $new(widget,$this)
 		%l = $new(layout,@%m_hContainer)
@@ -91,7 +91,7 @@ class(newsticker::window,dockwindow)
 		%l->$addWidget(@%m_hSayButton,2,5)
 		objects.connect @%m_hSayButton "clicked" $this "sayClicked"
 
-		if ($str.containsnocase($features(),"QT4"))
+		if ($str.contains($features(),"QT4"))
 		{
 		      %l->$setColumnStretch(0,0)
 		      %l->$setColumnStretch(1,0)
