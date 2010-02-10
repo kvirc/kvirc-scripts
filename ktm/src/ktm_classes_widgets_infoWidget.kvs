@@ -1,0 +1,183 @@
+alias(ktm::classes::widgets::infoWidget)
+{
+	class(ktm::infoWidget,widget)
+	{
+		constructor()
+		{
+			@%margin=15
+			@%spacing=10
+			@%scroll_step=30
+			@%actual_x=0
+			@%delay=15
+			@%opacitystep=0.01
+			@%pbar=$new(ktm::httpPBar,$$)
+			@%pbar->$move(150,90)
+			@%pbar->$setP(0,0)
+			@%ind=0
+			@$setMouseTracking($true)
+		}
+		destructor()
+		{
+		}
+		setPix()
+		{
+			@%actual=$0
+			if (!@%actual->%nopreview) @%pbar->$hide()
+		}
+		showEvent()
+		{
+			@$setMinimumWidth($(300+(@%margin*2)))
+			@$setMinimumHeight($(200+(@%margin*2)))
+		}
+		timerEvent()
+		{
+			@%opacity+=@%opacitystep
+			if (@%opacity>1.01) @%opacity=1
+			if (@%transition=="L")
+			{
+				@%x-=@%scroll_step
+				if(@%x<=0) %stop=$true
+			}
+			else
+			{
+				@%x+=@%scroll_step
+				if(@%x>=0) %stop=$true
+			}
+			if (%stop)
+			{
+				@%transition=$false
+				@$killTimer(@%timer_id)	
+				@%actual=@%nextpix
+				@%x=0
+				@%timer_id=
+				@%actual_x=0
+				if(@%actual->%nopreview) @%pbar->$show
+				else @%pbar->$hide
+			}
+			@$repaint()
+		}
+		setPB()
+		{
+			if($2==@%actual->%id)
+			{
+				@%actual->%prog=$0
+				@%actual->%total=$1
+				@%pbar->$setP($0,$1)
+			}
+			else @%pbar->$setP(0,0)
+		}
+		done()
+		{
+			if($0==@%actual->%id) 
+			{
+				@%actual->%nopreview=$false
+				@%pbar->$hide()
+				%x=@$globalcursorx()
+				%y=@$globalcursory()
+				%xy[]=@$mapFromglobal(%x,%y)
+				@$mouseMoveEvent(0,%xy[0],%xy[1])
+				@$update()
+			}
+		}
+		itemChanged()
+		{
+			@%nextpix=$0
+			if (@%timer_id) @$killTimer(@%timer_id)
+			@%opacity=0;
+			@%transition=$1;
+			if (@%transition=="L") @%x=@$width()
+			else @%x=$(-@$width())
+			@%actual_x=0
+			if (!@%nextpix->%prog && !@%nextpix->%total) @%pbar->$setP(0,0)
+			else @%pbar->$setP(@%nextpix->%prog,@%nextpix->%id)
+			@%pbar->$hide
+			@%timer_id=@$startTimer(@%delay);
+		}
+		mouseMoveEvent()
+		{
+			if (@%actual->%nopreview) return
+			%x=$1;
+			%y=$2;
+			if (%x>=$(@%actual_x+@%margin) && %x<$(@%actual_x+@%margin+@%actual->%pixmap->$width()))
+			{
+				if (%y>=@%margin && %y<@%actual->%pixmap->$height() && !@%over) @%over=$true()	
+			}
+			else 
+			{
+				if (@%over) @%over=$false()
+			}
+			@$update()
+		}	
+		mouseReleaseEvent()
+		{
+			if (@%over && !$objects.exists(@%preview))
+			{
+				@%preview=$new(ktm::previewWidget)
+				@%preview->$setPixmap(@%actual->%shot)
+				@%over=$false()
+				@$update()
+				@%preview->$show()
+			}
+		}
+		paintEvent()
+		{
+			@%p=$0
+			//echo paintevent info
+			@%p->$setPen(0,0,0)
+			@%p->$setAntiAliasing($true)
+			@%p->$setTextAntiAliasing($true)
+			@%p->$setPenWidth(1)
+			@%p->$setBrush(244,151,6,rgb,130)
+			//@%p->$setBrushStyle("Dense4Pattern")
+			@%p->$drawRoundRect(5,5,0,0,$(@$width()-0),$(@$height()-1))
+		//	@%p->$drawRoundRect(5,5,0,0,$(@$width()-0+4),$(@$height()-1+4))
+			if (@%transition)
+			{
+				@%p->$setOpacity($(1-$(@%opacity*2)))
+				if (@%transition=="L")@%actual_x-=@%scroll_step
+				else  @%actual_x+=@%scroll_step
+			}
+			@%p->$drawPixmap($(@%actual_x+@%margin),@%margin,@%actual->%pixmap,0,0,@%actual->%pixmap->$width(),@%actual->%pixmap->$height())
+			@$drawThemeInfo($(@%actual->%pixmap->$width()+@%spacing+@%margin+@%actual_x),@%margin,@%actual,$(@$width-@%actual->%pixmap->$width()-@%margin-@%spacing),@$height())
+			if (@%transition)
+			{
+				@%p->$translate(@%x,0)
+				@%p->$setOpacity(@%opacity)
+				@%p->$drawPixmap(@%margin,@%margin,@%nextpix->%pixmap,0,0,@%nextpix->%pixmap->$width(),@%nextpix->%pixmap->$height())
+				@$drawThemeInfo($(@%nextpix->%pixmap->$width()+@%spacing+@%margin),@%margin,@%nextpix,$(@$width-@%nextpix->%pixmap->$width()-@%margin-@%spacing),@$height())
+		
+			}
+			else{
+				if (@%over)
+				{
+					@%p->$setFontSize(5)
+					%metric=@%p->$fontMetricsWidth($tr("Click thumb to preview"))
+					%asc=@%p->$fontAscent()
+					@%p->$setBrush(255,255,255,rgb,170)
+					@%p->$setPenWidth(1)
+					@%p->$drawEllipse($(@%actual_x+@%margin+4),$(@%margin+4),$(%metric+15),$(%asc*3))
+					@%p->$drawHtmlText($(@%actual_x+@%margin+5+4),$(@%margin+4+4),$tr("Click thumb to preview"),@$width(),@$height())
+				}
+			}
+		}
+		drawThemeInfo("x,y,theme_object,rect_width,rect_height")
+		{
+			%x=$0
+			%y=$1
+			%theme=$2
+			%w=$3
+			%h=$4
+			%text .="<b>Title:</b> "%theme->%title"<br>"
+			%text .="<b>Version:</b> "%theme->%version"<br>"
+			%text .="<b>Author:</b> "%theme->%author"<br>"
+			%text .="<b>Description:</b> "%theme->%description"<br>"
+			@%p->$drawHtmlText(%x,%y,%text,%w,%h)
+	
+		}
+		sizeHintRequestEvent()
+		{
+			return $array($(300+100),200)
+		}
+	}
+}
+

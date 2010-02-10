@@ -1,0 +1,87 @@
+alias(ktm::classes::widgets::mainWidget)
+{
+	class(ktm::mainWidget,label)
+	{
+		constructor()
+		{
+		
+			@$setWindowTitle("Kvs Theme Manager")
+			@$setImage($file.localdir(pics/ktm/kvsthememanagerbackground.png))
+			@$setProperty("scaledContents",$true)
+			%layout=$new(layout,$$)
+			%vbox=$new(vbox,$$)
+			%layout->$addWidget(%vbox,0,0)
+			%hb=$new(hbox,%vbox)
+			@%canvas=$new(ktm::infoWidget,%hb)
+			objects.connect $$ transfer @%canvas setPB
+			objects.connect $$ done @%canvas done
+			
+			//%lab=$new(label,%hb)
+			%hb->$setStretchFactor(@%canvas,80)
+	
+			%vbox1=$new(vbox,%hb)
+			privateimpl(%vbox1,paintEvent)
+			{
+		
+				%p=$0
+				%p->$setAntiAliasing($true)
+				%p->$setPen(0,0,0)
+				%p->$setBrush(244,151,6,rgb,130)
+				%p->$setPenWidth(1)
+				%p->$drawRoundRect(5,5,0,0,$(@$width()-0),$(@$height()-1))
+	 		}
+		
+			%A="QPushButton {\
+	            	 	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1 ,      stop: 0 rgba(244,151,6,127), stop: 1 rgba(255,255,255,127));\
+	            		border-style: outset;border-width: 1px;border-color: black; border-radius: 10px;\
+	              		min-width: 3em;padding: 6px;}\
+				QPushButton:hover {\
+				border-style: solid;border-color: white;border-width: 1px;}\
+				QPushButton:pressed{background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1 ,      stop: 0 rgba(255,255,255,127), stop: 1 rgba(244,151,6,127));}"
+			
+			@%btn_prev=$new(button,%vbox1,evilButton)
+			%vbox1->$setStyleSheet(%A)
+			@%btn_prev->$setText($tr("Previous"))
+			@%btn_next=$new(button,%vbox1)
+			@%btn_next->$setText($tr("Next"))
+			%hb->$setStretchFactor(%vbox1,20)
+			@%btn_install=$new(button,%vbox1)
+			@%btn_install->$setText($tr("Install"))
+			@%btn_install_use=$new(button,%vbox1)
+			@%btn_install_use->$setText($tr("Install/Use"))
+		
+			@%btn_exit=$new(button,%vbox1)
+			@%btn_exit->$setText($tr("Exit"))
+			
+			%status=$new(ktm::statusWidget,%vbox)
+		}
+		setPB()
+		{
+			@$emit(transfer,$0,$1,$2)
+		}
+		done()
+		{
+			@$emit(done,$0)
+		}
+		init("themesList")
+		{
+			%themesList=$0
+			%obj=%themesList->$getFirst()
+			@%canvas->$setPix(%obj)
+			objects.connect @%btn_prev clicked %themesList movePrev
+			objects.connect @%btn_next clicked %themesList moveNext
+			objects.connect %themesList itemChanged @%canvas itemChanged
+			objects.connect @%btn_exit clicked $$ closeEvent
+		}
+		closeEvent()
+		{
+			@$emit("closing")
+		}
+		showEvent()
+		{
+			%coord[]=@$screenResolution()
+			@$move($((%coord[0]-@$width())/2),$((%coord[1]-@$height())/2)) 
+		}
+	}
+}
+

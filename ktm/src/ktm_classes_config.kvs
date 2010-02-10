@@ -1,0 +1,19 @@
+alias(ktm::classes::config)
+{
+	class(ktm::config,object)
+	{
+		function construct()
+		{
+			@%c=$config.open(ktm)
+		}
+		destructor()
+		{
+			config.close @%c
+		}
+		function firstTime()
+		{
+			return $file.read(%c,"firstTime",$false)
+		}
+	}
+}
+

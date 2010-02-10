@@ -1,0 +1,47 @@
+alias(ktm::classes::widgets::httpPBar)
+{
+	class(ktm::httpPBar,progressbar)
+	{
+		constructor()
+		{
+		//	@$setProperty(alignment,"Qt::AlignHCenter")
+			%style="QProgressBar {border: 2px solid;\
+				border-color:  rgba(0,0,0,127);\
+	             		border-radius: 3px;\
+				height: 13px;\
+				text-align: center;\
+				background-color: rgba(100,100,100,10);}\
+	         			QProgressBar::chunk {\
+	             		background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 rgba(10, 20, 30, 40), stop: 1 #cbdaf1);\
+	            		 width: 10px;\
+				height: 5px;\
+				margin: 0.5px;}"
+			@$setStyleSheet(%style)
+		}
+		setP()
+		{
+			@$setTotalSteps($1)
+			@$setProgress($0)
+			if (!$0 && !$1)
+			{
+				@$setTotalSteps(1000)
+				@$setFormat("Waiting")
+			}
+			else{
+				 @$setFormat("Download \%p\%")
+			}
+		}
+		done()
+		{
+			@$setTotalSteps(1)
+			@$setProgress(1)
+			@$changeState("Completed")
+		}
+		changeState()
+		{
+			if ($0=="Closing" || $1=="Unconnetted") return 
+			@$setFormat("$0 \%p \%")
+		}
+	}
+}
+

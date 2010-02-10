@@ -1,0 +1,48 @@
+alias(ktm::functions::createInfoThemesList)
+{
+	//This function extract from the themes html page every single theme 
+	
+	// the html page 
+	%page=$0
+	
+	// now we filter the main-content "frame"
+	%first_index=$str.findFirst(%page,"\<div class\=\"main-content\"\>")
+	%last_index=$str.findFirst(%page,"class\=\"clear-contentunit")
+	%first_filter=$str.mid(%page,%first_index,$(%last_index-%first_index))
+	// %first_filter now contains the themes section
+	
+	// now search for every theme section
+	%occurrence=$str.findFirst(%first_filter,"\<div class\=\"left\"\>")
+	%page_filtered=$str.mid(%first_filter,%occurrence,$($str.len(%first_filter)-%occurrence))
+	// themes counters
+	%count=1
+	// anticrash variable
+	%anticrash=0
+	// creating the themes list
+	%themes=$1
+	// main cycle
+	while(!%a)
+	{ 
+		//extracting actual theme from the sx table cell (FROM)
+		%themeleft_index=$str.find(%page_filtered,"\<div class\=\"left\"\>",%count)
+		// no more themes?
+		if (%index==-1) break
+		//extracting actual theme from the sx table cell (TO)
+		%to=$str.find(%page_filtered,"\<div class\=\"right\"\>",%count)
+		//extracting theme section
+		%theme=$str.mid(%page_filtered,%themeleft_index,$(%to-%themeleft_index))
+		// calling the routine will create the theme objects
+		%themes->$append($ktm::functions::createThemeInfo(%theme))	
+		// same work on the dx table cell
+		%themeright_index=$str.find(%page_filtered,"\<div class\=\"left\"\>",$(%count+1))
+		if (%themeright_index==-1) break
+		%theme=$str.mid(%page_filtered,%to,$(%themeright_index-%to))
+		%themes->$append($ktm::functions::createThemeInfo(%theme))
+		%count++
+		%anticrash++
+		if (%anticrash>100) break
+	}
+	// return themes list
+	//return %themes
+}
+

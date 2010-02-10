@@ -1,0 +1,124 @@
+alias(ktm::classes::main)
+{
+	objects.killClass -q ktm::main
+	class(ktm::main,object)
+	{
+		constructor()
+		{
+			@%themesList=$new(ktm::themesList)
+			@%thumb_width=300
+			@%thumb_height=200
+			@%KVIRC_REMOTE_PREVIEW_PATH="/img/themes/"
+			@%KVIRC_LOCALE_PREVIEW_PATH=$file.localdir("pics/ktm/previews/")
+		}
+		destructor()
+		{
+			if ($objects.exists(@%kvinet_http)) delete @%kvinet_http
+			delete @%themesList
+			if ($objects.exists(@%mainDialog)) delete @%mainDialog
+		}
+		init2()
+		{
+			/*@$firstTimeRun()
+			%dialog=$new(themeDialog,$$)
+			%dialog->$init(@%themesList)
+			%dialog->$show()*/
+		}
+		init()
+		{
+			@$firstTimeRun()
+			@%kvinet_http=$new(KvsHttp,$$)
+			// connect signal done to themePageLoaded slot
+			objects.connect @%kvinet_http done $$ themesMainPageLoaded
+			@%kvinet_http->$setHost("www.kvirc.net")
+			@%kvinet_http->$get("/?id=themes&lang=en")
+		}
+		themesMainPageLoaded()
+		{
+	
+			@%mainDialog=$new(ktm::mainWidget)
+			@%page=@%kvinet_http->$page()
+			file.write $file.localdir(themes.html) @%page
+			delete @%kvinet_http
+			@%kvinet_http=$new(KvsHttp,$$)
+			@%kvinet_http->$setHost("www.kvirc.net")
+			$ktm::functions::createInfoThemesList(@%page,@%themesList)
+			@$getRemotePreviews
+			objects.connect @%kvinet_http dataReadProgress @%mainDialog SETpb
+			objects.connect $$ done @%mainDialog done
+			objects.connect @%mainDialog closing $$ closeScript
+			@%mainDialog->$init(@%themesList)
+			@%mainDialog->$show()
+		}
+		closeScript()
+		{
+			delete $$
+		}
+		createPixmap()
+		{
+			%pixmap=$new(pixmap)
+			%pixmap->$load($0)
+			%pixmap->$scale(@%thumb_width,@%thumb_height,"KeepAspectRatio","Smooth")
+			return %pixmap
+		}
+	
+		firstTimeRun()
+		{
+			if (!$file.exists($file.localdir("pics/ktm/previews")))
+				file.mkdir $file.localdir("pics/ktm/previews")
+			//@$checkInstalledThemes()
+		}
+		checkInstalledThemes()
+		{
+			%themes[]=$file.ls($file.localdir(themes),"d")
+			for(%i=0;%i<$length(%themes[]);%i++)
+			{
+				if (%themes[%i]=="." && %themes[%i]=="..") continue
+				%c=$config.open($file.localdir("themes/%themes[%i]/themeinfo.kvc"),"r")
+				config.setsection %c "ThemeInfo"
+				%theme=$new(object)
+				%theme->%builtin=$true
+				%theme->%title=$config.read(%c,"Name")
+				%theme->%version=$config.read(%c,"Version")
+				%theme->%author=$config.read(%c,"Author")
+				%theme->%description=$config.read(%c,"Description")
+				if (%themes[%i]==$option("stringIconThemeSubdir")) %theme->%current=$true
+				%file=$file.localdir("themes/%themes[%i]/screenshot.png")
+				if($file.exists(%file))
+				{
+					%theme->%pixmap=@$createPixmap(%file)
+					%theme->%shot=%file
+				}
+				@%themesList->$append(%theme)
+				config.close %c
+			}
+		}
+		getRemotePreviews()
+		{
+			objects.connect @%kvinet_http finished $$ checkget
+			for(%i=0;%i<@%themesList->$count();%i++)
+			{
+				%remotepath=@%KVIRC_REMOTE_PREVIEW_PATH@%themesList->$at(%i)->%preview_filename
+				%localfile=@%themesList->$at(%i)->%shot
+				if (@%themesList->$at(%i)->%preview_filename)
+				{
+					%id=@%kvinet_http->$get(%remotepath,%localfile)
+					@%get{%id}=@%themesList->$at(%i)
+					@%get{%id}->%id=%id
+				}
+			}
+	
+		}
+		checkget()
+		{
+			if (@%get{$0})
+			{
+				@%get{$0}->%pixmap=@$createPixmap(@%get{$0}->%shot)
+				@$emit(done,$0)
+			}
+		}
+	
+	}
+}
+
+

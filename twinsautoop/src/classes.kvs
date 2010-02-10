@@ -11,7 +11,7 @@ class(twins::autoop::config,dialog)
 		// Setup
 		twins::autoop::core::config::load
 		%G_hTwinsAutoOp{config} = $$
-		$$->$setCaption($tr("Twins Auto Op",twinsautoop))
+		$$->$setWindowTitle($tr("Twins Auto Op",twinsautoop))
 
 		// Layout
 		%lll = $new(layout,$$)

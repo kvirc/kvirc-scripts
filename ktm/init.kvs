@@ -1,0 +1,5 @@
+ktm::classes::register
+action.create -t=tools ("ktm::start",$tr("KTM: Show KVS Themes Manager"),$tr("Show the KVS Themes Manager interface"),"ktm/ktm32.png","ktm/ktm16.png")
+{
+	ktm::start
+} 

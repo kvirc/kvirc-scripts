@@ -1,0 +1,109 @@
+alias(ktm::classes::widgets::previewWidget)
+{
+	class(ktm::previewWidget,widget)
+	{
+		constructor()
+		{
+			@$setWFlags("StaysOnTop","FramelessWindow")
+			@$setAttribute("NoSystemBackground",$true)
+			//@$setProperty("autoFillBackground",$false)
+			@%pix=$new(pixmap)
+			@%margin=10
+			@%perc=10
+			@%KVIRC_LOCALE_PREVIEW_PATH=$file.localdir("pics/ktm/previews/")
+		}
+		destructor()
+		{
+			delete @%pix
+			//delete @%data
+		}
+		setPixmap()
+		{
+			//@%data=$new(memorybuffer)
+			//@%data->$loadFromFile($0)
+			//@%pix->$loadFromMemoryBuffer(@%data)
+			@%pix->$load($0)
+			@%pix->$scale(800,600,"KeepAspectRatio","Smooth")
+		}
+		showEvent()
+		{
+			@%zoom="I"
+			@$anim()
+			@%id=@$startTimer(10)
+		}
+		anim()
+		{
+			%scalex=$($real(@%pix->$width())/100*@%perc)
+			%scaley=$($real(@%pix->$height())/100*@%perc)
+			@$resize(%scalex,%scaley)
+			%coord[]=@$screenResolution()
+			@$move($((%coord[0]-@$width())/2),$((%coord[1]-@$height())/2)) 
+		}
+		timerEvent()
+		{
+			if (@%zoom=="I")
+			{
+				@%perc+=10
+				if (@%perc>=100){
+				 	@$killtimer(@%id)
+					@%perc=100
+				}
+			}
+			else{
+				@%perc-=10
+				if (@%perc<=0){
+				 	@$killtimer(@%id)
+					@%exit=$true
+					delete $$
+					return
+				}
+			}
+			@$anim()
+		}
+		
+		mouseReleaseEvent()
+		{
+			@%zoom="O"
+			@%perc=100
+			@%id=@$startTimer(10)
+		}
+		paintEvent()
+		{
+		//	echo paint preview
+			@%p=$0
+			@%p->$setPen("blue")
+			@%p->$setAntiAliasing($true)
+			@%p->$setTextAntiAliasing($true)
+			@%p->$setPenWidth(5)
+			@%p->$setBrush(244,151,6,rgb,130)
+		//	@%p->$drawRect(0,0,@$width(),@$height())
+		//	@%p->$setOpacity(0.2)
+			@%p->$drawPixmap(0,0,@%pix,0,0,@%pix->$width(),@%pix->$height())
+			@%p->$setFontSize(16)
+			%metric=@%p->$fontMetricsWidth($tr("Click preview to close"))
+			%asc=@%p->$fontAscent()
+		//	@%p->$setBrush(255,255,255,rgb,170)
+			@%p->$setPenWidth(1)
+			$$->%p->$setGradientStart(0,0)
+			$$->%p->$setGradientStop(0,$$->$height)
+		
+			$$->%p->$setGradientColor(0,255,255,255,RGB,170)
+			//$$->%p->$setGradientColor(0.5,20,255,0,RGB,170)
+			$$->%p->$setGradientColor(0.5,0,0,0,RGB,191)
+			$$->%p->$setGradientAsBrush()
+		
+		//	@%p->$drawRoundRect(4,4,20,20,$(%metric+20),$(%asc+20))
+			@%p->$setPen(255,255,255)
+			%h=$(%asc*3)
+			//@%p->$drawHtmlText(25,$(%h/2),$tr("Click preview to close"),@$width(),@$height())
+			//@%p->$setPen(255,255,255)
+			//@%p->$drawHtmlText(23,$((%h/2)-2),$tr("Click preview to close"),@$width(),@$height())
+			@%p->$setPen(blue)	
+			@%p->$drawText(28,$(%asc+20+10),$tr("Click preview to close"))
+			@%p->$setPen(255,255,255)
+		//	@%p->$drawText(23,$((%h/2)-2),$tr("Click preview to close"))
+			
+		}
+	}
+}
+

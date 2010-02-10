@@ -56,35 +56,32 @@ defpopup -m ("querytextview")
 {
 	separator("696900")
 	
-	extpopup("$tr("Forza4")","forza4","269","696901")
+	extpopup("$tr("Connect4")","forza4","269","696901")
 	
 	separator("696902")
 }
 
-defpopup("forza4")
+defpopup("connect4")
 {
 	prologue
 	{
 	}
 	
-	item("$tr("Configure Forza4")","269")
+	item("$tr("Configure Connect4")","269")
 	{
-		forza4_config
+		//forza4_config
 	}
 	
 	item("$tr("Invite $0 to play Forza4")","269")
 	{
 
-	if (!$classDefined(forzaquattro))
+	if (!$classDefined(connect4::handler))
 		{
-			wrapKvirc
-			Forza4_classesdefinitions
-			%Forza4Handler=$new(forza4handler)
+			connect4
+			%ConnectHandler=$new(connect4::handler)
 		}
 	 ctcp $0 FORZA4 NEWGAMEREQUEST
 	}
 }
-wrapKVIrc
-Forza4_classesdefinitions
-%Forza4Handler=$new(forza4handler)
+
 

@@ -1,0 +1,52 @@
+alias(ktm::classes::themeslist)
+{
+	objects.killClass -q  ktn::themesList
+	class(ktm::themesList,list)
+	{
+		constructor()
+		{
+			@%nopreview=$new(pixmap,$$)
+			@%nopreview->$load($file.localdir("pics/ktm/nopreview1.png"))
+			
+		}
+		destructor()
+		{
+			@$clearList()
+		}
+		getFirst()
+		{
+			@$moveFirst()
+			@$checkPixmap()
+			return @$current()
+		}
+		clearList()
+		{
+			for(%i=0;%i<@$count();%i++)
+				if ($objects.exists(@$at(%i)->%pixmap)) delete @$at(%i)->%pixmap
+		}
+		moveNext()
+		{
+			%check=@$list::moveNext()
+			if (!%check) @$moveFirst()
+			@$checkPixmap()
+			@$emit(itemChanged,@$current(),"L")
+		}
+		movePrev()
+		{
+			%check=@$list::movePrev()
+			if (!%check) @$moveLast()
+			@$checkPixmap()
+			@$emit(itemChanged,@$current(),"R")
+		}
+		checkPixmap()
+		{
+			if (@$current()->%pixmap==@%nopreview) @$current()->%pixmap=""
+			if (!@$current()->%pixmap){
+				@$current()->%pixmap=@%nopreview
+				@$current()->%nopreview=$true
+			}
+			else @$current()->%nopreview=$false
+		}
+	}
+}
+

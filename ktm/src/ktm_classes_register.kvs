@@ -1,0 +1,22 @@
+alias(ktm::classes::register)
+{
+	%classesaliases[]=$array(ktm::classes::config,\
+	ktm::classes::http,\
+	ktm::classes::config,\
+	ktm::classes::themeslist,\
+	ktm::classes::main,\
+	ktm::classes::widgets::infoWidget,\
+	ktm::classes::widgets::loadingWidget,\
+	ktm::classes::widgets::mainWidget,\
+	ktm::classes::widgets::previewWidget,\
+	ktm::classes::widgets::statusWidget,\
+	ktm::classes::widgets::httpPbar)
+	foreach(%alias,%classesaliases[]) {
+			%class=$str.replace(%alias,"widgets::","")
+			%class=$str.replace(%alias,"classes::","")
+			objects.killClass -q  %class
+			eval %alias
+	}
+}
+
+

@@ -1,0 +1,60 @@
+alias(ktm::classes::widgets::statusWidget)
+{
+	objects.killClass -q  ktm::statusWidget
+	class(ktm::statusWidget,widget)
+	{
+		sizeHintRequestEvent()
+		{
+			return $array(640,400)
+		}
+		destructor()
+		{
+		//	delete @%p
+		}
+		constructor()
+		{
+			@%x=0
+			@%margin=15
+			@%spacing=10
+			
+		}
+		showEvent()
+		{
+			//$$->$startTimer(10)
+		}
+		timerEvent()
+		{
+			echo timer status
+			if (@%d=="L")
+			{
+				if (@%x<=0) @%d="R"
+				else @%x-=0
+				
+			}
+			else
+			{
+				if  (@%x>=500) @%d="L"
+				else @%x+=0
+			}
+			@$repaint()
+		}
+			
+		paintEvent()
+		{
+			@%p=$0
+			@%p->$setFont(20,"Times","bold")
+			@%p->$setBrush(244,151,6,rgb,130)
+			%metric=@%p->$fontMetricsWidth("KvsThemesManager")
+			@%p->$setPenWidth(1)
+			@%p->$setAntiAliasing($true)
+			@%p->$drawRoundRect(5,5,0,0,$(@$width()-0),$(@$height()-0))
+	 		@%p->$setPen(255,255,255,200)
+			@%p->$translate(@%x,0)
+			%x=$((@$width-%metric)/2)
+			@%p->$drawText($(%x+1),$((@$height()/2)+1),KvsThemesManager)
+			@%p->$setPen(0,0,0,rgb,255)
+			@%p->$drawText(%x,$((@$height()/2)+0),KvsThemesManager)
+		}
+	}
+}
+

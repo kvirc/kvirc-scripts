@@ -1,0 +1,7 @@
+alias(ktm::instance)
+{
+	if (!$classDefined(ktm::main)) ktm::classes::rebuild
+	if (!$objects.instances(ktm::main)) return $new(ktm::main)
+	else return $objects.instances(ktm::main)[0]
+}
+

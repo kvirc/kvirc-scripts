@@ -1,0 +1,24 @@
+alias(ktm::uninstall::uninstall)
+{
+	// deleting classes
+	%classes[]=$array(ktm::config,\
+	ktm::http,\
+	ktm::config,\
+	ktm::themeslist,\
+	ktm::main,\
+	ktm::infoWidget,\
+	ktm::loadingWidget,\
+	ktm::mainWidget,\
+	ktm::previewWidget,\
+	ktm::statusWidget,\
+	ktm::httpPbar)
+	foreach(%class,%classes[]) {
+			foreach(%instance,$objects.instances(%class)) delete -i %instance
+			objects.killClass -q  %class
+	}
+	
+	// remove actions
+	action.destroy ktm::start
+}
+
+

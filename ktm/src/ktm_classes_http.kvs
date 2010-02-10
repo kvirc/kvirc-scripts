@@ -1,0 +1,36 @@
+alias(ktm::classes::http)
+{
+	class(ktm::http,http)
+	{
+		get()
+		{
+			return $$->$http::get($0,$1)
+		}
+		page()
+		{
+			return @%page
+		}
+		readyReadEvent()
+		{
+	 		@%page .=@$readAll()
+		}
+		dataReadProgressEvent()
+		{
+	 		@$emit(dataReadProgress,$0,$1,@$currentId())
+		}
+		stateChangedEvent()
+		{
+	 		@$emit(stateChanged,$0)
+		}
+		requestFinishedEvent()
+		{
+			 @$emit(finished,$0)
+		}
+		responseHeaderReceivedEvent()
+		{
+	 	}
+	
+	}
+}
+
+

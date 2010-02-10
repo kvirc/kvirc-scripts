@@ -1,62 +1,56 @@
-/*
-	Mediaplayer of the Twins script.
-	Written by Ahinu (2006)
-	Some parts are inspired from Pragma's Newsticker and Nowplaying addons.
-*/
+# This file is generated automatically. Do NOT touch unless you know what are you doing
+#
+# Twinsmediaplayer 1.4.1
+# Written by Noldor
+# A mediaplayer
 
-# register the script: this must be the first instruction executed
+# Register the script: this must be the first instruction executed
 # since it will abort with an error when a greater version is already installed
-addon.register(\
-	"twinsmediaplayer",\
-	"1.4",\
-	$tr("The Twins Mediaplayer",twinsmediaplayer),\
-	$tr("An interface to the Mediaplayer module to play music and advertise it",twinsmediaplayer),\
-	"3.2.4",\
-	twins/32x32/twins_mediaplayer_32.png)
+addon.register("Twinsmediaplayer","1.4.1","Twinsmediaplayer","A mediaplayer","3.2.4","twins_mediaplayer_32.png")
 {
-	twins::mediaplayer::core::uninstall
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	Twinsmediaplayer::uninstall::uninstall
 }
-
 
 # Ok, addon.register succeeded. We can go on with the installation.
 
-# get the installer helper class (this is pretty standard and included in the distro)
-#include $file.globaldir(defscript/installer.kvs)
-include utils/installer.kvs
-
 # Get the path that this script was launched from
-//%mypath = $file.extractPath($0)
-%mypath = $str.lefttolast($0,/)
-# The installer will copy our files and generate automatically
-# an uninstallation alias for them
-%installer = $new(installer,0,myinstaller)
-# copy files in each subdirectory
+%mypath = $file.extractPath($0)
+
+# The installer will copy our files and generate automatically an uninstallation
+# alias for them
+%installer = $new(installer,0,myaddon)
+
+# Copy files in each subdirectory
 # the pics
-file.mkdir $file.localdir(pics)
-file.mkdir $file.localdir(pics/twins)
-foreach(%subdir,16x16,22x22,32x32)
-	%installer->$copyFiles("%mypath/pics/twins/"%subdir,"twins_*.png",$file.localdir("pics/twins/%subdir"))
+%installer->$copyFiles("%mypath/pics/","*.png",$file.localdir("pics/Twinsmediaplayer"))
+
 # the translations
 %installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
 
-# includes sources files
-%installer->$includeFiles("%mypath/src/","*.kvs")
+# the documentation
+%installer->$copyFiles("%mypath/help/en/Twinsmediaplayer/","*.html",$file.localdir("help/en/Twinsmediaplayer"))
 
-# then generate the uninstall alias
-%installer->$generateUninstallAlias("twins::mediaplayer::core::uninstall")
+# Generate the uninstall alias
+%installer->$generateUninstallAlias("Twinsmediaplayer::uninstall::uninstallfiles")
 
-# set the script's configuration callback
-# so it can be invoked via GUI from the Addon Management dialog
-# and via addon.configure
-addon.setconfigurecallback("twinsmediaplayer")
+# Kill the installer helper
+delete %installer
+
+# Fetch the complete script
+%files[] = $file.ls($file.extractpath($0)/src,f)
+%alias = "alias(Twinsmediaplayer::uninstall::uninstallaliases){$lf"
+for(%i=0; %i<$length(%files[]); %i++)
 {
-        twins::mediaplayer::configure
+	include $file.extractpath($0)/src/%files[%i]
+	%flt = $str.left(%files[%i],$($str.len(%files[%i])-4))
+	%file = $str.replace(%flt,"::","_")
+	%alias .= "alias(%file){};$lf"
 }
+%alias .= "alias(Twinsmediaplayer::uninstall::uninstallaliases){};$lf"
+%alias .= "}"
+eval %alias
 
-if($addon.exists(twins)) return
-
-# make sure any previous instance is closed
-twins::mediaplayer::close
-# show it up :)
-twins::mediaplayer::show
+# Include initialization file
+include "init.kvs" %mypath
 

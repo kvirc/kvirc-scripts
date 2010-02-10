@@ -1,0 +1,28 @@
+alias(ktm::classes::widgets::loadingWidget)
+{
+	class(ktm::loadingWidget,widget)
+	{
+		constructor()
+		{
+			//@%p=$new(painter)
+			@%ind=0
+		}
+		timerEvent()
+		{
+			if (@%ind >15) @%ind=0
+			else @%ind++
+			@$repaint()
+		}
+		paintEvent()
+		{
+			@%p=$0
+			@%p->$setPen(0,0,0)
+			@%p->$setAntiAliasing($true)
+			@%p->$setPenWidth(1)
+			@%p->$setFont(20,"Times","bold")
+			@%p->$drawText(0,25,$str.mid("KvsThemesManager",@%ind,1))
+					
+		}
+	}
+}
+

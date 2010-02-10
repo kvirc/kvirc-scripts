@@ -9,7 +9,7 @@ class(twins::inputcolor::configure,dialog)
 		twins::inputcolor::core::config::load
 
 		# Cation
-		@$setcaption($str.printf($tr("Twinsinputcolor-?s configuration",twinsinputcolor),$addon.version(twinsinputcolor)))
+		@$setWindowTitle($str.printf($tr("Twinsinputcolor-?s configuration",twinsinputcolor),$addon.version(twinsinputcolor)))
 
 		# Layout
 		%l=$new(layout,$$)
@@ -44,6 +44,7 @@ class(twins::inputcolor::configure,dialog)
 
 		# Show example
 		@%m_hExample=$new(label,$$)
+		@%m_hExample->$setProperty("autoFillBackground",$true)
 		@%m_hExample->$setalignment(center)
 		@%m_hExample->$setFrameStyle(Box,Sunken)
 		%l->$addwidget(@%m_hExample,1,3)
@@ -51,9 +52,9 @@ class(twins::inputcolor::configure,dialog)
 		# Structure
 		%st=$new(groupbox,$$)
 		%st->$settitle($tr("Structure",twinsinputcolor))
-		%stl=$new(layout,%st)
-		%stl->$setmargin(15)
-		%stl->$setspacing(10)
+//		%stl=$new(layout,%st)
+//		%stl->$setmargin(15)
+//		%stl->$setspacing(10)
 		%l->$addwidget(%st,2,0)
 		# bold
 		@%m_hBold=$new(checkbox,%st)
@@ -63,43 +64,37 @@ class(twins::inputcolor::configure,dialog)
 		@%m_hUnderline=$new(checkbox,%st)
 		@%m_hUnderline->$settext($tr("Underline",twinsinputcolor))
 		@%m_hUnderline->$setchecked($str.contains(%TwinsInputColor{code},$u))
-		%stl->$addwidget(@%m_hBold,0,0)
-		%stl->$addwidget(@%m_hUnderline,1,0)
-
+	
 
 		# Colors
 		%co=$new(groupbox,$$)
 		%co->$settitle($tr("Colors",twinsinputcolor))
-		%col=$new(layout,%co)
-		%col->$setmargin(15)
-		%col->$setspacing(10)
 		%l->$addmulticellwidget(%co,2,2,1,2)
 		# foreground
-		%lfg=$new(label,%co)
+		%hbox=$new(hbox,%co)
+		%lfg=$new(label,%hbox)
 		%lfg->$settext($tr("Foreground:",twinsinputcolor))
-		@%m_hFg=$new(spinbox,%co)
+		@%m_hFg=$new(spinbox,%hbox)
 		@%m_hFg->$setminvalue(0)
 		@%m_hFg->$setmaxvalue(15)
 		%tmp=$str.mid($str.rightfromfirst(%TwinsInputColor{code},$k),0,2)
 		if($str.isempty(%tmp))%tmp=1
 		@%m_hFg->$setvalue(%tmp)
 		# background
-		%lbg=$new(label,%co)
+		%hbox=$new(hbox,%co)
+		%lbg=$new(label,%hbox)
 		%lbg->$settext($tr("Background:",twinsinputcolor))
 		%tmp2=$str.rightfromfirst(%TwinsInputColor{code},\,)
+		
 		@%m_hIsBg=$new(checkbox,%co)
 		@%m_hIsBg->$settext($tr("Use background",twinsinputcolor))
 		@%m_hIsBg->$setchecked($(!$str.isempty(%tmp2)))
 		if($str.isempty(%tmp2))%tmp2=0
-		@%m_hBg=$new(spinbox,%co)
+		@%m_hBg=$new(spinbox,%hbox)
 		@%m_hBg->$setminvalue(0)
 		@%m_hBg->$setmaxvalue(15)
 		@%m_hBg->$setvalue(%tmp2)
-		%col->$addwidget(%lfg,0,0)
-		%col->$addwidget(@%m_hFg,0,1)
-		%col->$addwidget(%lbg,1,0)
-		%col->$addwidget(@%m_hBg,1,1)
-		%col->$addmulticellwidget(@%m_hIsBg,2,2,0,1)
+
 		@%m_hIsBg->$toggleevent
 
 
@@ -107,26 +102,20 @@ class(twins::inputcolor::configure,dialog)
 		%wh=$new(groupbox,$$)
 		%wh->$settitle($tr("Where",twinsinputcolor))
 		%wh->$settooltip($tr("Where to use your color",twinsinputcolor))
-		%whl=$new(layout,%wh)
-		%whl->$setmargin(15)
-		%whl->$setspacing(10)
 		%l->$addwidget(%wh,2,3)
 		# chans
 		@%chans=$new(checkbox,%wh)
 		@%chans->$settext($tr("Channels",twinsinputcolor))
 		@%chans->$setchecked($str.contains(%TwinsInputColor{where},channel))
-		%whl->$addwidget(@%chans,0,0)
 		# pv
 		@%pv=$new(checkbox,%wh)
 		@%pv->$settext($tr("Queries",twinsinputcolor))
 		@%pv->$setchecked($str.contains(%TwinsInputColor{where},query))
-		%whl->$addwidget(@%pv,1,0)
 		# dccchats
 		@%dcc=$new(checkbox,%wh)
 		@%dcc->$settext($tr("DccChats",twinsinputcolor))
 		@%dcc->$setchecked($str.contains(%TwinsInputColor{where},dccchat))
-		%whl->$addwidget(@%dcc,2,0)
-
+	
 		objects.connect @%m_hBold toggled $$ showcolor
 		objects.connect @%m_hUnderline toggled $$ showcolor
 		objects.connect @%m_hFg valueChanged $$ showcolor
@@ -184,7 +173,6 @@ class(twins::inputcolor::configure,dialog)
 		if(@%dcc->$ischecked)
 			%where<<dccchat
 		%TwinsInputColor{where}=%where
-
 		twins::inputcolor::core::config::save
 	}
 
