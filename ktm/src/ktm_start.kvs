@@ -2,7 +2,8 @@ alias(ktm::start)
 {
 	if($sw(r,rebuild)){
 		echo rebuild classes
-		foreach(%instance,$objects.instances(ktm::main)) delete -i %instance
+		if ($classDefined(ktm::main))
+			foreach(%instance,$objects.instances(ktm::main)) delete -i %instance
 		ktm::classes::register
 	}
 	$ktm::instance->$init()

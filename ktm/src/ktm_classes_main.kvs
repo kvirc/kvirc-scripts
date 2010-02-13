@@ -1,6 +1,5 @@
 alias(ktm::classes::main)
 {
-	objects.killClass -q ktm::main
 	class(ktm::main,object)
 	{
 		constructor()
@@ -27,7 +26,7 @@ alias(ktm::classes::main)
 		init()
 		{
 			@$firstTimeRun()
-			@%kvinet_http=$new(KvsHttp,$$)
+			@%kvinet_http=$new(ktm::http,$$)
 			// connect signal done to themePageLoaded slot
 			objects.connect @%kvinet_http done $$ themesMainPageLoaded
 			@%kvinet_http->$setHost("www.kvirc.net")
@@ -40,8 +39,9 @@ alias(ktm::classes::main)
 			@%page=@%kvinet_http->$page()
 			file.write $file.localdir(themes.html) @%page
 			delete @%kvinet_http
-			@%kvinet_http=$new(KvsHttp,$$)
+			@%kvinet_http=$new(ktm::http,$$)
 			@%kvinet_http->$setHost("www.kvirc.net")
+			echo new http
 			$ktm::functions::createInfoThemesList(@%page,@%themesList)
 			@$getRemotePreviews
 			objects.connect @%kvinet_http dataReadProgress @%mainDialog SETpb
