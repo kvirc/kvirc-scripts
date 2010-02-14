@@ -2,72 +2,27 @@ alias(ktm::functions::createThemeInfo)
 {
 	// $0=theme section
 	// removing html encoding
-	
 	%str=$str.replace($0,"\&nbsp","")
 	%str=$str.replace(%str,"\&nbs","")
 	
-	
-	// Theme title/version extraction
-	%title_st=$($str.findfirst(%str,"<h1>")+4)
-	%title_end=$($str.findfirst(%str,"</h1>"))
-	%title=$str.section($str.mid(%str,%title_st,$(%title_end-%title_st)),";",0,0)
-	%version=$str.section($str.mid(%str,%title_st,$(%title_end-%title_st)),";",-1,-1)
-	
-	//echo versione %version
-	//Theme screnshot link extraction
-	%shot_filter="\<div class\=\"img\"\>\<a href\="
-	%shot_st=$($str.findfirst(%str,%shot_filter)+$str.len(%shot_filter))
-	%shot_end=$str.findfirst(%str,"><img src=")
-	%shot=$str.mid(%str,%shot_st,$(%shot_end-%shot_st))
-	%file=$str.section(%shot,"/",-1,-1)
-	%file=$str.replace(%file,"\"","")
-	%file=$str.stripright(%file)
-	%path=$str.replace(%shot,"\"","")
-	%remotepath=%path
-	%shot=$file.localdir("pics/ktm/previews/%file")
-		
-	
-	//Theme autor extraction
-	if ($str.findfirst(%str,"mailto:")==-1)
-	{
-		%author_st=$($str.findfirst(%str,"</b>")+4)
-		%author_end=$str.findfirst(%str,"<br />")
-		%author=$str.mid(%str,%author_st,$(%author_end-%author_st))
-		//echo author %author (no mail)
-	}
-	else
-	{
-		%author_mail_st=$str.findFirst(%str,"<a href\=\"mailto:")
-		%author_st=$($str.findFirst(%str,">",%author_mail_st)+1)
-		%author_end=$str.findFirst(%str,"</a>",%author_st)
-		%author=$str.mid(%str,%author_st,$(%author_end-%author_st))
-	//	echo author %author
-	}
-	//debug search from %author_end $str.mid(%str,%author_end,40)
-	%description_st=$str.findFirst(%str,"</b>",%author_end)
-	//debug start $str.mid(%str,%description_st,40)
-	%description_end=$str.findFirst(%str,"<br",%description_st)
-	// END differenza $(%description_end-%description_st)
-	%description=$str.mid(%str,%description_st,$(%description_end-%description_st))
-	//debug end  $str.mid(%str,%description_end,40)
-	
-	// Object theme creation
 	%theme=$new(object)
-	%theme->%title=%title
-	%theme->%version=%version
-	%theme->%author=%author
-	%theme->%shot=%shot
-	//debug shot %shot
-	%theme->%remotepath=%remotepath
-	//%theme->%thumb=%thumb
-	%theme->%description=%description
-	//echo title %title
-	//echo versione %version 
-	//echo shot %shot
-	//echo remote path %remotepath
-	//echo description %description
-	//echo "__________________"
-	// return object theme
+	%theme->%title= $str.grep("<h1>([az-AZ \-]+)",%str,rp)[1]
+	%theme->%version=$str.grep("<h1>[az-AZ ]+([0123456789.]+)",%str,rp)[1]
+	%filename=$str.grep("<a href=\"img/themes/(theme_[az-AZ\-]*.(png|jpg))",%str,rp)[1]
+	%theme->%preview_filename=%filename
+	%theme->%shot=$file.localdir("pics/ktm/previews/%filename")
+	%theme->%downloadlink=$str.grep("ftp:\/\/([^\"]+)",%str,rp)[1]
+	if ($str.findfirst(%str,"mailto:")!=-1) %desc[]=$str.grep("\"desc\"><p><b>[^<]+</b><a [^>]+>([^<]+)</a><br /><b>[^<]+</b>([^<]+)",%str,rp)
+	else %desc[]=$str.grep("\"desc\"><p><b>[^<]+</b>([^<]+)<br /><b>[^<]+</b>([^<]+)",%str,rp)
+	%theme->%author= %desc[1]
+	%theme->%description= %desc[2]
 	return %theme
+	
+	//echo title/version/file  $str.grep("<h1>([az-AZ \-]+)([0123456789.]+)</h1><div class=\"img\"><a href=\"img/themes/(theme_[az-AZ\-]*.(png|jpg))",%str,rp)
+	
+	// "desc"><p><b>Author: </b><a href="mailto:sbrokka [at] openlug [dot] org">Sbrokka</a><br /><b>Description: </b>An eye-candy based on the Marble icon set.<br />
+	// "desc"><p><b>Author: </b>F.F (have more fun)<br /><b>Description
+	//%theme->%description=$str.grep("<b>Description: </b>([az-AZ \-:\)_0123456789]+)<br />",%str,rp)[1]
 }
+
 
