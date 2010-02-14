@@ -14,6 +14,7 @@ alias(ktm::classes::config)
 		{
 			return $file.read(%c,"firstTime",$false)
 		}
+		
 	}
 }
 

@@ -4,6 +4,7 @@ alias(ktm::classes::http)
 	{
 		get()
 		{
+			//echo geto
 			return $$->$http::get($0,$1)
 		}
 		page()
@@ -12,25 +13,19 @@ alias(ktm::classes::http)
 		}
 		readyReadEvent()
 		{
+			//echo ready read $0 and 
 	 		@%page .=@$readAll()
 		}
 		dataReadProgressEvent()
 		{
+			//echo data progress $0 $1 
 	 		@$emit(dataReadProgress,$0,$1,@$currentId())
-		}
-		stateChangedEvent()
-		{
-	 		@$emit(stateChanged,$0)
 		}
 		requestFinishedEvent()
 		{
+			//echo finished $0
 			 @$emit(finished,$0)
 		}
-		responseHeaderReceivedEvent()
-		{
-	 	}
-	
 	}
 }
-
 

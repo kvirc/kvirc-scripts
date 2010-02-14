@@ -37,7 +37,9 @@ alias(ktm::functions::createInfoThemesList)
 		%themeright_index=$str.find(%page_filtered,"\<div class\=\"left\"\>",$(%count+1))
 		if (%themeright_index==-1) break
 		%theme=$str.mid(%page_filtered,%to,$(%themeright_index-%to))
-		%themes->$append($ktm::functions::createThemeInfo(%theme))
+		%theme_obj=$ktm::functions::createThemeInfo(%theme)
+		%themes->$append(%theme_obj)
+		
 		%count++
 		%anticrash++
 		if (%anticrash>100) break

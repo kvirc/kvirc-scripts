@@ -2,6 +2,7 @@ alias(ktm::classes::register)
 {
 	%classesaliases[]=$array(ktm::classes::config,\
 	ktm::classes::http,\
+	ktm::classes::ftp,\
 	ktm::classes::config,\
 	ktm::classes::themeslist,\
 	ktm::classes::main,\
@@ -18,5 +19,4 @@ alias(ktm::classes::register)
 			eval %alias
 	}
 }
-
 

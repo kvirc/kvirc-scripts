@@ -12,6 +12,7 @@ alias(ktm::classes::main)
 		}
 		destructor()
 		{
+			if ($objects.exists(@%ftp)) delete @%ftp
 			if ($objects.exists(@%kvinet_http)) delete @%kvinet_http
 			delete @%themesList
 			if ($objects.exists(@%mainDialog)) delete @%mainDialog
@@ -41,12 +42,12 @@ alias(ktm::classes::main)
 			delete @%kvinet_http
 			@%kvinet_http=$new(ktm::http,$$)
 			@%kvinet_http->$setHost("www.kvirc.net")
-			echo new http
 			$ktm::functions::createInfoThemesList(@%page,@%themesList)
 			@$getRemotePreviews
 			objects.connect @%kvinet_http dataReadProgress @%mainDialog SETpb
 			objects.connect $$ done @%mainDialog done
 			objects.connect @%mainDialog closing $$ closeScript
+			objects.connect @%mainDialog install $$ loadTheme
 			@%mainDialog->$init(@%themesList)
 			@%mainDialog->$show()
 		}
@@ -61,7 +62,27 @@ alias(ktm::classes::main)
 			%pixmap->$scale(@%thumb_width,@%thumb_height,"KeepAspectRatio","Smooth")
 			return %pixmap
 		}
-	
+		loadTheme()
+		{
+			%theme=@%themesList->$current()
+			if (!@%ftp)
+			{
+				@%ftp=$new(ktm::ftp)
+				objects.connect @%ftp downloaded $$ installTheme
+			}
+			@%Ftp->$connect(ftp.kvirc.de)
+			@%Ftp->$login("","")
+			@%Ftp->$cd(pub/kvirc/themes/)
+			@%Ftp->$get(%theme->%remotefile,$file.localdir(tmp/themetemp.kvt))
+		}
+		installTheme()
+		{
+			
+		//	echo install theme
+			@%Ftp->$close()
+			theme.install $file.localdir(tmp/themetemp.kvt)
+		//	echo installed
+		}
 		firstTimeRun()
 		{
 			if (!$file.exists($file.localdir("pics/ktm/previews")))
@@ -120,5 +141,4 @@ alias(ktm::classes::main)
 	
 	}
 }
-
 

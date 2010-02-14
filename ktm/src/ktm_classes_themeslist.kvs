@@ -1,6 +1,5 @@
 alias(ktm::classes::themeslist)
 {
-	objects.killClass -q  ktn::themesList
 	class(ktm::themesList,list)
 	{
 		constructor()

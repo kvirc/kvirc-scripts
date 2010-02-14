@@ -11,10 +11,11 @@ alias(ktm::functions::createThemeInfo)
 	%filename=$str.grep("<a href=\"img/themes/(theme_[az-AZ\-]*.(png|jpg))",%str,rp)[1]
 	%theme->%preview_filename=%filename
 	%theme->%shot=$file.localdir("pics/ktm/previews/%filename")
-	%theme->%downloadlink=$str.grep("ftp:\/\/([^\"]+)",%str,rp)[1]
+	%theme->%remotefile=$str.token(4,"/",$str.grep("ftp:\/\/([^\"]+)",%str,rp)[1])
 	if ($str.findfirst(%str,"mailto:")!=-1) %desc[]=$str.grep("\"desc\"><p><b>[^<]+</b><a [^>]+>([^<]+)</a><br /><b>[^<]+</b>([^<]+)",%str,rp)
 	else %desc[]=$str.grep("\"desc\"><p><b>[^<]+</b>([^<]+)<br /><b>[^<]+</b>([^<]+)",%str,rp)
 	%theme->%author= %desc[1]
+	if ($str.right(%desc[2],1)!=".") %desc[2].="."
 	%theme->%description= %desc[2]
 	return %theme
 	
@@ -24,5 +25,4 @@ alias(ktm::functions::createThemeInfo)
 	// "desc"><p><b>Author: </b>F.F (have more fun)<br /><b>Description
 	//%theme->%description=$str.grep("<b>Description: </b>([az-AZ \-:\)_0123456789]+)<br />",%str,rp)[1]
 }
-
 

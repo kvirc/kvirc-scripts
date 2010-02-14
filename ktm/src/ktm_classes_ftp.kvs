@@ -1,0 +1,16 @@
+alias(ktm::classes::ftp)
+{
+	class(ktm::ftp,ftp)
+	{
+		commandFinishedEvent()
+		{
+			//echo $0 $1 $2
+			if ($1=="Downloaded") @$emit("downloaded")
+		}
+		dataTransferProgressEvent()
+		{
+		//	echo downloaded $0/$1
+		}
+	}
+}
+
