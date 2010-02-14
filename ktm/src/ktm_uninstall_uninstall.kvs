@@ -3,6 +3,7 @@ alias(ktm::uninstall::uninstall)
 	// deleting classes
 	%classes[]=$array(ktm::config,\
 	ktm::http,\
+	ktm::ftp,\
 	ktm::config,\
 	ktm::themeslist,\
 	ktm::main,\
@@ -20,5 +21,4 @@ alias(ktm::uninstall::uninstall)
 	// remove actions
 	action.destroy ktm::start
 }
-
 

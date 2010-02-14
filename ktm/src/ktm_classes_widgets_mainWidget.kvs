@@ -65,13 +65,18 @@ alias(ktm::classes::widgets::mainWidget)
 		}
 		init("themesList")
 		{
-			%themesList=$0
-			%obj=%themesList->$getFirst()
+			@%themesList=$0
+			%obj=@%themesList->$getFirst()
 			@%canvas->$setPix(%obj)
-			objects.connect @%btn_prev clicked %themesList movePrev
-			objects.connect @%btn_next clicked %themesList moveNext
-			objects.connect %themesList itemChanged @%canvas itemChanged
+			objects.connect @%btn_prev clicked @%themesList movePrev
+			objects.connect @%btn_next clicked @%themesList moveNext
+			objects.connect @%themesList itemChanged @%canvas itemChanged
+			objects.connect @%btn_install clicked $$ install
 			objects.connect @%btn_exit clicked $$ closeEvent
+		}
+		install()
+		{
+			@$emit("install")
 		}
 		closeEvent()
 		{
