@@ -132,8 +132,8 @@ alias(nowplaying::configure)
 			nowplaying::core::loadconfig
 
 			# set caption and icon
-			$$->$setCaption($tr("Now Playing Script Configuration","nowplaying"))
-			$$->$setIcon(nowplaying_16.png)
+			$$->$setWindowTitle($tr("Now Playing Script Configuration","nowplaying"))
+			$$->$setWindowIcon(nowplaying_16.png)
 
 			# then the main layout
 			%l = $new(layout,$this);
@@ -145,7 +145,7 @@ alias(nowplaying::configure)
 			%l->$addMultiCellWidget(%gb,0,0,0,2)
 			%gb->$setTitle($tr("Output Format","nowplaying"))
 			# each groupbox arranges the chidren in columns
-			%gb->$setLayoutOrientation(Vertical)
+			%gb->$setOrientation(Vertical)
 
 			# the groupbox's children controls
 			@%hUseColors = $this->$createCheckBox(%gb,$tr("Use Colors","nowplaying"),%NowPlaying{"UseColors"})
@@ -155,7 +155,7 @@ alias(nowplaying::configure)
 			%gb = $new(groupbox,$this)
 			%l->$addMultiCellWidget(%gb,1,1,0,2)
 			%gb->$setTitle($tr("Output Contents","nowplaying"))
-			%gb->$setLayoutOrientation(Vertical)
+			%gb->$setOrientation(Vertical)
 
 			# and another set of children
 			@%hShowYear = $this->$createCheckBox(%gb,$tr("Show Year","nowplaying"),%NowPlaying{"ShowYear"})
@@ -172,7 +172,7 @@ alias(nowplaying::configure)
 			%gb = $new(groupbox,$this)
 			%l->$addMultiCellWidget(%gb,2,2,0,2)
 			%gb->$setTitle($tr("Other","nowplaying"))
-			%gb->$setLayoutOrientation(Vertical)
+			%gb->$setOrientation(Vertical)
 			
 			# and yet another set of children
 			@%hShareMedia = $this->$createCheckBox(%gb,$tr("Share Media","nowplaying"),%NowPlaying{"ShareMedia"})
@@ -209,7 +209,7 @@ alias(nowplaying::configure)
 
 			# adjust the layout so it looks nicer
 			%l->$setRowStretch(3,10)
-			%l->$setColStretch(0,1)
+			%l->$setColumnStretch(0,1)
 		}
 		
 		okClicked()

@@ -17,7 +17,6 @@ ktm
 mediaplayer
 minesweeper
 newsticker
-nowplaying
 objectsdumptree
 questionManager
 quiz
