@@ -1,14 +1,15 @@
-	addon.register("Forza4","0.9",$tr("Forza 4","F4"),$tr("A simple one o one game","F4"),"3.2.0","F4/F4_32.png")
+	addon.register("Connect4","0.9",$tr("Connect 4","F4"),$tr("A simple one o one game","F4"),"3.2.0","F4/F4_32.png")
 	{
 		# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
 		
 		# This is an automatically generated alias that will erase the installed files
 		Forza4_uninstallfiles
-		alias(Forza4_classesdefinitions){}
-		#alias(Forza4_uninstallfiles){}
-		alias(Forza4_config){}
-		event(onCTCPRequest,forza4){}
-		defpopup("forza4"){}
+		objects.killclass connect4handler
+		objects.killclass connect4
+		alias(Forza4_uninstallfiles){}
+		alias(Connect4_config){}
+		event(onCTCPRequest,connect4){}
+		defpopup("connect4"){}
 		delpopupitem -d -q querytextview 696900
 		delpopupitem -d -q querytextview 696901
 		delpopupitem -d -q querytextview 696902		
@@ -56,7 +57,7 @@ defpopup -m ("querytextview")
 {
 	separator("696900")
 	
-	extpopup("$tr("Connect4")","forza4","269","696901")
+	extpopup("$tr("Connect4")","connect4","269","696901")
 	
 	separator("696902")
 }
@@ -69,18 +70,17 @@ defpopup("connect4")
 	
 	item("$tr("Configure Connect4")","269")
 	{
-		//forza4_config
+		connect4_config
 	}
 	
-	item("$tr("Invite $0 to play Forza4")","269")
+	item("$tr("Invite $0 to play Connect4")","269")
 	{
 
-	if (!$classDefined(connect4::handler))
+	if ($isEmpty(%Connect4Handler))
 		{
-			connect4
-			%ConnectHandler=$new(connect4::handler)
+			%Connect4Handler=$new(connect4handler)
 		}
-	 ctcp $0 FORZA4 NEWGAMEREQUEST
+		ctcp $0 CONNECT4 NEWGAMEREQUEST
 	}
 }
 

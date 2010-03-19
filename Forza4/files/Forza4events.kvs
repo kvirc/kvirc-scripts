@@ -1,31 +1,30 @@
-event(OnCTCPRequest,Forza4)
+event(OnCTCPRequest,Connect4)
 {
 # - Forza4 - #
 # by Noldor & Grifisx & Pragma 2005
 #
-if($4 != "FORZA4")return
+if($4 != "CONNECT4")return
 
 switch($str.section($5," ",0,0))
 {
 	case("NEWGAMEREQUEST")
         {
-		if (!$classDefined(connect4))
+		if ($isEmpty(%Connect4Handler))
 		{
-			Connect4
-			%Connect4Handler=$new(connect4::handler)
+			%Connect4Handler=$new(connect4handler)
 		}
-		if (%Connect4Handler->$InstanceExists($query($0)))
+		if (%Connect4Handler->$instanceExists($query($0)))
 		{
-	    		dialog.message("Connect4",$tr("<b>$0 :<\b><br>Warning, another game session is active. Do you want to drop it and open a new game?"),"","Yes","No","",$0)
-   			{
+			dialog.message("Connect4",$tr("<b>$0 :<\b><br>Warning, another game session is active. Do you want to drop it and open a new game?"),"","Yes","No","",$0)
+			{
 				if ($0==0)
 				{
 					%Connect4Handler->$deleteInstance($query($1))
 					query $1
 					%Connect4Handler->$createInstance("0",$1,$query($1))
-					ctcp $1 FORZA4 NEWGAMEREQUESTACCEPT
-				}                
-				else ctcp $1 FORZA4 NEWGAMEREQUESTDROP
+					ctcp $1 CONNECT4 NEWGAMEREQUESTACCEPT
+				}
+				else ctcp $1 CONNECT4 NEWGAMEREQUESTDROP
 			}
 		}
 		else		
@@ -35,11 +34,11 @@ switch($str.section($5," ",0,0))
 			{
 				query $1
 				%Connect4Handler->$createInstance("0",$1,$query($1))
-				ctcp $1 FORZA4 NEWGAMEREQUESTACCEPT                
+				ctcp $1 CONNECT4 NEWGAMEREQUESTACCEPT
 			}
 			else
 			{
-				ctcp $1 FORZA4 NEWGAMEREQUESTDROP
+				ctcp $1 CONNECT4 NEWGAMEREQUESTDROP
 			}
 		}
 		break;
@@ -56,19 +55,19 @@ switch($str.section($5," ",0,0))
         }
         case("NEWGAMEREQUESTDROP")
         {  
-	 break;
+		break;
         }
         case("NEWGAMEREQUESTACCEPT")
         {
 	if (!%Connect4Handler->$instanceExists($query($0)))
 	{
 		%Connect4Handler->$createInstance("1",$0,$query($0))
-  	}                
+  	}
 	else
 	{
 	%Connect4Handler->$deleteInstance($query($0))
 				query $0
-				%Connect4Handler->$cCreateInstance("1",$0,$query($0))
+				%Connect4Handler->$createInstance("1",$0,$query($0))
 	}		
 }
         case("RESTART")
@@ -78,11 +77,11 @@ switch($str.section($5," ",0,0))
 			if($0==0)
 			{
 				%Connect4Handler->$restart(0,$query($1));
-				ctcp $1 FORZA4 RESTARTCONFIRM  1              
+				ctcp $1 CONNECT4 RESTARTCONFIRM  1
 			}
 			else
 			{
-				ctcp $1 FORZA4 RESTARTDENIED
+				ctcp $1 CONNECT4 RESTARTDENIED
 				%Connect4Handler->$deleteInstance($1)
 			}
 		}
@@ -98,7 +97,7 @@ switch($str.section($5," ",0,0))
         {
 		dialog.message("Connect4",$tr("<b>$0 <\b><br> have denied your request"),"","OK","","",$0)
 		{
-			%Connect4Handler->$forza4DeleteInstance($1);
+			%Connect4Handler->$deleteInstance($1);
         }
 		break;
         }
