@@ -40,12 +40,10 @@ alias(hell_clonescan)
 	class(helltrixclone,object){
 		constructor(){
 			# Channel mask array in the form nick!ident@host
-			%chanmask[]=$chan.users(,,m)
 			%i=0
 	
-			foreach(%mask,%chanmask[]){
-				%nick=$mask.nick(%mask)
-				%host=$str.append("*!*@",$mask.host(%mask))
+			foreach(%nick,$chan.users()){
+				%host=$str.append("*!*@",$mask.host($mask(%nick)))
 	
 				# Nick array in the form *!*@host
 				%ArrayNick[%i]=%nick
@@ -58,8 +56,6 @@ alias(hell_clonescan)
 		cloneCheck($0=nick,$1=host){
 			%checkNick=$0
 			%checkHost=$1
-			echo "Z": %checkNick;
-			%DbCloneNum{%checkNick}=0
 
 			# Global scan
 			if(!%checkNick){
@@ -73,12 +69,12 @@ alias(hell_clonescan)
 								%DbCloneNick{%ArrayNick[%i]}=$str.append(%DbCloneNick{%ArrayNick[%i]},", "%ArrayNick[%j])
 	
 							# Delete clone
-							#%DbHost{%ArrayNick[%j]}=
-							#%ArrayNick[%j]=
+							#%DbHost{%ArrayNick[%j]}=clone_%j
 						}
 					}
 				}
 			} else {
+				%DbCloneNum{%checkNick}=0
 				# Nick scan
 				if(!%checkHost){
 					# Just for sanity check
