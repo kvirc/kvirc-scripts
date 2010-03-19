@@ -19,8 +19,8 @@ class(autoaway::configure_dialog,dialog)
 		autoaway::core::config::load
 
 		# set caption and icon
-		$$->$setCaption($tr("Automatic Away Configuration","autoaway"))
-		$$->$setIcon(autoaway_16.png)
+		$$->$setWindowTitle($tr("Automatic Away Configuration","autoaway"))
+		$$->$setWindowIcon(autoaway_16.png)
 
 		# then the main layout
 		%l = $new(layout,$this);
@@ -104,7 +104,7 @@ class(autoaway::configure_dialog,dialog)
 
 		# adjust the layout so it looks nicer
 		%l->$setRowStretch(4,10)
-		%l->$setColStretch(0,1)
+		%l->$setColumnStretch(0,1)
 	}
 		
 	enableDisableAwayMessage()

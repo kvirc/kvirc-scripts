@@ -17,11 +17,11 @@ addon.register("bindip","1.4",$tr("HelLTriX Bind IP: Updating IP for DCCs","bind
 	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
 	
 	# This is an automatically generated alias that will erase the installed files
-	HelLTriX::bindip::uninstallfiles
+	#HelLTriX::bindip::uninstallfiles
 
 	# Kill all our aliases
 	alias(HelLTriX::bindip::update){}
-	alias(HelLTriX::bindip::uninstallfiles){}
+	#alias(HelLTriX::bindip::uninstallfiles){}
 	event(OnKVIrcStartup,HelLTriX_bindip){}
 
 	# Done
@@ -44,7 +44,7 @@ parse %mypath/utils/installer.kvs
 # the translations
 %installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
 # then generate the uninstall alias
-%installer->$generateUninstallAlias("HelLTriX::bindip::uninstallfiles")
+#%installer->$generateUninstallAlias("HelLTriX::bindip::uninstallfiles")
 # finally kill the installer helper
 delete %installer
 
@@ -58,16 +58,17 @@ alias(HelLTriX::bindip::update)
 	option boolDccSendFakeAddressByDefault 1
 	
 	# Download the page
+	if(!$file.exists($file.localdir("tmp"))) file.mkdir $file.localdir("tmp")
 	http.asyncGet -e=o -w=h -q (http://ip.dnsexit.com, $file.localdir("tmp/ip.html"))
 	{
 		%tmpFile=$file.read($file.localdir("tmp/ip.html"))
-		%newIP=$str.replace(%tmpFile,""," ")
+		%newIP=$str.replace(%tmpFile," ","")
 	
 		# Update DCC bind IP
 		if($option(stringDefaultDccFakeAddress)!=%newIP)
 			option stringDefaultDccFakeAddress %newIP
 	
-		#file.remove -q $file.localdir("tmp/ip.html")
+		file.remove -q $file.localdir("tmp/ip.html")
 	}
 }
 

@@ -1,0 +1,36 @@
+This file contains a list of scripts that has not been ported (yet) to KVIrc4.
+Please keep this list up to date.
+
+Forza4
+KISS
+NGL fserv
+TODO.txt
+W3C
+calculator
+chanops
+chanstats
+checkers
+clonescan
+country
+cryption
+ezbounce
+fserve
+funnylolandwrite
+ktm
+mediaplayer
+minesweeper
+newsticker
+nowplaying
+objectsdumptree
+questionManager
+quiz
+savesession
+scriptmanager.kvs
+sms
+thecensor
+twinsautoop
+twinsinputcolor
+twinslagbar
+twinsmediaplayer
+twinsquotes
+wrapAlias
