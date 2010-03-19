@@ -20,7 +20,6 @@ quiz
 savesession
 scriptmanager.kvs
 sms
-thecensor
 twinsautoop
 twinsinputcolor
 twinslagbar

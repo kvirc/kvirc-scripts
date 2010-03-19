@@ -197,8 +197,8 @@ thecensor_loadconfig
 
 #The main widget
 %CensorWidget=$new(widget)
-%CensorWidget->$setCaption("Qt The Censor")
-%CensorWidget->$setIcon(109)
+%CensorWidget->$setWindowTitle("Qt The Censor")
+%CensorWidget->$setWindowIcon(109)
 %CensorWidget->$resize(300,300)
 %CensorWidget->$setMinimumWidth(300)
 %CensorWidget->$setMinimumHeight(300)
