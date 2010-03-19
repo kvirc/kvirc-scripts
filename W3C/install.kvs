@@ -14,7 +14,7 @@ addon.register("w3c","1.0.0",$tr("W3C validator","w3c"),$tr("It download the res
 	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
 	
 	# This is an automatically generated alias that will erase the installed files
-	hell_w3c::uninstallfiles
+	#hell_w3c::uninstallfiles
 
 	# Kill all our aliases
 	alias(hell_w3c){}
@@ -41,7 +41,7 @@ parse %mypath/utils/installer.kvs
 # the documentation
 %installer->$copyFiles("%mypath/help/en/w3c/","*.html",$file.localdir("help/en/w3c"))
 # then generate the uninstall alias
-%installer->$generateUninstallAlias("hell_w3c::uninstallfiles")
+#%installer->$generateUninstallAlias("hell_w3c::uninstallfiles")
 # finally kill the installer helper
 delete %installer
 

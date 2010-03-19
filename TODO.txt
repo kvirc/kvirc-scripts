@@ -4,9 +4,6 @@ Please keep this list up to date.
 Forza4
 KISS
 NGL fserv
-TODO.txt
-W3C
-calculator
 chanops
 chanstats
 checkers
