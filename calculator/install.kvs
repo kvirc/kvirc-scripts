@@ -12,7 +12,7 @@ addon.register("calculator","1.0.0",$tr("Calculator","calculator"),$tr("A simple
 	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
 	
 	# This is an automatically generated alias that will erase the installed files
-	calculator_uninstallfiles
+	#calculator_uninstallfiles
 
 	# Kill all our aliases
 	alias(calculator){}
@@ -37,17 +37,17 @@ parse %mypath/utils/installer.kvs
 # the translations
 %installer->$copyFiles("%mypath/locale/","*.mo","$file.localdir("locale")")
 # then generate the uninstall alias
-%installer->$generateUninstallAlias("calculator_uninstallfiles")
+#%installer->$generateUninstallAlias("calculator_uninstallfiles")
 # finally kill the installer helper
 delete %installer
 
 
 # Now time to define our real aliases
 
-alias(hellvis_calc){
-	class(hellcalc,widget){
+alias(calculator){
+	class(hellcalc,dialog){
 		constructor(){
-			$$->$setCaption(%HellvisNome %HellvisVersione :: $tr("Calculator",hellvis))
+			$$->$setWindowTitle(%HellvisNome %HellvisVersione :: $tr("Calculator",hellvis))
 			$$->$setFocusPolicy(ClickFocus)
 	
 			%l=$new(layout,$$)
@@ -77,65 +77,65 @@ alias(hellvis_calc){
 			%meno->$setText("\-")
 			%l->$addWidget(%meno,1,3)
 	
-			%7=$new(button,$$)
-			%7->$setText("7")
-			%l->$addWidget(%7,2,0)
-			objects.connect %7 "clicked" $$ digit7
+			%b7=$new(button,$$)
+			%b7->$setText("7")
+			%l->$addWidget(%b7,2,0)
+			objects.connect %b7 "clicked" $$ digit7
 	
-			%8=$new(button,$$)
-			%8->$setText("8")
-			%l->$addWidget(%8,2,1)
-			objects.connect %8 "clicked" $$ digit8
+			%b8=$new(button,$$)
+			%b8->$setText("8")
+			%l->$addWidget(%b8,2,1)
+			objects.connect %b8 "clicked" $$ digit8
 	
-			%9=$new(button,$$)
-			%9->$setText("9")
-			%l->$addWidget(%9,2,2)
-			objects.connect %9 "clicked" $$ digit9
+			%b9=$new(button,$$)
+			%b9->$setText("9")
+			%l->$addWidget(%b9,2,2)
+			objects.connect %b9 "clicked" $$ digit9
 	
 			%piu=$new(button,$$)
 			%piu->$setText("\n\+\n\n")
 			%l->$addMultiCellWidget(%piu,2,3,3,3)
 			objects.connect %piu "clicked" $$ piu
 	
-			%4=$new(button,$$)
-			%4->$setText("4")
-			%l->$addWidget(%4,3,0)
-			objects.connect %4 "clicked" $$ digit4
+			%b4=$new(button,$$)
+			%b4->$setText("4")
+			%l->$addWidget(%b4,3,0)
+			objects.connect %b4 "clicked" $$ digit4
 	
-			%5=$new(button,$$)
-			%5->$setText("5")
-			%l->$addWidget(%5,3,1)
-			objects.connect %5 "clicked" $$ digit5
+			%b5=$new(button,$$)
+			%b5->$setText("5")
+			%l->$addWidget(%b5,3,1)
+			objects.connect %b5 "clicked" $$ digit5
 	
-			%6=$new(button,$$)
-			%6->$setText("6")
-			%l->$addWidget(%6,3,2)
-			objects.connect %6 "clicked" $$ digit6
+			%b6=$new(button,$$)
+			%b6->$setText("6")
+			%l->$addWidget(%b6,3,2)
+			objects.connect %b6 "clicked" $$ digit6
 	
-			%1=$new(button,$$)
-			%1->$setText("1")
-			%l->$addWidget(%1,4,0)
-			objects.connect %1 "clicked" $$ digit1
+			%b1=$new(button,$$)
+			%b1->$setText("1")
+			%l->$addWidget(%b1,4,0)
+			objects.connect %b1 "clicked" $$ digit1
 	
-			%2=$new(button,$$)
-			%2->$setText("2")
-			%l->$addWidget(%2,4,1)
-			objects.connect %2 "clicked" $$ digit2
+			%b2=$new(button,$$)
+			%b2->$setText("2")
+			%l->$addWidget(%b2,4,1)
+			objects.connect %b2 "clicked" $$ digit2
 	
-			%3=$new(button,$$)
-			%3->$setText("3")
-			%l->$addWidget(%3,4,2)
-			objects.connect %3 "clicked" $$ digit3
+			%b3=$new(button,$$)
+			%b3->$setText("3")
+			%l->$addWidget(%b3,4,2)
+			objects.connect %b3 "clicked" $$ digit3
 	
 			%ris=$new(button,$$)
 			%ris->$setText("\n\=\n\n")
 			%l->$addMultiCellWidget(%ris,4,5,3,3)
 			objects.connect %ris "clicked" $$ ris
 	
-			%0=$new(button,$$)
-			%0->$setText("0")
-			%l->$addMultiCellWidget(%0,5,5,0,1)
-			objects.connect %0 "clicked" $$ digit0
+			%b0=$new(button,$$)
+			%b0->$setText("0")
+			%l->$addMultiCellWidget(%b0,5,5,0,1)
+			objects.connect %b0 "clicked" $$ digit0
 	
 			%virgola=$new(button,$$)
 			%virgola->$setText("\,")
@@ -190,9 +190,9 @@ alias(hellvis_calc){
 		setDigit($0){
 			$$->%tmp=$0
 			$$->%display=$$->%display$$->%tmp
-			#if($str.rightfromfirst($$->%display,"0"))
-			#	$$->%display=$str.rightfromfirst($$->%display,"0")
-			$$->%lcd->$setDisplayStr($$->%display)
+			if($str.rightfromfirst($$->%display,"0"))
+				$$->%display=$str.rightfromfirst($$->%display,"0")
+			$$->%lcd->$displayStr($$->%display)
 		}
 	
 		digit0(){ $$->$setDigit(0); }
@@ -206,29 +206,48 @@ alias(hellvis_calc){
 		digit8(){ $$->$setDigit(8); }
 		digit9(){ $$->$setDigit(9); }
 	
-		piu(){ $$->%op=$$->%display\+; }
-		meno(){ $$->%op=$$->%display\-; }
-		per(){ $$->%op=$$->%display\*; }
-		diviso(){ $$->%op=$$->%display\/; }
+		piu(){
+			$$->%op=$$->%display\+;
+			$$->%display=0;
+			$$->%lcd->$displayInt(0);
+		}
+		meno(){
+			$$->%op=$$->%display\-;
+			$$->%display=0;
+			$$->%lcd->$displayInt(0);
+		}
+		per(){
+			$$->%op=$$->%display\*;
+			$$->%display=0;
+			$$->%lcd->$displayInt(0);
+		}
+		diviso(){
+			$$->%op=$$->%display\/;
+			$$->%display=0;
+			$$->%lcd->$displayInt(0);
+		}
 	
 		ris(){
-			eval %ris=$$->%op
-			$$->%lcd->$setDisplayStr(%ris)
+			$$->%op=$str.append($$->%op,$$->%display)
+			echo $$->%op
+			//This is currently broken
+			//%ris=$(eval $$->%op))
+			$$->%lcd->$displayStr(%ris)
 		}
 	
 		C(){
 			$$->%display-=$$->%tmp
-			$$->%lcd->$setDisplayStr(0);
+			$$->%lcd->$displayStr(0);
 		}
 	
 		AC(){
 			$$->%display=0
-			$$->%lcd->$setDisplayStr($$->%display)
+			$$->%lcd->$displayStr($$->%display)
 		}
 	
 		sign(){
 			$$->%display*=-1
-			$$->%lcd->$setDisplayStr($$->%display)
+			$$->%lcd->$displayStr($$->%display)
 		}
 	
 		keyPressEvent(0){ $$->$digit0(); }
@@ -251,10 +270,7 @@ alias(hellvis_calc){
 		#keyPressEvent(\(){ $$->$par_a(); }
 		#keyPressEvent(\)){ $$->$par_c(); }
 	}
-	wrapKVIrc
-	%HOOK=$new(hookKVIrc)				
-	%HookedObject=%HOOK->$hookMainRightSplitter(myobj)	
-	%X=$new(hellcalc,%HookedObject)	
+	%X=$new(hellcalc)	
 	%X->$show()
 }
 
