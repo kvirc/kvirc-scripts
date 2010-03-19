@@ -66,7 +66,7 @@ event(OnKVIrcStartup,start){
 alias(hell_mediaconf){
 	class (mediaconfig,dialog){
 		constructor(){
-			$$->$setCaption(%HellvisCoder :: Mediaplayer)
+			$$->$setWindowTitle(%HellvisCoder :: Mediaplayer)
 	
 			$$->%l=$new(layout,$$)
 			$$->%l->$setMargin(5)
@@ -77,7 +77,7 @@ alias(hell_mediaconf){
 			$$->%gb_player->$setAlignment("Left")
 			$$->%lgb_player=$new(layout,$$->%gb_player)
 			$$->%lgb_player->$setMargin(10)
-			$$->%lgb_player->$setColStretch(0,30)
+			$$->%lgb_player->$setColumnStretch(0,30)
 	
 			$$->%player_check=$new(checkbox,$$->%gb_player)
 			$$->%player_check->$setText("Abilita trigger per inviare il file in DCC")

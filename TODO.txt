@@ -13,10 +13,8 @@ ezbounce
 fserve
 funnylolandwrite
 ktm
-mediaplayer
 minesweeper
 newsticker
-objectsdumptree
 questionManager
 quiz
 savesession
