@@ -23,7 +23,7 @@ class(newsticker::rss::entrylist,list)
 	}
 	destructor()
 	{
-		debug dentro il distruttore
+		#debug dentro il distruttore
 		@$clear()
 	}
 	

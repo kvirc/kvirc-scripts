@@ -19,7 +19,7 @@ class(newsticker::window,dockwindow)
 	constructor()
 	{
 		if ($str.contains($features(),"QT4"))@$setWindowTitle($tr("Newsticker","newsticker"))
-		  else @$setCaption($tr("Newsticker","newsticker"))
+		  else @$setWindowTitle($tr("Newsticker","newsticker"))
 		@%m_hCurrentEntry = $new(newsticker::rss::entry)
 		@%m_bAutoDisplay = $true
 		@%m_tLastDisplayedEntryTimestamp = 0
@@ -101,12 +101,12 @@ class(newsticker::window,dockwindow)
 		      %l->$setColumnStretch(5,0)
 		}
 		else{
-		      %l->$setColStretch(0,0)
-		      %l->$setColStretch(1,0)
-		      %l->$setColStretch(2,5)
-		      %l->$setColStretch(3,0)
-		      %l->$setColStretch(4,0)
-		      %l->$setColStretch(5,0)
+		      %l->$setColumnStretch(0,0)
+		      %l->$setColumnStretch(1,0)
+		      %l->$setColumnStretch(2,5)
+		      %l->$setColumnStretch(3,0)
+		      %l->$setColumnStretch(4,0)
+		      %l->$setColumnStretch(5,0)
 		}
 		%l->$setRowStretch(0,500)
 		%l->$setRowStretch(1,0)
@@ -137,7 +137,7 @@ class(newsticker::window,dockwindow)
 	
 	linkClicked($0 = link)
 	{
-		debug "LINK CLICKED:" $0
+		#debug "LINK CLICKED:" $0
 	}
 
 	checkAutoDisplay()

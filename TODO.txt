@@ -14,7 +14,6 @@ fserve
 funnylolandwrite
 ktm
 minesweeper
-newsticker
 questionManager
 quiz
 savesession

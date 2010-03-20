@@ -45,7 +45,7 @@ class(installer,object)
 				file.mkdir $2
 				foreach(%file,%files)
 				{
-					$this->%lFiles <+ $str.replace($file.fixpath("$2/%file"),"\\\\","\\")
+					$this->%lFiles <+ $str.replace($file.fixpath("$2/%file"),"\\","\\\\")
 					file.copy -o $file.fixpath($0/%file) $file.fixpath($2/%file)
 				}
 			}
@@ -71,7 +71,7 @@ class(installer,object)
 		{
 			foreach(%file,%files)
 			{
-				$this->%lSources <+ $str.replace($file.fixpath("$0/%file"),"\\\\","\\")
+				$this->%lSources <+ $str.replace($file.fixpath("$0/%file"),"\\","\\\\")
 				include $file.fixpath("$0/%file")
 			}
 		}
@@ -104,7 +104,7 @@ class(installer,object)
 					else if($str.match("toolbar.create * *",%line,e))
 						%c .= "	toolbar.destroy -q "$str.word(1,%line)"$lf"
 					else if($str.match("action.create* (*)",%line,e))
-						%c .= "	action.destroy -q "$str.replace($str.token(1,"(,)",%line),,\")"$lf"
+						%c .= "	action.destroy -q "$str.replace($str.token(1,"(,)",%line),\",)"$lf"
 					else if($str.match("class(*)*",%line,e))
 						%c .= "	objects.killclass -q "$str.token(1,"(,)",%line)"$lf"
 				}

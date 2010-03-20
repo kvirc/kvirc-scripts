@@ -9,27 +9,6 @@ addon.register("newsticker","1.2.0",$tr("Newsticker: The RSS News Reader","newst
 	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
 	
 	newsticker::core::uninstall
-
-/*	objects.killclass newsticker::window
-	objects.killclass newsticker::source
-	objects.killclass newsticker::controller
-	objects.killclass newsticker::rss::reader
-	objects.killclass newsticker::rss::entrylist
-	objects.killclass newsticker::rss::entry
-	objects.killclass newsticker::configuration::dialog
-	objects.killclass newsticker::configuration
-	objects.killclass newsticker::configuration::source
-
-	alias(newsticker::show){}
-	alias(newsticker::close){}
-	alias(newsticker::configure){}
-	alias(newsticker::core::uninstallfiles){}
-	alias(newsticker::core::configuration){}
-
-	action.destroy newsticker::toggle
-	action.destroy newsticker::show
-*/
-
 }
 
 addon.setconfigurecallback(newsticker)

@@ -3,7 +3,7 @@ class(newsticker::core::configuration::sourceeditor,dialog)
 	constructor()
 	{
 		if ($str.contains($features(),"QT4"))@$setWindowTitle($tr("Edit source","newsticker"))
-		  else @$setCaption($tr("Edit source","newsticker"))
+		  else @$setWindowTitle($tr("Edit source","newsticker"))
 		%l = $new(layout,$this)
 
 		%lb = $new(label,$this)
@@ -54,7 +54,7 @@ class(newsticker::core::configuration::sourceeditor,dialog)
 
 		%l->$setRowStretch(4,100)
 		if ($str.contains($features(),"QT4")) %l->$setColumnStretch(1,100)
-		  else %l->$setColStretch(1,100)
+		  else %l->$setColumnStretch(1,100)
 	}
 
 	edit($0 = source,$1 = bIsNew)
@@ -261,11 +261,11 @@ class(newsticker::core::configuration::dialog,dialog)
 		      %l->$setColumnStretch(4,0)
 		}
 		else{
-		      %l->$setColStretch(1,0)
-		      %l->$setColStretch(1,100)
-		      %l->$setColStretch(2,0)
-		      %l->$setColStretch(3,0)
-		      %l->$setColStretch(4,0)
+		      %l->$setColumnStretch(1,0)
+		      %l->$setColumnStretch(1,100)
+		      %l->$setColumnStretch(2,0)
+		      %l->$setColumnStretch(3,0)
+		      %l->$setColumnStretch(4,0)
 	      }
 	}
 
@@ -300,14 +300,14 @@ class(newsticker::core::configuration::dialog,dialog)
 		%l->$setMargin(15)
 		%l->$setSpacing(4)
 		if ($str.contains($features(),"QT4")) %l->$setColumnStretch(0,1)
-		else %l->$setColStretch(0,1)
+		else %l->$setColumnStretch(0,1)
 		%l->$setRowStretch(5,1)
 	}
 
 	constructor()
 	{
 		if ($str.contains($features(),"QT4"))@$setWindowTitle($tr("Newsticker Configuration","newsticker"))
-		  else @$setCaption($tr("Newsticker Configuration","newsticker"))
+		  else @$setWindowTitle($tr("Newsticker Configuration","newsticker"))
 		%l = $new(layout,$this)
 
 		@%m_hTabWidget = $new(tabwidget,$this)
@@ -340,9 +340,9 @@ class(newsticker::core::configuration::dialog,dialog)
 		      %l->$setColumnStretch(2,0)
 		}
 		else{
-		      %l->$setColStretch(0,100)
-		      %l->$setColStretch(1,0)
-		      %l->$setColStretch(2,0)
+		      %l->$setColumnStretch(0,100)
+		      %l->$setColumnStretch(1,0)
+		      %l->$setColumnStretch(2,0)
 		}
 		$$->$display()
 		
@@ -458,7 +458,7 @@ class(newsticker::core::configuration::source)
 		@%m_tLastNotification = $6
 	}
 }
-debug creating class configuration 2
+#debug creating class configuration 2
 if ($classDefined(newsticker::core::configuration)) objects.killClass newsticker::core::configuration
 class(newsticker::core::configuration)
 {

@@ -31,12 +31,12 @@ alias(newsticker::show)
 			%dock->$show()
 			return 		
 		}
-		%h = $new(newsticker::window,0)
+		%h = $new(newsticker::window,0,"newsticker")
 		%h->$dock(l)
 		%h->$show()
 	} else {
 		if($objects.exists(%G_NewstickerWindowHandle))return
-		%G_NewstickerWindowHandle = $new(newsticker::window,0)
+		%G_NewstickerWindowHandle = $new(newsticker::window,0,"newsticker")
 		%G_NewstickerWindowHandle->$dock(l)
 		%G_NewstickerWindowHandle->$show()
 	}
