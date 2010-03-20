@@ -34,12 +34,12 @@ parse %mypath/utils/installer.kvs
 
 # copy files in each subdirectory
 # the pics
-%installer->$copyFiles("%mypath/pics/","*.png","$str.replace($file.localdir("pics"),"/","\\")")
+%installer->$copyFiles("%mypath/pics/","*.png","$str.replace($file.localdir("pics"),"\\","/")")
 # the translations
-%installer->$copyFiles("%mypath/locale/","*.mo","$str.replace($file.localdir("locale"),"/","\\")")
+%installer->$copyFiles("%mypath/locale/","*.mo","$str.replace($file.localdir("locale"),"\\","/")")
 # the documentation
-%installer->$copyFiles("%mypath/help/en/chanstats/","*.html","$str.replace($file.localdir("help/en/chanstats"),"/","\\")")
-%installer->$copyFiles("%mypath/help/de/chanstats/","*.html","$str.replace($file.localdir("help/de/chanstats"),"/","\\")")
+%installer->$copyFiles("%mypath/help/en/chanstats/","*.html","$str.replace($file.localdir("help/en/chanstats"),"\\","/")")
+%installer->$copyFiles("%mypath/help/de/chanstats/","*.html","$str.replace($file.localdir("help/de/chanstats"),"\\","/")")
 
 
 # then generate the uninstall alias
@@ -63,7 +63,7 @@ addon.sethelpcallback("chanstats")
 {
 	%tmp[] = $str.split("_",$system.getenv(LANG))
 	%localized_helpfile = %tmp\[0\]"/chanstats/index.html"
-	if ( $file.exists($str.replace($file.localdir("help/"%localized_helpfile),"/","\\")) )
+	if ( $file.exists($str.replace($file.localdir("help/"%localized_helpfile),"\\","/")) )
 	{
 		help.open %localized_helpfile
 	} else {
@@ -90,158 +90,151 @@ alias(chanstats)
 			$$->$configLoad()
 			
 			# set caption and icon
-			$$->$setCaption($tr("Chanstats Config","chanstats"))
-			$$->$setIcon(chanstats_16.png)
+			$$->$setWindowTitle($tr("Chanstats Config","chanstats"))
+			$$->$setWindowIcon(chanstats_16.png)
 			
 
 			# then the main layout
 			$$->%l = $new(layout,$$);
 			$$->%l->$setMargin(10)
-			$$->%l->$setSpacing(3)	
-			$$->%l->$setResizeMode(Fixed)	
+			$$->%l->$setSpacing(3)
 
 			##cleanup options
 			#create control
 
-	    $$->%GrpBoxCleanup=$new(groupbox, $$, GrpBoxCleanup)
-	    $$->%GrpBoxCleanup->$setTitle($tr("cleanup options","chanstats"))
-	    $$->%l_GrpBoxCleanup=$new(layout,$$->%GrpBoxCleanup)
+			$$->%GrpBoxCleanup=$new(groupbox, $$, GrpBoxCleanup)
+			$$->%GrpBoxCleanup->$setTitle($tr("cleanup options","chanstats"))
+			$$->%l_GrpBoxCleanup=$new(layout,$$->%GrpBoxCleanup)
 			$$->%l_GrpBoxCleanup->$setMargin(15)
-	    $$->%l_GrpBoxCleanup->$setSpacing(3)
-	    				
-				#create control
-		    $$->%CleanupEnabled=$new(checkbox,$$->%GrpBoxCleanup);
-		    $$->%CleanupEnabled->$setText($tr("remove channels from the regchan-module after :","chanstats"));
-				$$->%CleanupEnabled->$setChecked($$->%optCleanupEnabled)
-				#add control to layout
-			  $$->%l_GrpBoxCleanup->$addWidget($$->%CleanupEnabled,0,0)	 				
- 				#bind event
- 				objects.connect $$->%CleanupEnabled "toggled" $$ "cleanupenabledToggled"
- 		
-		    $$->%CleanupExpiredays=$new(spinbox,$$->%GrpBoxCleanup);
-		    $$->%CleanupExpiredays->$setMinValue(1)
-		    $$->%CleanupExpiredays->$setMaxValue(90)
-			  $$->%CleanupExpiredays->$setMaximumWidth(30);
-			  $$->%CleanupExpiredays->$setMaximumHeight(20);
-				$$->%CleanupExpiredays->$setValue($$->%optCleanupExpiredays)
-				$$->%CleanupExpiredays->$setEnabled($$->%CleanupEnabled->$isChecked())
-				#add control to layout
-			  $$->%l_GrpBoxCleanup->$addWidget($$->%CleanupExpiredays,0,1)	 				
+			$$->%l_GrpBoxCleanup->$setSpacing(3)
 
-		    $$->%CleanupExpiredaysHelper=$new(label, $$->%GrpBoxCleanup)
-		    $$->%CleanupExpiredaysHelper->$setText($tr("days without ChanStats.","chanstats"))
-				#add control to layout
-			  $$->%l_GrpBoxCleanup->$addWidget($$->%CleanupExpiredaysHelper,0,2)
-	
-	    #add control to layout
-	    $$->%l->$addMultiCellWidget($$->%GrpBoxCleanup,0,0,0,5)	
-			
-	    ##display options
-	    #create control
-	    $$->%GrpBoxDisplay=$new(groupbox, $$, GrpBoxDisplay)
-	    $$->%GrpBoxDisplay->$setTitle($tr("display options","chanstats"))
-	    $$->%l_GrpBoxDisplay=$new(layout,$$->%GrpBoxDisplay)
+			#create control
+			$$->%CleanupEnabled=$new(checkbox,$$);
+			$$->%CleanupEnabled->$setText($tr("remove channels from the regchan-module after :","chanstats"));
+			$$->%CleanupEnabled->$setChecked($$->%optCleanupEnabled)
+			#add control to layout
+			$$->%l_GrpBoxCleanup->$addWidget($$->%CleanupEnabled,0,0)
+			#bind event
+			objects.connect $$->%CleanupEnabled "toggled" $$ "cleanupenabledToggled"
+
+			$$->%CleanupExpiredays=$new(spinbox,$$);
+			$$->%CleanupExpiredays->$setMinValue(1)
+			$$->%CleanupExpiredays->$setMaxValue(90)
+			$$->%CleanupExpiredays->$setValue($$->%optCleanupExpiredays)
+			$$->%CleanupExpiredays->$setEnabled($$->%CleanupEnabled->$isChecked())
+			#add control to layout
+			$$->%l_GrpBoxCleanup->$addWidget($$->%CleanupExpiredays,0,1)
+
+			$$->%CleanupExpiredaysHelper=$new(label, $$)
+			$$->%CleanupExpiredaysHelper->$setText($tr("days without ChanStats.","chanstats"))
+			#add control to layout
+			$$->%l_GrpBoxCleanup->$addWidget($$->%CleanupExpiredaysHelper,0,2)
+
+			#add control to layout
+			$$->%l->$addMultiCellWidget($$->%GrpBoxCleanup,0,0,0,5)
+
+			##display options
+			#create control
+			$$->%GrpBoxDisplay=$new(groupbox, $$, GrpBoxDisplay)
+			$$->%GrpBoxDisplay->$setTitle($tr("display options","chanstats"))
+			$$->%l_GrpBoxDisplay=$new(layout,$$->%GrpBoxDisplay)
 			$$->%l_GrpBoxDisplay->$setMargin(15)
 			$$->%l_GrpBoxDisplay->$setSpacing(3)
-			$$->%l_GrpBoxDisplay->$setResizeMode(Minimum)			
-	    	
-	    	#create control
-		    $$->%DisplayPercent=$new(checkbox,$$->%GrpBoxDisplay);
-		    $$->%DisplayPercent->$setText($tr("display user-percentages","chanstats"));
-		    $$->%DisplayPercent->$setChecked($$->%optDisplayPercent)
-				#add control to layout
-		    $$->%l_GrpBoxDisplay->$addWidget($$->%DisplayPercent,0,0)	
-				#bind event
-		    objects.connect $$->%DisplayPercent "toggled" $$ "displaypercentToggled"
-		
-				$$->%p_DisplayPercent = $new(widget,$$->%GrpBoxDisplay)
-				#$$->%p_DisplayPercent->$setAlignment("Left")
-				
-				$$->%l_p_DisplayPercent = $new(layout,$$->%p_DisplayPercent)
-				$$->%l_p_DisplayPercent->$setMargin(5)
-				$$->%l_p_DisplayPercent->$setSpacing(3)
-				#$$->%l_p_DisplayPercent->$setResizeMode(Minimum)		
-					
-					#create control
-			    $$->%DisplayPercentBar=$new(checkbox,$$->%p_DisplayPercent);
-			    $$->%DisplayPercentBar->$setText($tr("enable percentage-bars, drawn with char :","chanstats"));
-			    $$->%DisplayPercentBar->$setChecked($$->%optDisplayPercentBar)
-					$$->%DisplayPercentBar->$setEnabled($$->%DisplayPercent->$isChecked())
-					#add control to layout
-			    $$->%l_p_DisplayPercent->$addMultiCellWidget($$->%DisplayPercentBar,0,0,0,0)	
-					#bind event
-					objects.connect $$->%DisplayPercentBar "toggled" $$ "displaypercentbarToggled"
-			    
-			    #create control
-			    $$->%PercentBarChar=$new(lineedit,$$->%p_DisplayPercent);
-			    $$->%PercentBarChar->$setMaximumWidth(15);
-			    $$->%PercentBarChar->$setMaximumHeight(20);
-			    $$->%PercentBarChar->$setMaxLength(1);
-			    $$->%PercentBarChar->$setText($$->%optPercentBarChar);
-					$$->%PercentBarChar->$setEnabled($$->%DisplayPercentBar->$isChecked())
-					#add control to layout
-			    $$->%l_p_DisplayPercent->$addMultiCellWidget($$->%PercentBarChar,0,0,1,2)
-					
-					#create control
-			    $$->%DisplayPercentTrend=$new(checkbox,$$->%p_DisplayPercent);
-			    $$->%DisplayPercentTrend->$setText($tr("enable developments","chanstats"));
-			    $$->%DisplayPercentTrend->$setChecked($$->%optDisplayPercentTrend)
-					$$->%DisplayPercentTrend->$setEnabled($$->%DisplayPercent->$isChecked())
-					#add control to layout
-			    $$->%l_p_DisplayPercent->$addWidget($$->%DisplayPercentTrend,1,0)	
 
-					$$->%l_GrpBoxDisplay->$addMultiCellWidget($$->%p_DisplayPercent,1,1,0,0)
+			#create control
+			$$->%DisplayPercent=$new(checkbox,$$);
+			$$->%DisplayPercent->$setText($tr("display user-percentages","chanstats"));
+			$$->%DisplayPercent->$setChecked($$->%optDisplayPercent)
+			#add control to layout
+			$$->%l_GrpBoxDisplay->$addWidget($$->%DisplayPercent,0,0)
+			#bind event
+			objects.connect $$->%DisplayPercent "toggled" $$ "displaypercentToggled"
 
-					#create control
-			   	$$->%DisplayPeak=$new(checkbox,$$->%GrpBoxDisplay,DisplayPeak);
-			    $$->%DisplayPeak->$setText($tr("display user-peak","chanstats"));
-					$$->%DisplayPeak->$setChecked($$->%optDisplayPeak)
-					#add control to layout
-			    $$->%l_GrpBoxDisplay->$addWidget($$->%DisplayPeak,2,0)	
-					
-					#create control
-			    $$->%DisplayLastvisit=$new(checkbox,$$->%GrpBoxDisplay,DisplayLastvisit);
-			    $$->%DisplayLastvisit->$setText($tr("display last visit","chanstats"));
-			    $$->%DisplayLastvisit->$setChecked($$->%optDisplayLastvisit)
-					#add control to layout
-			    $$->%l_GrpBoxDisplay->$addWidget($$->%DisplayLastvisit,3,0)	
-	    
-	    #add control to layout
-	    $$->%l->$addMultiCellWidget($$->%GrpBoxDisplay,1,1,0,5)	
+			$$->%p_DisplayPercent = $new(widget,$$)
+			#$$->%p_DisplayPercent->$setAlignment("Left")
+
+			$$->%l_p_DisplayPercent = $new(layout,$$->%p_DisplayPercent)
+			$$->%l_p_DisplayPercent->$setMargin(5)
+			$$->%l_p_DisplayPercent->$setSpacing(3)
+
+			#create control
+			$$->%DisplayPercentBar=$new(checkbox,$$);
+			$$->%DisplayPercentBar->$setText($tr("enable percentage-bars, drawn with char :","chanstats"));
+			$$->%DisplayPercentBar->$setChecked($$->%optDisplayPercentBar)
+			$$->%DisplayPercentBar->$setEnabled($$->%DisplayPercent->$isChecked())
+			#add control to layout
+			$$->%l_p_DisplayPercent->$addMultiCellWidget($$->%DisplayPercentBar,0,0,0,0)
+			#bind event
+			objects.connect $$->%DisplayPercentBar "toggled" $$ "displaypercentbarToggled"
+
+			#create control
+			$$->%PercentBarChar=$new(lineedit,$$);
+			$$->%PercentBarChar->$setMaxLength(1);
+			$$->%PercentBarChar->$setText($$->%optPercentBarChar);
+			$$->%PercentBarChar->$setEnabled($$->%DisplayPercentBar->$isChecked())
+			#add control to layout
+			$$->%l_p_DisplayPercent->$addMultiCellWidget($$->%PercentBarChar,0,0,1,2)
+
+			#create control
+			$$->%DisplayPercentTrend=$new(checkbox,$$);
+			$$->%DisplayPercentTrend->$setText($tr("enable developments","chanstats"));
+			$$->%DisplayPercentTrend->$setChecked($$->%optDisplayPercentTrend)
+			$$->%DisplayPercentTrend->$setEnabled($$->%DisplayPercent->$isChecked())
+			#add control to layout
+			$$->%l_p_DisplayPercent->$addWidget($$->%DisplayPercentTrend,1,0)
+
+			$$->%l_GrpBoxDisplay->$addMultiCellWidget($$->%p_DisplayPercent,1,1,0,0)
+
+			#create control
+			$$->%DisplayPeak=$new(checkbox,$$,DisplayPeak);
+			$$->%DisplayPeak->$setText($tr("display user-peak","chanstats"));
+			$$->%DisplayPeak->$setChecked($$->%optDisplayPeak)
+			#add control to layout
+			$$->%l_GrpBoxDisplay->$addWidget($$->%DisplayPeak,2,0)
+
+			#create control
+			$$->%DisplayLastvisit=$new(checkbox,$$,DisplayLastvisit);
+			$$->%DisplayLastvisit->$setText($tr("display last visit","chanstats"));
+			$$->%DisplayLastvisit->$setChecked($$->%optDisplayLastvisit)
+			#add control to layout
+			$$->%l_GrpBoxDisplay->$addWidget($$->%DisplayLastvisit,3,0)
+
+			#add control to layout
+			$$->%l->$addMultiCellWidget($$->%GrpBoxDisplay,1,1,0,5)
 
 
 			##notification options
-	    #create control
-	    $$->%GrpBoxAnnounce=$new(groupbox, $$)
-	    $$->%GrpBoxAnnounce->$setTitle($tr("notification options","chanstats"))
-	    #grpbox layout
-	    $$->%l_GrpBoxAnnounce=$new(layout,$$->%GrpBoxAnnounce)
+			#create control
+			$$->%GrpBoxAnnounce=$new(groupbox, $$)
+			$$->%GrpBoxAnnounce->$setTitle($tr("notification options","chanstats"))
+			#grpbox layout
+			$$->%l_GrpBoxAnnounce=$new(layout,$$->%GrpBoxAnnounce)
 			$$->%l_GrpBoxAnnounce->$setMargin(15)
 			$$->%l_GrpBoxAnnounce->$setSpacing(3)	
-				
-				#create control
-		    $$->%AnnouncePeak=$new(checkbox,$$->%GrpBoxAnnounce);
-		    $$->%AnnouncePeak->$setText($tr("show new user-peaks","chanstats"));
-				$$->%AnnouncePeak->$setChecked($$->%optAnnouncePeak)
-				#add control to layout
-			  $$->%l_GrpBoxAnnounce->$addWidget($$->%AnnouncePeak,0,0)				
-				
-				#create control
-		    $$->%AnnounceCleanup=$new(checkbox,$$->%GrpBoxAnnounce);
-		    $$->%AnnounceCleanup->$setText($tr("show removed channels by cleanup \[console-window\]","chanstats"));
-		    $$->%AnnounceCleanup->$setChecked($$->%optAnnounceCleanup)
-				$$->%AnnounceCleanup->$setEnabled($$->%CleanupEnabled->$isChecked())
-				#add control to layout
-			  $$->%l_GrpBoxAnnounce->$addWidget($$->%AnnounceCleanup,1,0)
 
-	    #add grpbox to main layout
-	    $$->%l->$addMultiCellWidget($$->%GrpBoxAnnounce,2,2,0,5)
+			#create control
+			$$->%AnnouncePeak=$new(checkbox,$$);
+			$$->%AnnouncePeak->$setText($tr("show new user-peaks","chanstats"));
+			$$->%AnnouncePeak->$setChecked($$->%optAnnouncePeak)
+			#add control to layout
+			$$->%l_GrpBoxAnnounce->$addWidget($$->%AnnouncePeak,0,0)
+				
+			#create control
+			$$->%AnnounceCleanup=$new(checkbox,$$);
+			$$->%AnnounceCleanup->$setText($tr("show removed channels by cleanup \[console-window\]","chanstats"));
+			$$->%AnnounceCleanup->$setChecked($$->%optAnnounceCleanup)
+			$$->%AnnounceCleanup->$setEnabled($$->%CleanupEnabled->$isChecked())
+			#add control to layout
+			$$->%l_GrpBoxAnnounce->$addWidget($$->%AnnounceCleanup,1,0)
+
+			#add grpbox to main layout
+			$$->%l->$addMultiCellWidget($$->%GrpBoxAnnounce,2,2,0,5)
 
 			
 			##buttons
-	    #create control
-	    $$->%Okaybutton=$new(button,$$,Okaybutton);
-	    $$->%Okaybutton->$setText($tr("OK"));
+			#create control
+			$$->%Okaybutton=$new(button,$$,Okaybutton);
+			$$->%Okaybutton->$setText($tr("OK"));
 			$$->%Okaybutton->$setMinimumWidth(80);
 			#add control to layout
 			$$->%l->$addWidget($$->%Okaybutton,20,0)			
@@ -249,31 +242,28 @@ alias(chanstats)
 			objects.connect $$->%Okaybutton "clicked" $$ "okClicked"
 			
 			#create control
-	    $$->%Applybutton=$new(button,$$,Applybutton);
-	    $$->%Applybutton->$settext($tr("Apply"));
+			$$->%Applybutton=$new(button,$$,Applybutton);
+			$$->%Applybutton->$settext($tr("Apply"));
 			$$->%Applybutton->$setMinimumWidth(80);
 			#add control to layout
 			$$->%l->$addWidget($$->%Applybutton,20,1)			
-	    #bind event
-	    objects.connect $$->%Applybutton "clicked" $$ "applyClicked"
+			#bind event
+			objects.connect $$->%Applybutton "clicked" $$ "applyClicked"
 	
-	    #create control
-	    $$->%Cancelbutton=$new(button,$$,Cancelbutton);
-	    $$->%Cancelbutton->$setText($tr("Cancel"));
-	    $$->%Cancelbutton->$setMinimumWidth(80);
+			#create control
+			$$->%Cancelbutton=$new(button,$$,Cancelbutton);
+			$$->%Cancelbutton->$setText($tr("Cancel"));
+			$$->%Cancelbutton->$setMinimumWidth(80);
 			#add control to layout
-	    $$->%l->$addWidget($$->%Cancelbutton,20,5)			
-	    #bind event
-	    objects.connect $$->%Cancelbutton "clicked" $$ "cancelClicked"
-	
-
+			$$->%l->$addWidget($$->%Cancelbutton,20,5)
+			#bind event
+			objects.connect $$->%Cancelbutton "clicked" $$ "cancelClicked"
 		}
 
 		showDialog()
 		{
-		   	$$->$centerToScreen()
-		    $$->$setModal(1)
-		    $$->$show()
+			$$->$centerToScreen()
+			$$->$show()
 		}
 
 		okClicked()
@@ -289,7 +279,7 @@ alias(chanstats)
 		
 		cancelClicked()
 		{
-			delete $$			
+			delete $$
 		}
 
 		displaypercentToggled()
@@ -321,19 +311,19 @@ alias(chanstats)
 			%cfg=$config.open($file.localdir/config/chanstats.kvc)
 			
 			config.setsection %cfg "display"
-			$$->%optDisplayPercent 			= $config.read(%cfg,DisplayPercent,1)
-			$$->%optDisplayPercentBar 	= $config.read(%cfg,DisplayPercentBar,1)
+			$$->%optDisplayPercent			= $config.read(%cfg,DisplayPercent,1)
+			$$->%optDisplayPercentBar		= $config.read(%cfg,DisplayPercentBar,1)
 			$$->%optPercentBarChar			= $config.read(%cfg,PercentBarChar,l)
-			$$->%optDisplayPercentTrend = $config.read(%cfg,DisplayPercentTrend,1)
-			$$->%optDisplayPeak 				= $config.read(%cfg,DisplayPeak,1)
+			$$->%optDisplayPercentTrend 		= $config.read(%cfg,DisplayPercentTrend,1)
+			$$->%optDisplayPeak 			= $config.read(%cfg,DisplayPeak,1)
 			$$->%optDisplayLastvisit 		= $config.read(%cfg,DisplayLastvisit,1)
 			
 			config.setsection %cfg "announcement"
-			$$->%optAnnouncePeak 				= $config.read(%cfg,AnnouncePeak,1)
-			$$->%optAnnounceCleanup 		= $config.read(%cfg,AnnounceCleanup,1)
+			$$->%optAnnouncePeak			= $config.read(%cfg,AnnouncePeak,1)
+			$$->%optAnnounceCleanup			= $config.read(%cfg,AnnounceCleanup,1)
 			
 			config.setsection %cfg "cleanup"
-			$$->%optCleanupEnabled 				= $config.read(%cfg,CleanupEnabled,1)
+			$$->%optCleanupEnabled			= $config.read(%cfg,CleanupEnabled,1)
 			$$->%optCleanupExpiredays 		= $config.read(%cfg,CleanupExpiredays,30)			
 			
 			config.close %cfg
@@ -681,13 +671,13 @@ alias(chanstats)
 		{
 			if ($0 < 10) 
 			{ 
-				return "    ";
+				return "  ";
 			} else {
 				if ($0 == 100)
 				{
 					return "";
 				} else {
-					return "  ";
+					return " ";
 				}
 			}
 		} # -- end function
@@ -700,31 +690,31 @@ alias(chanstats)
 				#percentage-bars
 				if (%ChanstatsConfig->%optDisplayPercentBar)
 				{
-					$$->%percent_bar_op 		= $$->$outputstrbar($$->%cur_users_op_percent)
+					$$->%percent_bar_op 	= $$->$outputstrbar($$->%cur_users_op_percent)
 					$$->%percent_bar_halfop = $$->$outputstrbar($$->%cur_users_halfop_percent)
 					$$->%percent_bar_voice 	= $$->$outputstrbar($$->%cur_users_voice_percent)
 					$$->%percent_bar_peon 	= $$->$outputstrbar($$->%cur_users_peon_percent)		
 				} else {
-					$$->%percent_bar_op 		= ""
+					$$->%percent_bar_op 	= ""
 					$$->%percent_bar_halfop = ""
 					$$->%percent_bar_voice 	= ""
-					$$->%percent_bar_peon 	= ""				
+					$$->%percent_bar_peon 	= ""
 				}
 				
 				#trends
 				if (%ChanstatsConfig->%optDisplayPercentTrend && $$->%last_users_utc)
 				{
-					$$->%trend_sign_all 		= $$->$outputstrtrend($$->%cur_users_all,$$->%last_users_all)
-					$$->%trend_sign_op 			= $$->$outputstrtrend($$->%cur_users_op,$$->%last_users_op)
+					$$->%trend_sign_all 	= $$->$outputstrtrend($$->%cur_users_all,$$->%last_users_all)
+					$$->%trend_sign_op 	= $$->$outputstrtrend($$->%cur_users_op,$$->%last_users_op)
 					$$->%trend_sign_halfop 	= $$->$outputstrtrend($$->%cur_users_halfop,$$->%last_users_halfop)
 					$$->%trend_sign_voice 	= $$->$outputstrtrend($$->%cur_users_voice,$$->%last_users_voice)
-					$$->%trend_sign_peon 		= $$->$outputstrtrend($$->%cur_users_peon,$$->%last_users_peon)				
+					$$->%trend_sign_peon 	= $$->$outputstrtrend($$->%cur_users_peon,$$->%last_users_peon)
 				} else {
-					$$->%trend_sign_all 		= ""
-					$$->%trend_sign_op 			= ""
+					$$->%trend_sign_all 	= ""
+					$$->%trend_sign_op 	= ""
 					$$->%trend_sign_halfop 	= ""
 					$$->%trend_sign_voice 	= ""
-					$$->%trend_sign_peon 		= ""				
+					$$->%trend_sign_peon 	= ""
 				}
 				
 			}
@@ -792,10 +782,10 @@ alias(chanstats)
 			echo -i=$msgtype(Who) %Script_tag $tr("usage: /chanstats <option>","chanstats")
 			echo -i=$msgtype(Who) %Script_tag 
 			echo -i=$msgtype(Who) %Script_tag $tr("possible options:","chanstats")
-			echo -i=$msgtype(Who) %Script_tag config "                                       " $tr("configure ChanStats-script","chanstats")
-			echo -i=$msgtype(Who) %Script_tag display "                                      " $tr("displays usercounts,peak-data and time of last visit","chanstats")
-			echo -i=$msgtype(Who) %Script_tag reset "                                         " $tr("resets channel-data in the regchan-module","chanstats")
-			echo -i=$msgtype(Who) %Script_tag help "                                           " $tr("you were just reading the results ;)","chanstats")
+			echo -i=$msgtype(Who) %Script_tag config "          " $tr("configure ChanStats-script","chanstats")
+			echo -i=$msgtype(Who) %Script_tag display "         " $tr("displays usercounts,peak-data and time of last visit","chanstats")
+			echo -i=$msgtype(Who) %Script_tag reset "           " $tr("resets channel-data in the regchan-module","chanstats")
+			echo -i=$msgtype(Who) %Script_tag help "            " $tr("you were just reading the results ;)","chanstats")
 		}
 		break
 		
@@ -821,7 +811,7 @@ alias(chanstats)
 					%ChanstatsWorker->$regchanloadusercounts()
 					if (%ChanstatsWorker->%last_users_utc)
 					{
-						%last_str = $time(%ChanstatsWorker->%last_users_utc)
+						%last_str = $date("F T", %ChanstatsWorker->%last_users_utc)
 					} else {
 						%last_str = ""
 					}
@@ -855,8 +845,8 @@ alias(chanstats)
 					%ChanstatsWorker->$calcpeak(0)
 					if (%ChanstatsConfig->%optDisplayPeak && %ChanstatsWorker->%last_peak_users > 0)
 					{
-						##echo -i=$msgtype(Who) "%Script_tag $tr("user peak","chanstats"): %ChanstatsWorker->%last_peak_users $tr("user(s)","chanstats") \[ $time(%ChanstatsWorker->%last_peak_utc) \]"
-						echo -i=$msgtype(Who) %Script_tag $tr("user peak","chanstats"): %ChanstatsWorker->%last_peak_users $tr("user(s)","chanstats") - $time(%ChanstatsWorker->%last_peak_utc)
+						##echo -i=$msgtype(Who) "%Script_tag $tr("user peak","chanstats"): %ChanstatsWorker->%last_peak_users $tr("user(s)","chanstats") \[ $date("F T",%ChanstatsWorker->%last_peak_utc) \]"
+						echo -i=$msgtype(Who) %Script_tag $tr("user peak","chanstats"): %ChanstatsWorker->%last_peak_users $tr("user(s)","chanstats") - $date("F T",%ChanstatsWorker->%last_peak_utc)
 					}
 		
 					#show last visit

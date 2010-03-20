@@ -4,8 +4,6 @@ Please keep this list up to date.
 Forza4 (wip)
 KISS
 NGL fserv
-chanops
-chanstats
 checkers
 country
 cryption
