@@ -1,9 +1,14 @@
 alias(ktm::classes::widgets::infoWidget)
 {
+	// classe che si occupa di disegnare la parte centrale del Themes Manager ed implementare gli effetti grafici di transizione tra un tema e l'altro:
+	// - anteprima del tema
+	// - scheda informativa del tema
+	
 	class(ktm::infoWidget,widget)
 	{
 		constructor()
 		{
+			// inizializzazione dei vari parametri
 			@%margin=15
 			@%spacing=10
 			@%scroll_step=30
@@ -19,16 +24,25 @@ alias(ktm::classes::widgets::infoWidget)
 		destructor()
 		{
 		}
+	
+		// funzione che gestisce il passaggio ad un nuovo tema
 		setPix()
 		{
+			// variabile membro che contiene il tema corrent
 			@%actual=$0
+			// se il tema ha già un'anteprima, nascondiamo la progress bar
 			if (!@%actual->%nopreview) @%pbar->$hide()
 		}
+		
+		// settiamo una dimensione fissa della widget
 		showEvent()
 		{
 			@$setMinimumWidth($(300+(@%margin*2)))
 			@$setMinimumHeight($(200+(@%margin*2)))
 		}
+	
+		// il timerevent viene usato per gestire e variare i parametri necessari all'effetto "fade" dei temi:
+		// il nuovo tema entra scorrendo e con un effetto di dissolvenza rispetto al tema precedente
 		timerEvent()
 		{
 			@%opacity+=@%opacitystep
@@ -54,8 +68,11 @@ alias(ktm::classes::widgets::infoWidget)
 				if(@%actual->%nopreview) @%pbar->$show
 				else @%pbar->$hide
 			}
+			// forziamo un repaint della widget
 			@$repaint()
 		}
+		
+		// funzione che gestisce la progressbar in base al tema corrent
 		setPB()
 		{
 			if($2==@%actual->%id)
@@ -66,6 +83,8 @@ alias(ktm::classes::widgets::infoWidget)
 			}
 			else @%pbar->$setP(0,0)
 		}
+	
+		// slot che viene chiamato quando è stata scaricata completamente la preview del tema corrente
 		done()
 		{
 			if($0==@%actual->%id) 
@@ -79,6 +98,9 @@ alias(ktm::classes::widgets::infoWidget)
 				@$update()
 			}
 		}
+	
+		// funzione che viene chiamata quando lil tema corrente sta cambiando (l'utente ha premuto il pulsante "Prossimo" o "Precedente")
+		// parametri in ingresso: nuovo tema, transizione ("L" ingresso tema verso sinistra - "R" verso destra)
 		itemChanged()
 		{
 			@%nextpix=$0
@@ -93,6 +115,9 @@ alias(ktm::classes::widgets::infoWidget)
 			@%pbar->$hide
 			@%timer_id=@$startTimer(@%delay);
 		}
+	
+		// questo evento gestisce il flag che ci fa capire se il mouse sta dentro il perimetro della preview: 
+		// nel qual caso viene attivata la possibilità di cliccarci sopra per vedere l'anteprima a risoluzione maggiore.
 		mouseMoveEvent()
 		{
 			if (@%actual->%nopreview) return
@@ -102,12 +127,11 @@ alias(ktm::classes::widgets::infoWidget)
 			{
 				if (%y>=@%margin && %y<@%actual->%pixmap->$height() && !@%over) @%over=$true()	
 			}
-			else 
-			{
-				if (@%over) @%over=$false()
-			}
+			else @%over=$false()
 			@$update()
-		}	
+		}
+	
+		// questo evento inizializza e visualizza l'anteprima (se la stessa esiste) e il puntatore del mouse sta dentro il perimetro della preview	
 		mouseReleaseEvent()
 		{
 			if (@%over && !$objects.exists(@%preview))
@@ -119,6 +143,8 @@ alias(ktm::classes::widgets::infoWidget)
 				@%preview->$show()
 			}
 		}
+	
+		// parte principale che disegna la preview e le info
 		paintEvent()
 		{
 			@%p=$0
@@ -160,6 +186,8 @@ alias(ktm::classes::widgets::infoWidget)
 				}
 			}
 		}
+		
+		// funzione che recupera le info del tema  formattandole come testo html e disegnandole su schermo.
 		drawThemeInfo("x,y,theme_object,rect_width,rect_height")
 		{
 			%x=$0
@@ -174,6 +202,8 @@ alias(ktm::classes::widgets::infoWidget)
 			@%p->$drawHtmlText(%x,%y,%text,%w,%h)
 	
 		}
+	
+		// facciamo in modo di avere una dimensione fissa per la widget
 		sizeHintRequestEvent()
 		{
 			return $array($(300+100),200)

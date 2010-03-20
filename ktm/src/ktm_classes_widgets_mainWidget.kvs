@@ -1,5 +1,6 @@
 alias(ktm::classes::widgets::mainWidget)
 {
+	// widget principale che include i pulsanti e la widget infoWidget che verrà disegnata in una sua porzione
 	class(ktm::mainWidget,label)
 	{
 		constructor()
@@ -49,6 +50,7 @@ alias(ktm::classes::widgets::mainWidget)
 			@%btn_install->$setText($tr("Install"))
 			@%btn_install_use=$new(button,%vbox1)
 			@%btn_install_use->$setText($tr("Install/Use"))
+			@%btn_install_use->$setEnabled($false())
 		
 			@%btn_exit=$new(button,%vbox1)
 			@%btn_exit->$setText($tr("Exit"))

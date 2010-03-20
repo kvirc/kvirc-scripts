@@ -1,5 +1,6 @@
 alias(ktm::classes::widgets::loadingWidget)
 {
+	// classe non ancora sfruttata
 	class(ktm::loadingWidget,widget)
 	{
 		constructor()
