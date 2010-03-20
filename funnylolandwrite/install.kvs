@@ -93,7 +93,7 @@ alias(lollosa)
 			while(%idx!=0)
 			{
 				$$->%lolLong=$$->%lolLong %lol[$rand(10)]
-				$$->%lolLong=$str.replace("$$->%lolLong",""," ")
+				$$->%lolLong=$str.replace("$$->%lolLong"," ","")
 				
 				%idx--
 			}
@@ -106,7 +106,7 @@ alias(lollosa)
 			while(%idx!=0)
 			{
 				$$->%kissLong=$$->%kissLong $k($rand(15))%kiss
-				$$->%kissLong=$str.replace("$$->%kissLong",""," ")
+				$$->%kissLong=$str.replace("$$->%kissLong"," ","")
 				
 				%idx--
 			}
@@ -119,7 +119,7 @@ alias(lollosa)
 			while(%idx!=0)
 			{
 				$$->%smileLong=$$->%smileLong $k($rand(15)) %smile[$rand(3)]
-				$$->%smileLong=$str.replace("$$->%smileLong",""," ")			
+				$$->%smileLong=$str.replace("$$->%smileLong"," ","")
 				%idx--
 			}
 	
@@ -132,7 +132,7 @@ alias(lollosa)
 			while(%idx!=0)
 			{
 				$$->%slurpLong=$$->%slurpLong $k($rand(15))%slurp
-				$$->%slurpLong=$str.replace("$$->%slurpLong",""," ")
+				$$->%slurpLong=$str.replace("$$->%slurpLong"," ","")
 				
 				%idx--
 			}
@@ -156,7 +156,7 @@ alias(lollosa)
 			%idx = $(%rnd+5)
 			while(%idx!=0)
 			{
-				$$->%urraLong=$$->%urraLong $k($rand(15))%urra		
+				$$->%urraLong=$$->%urraLong $k($rand(15))%urra
 				%idx--
 			}
 	
@@ -185,14 +185,14 @@ alias(lolwriteColor)
 			event(OnTextInput,msgTextColor)
 			{	
 				%szFrase=$0
-				%idx=1
+				%idx=0
 				while(%idx!=($str.len(%szFrase)+1))
 				{
-					%sztmp =  $str.section(%szFrase,"",%idx,%idx)
+					%sztmp = $str.mid(%szFrase,%idx,1)
 					%szFraseColorata=%szFraseColorata$k($rand(15))%sztmp
 					%idx++;
 				}
-				say %szFraseColorata  ;
+				say %szFraseColorata;
 				halt;
 				
 			}
@@ -201,7 +201,7 @@ alias(lolwriteColor)
 		{
 			event(OnTextInput,msgTextColor)
 			{
-				say $b() $0  ;
+				say $b()$0;
 				halt;
 			}
 		}
@@ -209,7 +209,7 @@ alias(lolwriteColor)
 		{
 			event(OnTextInput,msgTextColor)
 			{
-				say $u() $0  ;
+				say $u()$0;
 				halt;
 			}
 		}
@@ -228,13 +228,13 @@ alias(lolwriteColor)
 			{	
 				%szFrase=$0
 				%idx=$($str.len(%szFrase)+1)
-				while(%idx!=0)
+				while(%idx>-1)
 				{
-					%sztmp =  $str.section(%szFrase,"",%idx,%idx)
+					%sztmp = $str.mid(%szFrase,%idx,1)
 					%szFraseColorata=%szFraseColorata%sztmp;
 					%idx--;
 				}
-				say %szFraseColorata  ;
+				say %szFraseColorata;
 				halt;
 				
 			}
@@ -244,18 +244,18 @@ alias(lolwriteColor)
 			event(OnTextInput,msgTextColor)
 			{	
 				%szFrase=$0
-				%idx=1
+				%idx=0
 				%itmp=1
 				while(%idx!=($str.len(%szFrase)+1))
 				{
 					if(%itmp==1)
 					{
-						%sztmp =  $str.upcase($str.section(%szFrase,"",%idx,%idx));
+						%sztmp =  $str.upcase($str.mid(%szFrase,%idx,1));
 						%itmp=0
 					}
 					else
 					{
-						%sztmp =  $str.lowcase($str.section(%szFrase,"",%idx,%idx));
+						%sztmp =  $str.lowcase($str.mid(%szFrase,%idx,1));
 						%itmp=1
 					}
 					%szFraseColorata=%szFraseColorata%sztmp
@@ -276,7 +276,7 @@ alias(lolwriteColor)
 				%text =$0
 				while(%idx!=19)
 				{
-					%text=$str.replace(%text,%lamah[%idx],%normal[%idx])
+					%text=$str.replace(%text,%normal[%idx],%lamah[%idx])
 					%idx++
 				}
 				say %text

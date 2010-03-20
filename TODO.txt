@@ -9,7 +9,6 @@ country
 cryption
 ezbounce
 fserve
-funnylolandwrite
 ktm
 minesweeper
 questionManager
