@@ -22,12 +22,13 @@ parse %mypath/utils/installer.kvs
 # an uninstallation alias for them
 %installer = $new(installer,0,myinstaller)
 
+%mypath = $file.extractPath($0)
+# Dictionaries files
+%installer->$copyFiles("%mypath/locale/","*.mo","$str.replace($file.localdir("locale"),"\\","/")")
+
 # then generate the uninstall alias
 # finally kill the installer helper
 delete %installer
-
-# Dictionaries files
-file.copy -o $extractPath($0)/locale/*.mo $file.localdir/locale/
 
 # Script Alias
 alias(hell_country)
