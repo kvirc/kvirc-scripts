@@ -7,7 +7,7 @@ addon.register("sms","1.9.9",$tr("SMS Sender","sms"),$tr("Allows sending SMS mes
 	# This is an automatically generated alias that will erase the installed files
 	sms_uninstallfiles
 
-	%aliases[]=$array(class_addProvider,class_addToRubrica,class_rubrica,class_gui,class_mdm,class_sms,class_smskernel,class_statusbar,class_widgets,mainsms)
+	%aliases[]=$array(class_addProvider,class_addToRubrica,class_rubrica,class_gui,class_mdm,class_sms,class_smskernel,class_statusbar,class_widgets,sms)
 	%classes[]=$array(addProvider,addToRubrica,gui,mdm,rubrica,sms,smskernel,statusbar,mylabel,mydialog,mybtn,mylayout,mypopup)
 
 	foreach(%c,%classes[])objects.killclass -q %c

@@ -12,6 +12,5 @@ minesweeper
 questionManager
 quiz
 savesession
-scriptmanager.kvs
-sms
+sms (wip)
 wrapAlias

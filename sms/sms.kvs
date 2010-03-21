@@ -47,7 +47,7 @@ alias(class_addProvider)
 		
 			$$->$move($($0+($2/2)),$($1+($3/2)))
 			$$->$resize(100,100)
-			$$->$setWFlags(Customize,StaysOnTop,Title,Sysmenu)
+			$$->$setWFlags(StaysOnTop,Title,Sysmenu)
 			$$->$show()
 		}
 		subAdd
@@ -134,7 +134,7 @@ alias(class_addToRubrica)
 	
 			$$->$move($($0+($2/2)),$($1+($3/2)))
 			$$->$resize(100,100)
-			$$->$setWFlags(Customize,StaysOnTop,Title,Sysmenu)
+			$$->$setWFlags(StaysOnTop,Title,Sysmenu)
 			$$->$show()
 		}
 		subAdd()
@@ -175,7 +175,7 @@ alias(class_debug)
 			$$->%row=0
 			$$->%outputOnWidget=$0
 			
-			$$->$setCaption("Sms sender - Debug")
+			$$->$setWindowTitle("Sms sender - Debug")
 			$$->%lay_debug=$new(layout,$$)
 			
 			$$->%widget_fake=$new(widget,$$)
@@ -216,9 +216,9 @@ alias(class_debug)
 			$$->%lay_debug->$addwidget($$->%widget_fake,1,2)
 			$$->%lay_debug->$addWidget($$->%mle_debugHttpRequest,1,1)
 			
-			$$->%lay_debug->$setColStretch(0,30)
-			$$->%lay_debug->$setColStretch(1,60)
-			$$->%lay_debug->$setColStretch(2,30)
+			$$->%lay_debug->$setColumnStretch(0,30)
+			$$->%lay_debug->$setColumnStretch(1,60)
+			$$->%lay_debug->$setColumnStretch(2,30)
 	
 			$$->$resize(800,600)
 			$$->$show()
@@ -306,7 +306,7 @@ alias(class_gui)
 		constructor()
 		{
 			$$->$resize(290,233)
-		#	$$->$setWFlags(Customize,StaysOnTop,Title,Sysmenu)
+		#	$$->$setWFlags(StaysOnTop,Title,Sysmenu)
 			$$->%layout=$new(mylayout,$$,,5,15)
 			$$->%layout->$addwidget($new(mylabel,$$,,"Pref. int"),0,0)
 			$$->%layout->$addwidget($new(mylabel,$$,,"Nr. cell."),0,1)
@@ -350,7 +350,6 @@ alias(class_gui)
 		
 			$$->%progbar=$new(progressbar,$$)
 			$$->%progbar->$setPercentageVisible(1)
-			$$->%progbar->$setCenterIndicator(1)
 			$$->%progbar->$setMaximumWidth(60)
 			$$->%layout->$addwidget($$->%progbar,4,5)
 		
@@ -451,8 +450,9 @@ alias(class_gui)
 				config.setsection %id accounts
 				%i++
 			}
-			$$->%label_charsleft->$settext("Chars Left:"$$->%MaxCharSms{$$->%combo_provider->$current()});
-			$$->%line_smstext->$setMaxLength($$->%MaxCharSms{$$->%combo_provider->$current()})
+			%num=$int($$->%MaxCharSms{$$->%combo_provider->$current()})
+			$$->%label_charsleft->$settext("Chars Left:"%num);
+			$$->%line_smstext->$setMaxLength(%num)
 		}
 	}
 }
@@ -513,7 +513,7 @@ alias(class_mdm)
 			$$->%Divider=$new(pixmap)
 			$$->%Divider->$load($file.localdir("pics/sms/divider.png"))
 			$$->%Bg=$new(pixmap)
-			$$->%Bg->$load($file.localdir("pics/sms/a1.png"))
+			$$->%Bg->$load($file.localdir("pics/sms/back.png"))
 			$$->$resize(200,400)
 	
 			$$->%div=130
@@ -612,7 +612,7 @@ alias(class_mdm)
 			%P->$drawText($$->%x_startFR,50,"Generation",-1,Auto)
 			if ($$->%xpos_AnimPart2FrameLeft[$$->%idx_FL] != "") 
 			{
-				$$->%x_startFL += %tmp_left[1];
+				$$->%x_startFL += $int(%tmp_left[1]);
 				$$->%x_lastFL = $$->%x_startFL
 				if ($$->%x_startFL == %tmp_left[0]) $$->%idx_FL ++;
 			}
@@ -689,9 +689,13 @@ alias(class_mdm)
 			%P->$setFont(8,"times",bold);        
 			%P->$drawText($($$->%div+5),10,$$->%message,-1,Auto)
 			%P->$end
-			objects.bitBlt $$ 0 0 %Pix
+			%P2=$new(painter)
+			%P2->$begin($$)
+			%P2->$drawPixmap(0,0,%Pix,0,0,-1,-1)
+			%P2->$end
 			delete %Pix
 			delete %P
+			delete %P2
 		}
 		mousemoveevent
 		{
@@ -1240,7 +1244,6 @@ alias(class_widgets)
 		{
 	
 			$$->$settext($0)
-			$$->$setautoresize(1)
 			if ($1) $$->$setAlignment($1)
 		}
 	}
@@ -1287,9 +1290,9 @@ alias(class_widgets)
 	{
 		constructor()
 		{
-			$$->$setIcon(29)
-			$$->$setCaption("SMdmS first launch")
-			%label=$new(mylabel,$$,,$0)
+			$$->$setWindowIcon(29)
+			$$->$setWindowTitle("SMS first launch")
+			%label=$new(mylabel,$$,,$0,WordBreak)
 			%lay=$new(layout,$$)
 			%lay->$addmulticellWidget(%label,0,0,0,2)
 			$$->%btn_ok=$new(mybtn,$$,,"Ok")
