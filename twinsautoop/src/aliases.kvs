@@ -119,16 +119,16 @@ alias(twins::autoop::set::recheck)
 	if(!$isset(%actions))
 	{
 		foreach(%action,ban,op,voice)
-			echo -i=17 [AutoOp] $tr("Recheck for auto",twinsautoop) %acion \
+			echo -i=17 [AutoOp] $tr("Recheck for auto",twinsautoop) %action \
 				$tr("is",twinsautoop) %enabled[%TwinsAutoOp{recheck:%action}]
 	} else foreach(%action,%actions){
 		if(%TwinsAutoOp{recheck:%action} == $sw(%action))
-			echo -i=17 [AutoOp] $tr("Recheck for auto",twinsautoop) %acion \
+			echo -i=17 [AutoOp] $tr("Recheck for auto",twinsautoop) %action \
 					$tr("is already",twinsautoop) %enabled[%TwinsAutoOp{recheck:%action}]
 		else {
 			%TwinsAutoOp{recheck:%action} = $sw(%action)
 			twins::autoop::core::config::save
-			echo -i=17 [AutoOp] $tr("Recheck for auto",twinsautoop) %acion \
+			echo -i=17 [AutoOp] $tr("Recheck for auto",twinsautoop) %action \
 					$tr("is now",twinsautoop) %enabled[%TwinsAutoOp{recheck:%action}]
 		}
 	}
@@ -383,7 +383,7 @@ alias(twins::autoop::core::load)
 					%TAO{%id}{%action} =
 					foreach(%user,$str.split(",",$regchan.property($chan.name,$my.network,auto%action:users)))if(%user){
 						%TAO{%id}{%action}{%user} = 1
-						debug [twins::autoop::core::load] %user loaded on $chan.name
+						#debug [twins::autoop::core::load] %user loaded on $chan.name
 					}
 				}
 			if(!$sw(n)) twins::autoop::check -q
@@ -493,7 +493,7 @@ alias(twins::autoop::check)
 					case(voice) if(!$chan.isvoice($0))%masks <+ $mask($0)
 					case(ban) %masks <+ $mask($0)
 				}
-			debug $chan.name: action=%action masks=%masks
+			#debug $chan.name: action=%action masks=%masks
 
 			%nicks =
 			if($isset(%masks))
@@ -611,9 +611,9 @@ alias(twins::autoop::core::report)
         if(!%TwinsAutoOp{console})return
 
         // Open it if necessary
-        if(!$window.exists(%TAO.console{$ic})){
-                %TAO.console{$ic} = $window.open(mq,$tr("AutOp",twinsautoop),$ic,34)
-                if(%TwinsAutoOp{log}) log.start -p -w=%TAO.console{$ic}
+        if(!$window.exists(%TAO{console}{$ic})){
+                %TAO{console}{$ic} = $window.open(mq,$tr("AutOp",twinsautoop),$ic,34)
+                if(%TwinsAutoOp{log}) log.start -p -w=%TAO{console}{$ic}
         }
 
         // Which icon and prefix?
@@ -633,7 +633,7 @@ alias(twins::autoop::core::report)
                 %i = 0
 
         // Let's go
-        echo -i=%i -w=%TAO.console{$ic} %p$0-
+        echo -i=%i -w=%TAO{console}{$ic} %p$0-
 }
 
 #####################################################################

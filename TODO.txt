@@ -14,7 +14,6 @@ quiz
 savesession
 scriptmanager.kvs
 sms
-twinsautoop
 twinsinputcolor
 twinslagbar
 twinsmediaplayer

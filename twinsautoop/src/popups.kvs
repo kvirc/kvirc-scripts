@@ -18,7 +18,7 @@ defpopup (twins::autoop::channel)
 		item($tr("Disable",twinsautoop),44)(%:tao{op})
 			twins::autoop::set::chan -o=0
 		item($tr("Check",twinsautoop),36)(%:tao{op})
-			twins::autoop::set::check -q -o
+			twins::autoop::check -q -o
 		separator
 		item($tr("Configure",twinsautoop),36)
 			twins::autoop::configure -o
@@ -30,7 +30,7 @@ defpopup (twins::autoop::channel)
 		item($tr("Disable",twinsautoop),44)(%:tao{voice})
 			twins::autoop::set::chan -v=0
 		item($tr("Check",twinsautoop),36)(%:tao{voice})
-			twins::autoop::set::check -q -v
+			twins::autoop::check -q -v
 		separator
 		item($tr("Configure",twinsautoop),36)
 			twins::autoop::configure -v
@@ -42,13 +42,13 @@ defpopup (twins::autoop::channel)
 		item($tr("Disable",twinsautoop),44)(%:tao{ban})
 			twins::autoop::set::chan -b=0
 		item($tr("Check",twinsautoop),36)(%:tao{ban})
-			twins::autoop::set::check -q -b
+			twins::autoop::check -q -b
 		separator
 		item($tr("Configure",twinsautoop),36)
 			twins::autoop::configure -b
 	}
 	item($tr("Check users now!",twinsautoop),36)(%TwinsAutoOp{status})
-		twins::autoop::set::check -q
+		twins::autoop::check -q
 	item($tr("List users",twinsautoop),224)(%TwinsAutoOp{status})
 		Twins::autoop::listusers
 	separator
@@ -107,7 +107,7 @@ defpopup (twins::autoop::user)
 	item($tr("Edit user config",twinsautoop),36)
 		twins::autoop::setuser %:regnick
 	item($tr("Check user now!",twinsautoop),36)(%TwinsAutoOp{status})
-			twins::autoop::set::check -q $0
+			twins::autoop::check -q $0
 }
 
 // Insert only when not in Twins

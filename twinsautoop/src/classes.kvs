@@ -132,9 +132,7 @@ class(twins::autoop::config,dialog)
 		// User list
 		@%m_hUsers{list} = $new(listview,%hWho{g})
 		@%m_hUsers{list}->$settooltip($tr("Registered users",twinsautoop))
-		@%m_hUsers{list}->$addcolumn("",18)
-		@%m_hUsers{list}->$addcolumn("",18)
-		@%m_hUsers{list}->$addcolumn("",100)
+		@%m_hUsers{list}->$addcolumn("",300)
 		@%m_hUsers{list}->$hideListViewHeader()
 		%hWho{l}->$addwidget(@%m_hUsers{list},1,0)
 		objects.connect @%m_hUsers{list} itemclicked $$ updateUser
@@ -365,20 +363,20 @@ class(twins::autoop::config,dialog)
 	loadUserList()
 	{
 		// Clean
-		%lvi = @%m_hUsers{list}->$firstchild()
-		while(%lvi)
+		%i = $(@%m_hUsers{list}->$topLevelItemCount()-1)
+		while(%i >= 0)
 		{
+			%lvi = @%m_hUsers{list}->$topLevelItem(%i)
 			delete %lvi
-			%lvi = %lvi->$nextsibling()
+			%i--
 		}
 
 		// Add users
 		foreach(%user,$reguser.list)
 		{
 			%lvi = $new(listviewitem,@%m_hUsers{list})
-			%lvi->$setCheckable(1)
-			%lvi->$settext(2,%user)
-//			%lvi->$setRenameEnabled(0)
+			%lvi->$setFlags(selectable, userCheckable, enabled)
+			%lvi->$settext(0,%user)
 		}
 
 		@$setUserFlags()
@@ -447,7 +445,7 @@ class(twins::autoop::config,dialog)
 	// Return the current action
 	action()
 	{
-		return $str.lowcase($str.replace(@%m_hAct{type}->$current,"","Auto"))
+		return $str.lowcase($str.replace(@%m_hAct{type}->$current,"Auto",""))
 	}
 
 	// Chan status has changed, so UPDATE CACHE
@@ -469,20 +467,21 @@ class(twins::autoop::config,dialog)
 		%net = @%m_hNet{c}->$current
 		if($isempty(%chan) || $isempty(%net))return
 		%action = @$action
-		%lvi = @%m_hUsers{list}->$firstchild()
-		while(%lvi)
+		%i = 0
+		while(%i < @%m_hUsers{list}->$topLevelItemCount())
 		{
+			%lvi = @%m_hUsers{list}->$topLevelItem(%i)
 			// Set from cache
-#			debug so \@\%m_aCache{%chan}{%net}{%action}{users}{%lvi->$text(2)} = @%m_aCache{%chan}{%net}{%action}{users}{%lvi->$text(2)}
-			if($isset(@%m_aCache{%chan}{%net}{%action}{users}{%lvi->$text(2)}))
+#			debug so \@\%m_aCache{%chan}{%net}{%action}{users}{%lvi->$text(0)} = @%m_aCache{%chan}{%net}{%action}{users}{%lvi->$text(0)}
+			if($isset(@%m_aCache{%chan}{%net}{%action}{users}{%lvi->$text(0)}))
 			{
-				%lvi->$setpixmap(1,@%m_hAct{icon}{%action})
+				%lvi->$setpixmap(0,@%m_hAct{icon}{%action})
 				%lvi->$setchecked(1)
 			} else {
-				%lvi->$setpixmap(1,0)
+				%lvi->$setpixmap(0,0)
 				%lvi->$setchecked(0)
 			}
-			%lvi = %lvi->$nextsibling()
+			%i++
 		}
 	}
 
@@ -497,13 +496,13 @@ class(twins::autoop::config,dialog)
 		%lvi = @%m_hUsers{list}->$currentItem()
 		if(%lvi)
 		{
-			%user = %lvi->$text(2)
+			%user = %lvi->$text(0)
 			if(%lvi->$ischecked)
 			{
-				%lvi->$setpixmap(1,@%m_hAct{icon}{%action})
+				%lvi->$setpixmap(0,@%m_hAct{icon}{%action})
 				@%m_aCache{%chan}{%net}{%action}{users}{%user} = 1
 			} else {
-				%lvi->$setpixmap(1,0)
+				%lvi->$setpixmap(0,0)
 				@%m_aCache{%chan}{%net}{%action}{users}{%user} =
 			}
 		}
@@ -591,7 +590,7 @@ class(twins::autoop::setuser,dialog)
 		// Setup
 //		twins::mediaplayer::core::config::load
 		%G_hTwinsAutoOp{adduser} = $$
-		$$->$setCaption($tr("TwinsAutoOp: SetUser",twinsautoop))
+		$$->$setWindowTitle($tr("TwinsAutoOp: SetUser",twinsautoop))
 		%ll = $new(layout,$$)
 		%ll->$setmargin(20)
 		%ll->$setspacing(20)
@@ -610,13 +609,13 @@ class(twins::autoop::setuser,dialog)
 		%ll->$addwidget(%lUser,1,1)
 		%ll->$addwidget(@%m_hUser,1,2)
 		for(%i=0;%i<4;%i++)
-			%ll->$setcolstretch(%i,1)
+			%ll->$setColumnStretch(%i,1)
 
 
 		// Tabs
 		%hTabs = $new(tabwidget,$$)
 		%ll->$addmulticellwidget(%hTabs,2,2,0,3)
-		%ll->$setrowstretch(2,3)
+		%ll->$setRowStretch(2,3)
 
 
 		// Flag Tab
@@ -679,7 +678,7 @@ class(twins::autoop::setuser,dialog)
 		%hMasks{l} = $new(layout,%hMasks{t})
 		%hMasks{l}->$setmargin(20)
 		%hMasks{l}->$setspacing(20)
-		%hMasks{l}->$setcolstretch(0,5)
+		%hMasks{l}->$setcolumnstretch(0,5)
 		%seps=$array("!","@")
 		for(%i=0;%i<2;%i++)
 		{
