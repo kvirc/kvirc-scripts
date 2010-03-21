@@ -17,6 +17,9 @@ addon.register("Twinsmediaplayer","1.4.1","Twinsmediaplayer","A mediaplayer","3.
 # Get the path that this script was launched from
 %mypath = $file.extractPath($0)
 
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+
 # The installer will copy our files and generate automatically an uninstallation
 # alias for them
 %installer = $new(installer,0,myaddon)
@@ -31,26 +34,12 @@ addon.register("Twinsmediaplayer","1.4.1","Twinsmediaplayer","A mediaplayer","3.
 # the documentation
 %installer->$copyFiles("%mypath/help/en/Twinsmediaplayer/","*.html",$file.localdir("help/en/Twinsmediaplayer"))
 
+# parse source files
+%installer->$includeFiles("%mypath/src/","*.kvs")
+
 # Generate the uninstall alias
-%installer->$generateUninstallAlias("Twinsmediaplayer::uninstall::uninstallfiles")
+%installer->$generateUninstallAlias("Twinsmediaplayer::uninstall::uninstall")
 
 # Kill the installer helper
 delete %installer
-
-# Fetch the complete script
-%files[] = $file.ls($file.extractpath($0)/src,f)
-%alias = "alias(Twinsmediaplayer::uninstall::uninstallaliases){$lf"
-for(%i=0; %i<$length(%files[]); %i++)
-{
-	include $file.extractpath($0)/src/%files[%i]
-	%flt = $str.left(%files[%i],$($str.len(%files[%i])-4))
-	%file = $str.replace(%flt,"::","_")
-	%alias .= "alias(%file){};$lf"
-}
-%alias .= "alias(Twinsmediaplayer::uninstall::uninstallaliases){};$lf"
-%alias .= "}"
-eval %alias
-
-# Include initialization file
-include "init.kvs" %mypath
 

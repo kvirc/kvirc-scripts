@@ -14,8 +14,4 @@ quiz
 savesession
 scriptmanager.kvs
 sms
-twinsinputcolor
-twinslagbar
-twinsmediaplayer
-twinsquotes
 wrapAlias

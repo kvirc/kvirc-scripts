@@ -1,5 +1,5 @@
 # Hack for the xgettext: this code will never be executed, but will be added to the translation file
-include qtwrapper.kvs
+include kvirc4wrapper.kvs
 if(0)
 {
 	#Year,Genre,Length,Frequency,Bitrate
@@ -38,7 +38,7 @@ class(twins::mediaplayer::window,wrapperdockwindow)
 		twins::mediaplayer::core::config::save
 
 		%G_hTwinsMediaPlayer{window} = $$
-		$$->$setCaption($str.printf($tr("Twins MediaPlayer-?s",twinsmediaplayer),$addon.version(twinsmediaplayer)))
+		$$->$setWindowTitle($str.printf($tr("Twins MediaPlayer-?s",twinsmediaplayer),$addon.version(twinsmediaplayer)))
 
 		@$setAllowedDockAreas("lrfm")
 		@$setResizeEnabled($true)
@@ -478,7 +478,7 @@ class(twins::mediaplayer::window,wrapperdockwindow)
 				%tag = $str.upcase($str.left(%tag,1))$str.right(%tag,$($str.len(%tag)-1))
 				%h .= "<tr><th><font color=\""%TwinsMediaPlayer{color:fg:window}"\" style=\"font-size:8pt;\">%tag:</font></th>"
 				%h .= "<td><font color=\""%TwinsMediaPlayer{color:fg:window}"\" style=\"font-size:8pt;\">$0{%tag}</font></td></tr>"
-			} elseif(%TwinsMediaPlayer{show%tag})%hh <+ $str.replace($0{%tag},""," ")
+			} elseif(%TwinsMediaPlayer{show%tag})%hh <+ $str.replace($0{%tag}," ","")
 		}
 		if($1 == "linear")
 		{
