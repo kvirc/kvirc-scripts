@@ -26,7 +26,7 @@ parse %mypath/utils/installer.kvs
 
 # copy files in each subdirectory
 # the pics
-%installer->$copyFiles("%mypath/pics/","*.png","$str.replace($file.localdir("pics"),"/","\\")")
+%installer->$copyFiles("%mypath/pics/","*.png","$str.replace($file.localdir("pics"),"\\","/")")
 
 # then generate the uninstall alias
 %installer->$generateUninstallAlias("cryption_uninstallfiles")
@@ -40,7 +40,7 @@ alias(cryption)
 {
 	
 	%config_file = $file.localdir/config/cryption.kvc
-	%scripttag = "$k(4)[$k(0)$b()cryption$b()$k(4)]$k(0)"
+	%scripttag = "$k(4) [$k(0)$b()cryption$b()$k(4)] $k(0)"
 	# using a switch to see what option has been selected
 	switch($0)
 	{
@@ -92,8 +92,8 @@ alias(cryption)
 				{
 					#get variables from conf for given object
 					%crypt_method = $config.read(%cfg,CryptMethod,"")
-					%crypt_enckey = $base64totext($config.read(%cfg,EncryptKey,""))
-					%crypt_deckey = $base64totext($config.read(%cfg,Decryptkey,""))		
+					%crypt_enckey = $base64ToAscii($config.read(%cfg,EncryptKey,""))
+					%crypt_deckey = $base64ToAscii($config.read(%cfg,Decryptkey,""))
 			
 					#enable cryption for object
 					window.setCryptEngine %wndid %crypt_method %crypt_enckey %crypt_deckey
