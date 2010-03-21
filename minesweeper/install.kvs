@@ -92,7 +92,7 @@ alias(mines)
 			objects.connect %b clicked $$ okClicked
 			$$->%layout->$addMultiCellWidget(%b,4,4,0,1)
 			
-			$$->%layout->$setColStretch(0,1)
+			$$->%layout->$setColumnStretch(0,1)
 			$$->%layout->$setRowStretch(3,1)
 
 			$$->%layout->$setMargin(10)
@@ -267,7 +267,7 @@ alias(mines)
 	{
 		constructor()
 		{
-			$$->$setCaption("KVIrc's Minesweeper (1.0.0)");
+			$$->$setWindowTitle("KVIrc's Minesweeper (1.0.0)");
 
 			$$->%layout = $new(layout,$this);
 
@@ -293,7 +293,7 @@ alias(mines)
 			$$->%layout->$addMultiCellWidget($$->%statusbar,2,2,0,2);
 
 			$$->%layout->$setRowStretch(1,100);
-			$$->%layout->$setColStretch(2,1);
+			$$->%layout->$setColumnStretch(2,1);
 			$$->%layout->$setSpacing(2);
 			$$->%layout->$setMargin(4);
 			$$->%layout->$setResizeMode(Fixed);

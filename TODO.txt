@@ -1,13 +1,10 @@
 This file contains a list of scripts that has not been ported (yet) to KVIrc4.
 Please keep this list up to date.
 
-Forza4 (wip)
+Forza4 (wip, need to be refactored to avoid painting outside paintEvents)
 KISS
 NGL fserv
-checkers
-ezbounce
-fserve
-minesweeper
+checkers (need to be refactored to avoid painting outside paintEvents)
 questionManager
 quiz
 savesession
