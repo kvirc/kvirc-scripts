@@ -4,7 +4,7 @@ alias(NGLfserv::classes::gui::sharedfiles)
 	{
 		constructor()
 		{
-			$$->$setCaption($tr(".:Shared Files:."))
+			$$->$setWindowTitle($tr(".:Shared Files:."))
 			%main = $NGLfserv::corefunctions::addWidget(vbox,$$)
 			trload -v nglfserv
 			// $file.localdir(locale)

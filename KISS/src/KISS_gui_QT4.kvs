@@ -6,7 +6,7 @@ alias(KISS::gui)
 	{
 		constructor()
 		{
-			$$->$setCaption("K.I.S.S. 2.3")
+			$$->$setWindowTitle("K.I.S.S. 2.3")
 		
 			%vbox=$new(vbox,$$)
 			%layout=$new(layout,$$)
@@ -27,19 +27,19 @@ alias(KISS::gui)
 			$$->%rbIcons1->$setText($tr("Classic Icons","kiss"))
 			$$->%rbIcons1->$setToolTip($tr("This set will install the classic old-style KVIrc icons.<br /> \
 				Indicated to users with a bit of melancholy :)","kiss"))
-			objects.connect $$->%rbIcons1 toggled $$ toggle
+#			objects.connect $$->%rbIcons1 toggled $$ toggle
 			
 			$$->%rbIcons2=$new(radiobutton,%vbox_gr)
 			$$->%rbIcons2->$setText($tr("Classic Smiles","kiss"))
 			$$->%rbIcons2->$setToolTip($tr("This set will install the brand new icon with the old-style<br /> \
 				KVIrc smiles, to make KVIrc modern with a bit of vintage style","kiss"))
-			objects.connect $$->%rbIcons2 toggled $$ toggle
+#			objects.connect $$->%rbIcons2 toggled $$ toggle
 			
 			$$->%rbIcons3=$new(radiobutton,%vbox_gr)
 			$$->%rbIcons3->$setText($tr("New Icons","kiss"))
 			$$->%rbIcons3->$setToolTip($tr("This set will install the brand new icons, shipped with the<br /> \
 				KVIrc distribution","kiss"))
-			objects.connect $$->%rbIcons3 toggled $$ toggle
+#			objects.connect $$->%rbIcons3 toggled $$ toggle
 			
 			%hbox=$new(hbox,%vbox)
 			$$->%btnOk=$new(button,%hbox)

@@ -5,8 +5,8 @@ alias(NGLfserv::classes::gui::monitor)
 		constructor()
 		{
 			$$->$setGeometry(250,150,640,400)
-			$$->$setCaption(%NGLlogo" - Monitor")
-			$$->$setIcon(171)
+			$$->$setWindowTitle(%NGLlogo" - Monitor")
+			$$->$setWindowIcon(171)
 			
 			%main_layout=$new(layout,$this)
 			%main_layout->$setspacing(5)

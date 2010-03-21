@@ -5,7 +5,7 @@ alias(KISS::gui)
 	{
 		constructor()
 		{
-			$$->$setCaption("K.I.S.S. 2.3")
+			$$->$setWindowTitle("K.I.S.S. 2.3")
 			$$->$setMinimumWidth(600)
 			$$->$setMinimumHeight(600)
 			
