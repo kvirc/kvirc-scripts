@@ -6,7 +6,4 @@ KISS
 NGL fserv
 checkers (need to be refactored to avoid painting outside paintEvents)
 questionManager
-quiz
-savesession
 sms (wip)
-wrapAlias

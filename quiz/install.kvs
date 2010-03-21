@@ -63,7 +63,7 @@ alias(quiz_initialize)
 		{
 			@%m_hWindow = $0
 	
-			@$setCaption($tr("Create a quiz for "$chan.name($0)"...","quiz"))
+			@$setWindowTitle($tr("Create a quiz for "$chan.name($0)"...","quiz"))
 	
 			%l = $new(layout,$this)
 			%l->$setMargin(5)
@@ -167,7 +167,7 @@ alias(quiz_initialize)
 		constructor($0 = puntatore){
 			@%m_hGame = $0;
 	
-			$$->$setCaption($tr("Game statistics","quiz"))
+			$$->$setWindowTitle($tr("Game statistics","quiz"))
 	
 			%l = $new(layout,$$)
 			%l->$setMargin(5)
@@ -437,6 +437,7 @@ alias(quiz_initialize)
 				@%m_szCategory = "none"
 				@%m_szAnswer = "I don't know"
 				@%m_iDifficulty = 10
+				%n++
 			}
 	
 			%r = $rand($(%n-1))
@@ -472,7 +473,7 @@ alias(quiz_initialize)
 			@%m_szMaskedAnswer = @%m_szAnswer
 			@%m_szMaskedAnswer =~ s/[a-zA-Z0-9]/-/g
 		
-			%tmp = $str.replace(@%m_szAnswer,""," ")
+			%tmp = $str.replace(@%m_szAnswer," ","")
 			@%m_iLetterCount = $str.len(%tmp)
 			@%m_iMaxSuggestions = $(@%m_iLetterCount - 1)
 			@%m_iQuestionNumber++
@@ -487,7 +488,7 @@ alias(quiz_initialize)
 	
 		triggerTimerForNextQuestion()
 		{
-			if(@%m_iQuestionNumber == $(@%m_iNumberOfQuestion - 1))
+			if(@%m_iQuestionNumber == $($int(@%m_iNumberOfQuestion) - 1))
 				@$gameTerminated()
 			else
 				@%m_iDelayTimerId = @$startTimer(@%m_iDelayBetweenQuestions)
@@ -570,7 +571,10 @@ alias(quiz_initialize)
 	
 		killAllTimers()
 		{
-			@$killTimers()
+			if(%m_iDelayTimerId!=$nothing && %m_iDelayTimerId>-1)
+				@$killTimer(%m_iDelayTimerId)
+			if(%m_iQuestionTimerId!=$nothing && %m_iQuestionTimerId>-1)
+				@$killTimer(%m_iQuestionTimerId)
 			@%m_iDelayTimerId = -1
 			@%m_iQuestionTimerId = -1
 		}
