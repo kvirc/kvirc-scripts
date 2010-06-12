@@ -1,379 +1,373 @@
-alias(NGLfserv::classes::shell)
+class("NGLfserv::classes::shell","object")
 {
-	class(NGLfserv::classes::shell,object)
+	function constructor
 	{
-		function constructor
-		{
-			$$->%trigger=$0
-			$$->%shellwindow=$1
-			$$->%dcc_id=$2
-			$$->%nick=$3
-			$$->%irccontext=$4
-			$$->%nickStatus=$5
-			$$->%here=$$->%trigger->$firstNode()
-	
-			// Do not modify this first output line! This is required by compatibility with other fservs
-			$$->$msg("$k(%NGLc1).:$k(%NGLc2)NGL File Server$k(%NGLc1):.")
-		 	$$->$msg($tr("This Fserv runs on the multiplatform KVIrc client. Rox!"))
-			$$->$msg($tr("Commands are: dir, ls, cd <foldername>, cd .., get <filename>, get |F<fileindex>, sends, queues, clr_queue <number>, clr_queues"))
-			if($$->%trigger->%welcomeMessage) {
-				if($str.left($$->%trigger->%welcomeMessage,1)=="F") {
-					%fileName = $str.rightfromfirst($$->%trigger->%welcomeMessage,"F")
-					if($file.exists(%fileName) && $file.type(%fileName) == "f") {
-						$$->$msg($file.read(%fileName))
-					}
-				}
-				else if($str.left($$->%trigger->%welcomeMessage,1)=="H") {
-					$$->$msg($str.rightfromfirst($$->%trigger->%welcomeMessage,"H"))
-				}
-			}
-			$$->$msg([\\])
-			$$->%tm_flag=0
-			$$->%useridle_flag=0
-			$$->%maxshell_timer_id=$$->$startTimer($((%MaxShellLife*3)/4))
-			$$->%maxuseridle_timer_id=$$->$startTimer($((%MaxUserIdle*3)/4))
-		}
-		internal function timerEvent()
-		{
-			if(!$window.exists($$->%shellwindow)) {
-				$$->$killtimers()
-				return
-			}
-			%id=$0
-			if (%id==$$->%maxshell_timer_id){
-				if (!$$->%tm_flag){
-					$$->$msg($tr("This window will be closed automatically in ")$(%MaxShellLife/(4*1000)) $tr("secs"))
-					$$->%maxshell_timer_id=$$->$startTimer($(%MaxShellLife/4))
-					$$->%tm_flag=1
-				}
-				else{
-					$$->$killtimers()
-					$$->$dccClose()
-				}
-				return
-			}
-			else{
-				if (%id==$$->%maxuseridle_timer_id){
-					if (!$$->%useridle_flag){
-						$$->$msg($tr("This window will be closed automatically for user inactivity in ")$(%MaxUserIdle/(4*1000)) $tr("secs"))
-						$$->$killTimer($$->%maxuseridle_timer_id)
-						$$->%maxuseridle_timer_id=$$->$startTimer($(%MaxUserIdle/4))
-						$$->%useridle_flag=1
-					}
-					else{
-						$$->$killtimers()
-						$$->$dccClose()
-						delete $$
-					}
-				}
+$$->%trigger=$0
+	$$->%shellwindow=$1
+	$$->%dcc_id=$2
+	$$->%nick=$3
+	$$->%irccontext=$4
+	$$->%nickStatus=$5
+	$$->%here=$$->%trigger->$firstNode()
+
+	// Do not modify this first output line! This is required by compatibility with other fservs
+	$$->$msg("$k(%NGLc1).:$k(%NGLc2)NGL File Server$k(%NGLc1):.")
+ 	$$->$msg($tr("This Fserv runs on the multiplatform KVIrc client. Rox!"))
+	$$->$msg($tr("Commands are: dir, ls, cd <foldername>, cd .., get <filename>, get |F<fileindex>, sends, queues, clr_queue <number>, clr_queues"))
+	if($$->%trigger->%welcomeMessage) {
+		if($str.left($$->%trigger->%welcomeMessage,1)=="F") {
+			%fileName = $str.rightfromfirst($$->%trigger->%welcomeMessage,"F")
+			if($file.exists(%fileName) && $file.type(%fileName) == "f") {
+				$$->$msg($file.read(%fileName))
 			}
 		}
-		
-		# $0= stringa da parsare
-		function parseCommand()
-		{
-			%cmd=$$->$getCommand($0)
-			$$->$killTimer($$->%maxuseridle_timer_id)
-			$$->%maxuseridle_timer_id=$$->$startTimer($((%MaxUserIdle*3)/4))
-			$$->%useridle_flag=0
-			if (%cmd){
-				switch(%cmd)
-				{
-					case("cd")
-					{
-						$$->$parseCommandCD()
-						break
-					}
-					case("cd..")
-					{
-						$$->%parameter=".."
-						$$->$parseCommandCD()
-						break
-					}
-					case("cd.")
-					{
-						$$->%parameter="."
-						$$->$parseCommandCd()
-						break
-					}
-					case("dir")
-					{
-						$$->$parseCommandDir("dir")
-						break
-					}
-					case("ls")
-					{
-						$$->$parseCommandDir("ls")
-						break
-					}
-					case("get")
-					{
-						$$->$parseCommandGet()
-						break
-					}
-					case("queues")
-					{
-						$$->$parseCommandQueue()
-					}
-					case("sends")
-					{
-						$$->$parseCommandSend()
-					}
-					case("stats")
-					{
-						if(!$objects.exists(%Send)) %sends = 0
-						else %sends = %Send->$count()
-						if(!$objects.exists(%Queues)) %queues = 0
-						else %queues = %Queues->$count()
-						%bytesSent = $NGLfserv::corefunctions::calc(%NGLSentBytes)
-						%vect[] = $str.split(" ",%bytesSent)
-						%vect[0] = $str.left(%vect[0],$($str.len(%vect[0])-4))
-						if($str.right(%vect[0],1) == 0) {
-							%vect[0] = $str.left(%vect[0],$($str.len(%vect[0])-1))
-							if($str.right(%vect[0],1) == 0) %vect[0] = $str.left(%vect[0],$($str.len(%vect[0])-1))
-						}
-	
-						$$->$msg($k(%NGLc1).:$k(%NGLc2)NGL File Server$k(%NGLc1):.)
-						$$->$msg($k(%NGLc1)$tr("Transfer Status: Sends:") "["$k(%NGLc2)$r$r%sends$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxSends$k(%NGLc1)"]" - $tr("Queues:")"["$k(%NGLc2)$r$r%queues$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxQueues$k(%NGLc1)"]")
-						#$$->$msg($k(%NGLc1)Record CPS: )
-						$$->$msg($k(%NGLc1)$tr("Bytes Sent"): $k(%NGLc2)$r$r%bytesSent)
-						$$->$msg($k(%NGLc1)$tr("Files Sent:") $k(%NGLc2)$r$r%NGLSentFiles)
-						#$$->$msg($k(%NGLc1)Sends Failed: )
-						#$$->$msg($k(%NGLc1)Number of ReSends: )
-						#$$->$msg($k(%NGLc1)Fileserver Accessed: )
-						$$->$msg($k(%NGLc1)$tr("Instant Send is at:") $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc(%InstantSendSize))
-					}
-					case("clr_queue")
-					{
-						if(!$1 || !$str.isnumber($1)) {
-							$$->$msg($tr("Usage:") clr_queue $tr("<number>"))
-						}
-						else if(!%Queues || !%Queues->$count()) {
-							$$->$msg($tr("There are no queued files on the fserv"))
-						}
-								else if($1 < 0 || $1 > %Queues->$count()) {
-									$$->$msg($tr("Wrong queue number"))
-								}
-								else if(%Queues->$at($1)->%nick != $$->%nick) {
-									$$->$msg($tr("That's not one of yours queued files"))
-								}
-								else {
-									$$->$msg($tr("Removed") %Queues->$at($1)->%file $tr("from queue slot #")$1)
-									%Queues->$remove($1)
-									%Nick_nr_queues{%nickName}--
-								}
-							}
-							case("clr_queues")
-							{
-								%removed=$NGLfserv::corefunctions::queues("r","null",$$->%nick,"null")
-								if(%removed!=0)
-									$$->$msg($tr("Removed") %removed $tr("queued files from the fserv"))
-								else
-									$$->$msg($tr("You have no queued files on the fserv"))
-							}
-							case("exit")
-							{
-								$$->$killtimers()
-								window.close $$->%shellwindow
-							}
-							case("quit")
-							{
-								$$->$killtimers()
-								window.close $$->%shellwindow
-							}
-							case("close")
-							{
-								$$->$killtimers()
-								window.close $$->%shellwindow
-							}
-						}
-					}
-				}
-		function getCommand()
-		{
-			%buffer=$str.stripleft($str.lowcase($0))
-			if (!%buffer) return $false
-			$$->%parameter=$str.stripright($str.stripleft($str.section(%buffer," ",1,-1)))
-			return $str.section(%buffer," ",0,0)
+		else if($str.left($$->%trigger->%welcomeMessage,1)=="H") {
+			$$->$msg($str.rightfromfirst($$->%trigger->%welcomeMessage,"H"))
 		}
-		function parseCommandCd()
+	}
+	$$->$msg([\\])
+	$$->%tm_flag=0
+	$$->%useridle_flag=0
+	$$->%maxshell_timer_id=$$->$startTimer($((%MaxShellLife*3)/4))
+	$$->%maxuseridle_timer_id=$$->$startTimer($((%MaxUserIdle*3)/4))
+	}
+	function dccClose
+	{
+dcc.abort $$->%dcc_id
+	}
+	function generatePath
+	{
+%filetmp=$file.extractfilename($$->%parameter)
+%foldertmp=$file.extractpath($$->%parameter)
+%folder=$$->$toFolder(%foldertmp)
+if(!%folder) return $false()
+%file=$$->%trigger->$fileExists($$->%here,%filetmp)
+if (%file){
+	%path=$$->%trigger->$getRealPath(%folder)
+	 return $$->%trigger->$getRealPath(%folder)
+}
+else $$->$msg($tr("File") %filetmp $tr("does not exist"))
+return $false
+	}
+	function getCommand
+	{
+%buffer=$str.stripleft($str.lowcase($0))
+if (!%buffer) return $false
+$$->%parameter=$str.stripright($str.stripleft($str.section(%buffer," ",1,-1)))
+return $str.section(%buffer," ",0,0)
+	}
+	function msg
+	{
+NGLfserv::corefunctions::say $$->%shellwindow $0
+	}
+	function msgShow
+	{
+%path = $$->%trigger->$getVirtualFolderPath($0)
+NGLfserv::corefunctions::say $$->%shellwindow [\\%path*.*]
+if(%path) NGLfserv::corefunctions::say $$->%shellwindow ..
+	}
+	function parseCommand
+	{
+%cmd=$$->$getCommand($0)
+$$->$killTimer($$->%maxuseridle_timer_id)
+$$->%maxuseridle_timer_id=$$->$startTimer($((%MaxUserIdle*3)/4))
+$$->%useridle_flag=0
+if (%cmd){
+	switch(%cmd)
+	{
+		case("cd")
 		{
-			switch($$->%parameter){
-				case(".."){
-					if (($$->%parameter=="..") && ($$->%here!=$$->%trigger->$firstNode())){
-						$$->%here=$$->%here->$parent()
-						%path=$$->%trigger->$getVirtualFolderPath($$->%here)
-						NGLfserv::corefunctions::say $$->%shellwindow [\\$str.left(%path,$($str.len(%path)-1))]
-					}
-					break
-				}
-				case("."){
-					if ($$->%parameter==".")  $$->$showDir($$->%here)
-					break
-				}
-				default:{
-					%tmp=$$->$toFolder($$->%parameter)
-					if (%tmp){
-						$$->%here=%tmp
-						%path=$$->%trigger->$getVirtualFolderPath($$->%here)
-						NGLfserv::corefunctions::say $$->%shellwindow [\\$str.left(%path,$($str.len(%path)-1))]
-					}
-				}
-			}
+			$$->$parseCommandCD()
+			break
 		}
-		function parseCommandDir()
+		case("cd..")
 		{
-			if (!$$->%parameter || $str.contains($$->%parameter,"*") || $str.contains($$->%parameter,"?")) $$->$showDir($$->%here,$0,$$->%parameter)
-			else{
-				%tmp=$$->$toFolder($$->%parameter)
-				if (%tmp) $$->$showDir(%tmp,$0,"*")
-			}
+			$$->%parameter=".."
+			$$->$parseCommandCD()
+			break
 		}
-		function showdir()
+		case("cd.")
 		{
-			#-------Do not modify this output format, due compatibility issues with other fserv scripts.
-			$$->$msgShow($0)
-			if (!$2) %filter="*"
-			else %filter=$2
-			%folderchildren[]=$0->$children()
-			%folder=$0
-			%i=0
-			 while(%i!=$length(%folderchildren[])) {
-				if (!%folderchildren[%i]->%dirNotShared && !%folderchildren[%i]->%extraDirTemp && $str.match(%filter,%folderchildren[%i]->%text)){
-					if($1=="dir") {
-						#-------Compatibility requires that all folders are shown in uppercase.
-						NGLfserv::corefunctions::say $$->%shellwindow $str.upcase($$->%trigger->$text(%folderchildren[%i]))
-					}
-					if($1=="ls") {
-						NGLfserv::corefunctions::say $$->%shellwindow $str.upcase($$->%trigger->$text(%folderchildren[%i])) "[idx=\|d%i]"
-					}
-				}
-				%i++
-			}
-			for(%i=0;%i<$$->%trigger->$filesCount($$->%here);%i++){
-				%file=$$->%trigger->$fileAt($$->%here,%i)
-				if(!$$->%trigger->$isFileNotShared($$->%here,%i) && $str.match(%filter,%file)){
-					%size=$$->%trigger->$fileSizeAt($$->%here,%i)
-					if($1=="dir") {
-					#-------Compatibility requires that all files are shown in lowercase, followed only by file size, in the format <size> <unit>
-						 NGLfserv::corefunctions::say $$->%shellwindow $str.lowcase(%file) $NGLfserv::corefunctions::calc(%size)
-					}
-					if($1=="ls") {
-						NGLfserv::corefunctions::say $$->%shellwindow $str.lowcase(%file) "[size=$NGLfserv::corefunctions::calc(%size)]" "[idx=\|f%i]"
-					}
-				}
-			}
-			#say -r=$$->%shellwindow End of list
+			$$->%parameter="."
+			$$->$parseCommandCd()
+			break
 		}
-		function toFolder()
+		case("dir")
 		{
-			if ($str.left($str.lowCase($0),2)=="|d"){
-				%children[]=$$->%here->$children()
-				%idx=$str.rightFromFirst($0,"|d")
-				if ($str.isNumber(%idx)) %folder=%children[%idx]
-				else {
-					$$->$msg($tr("Invalid index"))
-					return $false
-				}
-			}
-			else %folder=$$->%trigger->$getFolderObjFromPath($0,$$->%here)
-			if (!%folder){
-				%folder=$$->%trigger->$getFolderObjFromPath($0,$$->%here)
-				if (!%folder) {
-					$$->$msg($tr("Folder") $0 $tr("does not exists"))
-					return $false
-				}
-				if (%folder->%dirNotShared||%folder->%extradirtemp){
-					$$->$msg($tr("Folder") $0 $tr("does not exists"))
-					return $false
-				}
-			}
-			return %folder
+			$$->$parseCommandDir("dir")
+			break
 		}
-		function msgShow()
+		case("ls")
 		{
-			%path = $$->%trigger->$getVirtualFolderPath($0)
-			NGLfserv::corefunctions::say $$->%shellwindow [\\%path*.*]
-			if(%path) NGLfserv::corefunctions::say $$->%shellwindow ..
+			$$->$parseCommandDir("ls")
+			break
 		}
-		function parseCommandGet()
+		case("get")
 		{
-			%tmp=$str.replace($$->%parameter,"/","\\")
-			if (!$str.contains(%tmp,"/")){
-				if ($str.left(%tmp,2)=="\|f") {
-					%file=$$->%trigger->$getFileById($$->%here,$$->%parameter)
-				}
-				else
-				%file=$$->%trigger->$fileExists($$->%here,%tmp)
-				if (!%file) {
-					$$->$msg($tr("File") %tmp $tr("does not exist"))
-					return $true
-				}
-				%realpath = $$->%trigger->$getRealPath($$->%here)
-				%path=%realpath%file		
-			}
-			else %path=$$->$generatePath()
-			if (!%path) return
-			%size = $$->%trigger->$fileSizeAt($$->%here,$$->%trigger->$fileIndex($$->%here,$file.extractfilename(%path)))
-			%triggerName = $$->%trigger->$triggerName()
-			if (%Virtualshell) %Virtualshell->$append(sending %path)
-			else
-			NGLfserv::corefunctions::send "shell" $$->%nick $$->%nickStatus %path %size $$->%irccontext %triggerName $$
+			$$->$parseCommandGet()
+			break
 		}
-		function generatePath()
+		case("queues")
 		{
-			%filetmp=$file.extractfilename($$->%parameter)
-			%foldertmp=$file.extractpath($$->%parameter)
-			%folder=$$->$toFolder(%foldertmp)
-			if(!%folder) return $false()
-			%file=$$->%trigger->$fileExists($$->%here,%filetmp)
-			if (%file){
-				%path=$$->%trigger->$getRealPath(%folder)
-				 return $$->%trigger->$getRealPath(%folder)
-			}
-			else $$->$msg($tr("File") %filetmp $tr("does not exist"))
-			return $false
+			$$->$parseCommandQueue()
 		}
-		function parseCommandQueue()
+		case("sends")
 		{
-			if(!$objects.exists(%Queues)) %queues = 0
-			else %queues = %Queues->$count()
-			NGLfserv::corefunctions::say $$->%shellwindow $k(%NGLc1)$tr("Total Number Of Queues Currently:") $k(%NGLc2)$r$r%queues$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxQueues
-			for(%i=0;%i!=%Queues->$count();%i++) {
-				NGLfserv::corefunctions::say $$->%shellwindow $k(%NGLc1)#$(%i+1) $k(%NGLc2)%Queues->$at(%i)->%file$k(%NGLc1), $tr("for") $k(%NGLc2)%Queues->$at(%i)->%nick$k(%NGLc1), $tr("size:") $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc(%Queues->$at(%i)->%size)
-			}
+			$$->$parseCommandSend()
 		}
-		function parseCommandSend()
+		case("stats")
 		{
 			if(!$objects.exists(%Send)) %sends = 0
 			else %sends = %Send->$count()
-			NGLfserv::corefunctions::say $$->%shellwindow $k(%NGLc1)$tr("Total Number Of Sends Currently:") $k(%NGLc2)$r$r%sends$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxSends
-			for(%i=0;%i!=%Send->$count();%i++) {
-				%id=%Send->$at(%i)->%dcc_id
-				if(%id) {
-					%a=$($dcc.transferredBytes(%id)/100)
-					%b=$($dcc.localFileSize(%id)/100)
-					%c=$((%b-%a)/($dcc.averageSpeed(%id)/100))
-					if($($date("e",%c)-1) > 0) %eta .= $($date("e",%c)-1)d" "
-					if($($date("k",%c)-1) > 0) %eta .= $($date("k",%c)-1)h" "
-					if($date("M",%c) > 0) %eta .= $date("M",%c)m" "
-					if($date("S",%c) > 0) %eta .= $date("S",%c)s" "
-					%progress=$tr("done at") $k(%NGLc2)$r$r$(100*%a/%b)\%$k(%NGLc1), ETA: $k(%NGLc2)$r$r%eta$k(%NGLc1)
+			if(!$objects.exists(%Queues)) %queues = 0
+			else %queues = %Queues->$count()
+			%bytesSent = $NGLfserv::corefunctions::calc(%NGLSentBytes)
+			%vect[] = $str.split(" ",%bytesSent)
+			%vect[0] = $str.left(%vect[0],$($str.len(%vect[0])-4))
+			if($str.right(%vect[0],1) == 0) {
+				%vect[0] = $str.left(%vect[0],$($str.len(%vect[0])-1))
+				if($str.right(%vect[0],1) == 0) %vect[0] = $str.left(%vect[0],$($str.len(%vect[0])-1))
+			}
+
+			$$->$msg($k(%NGLc1).:$k(%NGLc2)NGL File Server$k(%NGLc1):.)
+			$$->$msg($k(%NGLc1)$tr("Transfer Status: Sends:") "["$k(%NGLc2)$r$r%sends$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxSends$k(%NGLc1)"]" - $tr("Queues:")"["$k(%NGLc2)$r$r%queues$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxQueues$k(%NGLc1)"]")
+			#$$->$msg($k(%NGLc1)Record CPS: )
+			$$->$msg($k(%NGLc1)$tr("Bytes Sent"): $k(%NGLc2)$r$r%bytesSent)
+			$$->$msg($k(%NGLc1)$tr("Files Sent:") $k(%NGLc2)$r$r%NGLSentFiles)
+			#$$->$msg($k(%NGLc1)Sends Failed: )
+			#$$->$msg($k(%NGLc1)Number of ReSends: )
+			#$$->$msg($k(%NGLc1)Fileserver Accessed: )
+			$$->$msg($k(%NGLc1)$tr("Instant Send is at:") $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc(%InstantSendSize))
+		}
+		case("clr_queue")
+		{
+			if(!$1 || !$str.isnumber($1)) {
+				$$->$msg($tr("Usage:") clr_queue $tr("<number>"))
+			}
+			else if(!%Queues || !%Queues->$count()) {
+				$$->$msg($tr("There are no queued files on the fserv"))
+			}
+					else if($1 < 0 || $1 > %Queues->$count()) {
+						$$->$msg($tr("Wrong queue number"))
+					}
+					else if(%Queues->$at($1)->%nick != $$->%nick) {
+						$$->$msg($tr("That's not one of yours queued files"))
+					}
+					else {
+						$$->$msg($tr("Removed") %Queues->$at($1)->%file $tr("from queue slot #")$1)
+						%Queues->$remove($1)
+						%Nick_nr_queues{%nickName}--
+					}
 				}
-				else {
-					%percent=Waiting
+				case("clr_queues")
+				{
+					%removed=$NGLfserv::corefunctions::queues("r","null",$$->%nick,"null")
+					if(%removed!=0)
+						$$->$msg($tr("Removed") %removed $tr("queued files from the fserv"))
+					else
+						$$->$msg($tr("You have no queued files on the fserv"))
 				}
-				NGLfserv::corefunctions::say $$->%shellwindow $k(%NGLc1)#$(%i+1) $k(%NGLc2)%Send->$at(%i)->%file$k(%NGLc1), to $k(%NGLc2)%Send->$at(%i)->%nick$k(%NGLc1), %progress, size: $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc(%Send->$at(%i)->%size)
+				case("exit")
+				{
+					$$->$killtimers()
+					window.close $$->%shellwindow
+				}
+				case("quit")
+				{
+					$$->$killtimers()
+					window.close $$->%shellwindow
+				}
+				case("close")
+				{
+					$$->$killtimers()
+					window.close $$->%shellwindow
+				}
 			}
 		}
-		function msg()
-		{
-			NGLfserv::corefunctions::say $$->%shellwindow $0
+	}
+	function parseCommandCd
+	{
+switch($$->%parameter){
+	case(".."){
+		if (($$->%parameter=="..") && ($$->%here!=$$->%trigger->$firstNode())){
+			$$->%here=$$->%here->$parent()
+			%path=$$->%trigger->$getVirtualFolderPath($$->%here)
+			NGLfserv::corefunctions::say $$->%shellwindow [\\$str.left(%path,$($str.len(%path)-1))]
 		}
-		function dccClose()
-		{
-			dcc.abort $$->%dcc_id
+		break
+	}
+	case("."){
+		if ($$->%parameter==".")  $$->$showDir($$->%here)
+		break
+	}
+	default:{
+		%tmp=$$->$toFolder($$->%parameter)
+		if (%tmp){
+			$$->%here=%tmp
+			%path=$$->%trigger->$getVirtualFolderPath($$->%here)
+			NGLfserv::corefunctions::say $$->%shellwindow [\\$str.left(%path,$($str.len(%path)-1))]
 		}
 	}
 }
-
+	}
+	function parseCommandDir
+	{
+if (!$$->%parameter || $str.contains($$->%parameter,"*") || $str.contains($$->%parameter,"?")) $$->$showDir($$->%here,$0,$$->%parameter)
+else{
+	%tmp=$$->$toFolder($$->%parameter)
+	if (%tmp) $$->$showDir(%tmp,$0,"*")
+}
+	}
+	function parseCommandGet
+	{
+%tmp=$str.replace($$->%parameter,"/","\\")
+if (!$str.contains(%tmp,"/")){
+	if ($str.left(%tmp,2)=="\|f") {
+		%file=$$->%trigger->$getFileById($$->%here,$$->%parameter)
+	}
+	else
+	%file=$$->%trigger->$fileExists($$->%here,%tmp)
+	if (!%file) {
+		$$->$msg($tr("File") %tmp $tr("does not exist"))
+		return $true
+	}
+	%realpath = $$->%trigger->$getRealPath($$->%here)
+	%path=%realpath%file		
+}
+else %path=$$->$generatePath()
+if (!%path) return
+%size = $$->%trigger->$fileSizeAt($$->%here,$$->%trigger->$fileIndex($$->%here,$file.extractfilename(%path)))
+%triggerName = $$->%trigger->$triggerName()
+if (%Virtualshell) %Virtualshell->$append(sending %path)
+else
+NGLfserv::corefunctions::send "shell" $$->%nick $$->%nickStatus %path %size $$->%irccontext %triggerName $$
+	}
+	function parseCommandQueue
+	{
+if(!$objects.exists(%Queues)) %queues = 0
+else %queues = %Queues->$count()
+NGLfserv::corefunctions::say $$->%shellwindow $k(%NGLc1)$tr("Total Number Of Queues Currently:") $k(%NGLc2)$r$r%queues$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxQueues
+for(%i=0;%i!=%Queues->$count();%i++) {
+	NGLfserv::corefunctions::say $$->%shellwindow $k(%NGLc1)#$(%i+1) $k(%NGLc2)%Queues->$at(%i)->%file$k(%NGLc1), $tr("for") $k(%NGLc2)%Queues->$at(%i)->%nick$k(%NGLc1), $tr("size:") $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc(%Queues->$at(%i)->%size)
+}
+	}
+	function parseCommandSend
+	{
+if(!$objects.exists(%Send)) %sends = 0
+else %sends = %Send->$count()
+NGLfserv::corefunctions::say $$->%shellwindow $k(%NGLc1)$tr("Total Number Of Sends Currently:") $k(%NGLc2)$r$r%sends$k(%NGLc1)\/$k(%NGLc2)$r$r%MaxSends
+for(%i=0;%i!=%Send->$count();%i++) {
+	%id=%Send->$at(%i)->%dcc_id
+	if(%id) {
+		%a=$($dcc.transferredBytes(%id)/100)
+		%b=$($dcc.localFileSize(%id)/100)
+		%c=$((%b-%a)/($dcc.averageSpeed(%id)/100))
+		if($($date("e",%c)-1) > 0) %eta .= $($date("e",%c)-1)d" "
+		if($($date("k",%c)-1) > 0) %eta .= $($date("k",%c)-1)h" "
+		if($date("M",%c) > 0) %eta .= $date("M",%c)m" "
+		if($date("S",%c) > 0) %eta .= $date("S",%c)s" "
+		%progress=$tr("done at") $k(%NGLc2)$r$r$(100*%a/%b)\%$k(%NGLc1), ETA: $k(%NGLc2)$r$r%eta$k(%NGLc1)
+	}
+	else {
+		%percent=Waiting
+	}
+	NGLfserv::corefunctions::say $$->%shellwindow $k(%NGLc1)#$(%i+1) $k(%NGLc2)%Send->$at(%i)->%file$k(%NGLc1), to $k(%NGLc2)%Send->$at(%i)->%nick$k(%NGLc1), %progress, size: $k(%NGLc2)$r$r$NGLfserv::corefunctions::calc(%Send->$at(%i)->%size)
+}
+	}
+	function showdir
+	{
+#-------Do not modify this output format, due compatibility issues with other fserv scripts.
+$$->$msgShow($0)
+if (!$2) %filter="*"
+else %filter=$2
+%folderchildren[]=$0->$children()
+%folder=$0
+%i=0
+ while(%i!=$length(%folderchildren[])) {
+	if (!%folderchildren[%i]->%dirNotShared && !%folderchildren[%i]->%extraDirTemp && $str.match(%filter,%folderchildren[%i]->%text)){
+		if($1=="dir") {
+			#-------Compatibility requires that all folders are shown in uppercase.
+			NGLfserv::corefunctions::say $$->%shellwindow $str.upcase($$->%trigger->$text(%folderchildren[%i]))
+		}
+		if($1=="ls") {
+			NGLfserv::corefunctions::say $$->%shellwindow $str.upcase($$->%trigger->$text(%folderchildren[%i])) "[idx=\|d%i]"
+		}
+	}
+	%i++
+}
+for(%i=0;%i<$$->%trigger->$filesCount($$->%here);%i++){
+	%file=$$->%trigger->$fileAt($$->%here,%i)
+	if(!$$->%trigger->$isFileNotShared($$->%here,%i) && $str.match(%filter,%file)){
+		%size=$$->%trigger->$fileSizeAt($$->%here,%i)
+		if($1=="dir") {
+		#-------Compatibility requires that all files are shown in lowercase, followed only by file size, in the format <size> <unit>
+			 NGLfserv::corefunctions::say $$->%shellwindow $str.lowcase(%file) $NGLfserv::corefunctions::calc(%size)
+		}
+		if($1=="ls") {
+			NGLfserv::corefunctions::say $$->%shellwindow $str.lowcase(%file) "[size=$NGLfserv::corefunctions::calc(%size)]" "[idx=\|f%i]"
+		}
+	}
+}
+#say -r=$$->%shellwindow End of list
+	}
+	internal function timerEvent
+	{
+if(!$window.exists($$->%shellwindow)) {
+	@$killtimer(@%t_id)
+	return
+}
+%id=$0
+if (%id==$$->%maxshell_timer_id){
+	if (!$$->%tm_flag){
+		$$->$msg($tr("This window will be closed automatically in ")$(%MaxShellLife/(4*1000)) $tr("secs"))
+		$$->%maxshell_timer_id=$$->$startTimer($(%MaxShellLife/4))
+		$$->%tm_flag=1
+	}
+	else{
+		@$killtimer(@%t_id)
+		$$->$dccClose()
+	}
+	return
+}
+else{
+	if (%id==$$->%maxuseridle_timer_id){
+		if (!$$->%useridle_flag){
+			$$->$msg($tr("This window will be closed automatically for user inactivity in ")$(%MaxUserIdle/(4*1000)) $tr("secs"))
+			@$killTimer($$->%maxuseridle_timer_id)
+			$$->%maxuseridle_timer_id=$$->$startTimer($(%MaxUserIdle/4))
+			$$->%useridle_flag=1
+		}
+		else{
+			@$killtimer(@%t_id)
+			$$->$dccClose()
+			delete $$
+		}
+	}
+}
+	}
+	function toFolder
+	{
+if ($str.left($str.lowCase($0),2)=="|d"){
+	%children[]=$$->%here->$children()
+	%idx=$str.rightFromFirst($0,"|d")
+	if ($str.isNumber(%idx)) %folder=%children[%idx]
+	else {
+		$$->$msg($tr("Invalid index"))
+		return $false
+	}
+}
+else %folder=$$->%trigger->$getFolderObjFromPath($0,$$->%here)
+if (!%folder){
+	%folder=$$->%trigger->$getFolderObjFromPath($0,$$->%here)
+	if (!%folder) {
+		$$->$msg($tr("Folder") $0 $tr("does not exists"))
+		return $false
+	}
+	if (%folder->%dirNotShared||%folder->%extradirtemp){
+		$$->$msg($tr("Folder") $0 $tr("does not exists"))
+		return $false
+	}
+}
+return %folder
+	}
+}

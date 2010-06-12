@@ -1,22 +1,17 @@
-alias(NGLfserv::classes::customwidgets::lineedit)
+class("NGLfserv::classes::customwidgets::lineedit","lineedit")
 {
-	class(NGLfserv::classes::customwidgets::lineedit,lineedit)
+	function commit
 	{
-		constructor(text or pointer)
-		{
-			if (($str.left($0,1)!="%"))	$$->$setText($0);
-			else {
-				%tmp=\%text\=$1
-				eval %tmp
-				$$->$setText(%text)
-				$$->%pointer=$1
-			}
-		}
-		
-		commit()
-		{
-			if ($$->%pointer) eval $$->%pointer\=$$->$text()
-		}
+if ($$->%pointer) eval $$->%pointer\=$$->$text()
+	}
+	function constructor
+	{
+if (($str.left($0,1)!="%"))	$$->$setText($0);
+else {
+	%tmp=\%text\=$1
+	eval %tmp
+	$$->$setText(%text)
+	$$->%pointer=$1
+}
 	}
 }
-

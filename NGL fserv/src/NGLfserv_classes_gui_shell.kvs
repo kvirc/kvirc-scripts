@@ -1,187 +1,183 @@
-alias(NGLfserv::classes::gui::shell)
+class("NGLfserv::classes::gui::shell","hbox")
 {
-	class(NGLfserv::classes::gui::shell,hbox)
+	function addWidget
 	{
-		constructor()
-		{
-			// Box shell properties
-			%gb=$$->$addWidget(groupbox,$$,$tr("Shell properties"),5,20,Horizontal,1)
-			$$->$setStretchfactor(%gb,30)
-			%maxSessions = $$->$addWidget(spinbox,%gb,$tr("Max sessions"),"\%MaxSessions",100,"s")	
-			$$->%spinBoxMaxShellLife=$$->$addWidget(spinbox,%gb,$tr("Max shell life"),$(%MaxShellLife/1000),600,"s")
-			$$->%spinBoxMaxUserIdle=$$->$addWidget(spinbox,%gb,$tr("Max user idle"),$(%MaxUserIdle/1000),600,"s")
-	
-			// Box welcome message
-			%gb=$$->$addWidget(groupbox,$$,$tr("Welcome message"),5,20,Horizontal,1)
-			$$->$setStretchFactor(%gb,70)
-			$$->%triggerComboBox=$$->$addWidget(combobox,%gb,$tr("Trigger"),0)
-	
-			// Box message write
-			$$->%gb1=$$->$addWidget(groupbox,%gb,$tr("Message"),5,20,Horizontal,1)
-			$$->%msgText = $$->$addWidget(multilineedit,$$->%gb1)
-	
-			// Box welcome file
-			$$->%ckbUseFile = $$->$addWidget(checkbox,%gb,$tr("Use external file"))
-	
-			$$->%gb2=$$->$addWidget(groupbox,%gb,"External file",5,20,Vertical,1)
-			$$->%lineeditFile = $$->$addWidget(lineedit,$$->%gb2)
-			$$->%btUseFile = $$->$addWidget(button,$$->%gb2,$tr("Browse"))
-			$$->%btUseFile->$setText("Browse")
-	
-			%maxSessions->$setTooltip($tr("Maximum number of contemporary opened navigation shells"))
-			$$->%spinBoxMaxShellLife->$setTooltip($tr("Maximum time of navigation before auto-closing"))
-			$$->%spinBoxMaxUserIdle->$setTooltip($tr("Maximum time of inactivity before auto-closing"))
-	
-			$$->%triggerComboBox->$setTooltip($tr("Browse welcome message by trigger"))
-			$$->%msgText->$setTooltip($tr("If you want you can type a welcome message directly here"))
-			$$->%ckbUseFile->$setTooltip($tr("Discard message in the box and uses a file instead of it"))
-			$$->%gb2->$setTooltip($tr("If you have a standard welcome file, load it from here.<p><i>Press return once you've typed the path</i>"))
-	
-			objects.connect $$->%btUseFile clicked $$ useFile
-			objects.connect $$->%ckbUseFile clicked $$ toggleUseFile
-			objects.connect $$->%triggerComboBox activated $$ triggerChanged
-			objects.connect $$->%lineeditFile returnPressed $$ welcomeFileChangedFromLineedit
-						
-			privateimpl($$->%spinBoxMaxShellLife,valueChangedEvent) 
-			{
-				%MaxShellLife=$($int($$->$value())*1000)
-			}
-			privateimpl($$->%spinBoxMaxUserIdle,valueChangedEvent) 
-			{
-				%MaxUserIdle=$($int($$->$value())*1000)
-			}
-	
-			// This event is required until an OK button will be introduced
-			privateimpl($$->%triggerComboBox,mousePressEvent) 
-			{
-				$$->$parent()->$parent()->$parent()->$save()
-			}
-		}
-		addWidget()
-		{
-			%widget=$NGLfserv::corefunctions::addWidget($0,$1,$2,$3,$4,$5,$6)
-			if ($0!="label")	$$->%interfaces_list[]<+%widget
-			return %widget
-		}
-		commit()
-		{
-			foreach (%interface,$$->%interfaces_lists[]) %interface->$commit()
-			%MaxShellLife=$($int($$->%spinBoxMaxShellLife->$value())*1000)
-			%MaxUserIdle=$($int($$->%spinBoxMmaxUserIdle->$value())*1000)
-		}
-		hideEvent()
-		{
-			$$->$save()
-		}
-		save()
-		{
-			%triggerName=$$->%triggerComboBox->$current()
-			// Leave here this check
-			if(!%triggerName) return
-			if($$->%ckbUseFile->$isChecked() && $file.exists($$->%lineeditFile->$text()) && $file.type($$->%lineeditFile->$text()) == "f") {
-				%Triggers{%triggerName}->%welcomeMessage="F"$$->%lineeditFile->$text()
-			}
-			else if($$->%msgText->$text()) {
-				%Triggers{%triggerName}->%welcomeMessage="H"$$->%msgText->$text()
-			}
-			else {
-				%Triggers{%triggerName}->%welcomeMessage=""
-			}
-		}
-		triggerChanged()
-		{
-			%triggerName=$$->%triggerComboBox->$current()
-			$$->%gb1->$setTitle(%triggerName" message")
-			if($str.left(%Triggers{%triggerName}->%welcomeMessage,1)=="F") {
-				$$->%ckbUseFile->$setChecked($true)
-				$$->%lineeditFile->$setText($str.rightfromfirst(%Triggers{%triggerName}->%welcomeMessage,"F"))
-				if($file.exists($$->%lineeditFile->$text()) && $file.type($$->%lineeditFile->$text()) == "f") {
-					$$->%msgText->$setText($file.read($$->%lineeditFile->$text()))
-				}
-				$$->%gb1->$setEnabled($false)
-				$$->%gb2->$setEnabled($true)
-			}
-			else if($str.left(%Triggers{%triggerName}->%welcomeMessage,1)=="H") {
-				$$->%msgText->$setText($str.rightfromfirst(%Triggers{%triggerName}->%welcomeMessage,"H"))
-				$$->%lineeditFile->$clear()
-				$$->%gb1->$setEnabled($true)
-				$$->%gb2->$setEnabled($false)
-				$$->%ckbUseFile->$setChecked($false)
-			}
-			else {
-				$$->%lineeditFile->$clear()
-				$$->%msgText->$clear()
-				$$->%gb1->$setEnabled($true)
-				$$->%gb2->$setEnabled($false)
-				$$->%ckbUseFile->$setChecked($false)
-			}
-		}
-		toggleUseFile()
-		{
-			%triggerName=$$->%triggerComboBox->$current()
-			if($$->%ckbUseFile->$isChecked()) {
-				$$->%msgText->$clear()
-				$$->%gb1->$setEnabled($false)
-				$$->%gb2->$setEnabled($true)
-				if(!$str.left(%Triggers{%triggerName}->%welcomeMessage,1)=="F") {
-					%Triggers{%triggerName}->%welcomeMessage=""
-				}
-			}
-			else {
-				$$->%lineeditFile->$clear()
-				$$->%gb1->$setEnabled($true)
-				$$->%gb2->$setEnabled($false)
-				%Triggers{%triggerName}->%welcomeMessage=""
-			}
-		}
-		useFile()
-		{
-			%triggerName=$$->%triggerComboBox->$current()
-			dialog.file --modal ($tr("open"),$tr("Choose a text file"),,"*.txt",$$->%lineeditFile,%Triggers{%triggerName},$$->%msgText)
-			{
-				if($0) {
-					$1->$setText($0)
-					$2->%welcomeMessage="F"$0
-					$3->$setText($file.read($0))
-				}
-			}
-		}
-		welcomeFileChangedFromLineedit() 
-		{
-			%triggerName=$$->%triggerComboBox->$current()
-			%file = $$->%lineeditFile->$text()
-			if($file.type(%file)=="f") {
-				if(%file != $str.rightfromfirst(%Triggers{%triggerName}->%welcomeMessage,"F")) {
-					%Triggers{%triggerName}->%welcomeMessage="F"%file
-					$$->%msgText->$setText($file.read(%file))
-				}
-			}
-			else {
-				NGLfserv::corefunctions::nglwarning $tr("Invalid path. Please insert a correct file path")
-				$$->%lineeditFile->$setText($str.rightfromfirst(%Triggers{%triggerName}->%welcomeMessage,"F"))
-			}
-		}
-		showEvent()
-		{
-			// something goes wrong!!!
-			if (!$objects.exists($$->%triggerComboBox)) return
-			//
-			if(%Triggers{}#>0){
-				$$->%triggerComboBox->$clear()
-				$$->%triggerComboBox->$setEnabled($true)
-				$$->%ckbUseFile->$setEnabled($true)
-				foreach(%tr,%Triggers{}){
-					$$->%triggerComboBox->$insertItem(%tr->$triggerName())
-				}
-				$$->$triggerChanged()
-			}
-			else {
-				$$->%triggerComboBox->$setEnabled($false)
-				$$->%ckbUseFile->$setEnabled($false)
-				$$->%gb1->$setEnabled($false)
-				$$->%gb2->$setEnabled($false)
-			}
-		}
+%widget=$NGLfserv::corefunctions::addWidget($0,$1,$2,$3,$4,$5,$6)
+if ($0!="label")	$$->%interfaces_list[]<+%widget
+return %widget
 	}
+	function commit
+	{
+foreach (%interface,$$->%interfaces_lists[]) %interface->$commit()
+%MaxShellLife=$($int($$->%spinBoxMaxShellLife->$value())*1000)
+%MaxUserIdle=$($int($$->%spinBoxMmaxUserIdle->$value())*1000)
+	}
+	function constructor
+	{
+// Box shell properties
+%gb=$$->$addWidget(groupbox,$$,$tr("Shell properties"),5,20,Horizontal,1)
+$$->$setStretchfactor(%gb,30)
+%maxSessions = $$->$addWidget(spinbox,%gb,$tr("Max sessions"),"\%MaxSessions",100,"s")	
+$$->%spinBoxMaxShellLife=$$->$addWidget(spinbox,%gb,$tr("Max shell life"),$(%MaxShellLife/1000),600,"s")
+$$->%spinBoxMaxUserIdle=$$->$addWidget(spinbox,%gb,$tr("Max user idle"),$(%MaxUserIdle/1000),600,"s")
+
+// Box welcome message
+%gb=$$->$addWidget(groupbox,$$,$tr("Welcome message"),5,20,Horizontal,1)
+$$->$setStretchFactor(%gb,70)
+$$->%triggerComboBox=$$->$addWidget(combobox,%gb,$tr("Trigger"),0)
+
+// Box message write
+$$->%gb1=$$->$addWidget(groupbox,%gb,$tr("Message"),5,20,Horizontal,1)
+$$->%msgText = $$->$addWidget(multilineedit,$$->%gb1)
+
+// Box welcome file
+$$->%ckbUseFile = $$->$addWidget(checkbox,%gb,$tr("Use external file"))
+
+$$->%gb2=$$->$addWidget(groupbox,%gb,"External file",5,20,Vertical,1)
+$$->%lineeditFile = $$->$addWidget(lineedit,$$->%gb2)
+$$->%btUseFile = $$->$addWidget(button,$$->%gb2,$tr("Browse"))
+$$->%btUseFile->$setText("Browse")
+
+%maxSessions->$setTooltip($tr("Maximum number of contemporary opened navigation shells"))
+$$->%spinBoxMaxShellLife->$setTooltip($tr("Maximum time of navigation before auto-closing"))
+$$->%spinBoxMaxUserIdle->$setTooltip($tr("Maximum time of inactivity before auto-closing"))
+
+$$->%triggerComboBox->$setTooltip($tr("Browse welcome message by trigger"))
+$$->%msgText->$setTooltip($tr("If you want you can type a welcome message directly here"))
+$$->%ckbUseFile->$setTooltip($tr("Discard message in the box and uses a file instead of it"))
+$$->%gb2->$setTooltip($tr("If you have a standard welcome file, load it from here.<p><i>Press return once you've typed the path</i>"))
+
+objects.connect $$->%btUseFile clicked $$ useFile
+objects.connect $$->%ckbUseFile clicked $$ toggleUseFile
+objects.connect $$->%triggerComboBox activated $$ triggerChanged
+objects.connect $$->%lineeditFile returnPressed $$ welcomeFileChangedFromLineedit
+			
+privateimpl($$->%spinBoxMaxShellLife,valueChangedEvent) 
+{
+	%MaxShellLife=$($int($$->$value())*1000)
+}
+privateimpl($$->%spinBoxMaxUserIdle,valueChangedEvent) 
+{
+	%MaxUserIdle=$($int($$->$value())*1000)
 }
 
+// This event is required until an OK button will be introduced
+privateimpl($$->%triggerComboBox,mousePressEvent) 
+{
+	$$->$parent()->$parent()->$parent()->$save()
+}
+	}
+	function hideEvent
+	{
+$$->$save()
+	}
+	function save
+	{
+%triggerName=$$->%triggerComboBox->$current()
+// Leave here this check
+if(!%triggerName) return
+if($$->%ckbUseFile->$isChecked() && $file.exists($$->%lineeditFile->$text()) && $file.type($$->%lineeditFile->$text()) == "f") {
+	%Triggers{%triggerName}->%welcomeMessage="F"$$->%lineeditFile->$text()
+}
+else if($$->%msgText->$text()) {
+	%Triggers{%triggerName}->%welcomeMessage="H"$$->%msgText->$text()
+}
+else {
+	%Triggers{%triggerName}->%welcomeMessage=""
+}
+	}
+	function showEvent
+	{
+// something goes wrong!!!
+if (!$objects.exists($$->%triggerComboBox)) return
+//
+if(%Triggers{}#>0){
+	$$->%triggerComboBox->$clear()
+	$$->%triggerComboBox->$setEnabled($true)
+	$$->%ckbUseFile->$setEnabled($true)
+	foreach(%tr,%Triggers{}){
+		$$->%triggerComboBox->$insertItem(%tr->$triggerName())
+	}
+	$$->$triggerChanged()
+}
+else {
+	$$->%triggerComboBox->$setEnabled($false)
+	$$->%ckbUseFile->$setEnabled($false)
+	$$->%gb1->$setEnabled($false)
+	$$->%gb2->$setEnabled($false)
+}
+	}
+	function toggleUseFile
+	{
+%triggerName=$$->%triggerComboBox->$current()
+if($$->%ckbUseFile->$isChecked()) {
+	$$->%msgText->$clear()
+	$$->%gb1->$setEnabled($false)
+	$$->%gb2->$setEnabled($true)
+	if(!$str.left(%Triggers{%triggerName}->%welcomeMessage,1)=="F") {
+		%Triggers{%triggerName}->%welcomeMessage=""
+	}
+}
+else {
+	$$->%lineeditFile->$clear()
+	$$->%gb1->$setEnabled($true)
+	$$->%gb2->$setEnabled($false)
+	%Triggers{%triggerName}->%welcomeMessage=""
+}
+	}
+	function triggerChanged
+	{
+%triggerName=$$->%triggerComboBox->$current()
+$$->%gb1->$setTitle(%triggerName" message")
+if($str.left(%Triggers{%triggerName}->%welcomeMessage,1)=="F") {
+	$$->%ckbUseFile->$setChecked($true)
+	$$->%lineeditFile->$setText($str.rightfromfirst(%Triggers{%triggerName}->%welcomeMessage,"F"))
+	if($file.exists($$->%lineeditFile->$text()) && $file.type($$->%lineeditFile->$text()) == "f") {
+		$$->%msgText->$setText($file.read($$->%lineeditFile->$text()))
+	}
+	$$->%gb1->$setEnabled($false)
+	$$->%gb2->$setEnabled($true)
+}
+else if($str.left(%Triggers{%triggerName}->%welcomeMessage,1)=="H") {
+	$$->%msgText->$setText($str.rightfromfirst(%Triggers{%triggerName}->%welcomeMessage,"H"))
+	$$->%lineeditFile->$clear()
+	$$->%gb1->$setEnabled($true)
+	$$->%gb2->$setEnabled($false)
+	$$->%ckbUseFile->$setChecked($false)
+}
+else {
+	$$->%lineeditFile->$clear()
+	$$->%msgText->$clear()
+	$$->%gb1->$setEnabled($true)
+	$$->%gb2->$setEnabled($false)
+	$$->%ckbUseFile->$setChecked($false)
+}
+	}
+	function useFile
+	{
+%triggerName=$$->%triggerComboBox->$current()
+dialog.file --modal ($tr("open"),$tr("Choose a text file"),,"*.txt",$$->%lineeditFile,%Triggers{%triggerName},$$->%msgText)
+{
+	if($0) {
+		$1->$setText($0)
+		$2->%welcomeMessage="F"$0
+		$3->$setText($file.read($0))
+	}
+}
+	}
+	function welcomeFileChangedFromLineedit
+	{
+%triggerName=$$->%triggerComboBox->$current()
+%file = $$->%lineeditFile->$text()
+if($file.type(%file)=="f") {
+	if(%file != $str.rightfromfirst(%Triggers{%triggerName}->%welcomeMessage,"F")) {
+		%Triggers{%triggerName}->%welcomeMessage="F"%file
+		$$->%msgText->$setText($file.read(%file))
+	}
+}
+else {
+	NGLfserv::corefunctions::nglwarning $tr("Invalid path. Please insert a correct file path")
+	$$->%lineeditFile->$setText($str.rightfromfirst(%Triggers{%triggerName}->%welcomeMessage,"F"))
+}
+	}
+}

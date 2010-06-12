@@ -1,56 +1,52 @@
-alias(NGLfserv::classes::cache)
+class("NGLfserv::classes::cache","object")
 {
-	class(NGLfserv::classes::cache,object)
+	function append
 	{
-		constructor()
-		{
-			$$->%channel=$0
-			%c = $config.open("NGLfservcachenooccurrence"$$->%channel"\.kvc",r)
-			%len=$config.read(%c,cachelength,0)
-			if (%len)
-			{
-				for (%i=0;%i<%len;%i++)
-				{
-					%key=$config.read(%c,key%i)
-					$$->%cacheFoundNoOccurence{%key}=$true
-				}
-			}
-			config.close %c
-		}
-		append()
-		{
-			%str[]=$str.split(" ",$0)
-			%tofind[]=$sort(%str[])
-			for (%i=0;%i<$length(%tofind[]);%i++) %key_dict .= %tofind[%i]|
-			$$->%cacheFoundNoOccurence{%key_dict}=$true
-		}
-		noOccurence()
-		{
-			if (!$length($$->%cacheFoundNoOccurence{})) return $false
-			%words[]=$str.split(" ",$0)
-			%tofind[]=$sort(%words[])
-			for (%i=0;%i<$length(%tofind[]);%i++) %key_dict .= %tofind[%i]|
-			if ($$->%cacheFoundNoOccurence{%key_dict}) return $true;
-			else return $false;
-		}
-		saveCache()
-		{
-			%c = $config.open("NGLfservcachenooccurrence$$->%channel.kvc","w")
-			%len=$length($$->%cacheFoundNoOccurence{})
-			if (%len)
-			{
-				config.write %c cachelength %len
-				%keys[]=$keys($$->%cacheFoundNoOccurence{})
-				for (%i=0;%i<%len;%i++) config.write %c key%i %keys[%i]
-			}
-			config.close %c
-		}
-		resetCache()
-		{
-			$$->%cacheFoundNoOccurence{}=""		
-			if ($file.exists("NGLfservcachenooccurrence"$$->%channel".kvc"))
-				file.remove "NGLfservcachenooccurrence"$$->%channel".kvc"
-		}
+%str[]=$str.split(" ",$0)
+%tofind[]=$sort(%str[])
+for (%i=0;%i<$length(%tofind[]);%i++) %key_dict .= %tofind[%i]|
+$$->%cacheFoundNoOccurence{%key_dict}=$true
+	}
+	function constructor
+	{
+$$->%channel=$0
+%c = $config.open("NGLfservcachenooccurrence"$$->%channel"\.kvc",r)
+%len=$config.read(%c,cachelength,0)
+if (%len)
+{
+	for (%i=0;%i<%len;%i++)
+	{
+		%key=$config.read(%c,key%i)
+		$$->%cacheFoundNoOccurence{%key}=$true
 	}
 }
-
+config.close %c
+	}
+	function noOccurence
+	{
+if (!$length($$->%cacheFoundNoOccurence{})) return $false
+%words[]=$str.split(" ",$0)
+%tofind[]=$sort(%words[])
+for (%i=0;%i<$length(%tofind[]);%i++) %key_dict .= %tofind[%i]|
+if ($$->%cacheFoundNoOccurence{%key_dict}) return $true;
+else return $false;
+	}
+	function resetCache
+	{
+$$->%cacheFoundNoOccurence{}=""		
+if ($file.exists("NGLfservcachenooccurrence"$$->%channel".kvc"))
+	file.remove "NGLfservcachenooccurrence"$$->%channel".kvc"
+	}
+	function saveCache
+	{
+%c = $config.open("NGLfservcachenooccurrence$$->%channel.kvc","w")
+%len=$length($$->%cacheFoundNoOccurence{})
+if (%len)
+{
+	config.write %c cachelength %len
+	%keys[]=$keys($$->%cacheFoundNoOccurence{})
+	for (%i=0;%i<%len;%i++) config.write %c key%i %keys[%i]
+}
+config.close %c
+	}
+}

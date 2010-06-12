@@ -1,167 +1,157 @@
-alias(NGLfserv::classes::gui::animhandler)
+class("NGLfserv::classes::gui::animhandler","object")
 {
-	class(NGLfserv::classes::gui::animhandler,object)
+	function addLogoHandler
 	{
-		constructor()
+%handler=$new(widget,$0)
+		/*debug calcolo $($$->%pixmaplogo->$width())+10
+		privateimpl(%handler,showEvent)
 		{
-			$$->%p=$new(painter,$$)
-			$$->%x=0
-			$$->%y=0.039
-			$$->%direction="R"
-	/*		
-			$$->%pixmap_the=$new(image,$$)
-			$$->%pixmap_the->$load($file.localdir(pics/NGLfserv)/the.png)
-	
-			$$->%pixmap_share=$new(image,$$)
-			$$->%pixmap_share->$load($file.localdir(pics/NGLfserv)/share.png)
-			
-	*/
-			$$->%pixmaplogo=$new(pixmap,$$)
-			$$->%pixmaplogo->$load($file.localdir(pics/NGLfserv)/ngl1.png)
-	
-			$$->%pixmapFlogo=$new(pixmap,$$)
-			$$->%pixmapFlogo->$load($file.localdir(pics/NGLfserv)/fserver2b.png)
-			$$->%fl=0
-			//$$->%pixmapFlogo->$setOpacity(200)
-			
-			$$->%surface=$new(pixmap,$$)
-			//$$->%surface->$resize($($$->%pixmaplogo->$width()+$$->%pixmap_share->$width()),$$->%pixmaplogo->$height())
-			$$->%surface->$resize($($$->%pixmaplogo->$width()+10),$$->%pixmaplogo->$height())
-			$$->%widgets[]=
-			$$->%blend=0
-			$$->%animstep=0.020
-			$$->%opacitystep=4
-			$$->%opacitymin=100
+			$$->$setMinimumWidth($(%G_animlogo->%pixmaplogo->$width()+10))
+		}
+		*/
+		
+		$$->%widgets[]<+%handler
+		privateimpl(%handler,paintEvent)
+		{
+			%G_animlogo->$paint($$)
+		}
+		/*
+		privateimpl(%handler,mouseEnterEvent)
+		{
+			%G_animlogo->$startFadeOut()
+		}
+		privateimpl(%handler,mouseLeaveEvent)
+		{
+			%G_animlogo->$startFadeIn()
+		}
+*/
+		return %handler
+	}
+	function constructor
+	{
+$$->%p=$new(painter,$$)
+		$$->%x=0
+		$$->%y=0.039
+		$$->%direction="R"
+/*		
+		$$->%pixmap_the=$new(image,$$)
+		$$->%pixmap_the->$load($file.localdir(pics/NGLfserv)/the.png)
+
+		$$->%pixmap_share=$new(image,$$)
+		$$->%pixmap_share->$load($file.localdir(pics/NGLfserv)/share.png)
+		
+*/
+		$$->%pixmaplogo=$new(pixmap,$$)
+		$$->%pixmaplogo->$load($file.localdir(pics/NGLfserv)/ngl1.png)
+
+		$$->%pixmapFlogo=$new(pixmap,$$)
+		$$->%pixmapFlogo->$load($file.localdir(pics/NGLfserv)/fserver2b.png)
+		$$->%fl=0
+		//$$->%pixmapFlogo->$setOpacity(200)
+		
+		$$->%surface=$new(pixmap,$$)
+		//$$->%surface->$resize($($$->%pixmaplogo->$width()+$$->%pixmap_share->$width()),$$->%pixmaplogo->$height())
+		$$->%surface->$resize($($$->%pixmaplogo->$width()+10),$$->%pixmaplogo->$height())
+		$$->%widgets[]=
+		$$->%blend=0
+		$$->%animstep=0.020
+		$$->%opacitystep=4
+		$$->%opacitymin=100
+		$$->%opacity=$$->%opacitymin
+		//$$->%pixmapFlogo->$setOpacity($$->%opacity)
+	}
+	function paint
+	{
+/*
+if ($$->%fadeflag){
+	if ($$->%fadeflag==1){
+		$$->%opacity+=$$->%opacitystep
+		if ($$->%opacity<=255) $$->%pixmapFlogo->$setOpacity($$->%opacity)
+		else {
+			$$->%fadeflag=0
+			$$->%pixmapFlogo->$setOpacity(255)
+			$$->%opacity=255
+		}
+	}
+	else{
+		$$->%opacity-=$$->%opacitystep
+		if ($$->%opacity>=$$->%opacitymin) $$->%pixmapFlogo->$setOpacity($$->%opacity)
+		else {
+			$$->%fadeflag=0
+			$$->%pixmapFlogo->$setOpacity($$->%opacitymin)
 			$$->%opacity=$$->%opacitymin
-			//$$->%pixmapFlogo->$setOpacity($$->%opacity)
-			
-		}
-		addLogoHandler()
-		{
-			%handler=$new(widget,$0)
-			/*debug calcolo $($$->%pixmaplogo->$width())+10
-			privateimpl(%handler,showEvent)
-			{
-				$$->$setMinimumWidth($(%G_animlogo->%pixmaplogo->$width()+10))
-			}
-			*/
-			
-			$$->%widgets[]<+%handler
-			privateimpl(%handler,paintEvent)
-			{
-				%G_animlogo->$paint($$)
-			}
-			/*
-			privateimpl(%handler,mouseEnterEvent)
-			{
-				%G_animlogo->$startFadeOut()
-			}
-			privateimpl(%handler,mouseLeaveEvent)
-			{
-				%G_animlogo->$startFadeIn()
-			}
-	*/
-			return %handler
-		}
-		startFadeOut()
-		{
-		
-			$$->%fadeflag=10
-		}
-		startFadeIn()
-		{
-			$$->%fadeflag=2
-		}
-		start()
-		{
-			if ($$->%timer) return
-			$$->%timer=$$->$startTimer(25)
-		}
-		stop()
-		{
-		
-			$$->$killtimers($$->%timer)
-			$$->%timer=
-			
-		}
-		timerEvent()
-		{
-			if ($$->%direction=="R"){
-				$$->%x+=$$->%animstep
-				$$->%y-=0.009
-				if ($$->%x>=0.20) $$->%direction="L"
-			}
-			else{
-				$$->%x-=$$->%animstep
-				$$->%y+=0.009
-				if ($$->%x<=-0.20) $$->%direction="R"
-			}
-			//$$->%blend+=0.010
-			if ($$->%blend<1) $$->%blend+=0.010
-			
-			foreach(%widget,$$->%widgets[]){
-				if ($objects.exists(%widget))
-					if (%widget->$isVisible) %widget->$repaint($false)
-			}
-		}
-		paint()
-		{
-			/*
-			if ($$->%fadeflag){
-				if ($$->%fadeflag==1){
-					$$->%opacity+=$$->%opacitystep
-					if ($$->%opacity<=255) $$->%pixmapFlogo->$setOpacity($$->%opacity)
-					else {
-						$$->%fadeflag=0
-						$$->%pixmapFlogo->$setOpacity(255)
-						$$->%opacity=255
-					}
-				}
-				else{
-					$$->%opacity-=$$->%opacitystep
-					if ($$->%opacity>=$$->%opacitymin) $$->%pixmapFlogo->$setOpacity($$->%opacity)
-					else {
-						$$->%fadeflag=0
-						$$->%pixmapFlogo->$setOpacity($$->%opacitymin)
-						$$->%opacity=$$->%opacitymin
-					}
-				}
-			}
-			*/
-					
-			//$$->%pixmapFlogo->$setOpacity($rand(255))
-			 $$->%surface->$fill($0,0,0)
-			 /*
-			if (!$$->%fl) $$->%surface->$fill($0,0,0)
-			if ($$->%fl>20) {
-				$$->%surface->$fill($0,0,0)
-				$$->%fl=1
-			}
-			else{
-			 	$$->%fl++
-			 } 
-			 */
-			$$->%p->$begin($$->%surface)
-			$$->%p->$reset()
-		
-			$$->%p->$shear($$->%x,0)
-			$$->%p->$drawPixmap(0,0,$$->%pixmaplogo,0,0,55,$$->%pixmaplogo->$height())
-			
-			$$->%p->$drawPixmap(55,0,$$->%pixmaplogo,55,0,$$->%pixmaplogo->$width(),$$->%pixmaplogo->$height())
-			$$->%p->$reset()
-			//$$->%p->$scale($($$->%x+1),$($$->%x+1))
-			$$->%p->$drawPixmap($(($$->%pixmaplogo->$width()-$$->%pixmapFlogo->$width())/2),0,$$->%pixmapFlogo,0,0,$$->%pixmapFlogo->$width(),$$->%pixmapFlogo->$height())
-			
-			//$$->%p->$drawPixmap(150,0,$$->%pixmap_share,0,0,$$->%pixmap_share->$width(),$$->%pixmap_share->$height())
-			
-			//objects.bitblt $$->%surface $(($$->%pixmaplogo->$width()-$$->%pixmapFlogo->$width())/2) 0 $$->%pixmapFlogo 0 0 $$->%pixmapFlogo->$width() $$->%pixmapFlogo->$height()
-			$$->%p->$end()
-			//objects.blend $$->%pixmap_share 0 0 $$->%pixmap_the 0 0 $$->%surface 150 0 163 52 $$->%blend
-			objects.bitblt $0 0 0 $$->%surface 0 0 $$->%surface->$width() $$->%surface->$height()
-			//objects.bitblt $0 $(($$->%pixmaplogo->$width()-$$->%pixmapFlogo->$width())/2) 0 $$->%pixmapFlogo 0 0 $$->%pixmapFlogo->$width() $$->%pixmapFlogo->$height()
-			
-			
 		}
 	}
 }
+*/
+		
+//$$->%pixmapFlogo->$setOpacity($rand(255))
+ $$->%surface->$fill($0,0,0)
+ /*
+if (!$$->%fl) $$->%surface->$fill($0,0,0)
+if ($$->%fl>20) {
+	$$->%surface->$fill($0,0,0)
+	$$->%fl=1
+}
+else{
+ 	$$->%fl++
+ } 
+ */
+$$->%p->$begin($$->%surface)
+$$->%p->$reset()
 
+$$->%p->$shear($$->%x,0)
+$$->%p->$drawPixmap(0,0,$$->%pixmaplogo,0,0,55,$$->%pixmaplogo->$height())
+
+$$->%p->$drawPixmap(55,0,$$->%pixmaplogo,55,0,$$->%pixmaplogo->$width(),$$->%pixmaplogo->$height())
+$$->%p->$reset()
+//$$->%p->$scale($($$->%x+1),$($$->%x+1))
+$$->%p->$drawPixmap($(($$->%pixmaplogo->$width()-$$->%pixmapFlogo->$width())/2),0,$$->%pixmapFlogo,0,0,$$->%pixmapFlogo->$width(),$$->%pixmapFlogo->$height())
+
+//$$->%p->$drawPixmap(150,0,$$->%pixmap_share,0,0,$$->%pixmap_share->$width(),$$->%pixmap_share->$height())
+
+//objects.bitblt $$->%surface $(($$->%pixmaplogo->$width()-$$->%pixmapFlogo->$width())/2) 0 $$->%pixmapFlogo 0 0 $$->%pixmapFlogo->$width() $$->%pixmapFlogo->$height()
+$$->%p->$end()
+//objects.blend $$->%pixmap_share 0 0 $$->%pixmap_the 0 0 $$->%surface 150 0 163 52 $$->%blend
+objects.bitblt $0 0 0 $$->%surface 0 0 $$->%surface->$width() $$->%surface->$height()
+//objects.bitblt $0 $(($$->%pixmaplogo->$width()-$$->%pixmapFlogo->$width())/2) 0 $$->%pixmapFlogo 0 0 $$->%pixmapFlogo->$width() $$->%pixmapFlogo->$height()
+	}
+	function start
+	{
+if ($$->%timer) return
+$$->%timer=$$->$startTimer(25)
+	}
+	function startFadeIn
+	{
+$$->%fadeflag=2
+	}
+	function startFadeOut
+	{
+$$->%fadeflag=10
+	}
+	function stop
+	{
+$$->$killtimers($$->%timer)
+$$->%timer=
+	}
+	function timerEvent
+	{
+if ($$->%direction=="R"){
+	$$->%x+=$$->%animstep
+	$$->%y-=0.009
+	if ($$->%x>=0.20) $$->%direction="L"
+}
+else{
+	$$->%x-=$$->%animstep
+	$$->%y+=0.009
+	if ($$->%x<=-0.20) $$->%direction="R"
+}
+//$$->%blend+=0.010
+if ($$->%blend<1) $$->%blend+=0.010
+
+foreach(%widget,$$->%widgets[]){
+	if ($objects.exists(%widget))
+		if (%widget->$isVisible) %widget->$repaint($false)
+}
+	}
+}

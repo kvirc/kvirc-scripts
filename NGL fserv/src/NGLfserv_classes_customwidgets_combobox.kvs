@@ -1,61 +1,56 @@
-alias(NGLfserv::classes::customwidgets::combobox)
+class("NGLfserv::classes::customwidgets::combobox","hbox")
 {
-	class(NGLfserv::classes::customwidgets::combobox,hbox)
+	function activatedEvent
 	{
-		constructor(text,items list)
-		{
-			%label=$new(label,$$)
-			%label->$setText($0)
-			$$->%combobox=$new(combobox,$$)
-			$$->%combobox->$setMinimumWidth(80)
-			$$->$setStretchFactor(%label,1)
-			//$$->%combobox->$setMaximumWidth(80)
-			foreach(%item,$1) $$->%combobox->$insertItem(%item)
-			if ($str.left($2,1)!="%"){
-				if ($2) $$->%combobox->$setCurrentItem($2);
-				privateimpl($$->%combobox,activatedEvent){
-					$$->$parent()->$activatedEvent($0)
-				}
-			}
-			else {
-				%tmp=\%idx\=$2
-				eval %tmp
-				$$->%combobox->$setCurrentItem(%idx)
-				$$->%combobox->%pointer=$2
-				privateimpl($$->%combobox,activatedEvent){
-					if ($$->%pointer) eval $$->%pointer\=$0
-				}
-			}
-		}
-		commit()
-		{
-			if ($$->%combobox->%pointer) eval $$->%combobox->%pointer\=$$->%combobox->$currentItem()
-		}
-		setCurrentItem()
-		{
-			$$->%combobox->$setCurrentItem($0)
-		}
-		current()
-		{
-			return $$->%combobox->$current()
-		}
-		currentItem()
-		{
-			return $$->%combobox->$currentItem()
-		}
-		clear()
-		{
-			$$->%combobox->$clear()
-		}
-		activatedEvent()
-		{
-			$emit("activated",$0)
-		}
-		insertItem()
-		{
-			$$->%combobox->$insertItem($0)
-		}	
+$emit("activated",$0)
+	}
+	function clear
+	{
+$$->%combobox->$clear()
+	}
+	function commit
+	{
+if ($$->%combobox->%pointer) eval $$->%combobox->%pointer\=$$->%combobox->$currentItem()
+	}
+	function constructor
+	{
+%label=$new(label,$$)
+%label->$setText($0)
+$$->%combobox=$new(combobox,$$)
+$$->%combobox->$setMinimumWidth(80)
+$$->$setStretchFactor(%label,1)
+//$$->%combobox->$setMaximumWidth(80)
+foreach(%item,$1) $$->%combobox->$insertItem(%item)
+if ($str.left($2,1)!="%"){
+	if ($2) $$->%combobox->$setCurrentItem($2);
+	privateimpl($$->%combobox,activatedEvent){
+		$$->$parent()->$activatedEvent($0)
 	}
 }
-
-
+else {
+	%tmp=\%idx\=$2
+	eval %tmp
+	$$->%combobox->$setCurrentItem(%idx)
+	$$->%combobox->%pointer=$2
+	privateimpl($$->%combobox,activatedEvent){
+		if ($$->%pointer) eval $$->%pointer\=$0
+	}
+}
+	}
+	function current
+	{
+return $$->%combobox->$current()
+	}
+	function currentItem
+	{
+return $$->%combobox->$currentItem()
+	}
+	function insertItem
+	{
+$$->%combobox->$insertItem($0)
+	}
+	function setCurrentItem
+	{
+$$->%combobox->$setCurrentItem($0)
+	}
+}

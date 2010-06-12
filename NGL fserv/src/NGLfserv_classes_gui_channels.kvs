@@ -1,160 +1,155 @@
-alias(NGLfserv::classes::gui::channels)
+class("NGLfserv::classes::gui::channels","vbox")
 {
-	class(NGLfserv::classes::gui::channels,vbox)
+	function checkHandler
 	{
-		constructor()
-		{
-			// main layout
-			%hbox=$NGLfserv::corefunctions::addWidget(hbox,$$)
-			%hbox->$setSpacing(2)
-		
-			// creating left column/channels list
-			%gb=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,$tr("Channels list"),5,20,Vertical,1)
-			$$->%listboxChannels=$NGLfserv::corefunctions::addWidget(listbox,%gb)
-			%hbox->$setStretchFactor(%gb,70)
-			
-			// creating right column
-			%vbox = $NGLfserv::corefunctions::addWidget(vbox,%hbox)
-			%hbox->$setStretchFactor(%vbox,30)
-			
-			// channel properties
-			$$->%gb_channelproperties=$NGLfserv::corefunctions::addWidget(groupbox,%vbox,$tr("Properties"),5,20,Horizontal,1)
-			$$->%ckbRespToList=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_channelproperties,$tr("Reply to !list"))
-			$$->%ckbRespToMyQueues=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_channelproperties,$tr("Respond to !myqueues"))
-			
-			// find properties
-			$$->%gb_findproperties=$NGLfserv::corefunctions::addWidget(groupbox,%vbox,$tr("@find properties"),5,20,Horizontal,1)
-			$$->%ckbRespToFind=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,$tr("Reply to @find"))
-			$$->%ckbUseQuickGet=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,$tr("Display quickget code"))
-			$$->%ckbDisplayNoOccurrenceFound=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,$tr("Display \"No files found\""))
-			$$->%ckbMultipleResultsPerLine=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,$tr("Mutiple results per line"))
-			$$->%ckbFindFilter=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,$tr("Enable filtering"))
-	
-			// set tooltips
-			$$->%ckbRespToList->$setTooltip($tr("The File Server will respond when !list is typed in channel, providing the list of your shared files"))
-			$$->%ckbRespToFind->$setTooltip($tr("The File Server will respond when @find filename is typed in channel and \"filename\" is found in your shared files"))
-			$$->%ckbRespToMyQueues->$setTooltip($tr("The File Server will respond when !myqueues is typed in channel providing to the user the list of his queued files"))
-			$$->%ckbUseQuickGet->$setTooltip($tr("Enable getting files without passing from navigation shell"))
-			$$->%ckbDisplayNoOccurrenceFound->$setTooltip($tr("<b>(Discouraged)</b> Choose if you want to inform that no matching files were found"))
-			$$->%ckbMultipleResultsPerLine->$setTooltip($tr("Outputs multiple results per line reducing lag effects in case of many results"))
-			$$->%ckbFindFilter->$setTooltip($tr("Does not report found results to users that are not allowed to access the trigger"))
-			
-			// setup connections		
-			objects.connect $$->%listboxChannels currentItemChange $$ selectionChange
-			objects.connect $$->%ckbRespToList clicked $$ checkHandler
-			objects.connect $$->%ckbRespToFind clicked $$ checkHandler
-			objects.connect $$->%ckbRespToMyQueues clicked $$ checkHandler
-			objects.connect $$->%ckbUseQuickGet clicked $$ checkHandler
-			objects.connect $$->%ckbDisplayNoOccurrenceFound clicked $$ checkHandler
-			objects.connect $$->%ckbMultipleResultsPerLine clicked $$ checkHandler
-			objects.connect $$->%ckbFindFilter clicked $$ checkHandler
+/* gestione "finti" eventi checkbox che vengono triggerati quando si passa da una tab a questa
+   L'evento viene triggerato quando la cb passa dallo stato di true a false
+   Noi non facciamo altro che contare quante cb sono variate e scartarle qui nell'evento
+   Fixed from 22 jan 07
+*/
+// FIXME: removing this code when noone uses  KVIrc older than 22 jan 07)
+if ($version(s)<20070122){
+	if ($$->%flagcb){
+		if ($$->%flagcount<$$->%nrfakecheckbox){
+			$$->%flagcount++
+			return
 		}
-		checkHandler()
-		{
-			/* gestione "finti" eventi checkbox che vengono triggerati quando si passa da una tab a questa
-			   L'evento viene triggerato quando la cb passa dallo stato di true a false
-			   Noi non facciamo altro che contare quante cb sono variate e scartarle qui nell'evento
-			   Fixed from 22 jan 07
-			*/
-			// FIXME: removing this code when noone uses  KVIrc older than 22 jan 07)
-			if ($version(s)<20070122){
-				if ($$->%flagcb){
-					if ($$->%flagcount<$$->%nrfakecheckbox){
-						$$->%flagcount++
-						return
-					}
-					else{
-						$$->%flagcount=0
-						$$->%flagcb=0
-					}
-				}
-			}
-			// trick end 
-	
-			
-			%src=$$->$signalSender()
-			%channelName=$$->%listboxChannels->$currentText()
-			if (!%channelName) return
-			if (%src==$$->%ckbRespToList) %FservChannels{%channelName}->$setRespToList($0)
-			else if (%src==$$->%ckbRespToFind) {
-				$$->%ckbUseQuickGet->$setEnabled($0)
-				$$->%ckbDisplayNoOccurrenceFound->$setEnabled($0)
-				$$->%ckbMultipleResultsPerLine->$setEnabled($0)
-				$$->%ckbFindFilter->$setEnabled($0)
-				%FservChannels{%channelName}->$setRespToFind($0)
-			}
-			else if (%src==$$->%ckbRespToMyQueues) %FservChannels{%channelName}->$setRespToMyQueues($0)
-			else if (%src==$$->%ckbUseQuickGet) %FservChannels{%channelName}->$setUseQuickGet($0)
-			else if (%src==$$->%ckbDisplayNoOccurrenceFound) %FservChannels{%channelName}->$setDisplayNoOccurrenceFound($0)
-			else if (%src==$$->%ckbMultipleResultsPerLine) %FservChannels{%channelName}->$setMultipleResultsPerLine($0)
-			else if (%src==$$->%ckbFindFilter) %FservChannels{%channelName}->$setFindFilter($0)
-		}
-	
-		selectionChange()
-		 {
-			%channelName=$$->%listboxChannels->$currentText()
-			if(%channelName){
-				$$->%gb_channelproperties->$setEnabled($true)
-				$$->%gb_channelproperties->$setTitle(%channelName $tr(" properties"))
-				$$->%gb_findproperties->$setEnabled($true)
-				$$->%gb_findproperties->$setTitle(%channelName $tr("@find properties"))
-				$$->%ckbRespToList->$setChecked(%FservChannels{%channelName}->$getRespToList())
-				$$->%ckbRespToFind->$setChecked(%FservChannels{%channelName}->$getRespToFind())
-				$$->%ckbRespToMyQueues->$setChecked(%FservChannels{%channelName}->$getRespToMyQueues())
-				$$->%ckbUseQuickGet->$setChecked(%FservChannels{%channelName}->$getUseQuickGet())
-				$$->%ckbDisplayNoOccurrenceFound->$setChecked(%FservChannels{%channelName}->$getDisplayNoOccurrenceFound())
-				$$->%ckbMultipleResultsPerLine->$setChecked(%FservChannels{%channelName}->$getMultipleResultsPerLine())
-				$$->%ckbFindFilter->$setChecked(%FservChannels{%channelName}->$getFindFilter())
-						
-				%tmp = %FservChannels{%channelName}->$getRespToFind()
-				$$->%ckbUseQuickGet->$setEnabled(%tmp)
-				$$->%ckbDisplayNoOccurrenceFound->$setEnabled(%tmp)
-				$$->%ckbMultipleResultsPerLine->$setEnabled(%tmp)
-				$$->%ckbFindFilter->$setEnabled(%tmp)
-			}
-		}
-		showEvent()
-		{
-			if (!$objects.exists($$->%listboxChannels)) return
-			// Inizio trick x evitare l'azzeramento delle checkbox quando si torna a questa tab
-			// Qui contiamo quante cb  triggerano l'evento del toggle x poi scartare i relativi eventi
-			// Fixed from 22 jan 07
-			// FIXME: removing this code when noone uses  KVIrc older than 22 jan 07)	
-			if ($version(s)<20070122){
-				$$->%flagcount=0
-				$$->%nrfakecheckbox=0
-				$$->%gb_channelproperties->$setEnabled($false)
-				$$->%gb_findproperties->$setEnabled($false)
-				if ($$->%ckbRespToList->$isChecked) $$->%nrfakecheckbox++
-				if ($$->%ckbRespToFind->$isChecked) $$->%nrfakecheckbox++
-				if ($$->%ckbRespToMyQueues->$isChecked) $$->%nrfakecheckbox++
-				if ($$->%ckbUseQuickGet->$isChecked) $$->%nrfakecheckbox++
-				if ($$->%ckbDisplayNoOccurrenceFound->$isChecked) $$->%nrfakecheckbox++
-				if ($$->%ckbMultipleResultsPerLine->$isChecked) $$->%nrfakecheckbox++
-				if ($$->%ckbFindFilter->$isChecked) $$->%nrfakecheckbox++
-				// Se almeno una delle cb è true allora attiviamo il flag x avvertire l'evento
-				if ($$->%nrfakecheckbox) $$->%flagcb=$true
-				// fine trick
-			}
-	
-			$$->%ckbRespToList->$setChecked($false)
-			$$->%ckbRespToFind->$setChecked($false)
-			$$->%ckbRespToMyQueues->$setChecked($false)
-			$$->%ckbUseQuickGet->$setChecked($false)
-			$$->%ckbDisplayNoOccurrenceFound->$setChecked($false)
-			$$->%ckbMultipleResultsPerLine->$setChecked($false)
-			$$->%ckbFindFilter->$setChecked($false)
-			$$->%listboxChannels->$clear()
-			if($length(%FservChannels{})){
-				foreach(%ch,%FservChannels{}){
-					if ($objects.exists(%ch))	$$->%listboxChannels->$insertItem(%ch->$getChannelName())
-				}
-			}
-			else {
-				$$->%gb_channelproperties->$setTitle($tr("Properties"))
-				$$->%gb_findproperties->$setTitle($tr("@find properties"))
-			}
+		else{
+			$$->%flagcount=0
+			$$->%flagcb=0
 		}
 	}
 }
+// trick end 
 
+
+%src=$$->$signalSender()
+%channelName=$$->%listboxChannels->$currentText()
+if (!%channelName) return
+if (%src==$$->%ckbRespToList) %FservChannels{%channelName}->$setRespToList($0)
+else if (%src==$$->%ckbRespToFind) {
+	$$->%ckbUseQuickGet->$setEnabled($0)
+	$$->%ckbDisplayNoOccurrenceFound->$setEnabled($0)
+	$$->%ckbMultipleResultsPerLine->$setEnabled($0)
+	$$->%ckbFindFilter->$setEnabled($0)
+	%FservChannels{%channelName}->$setRespToFind($0)
+}
+else if (%src==$$->%ckbRespToMyQueues) %FservChannels{%channelName}->$setRespToMyQueues($0)
+else if (%src==$$->%ckbUseQuickGet) %FservChannels{%channelName}->$setUseQuickGet($0)
+else if (%src==$$->%ckbDisplayNoOccurrenceFound) %FservChannels{%channelName}->$setDisplayNoOccurrenceFound($0)
+else if (%src==$$->%ckbMultipleResultsPerLine) %FservChannels{%channelName}->$setMultipleResultsPerLine($0)
+else if (%src==$$->%ckbFindFilter) %FservChannels{%channelName}->$setFindFilter($0)
+	}
+	function constructor
+	{
+// main layout
+%hbox=$NGLfserv::corefunctions::addWidget(hbox,$$)
+%hbox->$setSpacing(2)
+
+// creating left column/channels list
+%gb=$NGLfserv::corefunctions::addWidget(groupbox,%hbox,$tr("Channels list"),5,20,Vertical,1)
+$$->%listboxChannels=$NGLfserv::corefunctions::addWidget(listbox,%gb)
+%hbox->$setStretchFactor(%gb,70)
+
+// creating right column
+%vbox = $NGLfserv::corefunctions::addWidget(vbox,%hbox)
+%hbox->$setStretchFactor(%vbox,30)
+
+// channel properties
+$$->%gb_channelproperties=$NGLfserv::corefunctions::addWidget(groupbox,%vbox,$tr("Properties"),5,20,Horizontal,1)
+$$->%ckbRespToList=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_channelproperties,$tr("Reply to !list"))
+$$->%ckbRespToMyQueues=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_channelproperties,$tr("Respond to !myqueues"))
+
+// find properties
+$$->%gb_findproperties=$NGLfserv::corefunctions::addWidget(groupbox,%vbox,$tr("@find properties"),5,20,Horizontal,1)
+$$->%ckbRespToFind=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,$tr("Reply to @find"))
+$$->%ckbUseQuickGet=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,$tr("Display quickget code"))
+$$->%ckbDisplayNoOccurrenceFound=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,$tr("Display \"No files found\""))
+$$->%ckbMultipleResultsPerLine=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,$tr("Mutiple results per line"))
+$$->%ckbFindFilter=$NGLfserv::corefunctions::addWidget("checkbox",$$->%gb_findproperties,$tr("Enable filtering"))
+
+// set tooltips
+$$->%ckbRespToList->$setTooltip($tr("The File Server will respond when !list is typed in channel, providing the list of your shared files"))
+$$->%ckbRespToFind->$setTooltip($tr("The File Server will respond when @find filename is typed in channel and \"filename\" is found in your shared files"))
+$$->%ckbRespToMyQueues->$setTooltip($tr("The File Server will respond when !myqueues is typed in channel providing to the user the list of his queued files"))
+$$->%ckbUseQuickGet->$setTooltip($tr("Enable getting files without passing from navigation shell"))
+$$->%ckbDisplayNoOccurrenceFound->$setTooltip($tr("<b>(Discouraged)</b> Choose if you want to inform that no matching files were found"))
+$$->%ckbMultipleResultsPerLine->$setTooltip($tr("Outputs multiple results per line reducing lag effects in case of many results"))
+$$->%ckbFindFilter->$setTooltip($tr("Does not report found results to users that are not allowed to access the trigger"))
+
+// setup connections		
+objects.connect $$->%listboxChannels currentItemChange $$ selectionChange
+objects.connect $$->%ckbRespToList clicked $$ checkHandler
+objects.connect $$->%ckbRespToFind clicked $$ checkHandler
+objects.connect $$->%ckbRespToMyQueues clicked $$ checkHandler
+objects.connect $$->%ckbUseQuickGet clicked $$ checkHandler
+objects.connect $$->%ckbDisplayNoOccurrenceFound clicked $$ checkHandler
+objects.connect $$->%ckbMultipleResultsPerLine clicked $$ checkHandler
+objects.connect $$->%ckbFindFilter clicked $$ checkHandler
+	}
+	function selectionChange
+	{
+%channelName=$$->%listboxChannels->$currentText()
+if(%channelName){
+	$$->%gb_channelproperties->$setEnabled($true)
+	$$->%gb_channelproperties->$setTitle(%channelName $tr(" properties"))
+	$$->%gb_findproperties->$setEnabled($true)
+	$$->%gb_findproperties->$setTitle(%channelName $tr("@find properties"))
+	$$->%ckbRespToList->$setChecked(%FservChannels{%channelName}->$getRespToList())
+	$$->%ckbRespToFind->$setChecked(%FservChannels{%channelName}->$getRespToFind())
+	$$->%ckbRespToMyQueues->$setChecked(%FservChannels{%channelName}->$getRespToMyQueues())
+	$$->%ckbUseQuickGet->$setChecked(%FservChannels{%channelName}->$getUseQuickGet())
+	$$->%ckbDisplayNoOccurrenceFound->$setChecked(%FservChannels{%channelName}->$getDisplayNoOccurrenceFound())
+	$$->%ckbMultipleResultsPerLine->$setChecked(%FservChannels{%channelName}->$getMultipleResultsPerLine())
+	$$->%ckbFindFilter->$setChecked(%FservChannels{%channelName}->$getFindFilter())
+			
+	%tmp = %FservChannels{%channelName}->$getRespToFind()
+	$$->%ckbUseQuickGet->$setEnabled(%tmp)
+	$$->%ckbDisplayNoOccurrenceFound->$setEnabled(%tmp)
+	$$->%ckbMultipleResultsPerLine->$setEnabled(%tmp)
+	$$->%ckbFindFilter->$setEnabled(%tmp)
+}
+	}
+	function showEvent
+	{
+if (!$objects.exists($$->%listboxChannels)) return
+// Inizio trick x evitare l'azzeramento delle checkbox quando si torna a questa tab
+// Qui contiamo quante cb  triggerano l'evento del toggle x poi scartare i relativi eventi
+// Fixed from 22 jan 07
+// FIXME: removing this code when noone uses  KVIrc older than 22 jan 07)	
+if ($version(s)<20070122){
+	$$->%flagcount=0
+	$$->%nrfakecheckbox=0
+	$$->%gb_channelproperties->$setEnabled($false)
+	$$->%gb_findproperties->$setEnabled($false)
+	if ($$->%ckbRespToList->$isChecked) $$->%nrfakecheckbox++
+	if ($$->%ckbRespToFind->$isChecked) $$->%nrfakecheckbox++
+	if ($$->%ckbRespToMyQueues->$isChecked) $$->%nrfakecheckbox++
+	if ($$->%ckbUseQuickGet->$isChecked) $$->%nrfakecheckbox++
+	if ($$->%ckbDisplayNoOccurrenceFound->$isChecked) $$->%nrfakecheckbox++
+	if ($$->%ckbMultipleResultsPerLine->$isChecked) $$->%nrfakecheckbox++
+	if ($$->%ckbFindFilter->$isChecked) $$->%nrfakecheckbox++
+	// Se almeno una delle cb è true allora attiviamo il flag x avvertire l'evento
+	if ($$->%nrfakecheckbox) $$->%flagcb=$true
+	// fine trick
+}
+
+$$->%ckbRespToList->$setChecked($false)
+$$->%ckbRespToFind->$setChecked($false)
+$$->%ckbRespToMyQueues->$setChecked($false)
+$$->%ckbUseQuickGet->$setChecked($false)
+$$->%ckbDisplayNoOccurrenceFound->$setChecked($false)
+$$->%ckbMultipleResultsPerLine->$setChecked($false)
+$$->%ckbFindFilter->$setChecked($false)
+$$->%listboxChannels->$clear()
+if($length(%FservChannels{})){
+	foreach(%ch,%FservChannels{}){
+		if ($objects.exists(%ch))	$$->%listboxChannels->$insertItem(%ch->$getChannelName())
+	}
+}
+else {
+	$$->%gb_channelproperties->$setTitle($tr("Properties"))
+	$$->%gb_findproperties->$setTitle($tr("@find properties"))
+}
+	}
+}

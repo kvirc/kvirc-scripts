@@ -1,53 +1,46 @@
-alias(NGLfserv::classes::globalbusyeventfilter)
+class("NGLfserv::classes::globalbusyeventfilter","object")
 {
-	class(NGlfserv::classes::globalbusyeventfilter)
+	function constructor
 	{
-		constructor()
-		{
-			$$->%count=0
-			$$->%callback=$new(list)
-		}
-		setAliasCallback()
-		{
-			NGLfserv::corefunctions::ngldebug   settings alias callback $0
-			$$->%callback->$append($0)
-		}
-			
-		fserverBusyEvent()
-		{
-			$$->%trigger=$$->$signalSender()
-			$$->$killtimers()
-			NGLfserv::corefunctions::ngldebug trigger $$->%trigger->$triggerName() is busy
-			$$->%count++
-			$$->$emit(busy,$$->%trigger)
-		
-		}
-		fserverNotBusyEvent()
-		{
-			$$->$emit(notbusy,$$->$signalSender())
-			NGLfserv::corefunctions::ngldebug trigger $$->$signalSender->$triggerName() is ready
-			$$->%count--
-			if (!$$->%count){
-				$$->$emit(fserverready)
-				$$->$startTimer(500)
-			}
-		}
-		timerEvent()
-		{
-			for (%i=0;%i<$$->%callback->$count();%i++;){
-				NGLfserv::corefunctions::ngldebug calling alias callback $$->%callback->$at(%i)
-				eval $$->%callback->$at(%i)
-			}
-			$$->%callback->$clear()
-	
-			$$->$killtimers()
-		}	
-		isFerverBusy()
-		{
-			if ($$->%count) return $true
-			else return $false
-		}
-			
+$$->%count=0
+$$->%callback=$new(list)
+	}
+	function fserverBusyEvent
+	{
+$$->%trigger=$$->$signalSender()
+$$->$killtimers()
+NGLfserv::corefunctions::ngldebug trigger $$->%trigger->$triggerName() is busy
+$$->%count++
+$$->$emit(busy,$$->%trigger)
+	}
+	function fserverNotBusyEvent
+	{
+$$->$emit(notbusy,$$->$signalSender())
+NGLfserv::corefunctions::ngldebug trigger $$->$signalSender->$triggerName() is ready
+$$->%count--
+if (!$$->%count){
+	$$->$emit(fserverready)
+	@%t_id=@$startTimer(500)
+}
+	}
+	function isFerverBusy
+	{
+if ($$->%count) return $true
+else return $false
+	}
+	function setAliasCallback
+	{
+NGLfserv::corefunctions::ngldebug   settings alias callback $0
+$$->%callback->$append($0)
+	}
+	function timerEvent
+	{
+for (%i=0;%i<$$->%callback->$count();%i++;){
+	NGLfserv::corefunctions::ngldebug calling alias callback $$->%callback->$at(%i)
+	eval $$->%callback->$at(%i)
+}
+$$->%callback->$clear()
+
+$$->$killtimers()
 	}
 }
-

@@ -1,90 +1,87 @@
-alias(NGLfserv::classes::customwidgets::sendsAndQueueView)
+class("NGLfserv::classes::customwidgets::sendsAndQueueView","listview")
 {
-	class(NGLfserv::classes::customwidgets::sendsAndQueueView,listview)
+	function constructor
 	{
-		function constructor()
-		{
-			$$->$addColumn(\#,-1)
-			$$->$addColumn($tr("Filename"),-1)
-			$$->$addColumn($tr("Nick"),-1)
-			$$->$addColumn($tr("Progress"),-1)
-			$$->$addColumn($tr("Filesize"),-1)
-			$$->$setSelectionMode("Single")
-			$$->$setAllColumnsShowFocus($true)
-			$$->$setSorting(0,$true)
-			%item=$new(listviewitem,$$)
+$$->$addColumn(\#,-1)
+$$->$addColumn($tr("Filename"),-1)
+$$->$addColumn($tr("Nick"),-1)
+$$->$addColumn($tr("Progress"),-1)
+$$->$addColumn($tr("Filesize"),-1)
+$$->$setSelectionMode("Single")
+$$->$setAllColumnsShowFocus($true)
+$$->$setSortingEnabled($true)
+$$->$setSorting(0,"ascending")
+%item=$new(listviewitem,$$)
+	}
+	function refreshSends
+	{
+%vector[]=$$->$children()
+for(%i=0;%i<%vector[]#;%i++) {
+	%id=%Send->$at(%i)->%dcc_id
+	if($dcc.isFileTransfer(%id)) {
+		if($dcc.transferStatus(%id)!="failure") {
+			%a=$($dcc.transferredBytes(%id)/100)
+			%b=$($dcc.localFileSize(%id)/100)
+			if(%b!=0)
+				%vector[%i]->$setText(3,$(100*%a/%b)\%)
+			else
+				%vector[%i]->$setText(3,$tr("Waiting"))
 		}
-		function showQueues()
-		{
-			$$->$clear()
-			for(%i=0;%i!=%Queues->$count();%i++)
-			{
-				%item=$new(listviewitem,$$)
-				if(%i<9)
-					%item->$setText(0,"0"$(%i+1))
-				else
-					%item->$setText(0,$(%i+1))
-				%item->$setText(1,%Queues->$at(%i)->%file)
-				%item->$setText(2,%Queues->$at(%i)->%nick)
-				%item->$setText(3,"0%")
-				%item->$setText(4,$NGLfserv::corefunctions::calc(%Queues->$at(%i)->%size))
-			}
-		}
-		function showSends()
-		{
-			$$->$clear()
-			for(%i=0;%i!=%Send->$count();%i++)
-			{
-				%id=%Send->$at(%i)->%dcc_id
-				%item=$new(listviewitem,$$)
-				if(%i<9)
-					%item->$setText(0,"0"$(%i+1))
-				else
-					%item->$setText(0,$(%i+1))
-				%item->$setText(1,%Send->$at(%i)->%file)
-				%item->$setText(2,%Send->$at(%i)->%nick)
-				if($dcc.isFileTransfer(%id)) {
-					if($dcc.transferStatus(%id)!="failure") {
-						%a=$($dcc.transferredBytes(%id)/100)
-						%b=$($dcc.localFileSize(%id)/100)
-						if(%b!=0)
-							%item->$setText(3,$(100*%a/%b)\%)
-						else
-							%item->$setText(3,$tr("Waiting"))
-					}
-					else {
-						%item->$setText(3,$tr("Waiting"))
-					}
-				}
-				else {
-					%item->$setText(3,$tr("Waiting"))
-				}
-				%item->$setText(4,$NGLfserv::corefunctions::calc(%Send->$at(%i)->%size))
-			}
-		}
-		function refreshSends()
-		{
-			%vector[]=$$->$children()
-			for(%i=0;%i<%vector[]#;%i++) {
-				%id=%Send->$at(%i)->%dcc_id
-				if($dcc.isFileTransfer(%id)) {
-					if($dcc.transferStatus(%id)!="failure") {
-						%a=$($dcc.transferredBytes(%id)/100)
-						%b=$($dcc.localFileSize(%id)/100)
-						if(%b!=0)
-							%vector[%i]->$setText(3,$(100*%a/%b)\%)
-						else
-							%vector[%i]->$setText(3,$tr("Waiting"))
-					}
-					else {
-						%vector[%i]->$setText(3,$tr("Waiting"))
-					}
-				}
-				else {
-					%vector[%i]->$setText(3,$tr("Waiting"))
-				}
-			}
+		else {
+			%vector[%i]->$setText(3,$tr("Waiting"))
 		}
 	}
+	else {
+		%vector[%i]->$setText(3,$tr("Waiting"))
+	}
 }
-
+	}
+	function showQueues
+	{
+$$->$clear()
+for(%i=0;%i!=%Queues->$count();%i++)
+{
+	%item=$new(listviewitem,$$)
+	if(%i<9)
+		%item->$setText(0,"0"$(%i+1))
+	else
+		%item->$setText(0,$(%i+1))
+	%item->$setText(1,%Queues->$at(%i)->%file)
+	%item->$setText(2,%Queues->$at(%i)->%nick)
+	%item->$setText(3,"0%")
+	%item->$setText(4,$NGLfserv::corefunctions::calc(%Queues->$at(%i)->%size))
+}
+	}
+	function showSends
+	{
+$$->$clear()
+for(%i=0;%i!=%Send->$count();%i++)
+{
+	%id=%Send->$at(%i)->%dcc_id
+	%item=$new(listviewitem,$$)
+	if(%i<9)
+		%item->$setText(0,"0"$(%i+1))
+	else
+		%item->$setText(0,$(%i+1))
+	%item->$setText(1,%Send->$at(%i)->%file)
+	%item->$setText(2,%Send->$at(%i)->%nick)
+	if($dcc.isFileTransfer(%id)) {
+		if($dcc.transferStatus(%id)!="failure") {
+			%a=$($dcc.transferredBytes(%id)/100)
+			%b=$($dcc.localFileSize(%id)/100)
+			if(%b!=0)
+				%item->$setText(3,$(100*%a/%b)\%)
+			else
+				%item->$setText(3,$tr("Waiting"))
+		}
+		else {
+			%item->$setText(3,$tr("Waiting"))
+		}
+	}
+	else {
+		%item->$setText(3,$tr("Waiting"))
+	}
+	%item->$setText(4,$NGLfserv::corefunctions::calc(%Send->$at(%i)->%size))
+}
+	}
+}
