@@ -1,0 +1,117 @@
+class(newsticker::rss::entrylist,list)
+{
+	// var @%m_uUnreadCount
+	
+	constructor()
+	{
+		@%m_uUnreadCount = 0
+	}
+	
+	destructor()
+	{
+		@$clear()
+	}
+	
+	unreadCount()
+	{
+		return @%m_uUnreadCount
+	}
+	
+	decreaseUnreadCount()
+	{
+		@%m_uUnreadCount--
+	}
+	destructor()
+	{
+		#debug dentro il distruttore
+		@$clear()
+	}
+	
+	clear()
+	{
+		@%m_uUnreadCount = 0
+		if(@$moveFirst())
+		{
+			do {
+				delete @$current()
+			} while(@$moveNext())
+		}
+		@$list::clear()
+	}
+	
+	inSort($0 = newsticker::rss::entry)
+	{
+		if($0->$isUnread())@%m_uUnreadCount++
+		if(!@$moveFirst())
+		{
+			@$append($0)
+			return
+		}
+		
+		%idx = 0
+		do {
+			%r = @$current();
+			if(%r->$date() > $0->$date())
+			{
+				@$insert(%idx,$0)
+				return
+			}
+			%idx++
+		} while(@$moveNext())
+		# debug "IN SORT: APPENDING"
+		@$append($0)
+	}
+	
+	removeBySource($0 = sourcename)
+	{
+		# debug "REMOVE BY SOURCE "$0
+		if(!@$moveFirst())return
+
+		%idx = 0
+		%toremoveidx = 0
+		do {
+			if(@$current()->$source() == $0)
+			{
+				%toremove[%toremoveidx] = %idx
+				%toremoveidx++
+				#debug "GOT ONE TO REMOVE"
+			}
+			%idx++
+		} while(@$moveNext())
+		
+		%hUnread = $hash();
+
+		if(%toremoveidx == 0)return %hUnread
+		
+		for(%idx = $(%toremoveidx - 1);%idx >= 0;%idx--)
+		{
+			#debug "REMOVING THAT ONE"
+			%r = @$at(%toremove[%idx])
+			if(%r != $null)
+			{
+				%hUnread{%r->$date()}{isUnread} = %r->$isUnread()
+				%hUnread{%r->$date()}{isNotified} = %r->$isNotified()
+				if(%r->$isUnread())@%m_uUnreadCount--
+				#debug "...REALLY REMOVING"
+				delete %r
+				@$remove(%toremove[%idx])
+			}
+		}
+		
+		return %hUnread
+	}
+
+	firstUnNotified()
+	{
+
+		if(!@$moveFirst())return $null
+
+		do {
+			if(!@$current()->$isNotified())
+				return @$current()
+		} while(@$moveNext())
+
+		return $null
+	}
+
+}

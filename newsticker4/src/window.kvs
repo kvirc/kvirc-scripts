@@ -1,0 +1,434 @@
+class(newsticker::window,dockwindow)
+{
+	// @%m_szCurrentEntrySource
+	// @%m_szCurrentEntryDate
+	// @%m_iCurrentEntryIndex
+	
+	createToolButton($0 = $image)
+	{
+		%tb = $new(toolbutton,@%m_hContainer)
+		%tb->$setImage($0)
+		%tb->$setUsesBigPixmap($false)
+		%tb->$setUsesTextLabel($false)
+		%tb->$setAutoRaise($true)
+		%tb->$setMaximumWidth(24)
+		%tb->$setMaximumHeight(24)
+		return %tb
+	}
+	
+	constructor()
+	{
+		if ($str.contains($features(),"QT4"))@$setWindowTitle($tr("Newsticker","newsticker"))
+		  else @$setWindowTitle($tr("Newsticker","newsticker"))
+		@%m_hCurrentEntry = $new(newsticker::rss::entry)
+		@%m_bAutoDisplay = $true
+		@%m_tLastDisplayedEntryTimestamp = 0
+
+		@%m_hController = $new(newsticker::controller,$this)
+		objects.connect @%m_hController "newDataAvailable" $this "newDataAvailable"
+
+		@$setAllowedDockAreas("lrfm");
+		if (!$str.contains($features(),"QT4")) @$setResizeEnabled($true);
+
+		@%m_hContainer = $new(widget,$this)
+		%l = $new(layout,@%m_hContainer)
+
+		@%m_hTextBrowser = $new(textbrowser,@%m_hContainer)
+		%l->$addMultiCellWidget(@%m_hTextBrowser,0,0,0,5)
+		objects.connect @%m_hTextBrowser "linkClicked" $this "linkClicked"
+
+		@%m_hFirstButton = $$->$createToolButton("newsticker_first_16.png")
+		@%m_hFirstButton->$setToolTip($tr("Show the first available news entry","newsticker"))
+		%l->$addWidget(@%m_hFirstButton,1,0)
+		objects.connect @%m_hFirstButton "clicked" $this "firstClicked"
+
+		@%m_hPrevButton = $$->$createToolButton("newsticker_prev_16.png")
+		@%m_hPrevButton->$setToolTip($tr("Show previous news entry","newsticker"))
+		%l->$addWidget(@%m_hPrevButton,1,1)
+		objects.connect @%m_hPrevButton "clicked" $this "prevClicked"
+
+		@%m_hDisplayLabel = $new(label,@%m_hContainer)
+		@%m_hDisplayLabel->$setAlignment(Center,VCenter)
+		%l->$addMultiCellWidget(@%m_hDisplayLabel,1,2,2,2)
+
+		@%m_hNextUnreadButton = $$->$createToolButton("newsticker_next_unread_16.png")
+		@%m_hNextUnreadButton->$setToolTip($tr("Show the next unread news entry","newsticker"))
+		%l->$addWidget(@%m_hNextUnreadButton,1,3)
+		objects.connect @%m_hNextUnreadButton "clicked" $this "nextUnreadClicked"
+
+		@%m_hNextButton = $$->$createToolButton("newsticker_next_16.png")
+		@%m_hNextButton->$setToolTip($tr("Show the next news entry","newsticker"))
+		%l->$addWidget(@%m_hNextButton,1,4)
+		objects.connect @%m_hNextButton "clicked" $this "nextClicked"
+
+		@%m_hLastButton = $$->$createToolButton("newsticker_last_16.png")
+		@%m_hLastButton->$setToolTip($tr("Show the last available news entry","newsticker"))
+		%l->$addWidget(@%m_hLastButton,1,5)
+		objects.connect @%m_hLastButton "clicked" $this "lastClicked"
+
+		@%m_hCloseButton = $$->$createToolButton("newsticker_close_16.png");
+		@%m_hCloseButton->$setToolTip($tr("Close the Newsticker","newsticker"))
+		%l->$addWidget(@%m_hCloseButton,2,0)
+		objects.connect @%m_hCloseButton "clicked" $this "closeClicked"
+
+		@%m_hConfigureButton = $$->$createToolButton("newsticker_configure_16.png");
+		@%m_hConfigureButton->$setToolTip($tr("Configure the Newsticker","newsticker"))
+		%l->$addWidget(@%m_hConfigureButton,2,1)
+		objects.connect @%m_hConfigureButton "clicked" $this "configureClicked"
+
+		@%m_hAutoButton = $$->$createToolButton("newsticker_auto_16.png");
+		@%m_hAutoButton->$setToolTip($tr("Automatic slide-show of news. If you keep it on, the news will be displayed passively, for 30 seconds each one.","newsticker"))
+		%l->$addWidget(@%m_hAutoButton,2,3)
+		objects.connect @%m_hAutoButton "clicked" $this "autoClicked"
+
+		@%m_hViewOnlineButton = $$->$createToolButton("newsticker_viewonline_16.png");
+		@%m_hViewOnlineButton->$setToolTip($tr("View the current article online","newsticker"))
+		%l->$addWidget(@%m_hViewOnlineButton,2,4)
+		objects.connect @%m_hViewOnlineButton "clicked" $this "viewOnlineClicked"
+
+		@%m_hSayButton = $$->$createToolButton("newsticker_say_16.png");
+		@%m_hSayButton->$setToolTip($tr("Advertise the current news entry to the current channel or query","newsticker"))
+		%l->$addWidget(@%m_hSayButton,2,5)
+		objects.connect @%m_hSayButton "clicked" $this "sayClicked"
+
+		if ($str.contains($features(),"QT4"))
+		{
+		      %l->$setColumnStretch(0,0)
+		      %l->$setColumnStretch(1,0)
+		      %l->$setColumnStretch(2,5)
+		      %l->$setColumnStretch(3,0)
+		      %l->$setColumnStretch(4,0)
+		      %l->$setColumnStretch(5,0)
+		}
+		else{
+		      %l->$setColumnStretch(0,0)
+		      %l->$setColumnStretch(1,0)
+		      %l->$setColumnStretch(2,5)
+		      %l->$setColumnStretch(3,0)
+		      %l->$setColumnStretch(4,0)
+		      %l->$setColumnStretch(5,0)
+		}
+		%l->$setRowStretch(0,500)
+		%l->$setRowStretch(1,0)
+		%l->$setRowStretch(2,0)
+
+		@$addWidget(@%m_hContainer)
+
+		// trigger it once
+		@$newDataAvailable()
+		
+		$$->$startTimer(5000)
+	}
+
+	destructor()
+	{
+		if($objects.exists(@%m_hCurrentEntry))
+			delete @%m_hCurrentEntry
+	}
+
+	timerEvent()
+	{
+		# debug "TIMER EVENT"
+		$$->$checkNotify()
+		if(!@%m_bAutoDisplay)return
+		# debug "AUTO DISPLAY IS ON"
+		$$->$checkAutoDisplay()
+	}
+	
+	linkClicked($0 = link)
+	{
+		#debug "LINK CLICKED:" $0
+	}
+
+	checkAutoDisplay()
+	{
+		# debug "CHECK AUTO DISPLAY"
+		if(($unixtime - @%m_tLastDisplayedEntryTimestamp) < 30)return
+		# debug "MOVING RIGHT"
+
+		%l = @%m_hController->$newsList()
+		if(@%m_iCurrentEntryIndex < (%l->$count()-1))
+			$$->$nextClicked()
+		else
+			$$->$firstClicked()
+	}
+
+	checkNotify()
+	{
+		%e = @%m_hController->$newsList()->$firstUnNotified()
+		if(%e == $null)return
+		notifier.message -t=20 -i=newsticker_16.png "[%e->$source()] %e->$title()"
+		%e->$setNotified($true)
+		%c = $newsticker::core::configuration()
+		%c->$saveLastNotification(%e)
+		@%m_hController->$notified(%e)
+	}
+	
+	updateLabelAndButtons($0 = cur index,$1 = total count,$2 = unread count)
+	{
+		%txt = "<font style=\"font-size:10pt;\">"
+		if($1 < 1)
+		{
+			%txt .= $tr("No news (yet)","newsticker")
+			@%m_hFirstButton->$setEnabled($false)
+			@%m_hPrevButton->$setEnabled($false)
+			@%m_hNextButton->$setEnabled($false)
+			@%m_hNextUnreadButton->$setEnabled($false)
+			@%m_hLastButton->$setEnabled($false)
+			@%m_hSayButton->$setEnabled($false)
+			@%m_hAutoButton->$setEnabled($false)
+			@%m_hViewOnlineButton->$setEnabled($false)
+		} else {
+			if($0 >= 0)
+				%txt .= $($0 + 1) $tr("of","newsticker") $1 "<br>"$2 $tr("unread","newsticker")
+			else
+				%txt .= ? $tr("of","newsticker") $1 "<br>"$2 $tr("unread","newsticker")
+
+			@%m_hFirstButton->$setEnabled($($0 > 0))
+			@%m_hPrevButton->$setEnabled($($0 > 0))
+			@%m_hNextButton->$setEnabled($($0 < ($1 - 1)))
+			@%m_hNextUnreadButton->$setEnabled($($2 > 0))
+			@%m_hLastButton->$setEnabled($($0 < ($1 - 1)))
+			@%m_hSayButton->$setEnabled($true)
+			@%m_hAutoButton->$setEnabled($true)
+			@%m_hViewOnlineButton->$setEnabled($true)
+		}
+		@%m_hDisplayLabel->$setText(%txt"</font>")
+	}
+
+	displayEntry($0 = rssentry)
+	{
+		@%m_hCurrentEntry->$copyFrom($0)
+
+		if($0 == $null)
+		{
+			@%m_hTextBrowser->$setText("No data available...")
+			@%m_szCurrentEntrySource = ""
+			@%m_szCurrentEntryDate = ""
+			return
+		}
+	
+		@%m_szCurrentEntrySource = $0->$source()
+		@%m_szCurrentEntryDate = $0->$date()
+	
+	
+		%h = "<html>"
+		%h .= "<title>"$0->$title()"</title>"
+	
+		%h .= "<body>"
+	
+		%h .=  "<table width=\"100%\" cellpadding=\"2\" cellspacing=\"1\" border=\"0\">"
+		
+		//%h .=  "<tr><td bgcolor=\"#808080\"><font size=\"7\" color=\"#c0c0c0\">"$0->$source()"</font></td></tr>" 
+		//%h .=  "<tr><td bgcolor=\"#e0e0e0\"><font size=\"7\" color=\"#000000\"><b>"$0->$title()"</b></font></td></tr>" 
+		//%h .= "<tr><td bgcolor=\"#f0f0f0\"><font size=\"7\">"$0->$date()"</font></td></tr>"
+
+		if($0->$isUnread())
+		{
+			%bgColor = "#c05050"
+			$0->$setUnread($false)
+			@%m_hController->$newsList()->$decreaseUnreadCount()
+		} else {
+			%bgColor = "#505050"
+		}
+			
+
+		%h .=  "<tr><td bgcolor=\"#aaaaaa\"><font color=\"#d2d2d2\" style=\"font-size:10pt;\">"$0->$source()"</font></td></tr>" 
+		%h .=  "<tr><td bgcolor=\""%bgColor"\"><font color=\"#ffffff\" style=\"font-size:11pt;\"><b>"$0->$title()"</b></font></td></tr>" 
+		%h .= "<tr><td bgcolor=\"#f0f0f0\"><font color=\"#909090\" style=\"font-size:8pt;\">"$0->$date()"</font></td></tr>"
+
+		%h .= "<tr><td><font style=\"font-size:10pt;\">"$0->$description()"</font></td></tr>"
+ 
+		%h .= "</table>"
+
+		%h .= "</body>"
+
+		%h .= "</html>"
+
+		@%m_hTextBrowser->$setText(%h)
+		
+	}
+
+	sayClicked()
+	{
+		if(@%m_hCurrentEntry->$title() == "")return
+		say -r=$active "["@%m_hCurrentEntry->$source()"]:" @%m_hCurrentEntry->$title() "("@%m_hCurrentEntry->$link()")"
+	}
+	
+	configureClicked()
+	{
+		newsticker::configure
+	}
+	
+	closeClicked()
+	{
+		dialog.message($tr("Confirm close","newsticker"),$tr("Do you really want to close the Newsticker ?","newsticker"),"information",$tr("Yes","newsticker"),$tr("No","newsticker"))
+		{
+			if($0 == 0)newsticker::close
+		}
+	}
+	
+	viewOnlineClicked()
+	{
+		if(@%m_hCurrentEntry->$link() != "")
+			openurl @%m_hCurrentEntry->$link()
+	}
+	
+	autoClicked()
+	{
+		@%m_bAutoDisplay = $(!@%m_bAutoDisplay)
+		if(@%m_bAutoDisplay)
+			@%m_hAutoButton->$setImage("newsticker_auto_16.png")
+		else
+			@%m_hAutoButton->$setImage("newsticker_noauto_16.png")
+		@%m_tLastDisplayedEntryTimestamp = $unixtime
+	}
+
+	firstClicked()
+	{
+		if(@%m_iCurrentEntryIndex >= 0)%idx = 0
+		else return
+
+		%l = @%m_hController->$newsList()
+
+		%r = %l->$at(%idx)
+		if(%r == $null)return
+
+		@$displayEntry(%r)
+
+		@%m_iCurrentEntryIndex = %idx
+
+		@$updateLabelAndButtons(@%m_iCurrentEntryIndex,%l->$count(),%l->$unreadCount())
+		@%m_tLastDisplayedEntryTimestamp = $unixtime
+	}
+
+	prevClicked()
+	{
+		if(@%m_iCurrentEntryIndex >= 0)
+		{
+			if(@%m_iCurrentEntryIndex > 0)
+				%idx = $(@%m_iCurrentEntryIndex - 1)
+			else
+				return
+		} else {
+			%idx = 0
+		}
+
+		%l = @%m_hController->$newsList()
+
+		%r = %l->$at(%idx)
+		if(%r == $null)return
+
+		@$displayEntry(%r)
+
+		@%m_iCurrentEntryIndex = %idx
+
+		@$updateLabelAndButtons(@%m_iCurrentEntryIndex,%l->$count(),%l->$unreadCount())
+		@%m_tLastDisplayedEntryTimestamp = $unixtime
+	}
+
+	nextClicked()
+	{
+		if(@%m_iCurrentEntryIndex >= 0)
+		{
+			%idx = $(@%m_iCurrentEntryIndex + 1)
+		} else {
+			%idx = 0
+		}
+
+		%l = @%m_hController->$newsList()
+
+		%r = %l->$at(%idx)
+		if(%r == $null)return
+
+		@$displayEntry(%r)
+
+		@%m_iCurrentEntryIndex = %idx
+
+		@$updateLabelAndButtons(@%m_iCurrentEntryIndex,%l->$count(),%l->$unreadCount())
+		@%m_tLastDisplayedEntryTimestamp = $unixtime
+	}
+
+	nextUnreadClicked()
+	{
+		%l = @%m_hController->$newsList();
+		
+		if(%l->$unreadCount() < 1)return
+
+		if(@%m_iCurrentEntryIndex >= 0)
+		{
+			%start = @%m_iCurrentEntryIndex
+		} else {
+			%start = 0
+		}
+
+		%idx = $(%start+1)
+
+		while(1)
+		{
+			if(%idx == %start)return; // looped once: no way
+			if(%idx >= %l->$count())%idx = 0; // ran beyond the end
+			%r = %l->$at(%idx)
+			if(%r == $null)return
+			if(%r->$isUnread())break
+			%idx++
+		}
+
+		@$displayEntry(%r)
+
+		@%m_iCurrentEntryIndex = %idx
+
+		@$updateLabelAndButtons(@%m_iCurrentEntryIndex,%l->$count(),%l->$unreadCount())
+		@%m_tLastDisplayedEntryTimestamp = $unixtime
+	}
+
+	lastClicked()
+	{
+		%l = @%m_hController->$newsList()
+
+		if((@%m_iCurrentEntryIndex < %l->$count()) && (%l->$count() > 0))
+		{
+			%idx = $(%l->$count() - 1)
+		} else {
+			%idx = 0
+		}
+
+		%r = %l->$at(%idx)
+		if(%r == $null)return
+
+		@$displayEntry(%r)
+
+		@%m_iCurrentEntryIndex = %idx
+
+		@$updateLabelAndButtons(@%m_iCurrentEntryIndex,%l->$count(),%l->$unreadCount())
+		@%m_tLastDisplayedEntryTimestamp = $unixtime
+	}
+	
+	findCurrentIndex()
+	{
+		%l = @%m_hController->$newsList()
+		if(!%l->$moveFirst())return -1
+		%idx = 0
+		do {
+			if(%l->$current()->$source() == @%m_szCurrentEntrySource)
+			{
+				if(%l->$current()->$date() == @%m_szCurrentEntryDate)
+				{
+					return %idx
+				}
+			}
+			%idx++
+		} while(%l->$moveNext())
+		return -1
+	}
+	
+	newDataAvailable()
+	{
+		@%m_iCurrentEntryIndex = @$findCurrentIndex()
+		%l = @%m_hController->$newsList()
+		@$updateLabelAndButtons(@%m_iCurrentEntryIndex,%l->$count(),%l->$unreadCount())
+		if(@%m_bAutoDisplay)$$->$checkAutoDisplay()
+	}
+}
+
+

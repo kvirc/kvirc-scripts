@@ -1,0 +1,760 @@
+class(newsticker::core::configuration::sourceeditor,dialog)
+{
+	constructor()
+	{
+		if ($str.contains($features(),"QT4"))@$setWindowTitle($tr("Edit source","newsticker"))
+		  else @$setWindowTitle($tr("Edit source","newsticker"))
+		%l = $new(layout,$this)
+
+		%lb = $new(label,$this)
+		%lb->$setText($tr("Source Name:","newsticker"))
+		%l->$addWidget(%lb,0,0)
+
+		@%m_hSourceNameEdit = $new(lineedit,$this)
+		%l->$addMultiCellWidget(@%m_hSourceNameEdit,0,0,1,3)
+
+		%lb = $new(label,$this)
+		%lb->$setText($tr("Source Url:","newsticker"))
+		%l->$addWidget(%lb,1,0)
+
+		@%m_hSourceUrlEdit = $new(lineedit,$this)
+		%l->$addMultiCellWidget(@%m_hSourceUrlEdit,1,1,1,3)
+
+		%lb = $new(label,$this)
+		%lb->$setText($tr("Language:","newsticker"))
+		%l->$addWidget(%lb,2,0)
+
+		@%m_hSourceLanguageEdit = $new(lineedit,$this)
+		%l->$addMultiCellWidget(@%m_hSourceLanguageEdit,2,2,1,3)
+
+		%lb = $new(label,$this)
+		%lb->$setText($tr("Category:","newsticker"))
+		%l->$addWidget(%lb,3,0)
+
+		@%m_hSourceTopicEdit = $new(lineedit,$this)
+		%l->$addMultiCellWidget(@%m_hSourceTopicEdit,3,3,1,3)
+
+		@%m_hSourceUseNotfierCheck = $new(checkbox,$this)
+		@%m_hSourceUseNotfierCheck->$setText($tr("Use notifier","newsticker"))
+		@%m_hSourceUseNotfierCheck->$settooltip($tr("Use the notifier window to inform about news","newsticker"))
+		%l->$addMultiCellWidget(@%m_hSourceUseNotfierCheck,4,4,0,3)
+
+		%b = $new(button,$this)
+		%b->$setText($tr("Cancel","newsticker"))
+		objects.connect %b "clicked" $this "cancelClicked"
+		%l->$addWidget(%b,6,2)
+
+		%b = $new(button,$this)
+		%b->$setText($tr("OK","newsticker"))
+		objects.connect %b "clicked" $this "okClicked"
+		%l->$addWidget(%b,6,3)
+		
+		%l->$setMargin(9)
+		%l->$setSpacing(3)
+
+		%l->$setRowStretch(4,100)
+		if ($str.contains($features(),"QT4")) %l->$setColumnStretch(1,100)
+		  else %l->$setColumnStretch(1,100)
+	}
+
+	edit($0 = source,$1 = bIsNew)
+	{
+		@%m_bIsNewItem = $1
+		@%m_hSource = $0
+		@%m_hSourceNameEdit->$setText($0->$text(0))
+		@%m_hSourceUseNotfierCheck->$setChecked($str.equal($tr("Yes","newsticker"),$0->$text(1)))
+		@%m_hSourceLanguageEdit->$setText($0->$text(2))
+		@%m_hSourceTopicEdit->$setText($0->$text(3))
+		@%m_hSourceUrlEdit->$setText($0->$text(4))
+	}
+
+	destructor()
+	{
+	}
+	
+	closeEvent()
+	{
+		delete $this
+	}
+	
+	cancelClicked()
+	{
+		if(@%m_bIsNewItem)
+		{
+			// new item cancelled
+			if($objects.exists(@%m_hSource))
+				delete @%m_hSource
+		}
+
+		delete $this
+	}
+	
+	errorMessage($0 = msg)
+	{
+		dialog.message($tr("Error","newsticker"),$0,"critical",$tr("Ok","Newsticker"))
+		{
+			/* just do nothing */
+		}
+	}
+	
+	commit()
+	{
+		if(!$objects.exists(@%m_hSource))
+		{
+			$$->$errorMessage($tr("Oops.. internal error: the listviewitem object no longer exists","newsticker"))
+			return $false
+		}
+		%n = @%m_hSourceNameEdit->$text()
+		if(%n == "")%n = $tr("Unnamed","newsticker")
+		%u = @%m_hSourceUrlEdit->$text()
+		if(%u == "")
+		{
+			$$->$errorMessage($tr("The url can't be empty!","newsticker"))
+			return $false
+		}
+		if(!$str.match("http://*",%u,"e"))
+		{
+			$$->$errorMessage($tr("The url must start with http://","newsticker"))
+			return $false
+		}
+		%l = @%m_hSourceLanguageEdit->$text()
+		%t = @%m_hSourceTopicEdit->$text()
+		@%m_hSource->$setText(0,%n)
+		if(@%m_hSourceUseNotfierCheck->$isChecked()){
+			@%m_hSource->$setText(1,$tr("Yes","newsticker"))
+//			@%m_hSource->$setpixmap(1,11)
+		} else {
+			@%m_hSource->$setText(1,$tr("No","newsticker"))
+//			@%m_hSource->$setpixmap(1,$null)
+		}
+		@%m_hSource->$setText(2,%l)
+		@%m_hSource->$setText(3,%t)
+		@%m_hSource->$setText(4,%u)
+		return $true;
+	}
+	
+	okClicked()
+	{
+		if(!$$->$commit())return $false
+		delete $this
+	}
+}
+
+
+class(newsticker::core::configuration::dialog,dialog)
+{
+	internal createListViewItem($0 = name,$1 = url,$2 = topic,$3 = lang,$4 = enabled,$5 = use notifier,$6 = last notification)
+	{
+		%lvi = $new(listviewitem,@%m_hListView)
+		if ($str.contains($features(),"QT4"))
+			%lvi->$setFlags(editable,selectable,enabled,userCheckable)
+		else %lvi->$setCheckable($true);
+		if($4)
+		{
+			%lvi->$setPixmap(0,"newsticker_source_enabled_16.png")
+			%lvi->$setChecked($true);
+		} else {
+			%lvi->$setPixmap(0,"newsticker_source_disabled_16.png")
+			%lvi->$setChecked($false)
+		}
+		%lvi->$setText(0,$0)
+		if($5){
+//			%lvi->$setixmap(1,11)
+			%lvi->$setChecked($true);
+			%lvi->$setText(1,$tr("Yes","newsticker"))
+		} else {
+//			%lvi->$setPixmap(1,$null)
+			%lvi->$setText(1,$tr("No","newsticker"))
+		}
+		%lvi->$setText(2,$3)
+		%lvi->$setText(3,$2)
+		%lvi->$setText(4,$1)
+		%lvi->%lastNotification = $6
+		return %lvi
+	}
+
+	internal fillSourceListView()
+	{
+		@%m_hListView->$clear()
+	
+		%c = $newsticker::core::configuration()
+		%l = %c->$sourceList()
+		
+		if(!%l->$moveFirst())return;
+		do {
+			%s = %l->$current()
+			$$->$createListViewItem(%s->$name(),%s->$url(),%s->$topic(),%s->$language(),%s->$enabled(),%s->$useNotifier(),%s->$lastNotification())
+		} while(%l->$moveNext())
+	}
+	
+	internal commit()
+	{
+		%l = $new(list)
+
+		%lvi = @%m_hListView->$firstChild()
+		while(%lvi)
+		{
+			%s = $new(newsticker::core::configuration::source,%l)
+		#	debug "got item data:" %lvi->$text(0),%lvi->$text(3),%lvi->$text(1),%lvi->$text(2),%lvi->$isChecked()
+			%s->$set(%lvi->$text(0),%lvi->$text(4),%lvi->$text(2),%lvi->$text(3),%lvi->$isChecked(),$($tr("Yes","newsticker") == %lvi->$text(1)),%lvi->%lastNotification)
+			%l->$append(%s)
+			if ($str.contains($features(),"QT4")) %lvi = @%m_hListView->$nextSibling()
+			else %lvi = %lvi->$nextSibling()
+		}
+
+		%c = $newsticker::core::configuration()
+		%c->$setSourceList(%l)
+		%c->$setStripHtmlTags(@%m_hStripHtmlTagsCheck->$isChecked())
+		%c->$setRemoveFeedFiles(@%m_hRemoveFeedFilesCheck->$isChecked())
+		%c->$setFeedRefetchTimeoutInSeconds(@%m_hFeedRefetchTimeoutInSecondsLineEdit->$text())
+		return $true
+	}
+
+	internal createSourcesPage()
+	{
+		%w = $new(widget,@%m_hTabWidget)
+		
+		%l = $new(layout,%w)
+
+		@%m_hListView = $new(listviewwrapper,%w)
+		%l->$addMultiCellWidget(@%m_hListView,0,0,0,4)
+
+		@%m_hListView->$addColumn($tr("Name","newsticker"),230)
+		@%m_hListView->$addColumn($tr("Use notifier","newsticker"),120)
+		@%m_hListView->$addColumn($tr("Language","newsticker"),120)
+		@%m_hListView->$addColumn($tr("Topic","newsticker"),120)
+		@%m_hListView->$addColumn($tr("Url","newsticker"),300)
+		@%m_hListView->$setAllColumnsShowFocus($true)
+		objects.connect @%m_hListView "selectionChanged" $this "sourceListSelectionChanged"
+
+		@%m_hLoadDefaultsButton = $new(button,%w)
+		@%m_hLoadDefaultsButton->$setText($tr("Defaults","newsticker"))
+		%l->$addWidget(@%m_hLoadDefaultsButton,1,0)
+		objects.connect @%m_hLoadDefaultsButton "clicked"  $this "loadDefaultsClicked"
+
+		@%m_hAddButton = $new(button,%w)
+		@%m_hAddButton->$setText($tr("New...","newsticker"))
+		%l->$addWidget(@%m_hAddButton,1,2)
+		objects.connect @%m_hAddButton "clicked"  $this "addClicked"
+
+		@%m_hRemoveButton = $new(button,%w)
+		@%m_hRemoveButton->$setText($tr("Remove","newsticker"))
+		%l->$addWidget(@%m_hRemoveButton,1,3)
+		objects.connect @%m_hRemoveButton "clicked"  $this "removeClicked"
+
+		@%m_hEditButton = $new(button,%w)
+		@%m_hEditButton->$setText($tr("Edit...","newsticker"))
+		%l->$addWidget(@%m_hEditButton,1,4)
+		objects.connect @%m_hEditButton "clicked"  $this "editClicked"
+
+		@%m_hTabWidget->$addTab(%w,$tr("Sources","newsticker"))
+
+		%l->$setMargin(5)
+		%l->$setSpacing(2)
+		%l->$setRowStretch(0,100)
+		if ($str.contains($features(),"QT4"))
+		{
+		      %l->$setColumnStretch(1,0)
+		      %l->$setColumnStretch(1,100)
+		      %l->$setColumnStretch(2,0)
+		      %l->$setColumnStretch(3,0)
+		      %l->$setColumnStretch(4,0)
+		}
+		else{
+		      %l->$setColumnStretch(1,0)
+		      %l->$setColumnStretch(1,100)
+		      %l->$setColumnStretch(2,0)
+		      %l->$setColumnStretch(3,0)
+		      %l->$setColumnStretch(4,0)
+	      }
+	}
+
+	internal createOtherPage()
+	{
+		%w = $new(widget,@%m_hTabWidget)
+		
+		%l = $new(layout,%w)
+
+		@%m_hTabWidget->$addTab(%w,$tr("Other","newsticker"))
+
+		@%m_hStripHtmlTagsCheck = $new(checkbox,%w)
+		@%m_hStripHtmlTagsCheck->$setText($tr("Strip Html Tags","newsticker"))
+		%l->$addMultiCellWidget(@%m_hStripHtmlTagsCheck,0,0,0,3)
+
+		@%m_hRemoveFeedFilesCheck = $new(checkbox,%w)
+		@%m_hRemoveFeedFilesCheck->$setText($tr("Remove Downloaded RSS Feed Files","newsticker"))
+		%l->$addMultiCellWidget(@%m_hRemoveFeedFilesCheck,1,1,0,3)
+		
+		%label = $new(label,%w)
+		%label->$setText($tr("Refetch RSS Feeds After","newsticker"))
+		%l->$addMultiCellWidget(%label,2,2,0,1)
+		
+		@%m_hFeedRefetchTimeoutInSecondsLineEdit = $new(lineedit,%w)
+		@%m_hFeedRefetchTimeoutInSecondsLineEdit->$setInputMask("99000")
+		%l->$addMultiCellWidget(@%m_hFeedRefetchTimeoutInSecondsLineEdit,2,2,2,2)
+
+		%label = $new(label,%w)
+		%label->$setText("  "$tr("seconds","newsticker"))
+		%l->$addMultiCellWidget(%label,2,2,3,3)
+
+		%l->$setMargin(15)
+		%l->$setSpacing(4)
+		if ($str.contains($features(),"QT4")) %l->$setColumnStretch(0,1)
+		else %l->$setColumnStretch(0,1)
+		%l->$setRowStretch(5,1)
+	}
+
+	constructor()
+	{
+		if ($str.contains($features(),"QT4"))@$setWindowTitle($tr("Newsticker Configuration","newsticker"))
+		  else @$setWindowTitle($tr("Newsticker Configuration","newsticker"))
+		%l = $new(layout,$this)
+
+		@%m_hTabWidget = $new(tabwidget,$this)
+		
+		$$->$createSourcesPage()
+		$$->$createOtherPage()
+		// FIXME: an "about" page ?
+		
+		%l->$addMultiCellWidget(@%m_hTabWidget,0,0,0,2)
+
+		%b = $new(button,$this)
+		%b->$setText($tr("Cancel","newsticker"))
+		%b->$setMinimumWidth(80)
+		objects.connect %b "clicked" $this "cancelClicked"
+		%l->$addWidget(%b,1,1)
+
+		%b = $new(button,$this)
+		%b->$setMinimumWidth(80)
+		%b->$setText($tr("OK","newsticker"))
+		objects.connect %b "clicked" $this "okClicked"
+		%l->$addWidget(%b,1,2)
+		
+		%l->$setMargin(5)
+		%l->$setSpacing(2)
+		%l->$setRowStretch(0,100)
+		if ($str.contains($features(),"QT4"))
+		{
+		      %l->$setColumnStretch(0,100)
+		      %l->$setColumnStretch(1,0)
+		      %l->$setColumnStretch(2,0)
+		}
+		else{
+		      %l->$setColumnStretch(0,100)
+		      %l->$setColumnStretch(1,0)
+		      %l->$setColumnStretch(2,0)
+		}
+		$$->$display()
+		
+		$$->$sourceListSelectionChanged()
+	}
+
+	display()
+	{
+		%c = $newsticker::core::configuration()
+		# debug "DISPLAY CALLED"
+		$$->$fillSourceListView()
+		@%m_hStripHtmlTagsCheck->$setChecked(%c->$stripHtmlTags())
+		@%m_hRemoveFeedFilesCheck->$setChecked(%c->$removeFeedFiles())
+		@%m_hFeedRefetchTimeoutInSecondsLineEdit->$setText(%c->$feedRefetchTimeoutInSeconds())
+		
+	}
+	
+	destructor()
+	{
+		%G_newstickerConfigurationDialog = $null
+		# debug "CONFIGURATION DIALOG DESTRUCTOR CALLED"
+	}
+	
+	sourceListSelectionChanged()
+	{
+		@%m_hRemoveButton->$setEnabled(@%m_hListView->$selectedItem())
+		@%m_hEditButton->$setEnabled(@%m_hListView->$selectedItem())
+	}
+
+	addClicked()
+	{
+		%d = $new(newsticker::core::configuration::sourceeditor,$this)
+		%d->$edit($$->$createListViewItem($tr("New RSS Source","newsticker"),$tr("http://url.to.your.rss.feed","newsticker"),"General","EN",$false,$false),$true)
+		%d->$show()
+	}
+	
+	removeClicked()
+	{
+		%lvi = @%m_hListView->$selectedItem()
+		if(!%lvi)return
+		delete %lvi
+	}
+	
+	editClicked()
+	{
+		%lvi = @%m_hListView->$selectedItem()
+		if(!%lvi)return
+		%d = $new(newsticker::core::configuration::sourceeditor,$this)
+		%d->$edit(%lvi,$false)
+		%d->$show()
+	}
+	
+	loadDefaultsClicked()
+	{
+		if(!$$->$commit())return
+		%c = $newsticker::core::configuration()
+		%c->$loadDefaults()
+		$$->$display()
+	}
+
+	okClicked()
+	{
+		if(!$$->$commit())return
+		%c = $newsticker::core::configuration()
+		%c->$save()
+		%c->$configurationDialogCommitted()
+		delete $this
+	}
+	
+	cancelClicked()
+	{
+		delete $this
+	}
+	
+	internal closeEvent()
+	{
+		delete $this
+	}
+}
+
+
+class(newsticker::core::configuration::source)
+{
+	//@%m_szUrl
+	//@%m_szName
+	//@%m_bEnabled
+	//@%m_szLanguage
+	//@%m_szTopic
+	//@%m_bUseNotifier
+	//@%m_tLastNotification
+
+	url(){ return @%m_szUrl; }
+	name(){ return @%m_szName; }
+	enabled(){ return @%m_bEnabled; }
+	language(){ return @%m_szLanguage; }
+	topic(){ return @%m_szTopic; }
+	useNotifier(){ return @%m_bUseNotifier; }
+	lastNotification(){ return @%m_tLastNotification; }
+
+	setLastNotification($0 = date)
+	{
+		@%m_tLastNotification = $0
+	}
+
+	set($0 = name,$1 = url,$2 = language,$3 = topic,$4 = enabled,$5 = use notifier,$6 = last notification)
+	{
+		@%m_szName = $0
+		@%m_szUrl = $1
+		@%m_szLanguage = $2
+		@%m_szTopic = $3
+		@%m_bEnabled = $4
+		@%m_bUseNotifier = $5
+		@%m_tLastNotification = $6
+	}
+}
+#debug creating class configuration 2
+if ($classDefined(newsticker::core::configuration)) objects.killClass newsticker::core::configuration
+class(newsticker::core::configuration)
+{
+	// @%m_lSources list of newsticker::core::configuration::source, owned
+	// @%m_bStripHtmlTags
+	// @%m_bRemoveFeedFiles
+	// @%m_uFeedRefetchTimeoutInSeconds
+
+	constructor()
+	{
+		@%m_lSources = $null
+		$$->$load()
+	}
+	
+	destructor()
+	{
+		if(@%m_lSources)delete @%m_lSources
+	}
+	
+	findSourceByName($0 = name)
+	{
+		if(!@%m_lSources)return $nothing
+		if(!@%m_lSources->$moveFirst())return $nothing
+		do {
+			%s = @%m_lSources->$current()
+			if(%s->$name() == $0)return %s
+		} while(@%m_lSources->$moveNext())
+		return $nothing
+	}
+
+	internal createSource($0 = name,$1 = url,$2 = language,$3 = topic,$4 = enabled,$5 = use notifier,$6 = last notification)
+	{
+		%s = $new(newsticker::core::configuration::source,@%m_lSources)
+		%s->$set($0,$1,$2,$3,$4,$5,$6)
+		@%m_lSources->$append(%s)
+	}
+
+	internal createSourceIfNotExists($0 = name,$1 = url,$2 = language,$3 = topic,$4 = enabled,$5 = use notifier)
+	{
+		if($$->$findSourceByName($0))return
+		$$->$createSource($0,$1,$2,$3,$4,$5,"0001/01/01 00:00")
+	}
+	
+	loadDefaults()
+	{
+		$$->$createSourceIfNotExists("Slashdot","http://rss.slashdot.org/Slashdot/slashdot","EN","Technology",$true,$false)
+		$$->$createSourceIfNotExists("ANSA.it - English News","http://www.ansa.it/main/notizie/awnplus/english/synd/ansait_awnplus_english_medsynd_Today_Idx.xml","EN","Geneal",$false)
+		$$->$createSourceIfNotExists("ANSA.it - Top News","http://www.ansa.it/main/notizie/awnplus/topnews/synd/ansait_awnplus_topnews_medsynd_Today_Idx.xml","IT","General",$false,$false)
+		$$->$createSourceIfNotExists("ANSA.it - Sport","http://www.ansa.it/main/notizie/awnplus/sport/synd/ansait_awnplus_sport_medsynd_Today_Idx.xml","IT","Sport",$false,$false)
+		$$->$createSourceIfNotExists("KDE dot News","http://www.kde.org/dotkdeorg.rdf","EN","Technology",$false,$false)
+		$$->$createSourceIfNotExists("Yahoo - Top Stories","http://rss.news.yahoo.com/rss/topstories","EN","General",$false,$false)
+		$$->$createSourceIfNotExists("Yahoo - Technology","http://rss.news.yahoo.com/rss/tech","EN","Technology",$false,$false)
+		$$->$createSourceIfNotExists("Yahoo - NASA/Spaceshuttle","http://rss.news.yahoo.com/rss/nasashuttle","EN","Space",$false,$false)
+		$$->$createSourceIfNotExists("Yahoo - World","http://rss.news.yahoo.com/rss/world","EN","General",$false,$false)
+		
+		// Super thnx to Etherea for hunting up all these sources :)
+
+		$$->$createSourceIfNotExists("PosterWire","http://www.posterwire.com/rss","EN","Movies",$false,$false)
+		$$->$createSourceIfNotExists("Moving Image Archive","http://www.archive.org/services/collection-rss.php?mediatype=movies","EN","Movies",$false,$false)
+		$$->$createSourceIfNotExists("Alternative Film guide","http://www.altfg.com/blog/wp-feed.php","EN","Movies",$false,$false)
+		$$->$createSourceIfNotExists("ODEO PODCast","http://odeo.com/tag/cinema/rss.xml","EN","Movies POD",$false,$false)
+		$$->$createSourceIfNotExists("Cineblog.it","http://www.cineblog.it/rss2.xml","IT","Movies",$false,$false)
+		$$->$createSourceIfNotExists("Topix.net","http://rss.topix.net/rss/arts/cinema.xml","EN","Movies",$false,$false)
+		$$->$createSourceIfNotExists("The Movie Show","http://movie.thepodcastnetwork.com/feed/","EN","Movies POD",$false,$false)
+		$$->$createSourceIfNotExists("FilmFocus News","http://www.filmfocus.co.uk/rss/filmfocus-news.asp","EN","Movies",$false,$false)
+		$$->$createSourceIfNotExists("FilmFocus Home Entertainment","http://www.filmfocus.co.uk/rss/filmfocus-home.asp","EN","Movies",$false,$false)
+		$$->$createSourceIfNotExists("FilmFocus Interviews","http://www.filmfocus.co.uk/rss/filmfocus-interviews.asp","EN","Movies",$false,$false)
+		$$->$createSourceIfNotExists("FilmFocus Competition","http://www.filmfocus.co.uk/rss/filmfocus-competitions.asp","EN","Movies",$false,$false)
+		$$->$createSourceIfNotExists("iTunes Classical","http://ax.phobos.apple.com.edgesuite.net/WebObjects/MZStore.woa/wpa/MRSS/newreleases/sf=143441/genre=100000000/limit=10/rss.xml","EN","Music",$false,$false)
+		$$->$createSourceIfNotExists("Early Music","http://em.oxfordjournals.org/rss/current.xml","EN","Music",$false,$false)
+		$$->$createSourceIfNotExists("MSN Top Music","http://entertainment.msn.com/services/rss.aspx?chartname=topsongs","EN","Music",$false,$false)
+		$$->$createSourceIfNotExists("MSN Top Albums","http://entertainment.msn.com/services/rss.aspx?chartname=topalbums","EN","Music",$false,$false)
+		$$->$createSourceIfNotExists("MSN Top Artist","http://entertainment.msn.com/services/rss.aspx?chartname=topartists","EN","Music",$false,$false)
+		$$->$createSourceIfNotExists("Yahoo! Music News","http://rss.news.yahoo.com/rss/music","EN","Music",$false,$false)
+		$$->$createSourceIfNotExists("Yahoo! Digital Music News","http://rss.news.yahoo.com/rss/digitalmusic","EN","Music",$false,$false)
+		$$->$createSourceIfNotExists("Rolling Stones Music News","http://www.rollingstone.com/rssxml/music_news.xml?pageid=rs.page.news.story&pageregion=rssfeeds","EN","Music",$false,$false)
+		$$->$createSourceIfNotExists("BBC Entertainment","http://news.bbc.co.uk/rss/newsonline_uk_edition/entertainment/music/rss.xml","EN","Entertainment",$false,$false)
+		$$->$createSourceIfNotExists("NY Times Europe News","http://www.nytimes.com/services/xml/rss/nyt/Europe.xml","EN","Entertainment",$false,$false)
+		$$->$createSourceIfNotExists("MusiqueLibre.org POD","http://www.musique-libre.org/podcast.php?q=last","FR","Music",$false,$false)
+		$$->$createSourceIfNotExists("About: Heavy Metal","http://z.about.com/6/g/heavymetal/b/index.xml","EN","Music",$false,$false)
+		$$->$createSourceIfNotExists("Anime.org.uk: Anime!","http://www.anime.org.uk/aorguk.nsf/news.rss","EN","Anime",$false,$false)
+		$$->$createSourceIfNotExists("TheOtaku.com","http://rss.theotaku.com/feeds.php?action=retrieve&channel=news","EN","Anime",$false,$false)
+		$$->$createSourceIfNotExists("Anime News Network","http://www.animenewsnetwork.com/newsfeed/rss.xml","EN","Anime",$false,$false)
+		$$->$createSourceIfNotExists("Stock Repository","http://www.flickr.com/groups_feed.gne?id=49503068103@N01&format=rss_200","EN","Stock",$false,$false)
+		$$->$createSourceIfNotExists("Yahoo! Stock Quotes","http://rss.news.yahoo.com/rss/stocks","EN","Stock",$false,$false)
+		$$->$createSourceIfNotExists("CBS5 Entertainment","http://cbs5.com/entertainment/resources_rss.xml","EN","Entertainment",$false,$false)
+		$$->$createSourceIfNotExists("ABC Entertainment","http://my.abcnews.go.com/rsspublic/entertainment_rss20.xml","EN","Entertainment",$false,$false)
+		$$->$createSourceIfNotExists("CNN.com Showbiz","http://rss.cnn.com/rss/cnn_showbiz.rss","EN","Entertainment",$false,$false)
+		$$->$createSourceIfNotExists("Reuters: Entertainment","http://www.microsite.reuters.com/rss/Entertainment","EN","Entertainment",$false,$false)
+		$$->$createSourceIfNotExists("Science@NASA","http://www.nasa.gov/rss/science_at_nasa.rss","EN","Science",$false,$false)
+		$$->$createSourceIfNotExists("NASA: Breaking News","http://www.nasa.gov/rss/breaking_news.rss","EN","Science",$false,$false)
+		$$->$createSourceIfNotExists("NASA: Image of the Day","http://www.nasa.gov/rss/image_of_the_day.rss","EN","Science",$false,$false)
+		$$->$createSourceIfNotExists("Heral Tribune INTL","http://www.iht.com/rss/frontpage.xml","EN","News",$false,$false)
+		$$->$createSourceIfNotExists("Medical News Today","http://www.medicalnewstoday.com/medicalnews.xml","EN","News",$false,$false)
+		$$->$createSourceIfNotExists("Yahoo! Sport News","http://rss.news.yahoo.com/rss/sports","EN","Sport",$false,$false)
+		$$->$createSourceIfNotExists("Reuters: Football News","http://www.microsite.reuters.co.uk/rss/uk/worldFootballNews","EN","Sport",$false,$false)
+		$$->$createSourceIfNotExists("EuroSport: Tennis","http://www.eurosport.com/z/tennis/rss.xml","EN","Sport",$false,$false)
+		$$->$createSourceIfNotExists("EuroSport: Tennis US Open","http://www.eurosport.com/z/tennis/us-open/2005/rss.xml","EN","Sport",$false,$false)
+		$$->$createSourceIfNotExists("EuroSport: Tennis Wimbledon","http://www.eurosport.com/z/tennis/wimbledon/2005/rss.xml","EN","Sport",$false,$false)
+		$$->$createSourceIfNotExists("EuroSport: F1","http://www.eurosport.com/z/formula1/rss.xml","EN","Sport",$false,$false)
+		$$->$createSourceIfNotExists("EuroSport: Champions League","http://www.eurosport.com/z/football/uefa-champions-league/2005-2006/rss.xml","EN","Sport",$false,$false)
+		$$->$createSourceIfNotExists("EuroSport: Uefa Cup","http://www.eurosport.com/z/football/uefa-cup1/2005-2006/rss.xml","EN","Sport",$false,$false)
+		$$->$createSourceIfNotExists("EuroSport: MotoGP","http://www.eurosport.com/z/motorcycling/rss.xml","EN","Sport",$false,$false)
+		$$->$createSourceIfNotExists("EuroSport: Indy","http://www.eurosport.com/z/indycar/rss.xml","EN","Sport",$false,$false)
+		$$->$createSourceIfNotExists("EuroSport: Torino 2006","http://www.eurosport.com/z/crosscountryskiing/rss.xml","EN","Sport",$false,$false)
+		$$->$createSourceIfNotExists("EuroSport: Hockey","http://www.eurosport.com/z/icehockey/rss.xml","EN","Sport",$false,$false)
+
+		// :)
+		$$->$createSourceIfNotExists("KVIrc/CVS","http://cia.navi.cx/stats/project/kvirc/.rss","EN","Technology",$true,$false)
+
+		@%m_bStripHtmlTags = $true
+		@%m_bRemoveFeedFiles = $true
+		@%m_uFeedRefetchTimeoutInSeconds = 300; // 5 minutes
+	}
+	
+	internal load()
+	{
+		if(@%m_lSources)delete @%m_lSources
+		@%m_lSources = $new(list,0,standardList)
+
+		%c = $config.open("newsticker.kvc","r")
+
+		%n = $config.read(%c,"SourceCount",0)
+
+		config.setsection %c Sources
+
+		for(%i=0;%i<%n;%i++)
+		{
+			%name = $config.read(%c,"Name"%i,"")
+			%useNotifier = $config.read(%c,"UseNotifier"%i,$false)
+			%url = $config.read(%c,"Url"%i,"")
+			%lang = $config.read(%c,"Language"%i,"")
+			%topic = $config.read(%c,"Topic"%i,"")
+			%enabled = $config.read(%c,"Enabled"%i,$false)
+			%lastNotification = $config.read(%c,"LastNotification"%i,"")
+			if(%url && %name)
+			{
+				if(%lang == "")%lang = "EN"
+				if(%topic == "")%topic = "General"
+				if(%lastNotification == "")%lastNotification = "0001/01/01 00:00"
+				$$->$createSource(%name,%url,%lang,%topic,%enabled,%useNotifier,%lastNotification)
+			}
+		}
+
+		config.setsection %c "KVIrc"
+
+		@%m_bStripHtmlTags = $config.read(%c,"StripHtmlTags",$true)
+		@%m_bRemoveFeedFiles = $config.read(%c,"RemoveFeedFiles",$true)
+		@$setFeedRefetchTimeoutInSeconds($config.read(%c,"FeedRefetchTimeoutInSeconds",300))
+
+		%v = $config.read(%c,"Version",0)
+		if(%v < 10)
+		{
+			$$->$loadDefaults()
+		}
+
+		config.close %c
+	}
+	
+	sourceList()
+	{
+	return @%m_lSources
+	}
+	
+	stripHtmlTags()
+	{
+		return @%m_bStripHtmlTags;
+	}
+	
+	setStripHtmlTags($0 = bStrip)
+	{
+		@%m_bStripHtmlTags = $0
+	}
+	
+	removeFeedFiles()
+	{
+		return @%m_bRemoveFeedFiles;
+	}
+	
+	setRemoveFeedFiles($0 = bRemove)
+	{
+		@%m_bRemoveFeedFiles = $0
+	}
+	
+	feedRefetchTimeoutInSeconds()
+	{
+		return @%m_uFeedRefetchTimeoutInSeconds
+	}
+	
+	setFeedRefetchTimeoutInSeconds($0 = uSecs)
+	{
+		@%m_uFeedRefetchTimeoutInSeconds = $0
+		if(!$str.isUnsignedNumber(@%m_uFeedRefetchTimeoutInSeconds))
+			@%m_uFeedRefetchTimeoutInSeconds = 300
+		else {
+			// need a reasonable minimum: fetching news in less than two minutes is simply senseless
+			if(@%m_uFeedRefetchTimeoutInSeconds < 120)
+				@%m_uFeedRefetchTimeoutInSeconds = 120
+		}
+	}
+	
+	setSourceList($0 = new source list)
+	{
+		if(@%m_lSources)delete @%m_lSources
+		@%m_lSources = $0
+	}
+	
+	configurationDialogCommitted()
+	{
+		$$->$emit("configurationChanged")
+	}
+	
+	save()
+	{
+		%c = $config.open("newsticker.kvc")
+		
+		#debug "Writing configuration"
+
+		if(@%m_lSources)
+		{
+			%n = @%m_lSources->$count()
+			config.write %c "SourceCount" %n
+			config.clearsection %c "Sources"
+			config.setsection %c "Sources"
+			%i = 0
+			if(@%m_lSources->$moveFirst())
+			{
+				do {
+					%s = @%m_lSources->$current()
+					config.write %c "Name"%i %s->$name()
+					config.write %c "Url"%i %s->$url()
+					config.write %c "Language"%i %s->$language()
+					config.write %c "Topic"%i %s->$topic()
+					config.write %c "Enabled"%i %s->$enabled()
+					config.write %c "UseNotifier"%i %s->$useNotifier()
+					config.write %c "LastNotification"%i %s->$lastNotification()
+					%i++
+				} while(@%m_lSources->$moveNext())
+			}
+		} else {
+			config.write %c "SourceCount" 0
+		}
+
+		config.setsection %c "KVIrc"
+		config.write %c "StripHtmlTags" @%m_bStripHtmlTags
+		config.write %c "RemoveFeedFiles" @%m_bRemoveFeedFiles
+		config.write %c "FeedRefetchTimeoutInSeconds" @%m_uFeedRefetchTimeoutInSeconds
+
+		config.write %c "Version" 10
+
+		config.close %c
+	}
+
+	saveLastNotification($0 = rss entry)
+	{
+		%c = $config.open("newsticker.kvc")
+		config.setsection %c "Sources"
+		foreach(%key, $config.keylist(%c))
+		{
+			if($str.match("Name*",%key,e) && $0->$source() == $config.read(%c,%key))
+			{
+				config.write %c "LastNotification"$str.rightfromfirst(%key,"Name") $0->$date()
+				break
+			}
+		}
+		config.close %c
+
+		if(@%m_lSources->$moveFirst())
+		{
+			do {
+				%s = @%m_lSources->$current()
+				if($0->$source() == %s->$name())
+				{
+					%s->$setLastNotification($0->$date())
+					break
+				}
+			} while(@%m_lSources->$moveNext())
+		}
+			
+	}
+
+}
+
+alias(newsticker::core::configuration)
+{
+	if($objects.exists(%G_newstickerConfiguration))
+		return %G_newstickerConfiguration
+	%G_newstickerConfiguration = $new(newsticker::core::configuration)
+	return %G_newstickerConfiguration
+}
+
+alias(newsticker::configure)
+{
+	if($objects.exists(%G_newstickerConfigurationDialog))
+		return
+	%G_newstickerConfigurationDialog = $new(newsticker::core::configuration::dialog)
+	%G_newstickerConfigurationDialog->$show()
+}
+

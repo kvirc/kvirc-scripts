@@ -1,0 +1,252 @@
+class(newsticker::rss::reader,xmlreader)
+{
+	constructor()
+	{
+		@%m_lItems = $null
+	}
+
+	destructor()
+	{
+	}
+
+	run($0 = data to parse,$1 = list to insert into,$2 = sourcename,$3 = unread hash by date,$4 = notify?,$5 = last notification,$6 = quiet)
+	{
+		#debug "PARSING("$0")"
+		@%m_lItems = $1
+		@%m_szSource = $2
+		@%m_hUnreadItems = $3
+		@%m_bNotify = $4
+		@%m_tLastNotification = $5
+		if(!$this->$parse($0))
+		{
+			if(!$6)
+				debug "[RSS]["$2"] Error: " $this->$lastError()
+			return $false
+		}
+		@%m_lItems = $null;
+		return $true
+	}
+
+	internal onDocumentStart()
+	{
+		@%m_eState = "Nothing"
+		@%m_szLastTitle = ""
+		@%m_szLastLink = ""
+		@%m_szLastDescription = ""
+		@%m_szLastDate = ""
+		return $true;
+	}
+		
+	internal onWarning($0 = text)
+	{
+		// debug "WARNING:" $0
+		return $true;
+	}
+	
+	internal onText($0 = text)
+	{
+		switch(@%m_eState)
+		{
+			case("InsideTitle"):
+				@%m_szLastTitle .= $0
+			break;
+			case("InsideLink"):
+				@%m_szLastLink .= $0
+			break;
+			case("InsideDescription"):
+			{
+				%tmp = $0
+				%tmp =~ s/<.+\/>//g
+				@%m_szLastDescription .= %tmp
+			}
+			break;
+			case("InsideDate"):
+			{
+				#debug "Date text" $0
+				@%m_szLastDate = $0
+			}
+			break;
+		}
+		return $true;
+	}
+	
+	internal parseDate($0 = date)
+	{
+		// FIXME: this does not account to the timezone... which is hopeless in fact...
+		// supported formats:
+		//   YYYY-MM-DDThh:mm:ss.sTZD
+		//   YYYY-MM-DD hh:mm:ss
+		//   YYYY/MM/DD hh:mm:ss
+		//   Day, DD Month YYYY hh:mm:ss (+0700)
+		//   Mon, 30 Jan 2006 11:28:46 GMT
+
+		%days = $array("Mon","Tue","Wed","Thu","Fri","Sat","Sun")
+		for(%i=0;%i<7;%i++)
+		{
+			if($str.find(@%m_szLastDate,%days[%i]) >= 0)
+				break;
+		}
+
+		if(%i < 7)
+		{
+			// probably Day, DD Month YYYY hh:mm:ss (+XYZ)
+			%arry = $str.split(" ",@%m_szLastDate,"n")
+			%months = $array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+			for(%i = 0;%i < 12;%i++)
+			{
+				if($str.find(%arry[2],%months[%i]) >= 0)
+					break;
+			}
+			%month = $(%i+1)
+			%hms = $str.split(":",%arry[4])
+			%ret = %arry[3]"/"$(%month / 10)$(%month % 10)"/"%arry[1] %hms[0]":"%hms[1]
+		} else {
+			if($str.find(@%m_szLastDate,"T") > 0)
+				%tmp = $str.split("T",@%m_szLastDate,"n")
+			else
+				%tmp = $str.split(" ",@%m_szLastDate,"n")
+			%ymd = $str.split("-",%tmp[0])
+			%hms = $str.split(":",%tmp[1])
+			%ret = %ymd[0]"/"%ymd[1]"/"%ymd[2]" "%hms[0]":"%hms[1]
+		}
+
+		return %ret
+	}
+	
+	internal storeLastItem()
+	{
+		// We create each rssentry as child of the list of items
+		// so the children will be destroyed when the parent list is.
+		// a nice way of emulating the autoDelete() feature of QLists :)
+		%r = $new(newsticker::rss::entry,@%m_lItems)
+		
+		%c = $newsticker::core::configuration()
+		
+		#debug "DATE: " @%m_szLastDate
+		if(@%m_szLastDate == "")
+		{
+			@%m_szLastDate = $date("Y/m/d H:M") @%m_lItems->$count()
+		} else {
+			@%m_szLastDate = $$->$parseDate(@%m_szLastDate)
+		}
+
+		if($isSet(@%m_hUnreadItems{@%m_szLastDate}))
+		{
+			%bUnread = @%m_hUnreadItems{@%m_szLastDate}{isUnread}
+			%bNotified = @%m_hUnreadItems{@%m_szLastDate}{isNotified}
+		} else {
+			%bUnread = $true
+			// If must not be notified, let's assumed it is already notified
+			if(!@%m_bNotify)
+				%bNotified=$true
+			else
+				%bNotified=$false
+		}
+		%bNotified = $(%bNotified || (@%m_tLastNotification >=  @%m_szLastDate) )
+
+		if(@%m_szLastDescription == "")
+			@%m_szLastDescription = @%m_szLastTitle
+		
+		// make sure that the last description does not contain hidden html... it looks ugly
+		//debug "DESCRIPTION ORIG:" @%m_szLastDescription
+		//@%m_szLastDescription =~ s/&lt;.*&gt;//gm
+		if(%c->$stripHtmlTags())
+			@%m_szLastDescription =~ s/<.*>//gm
+		
+		//debug "DESCRIPTION NOW:" @%m_szLastDescription
+		//@%m_szLastDescription =~ s/&lt;a href=&quot;.*&gt;//gm
+		//@%m_szLastDescription =~ s/&lt;img src=&quot;.*&gt;//gm
+		
+		%r->$set(@%m_szLastTitle,@%m_szLastLink,@%m_szLastDescription,@%m_szLastDate,@%m_szSource,%bUnread,%bNotified)
+
+		#debug "GOT ITEM -- TITLE:" %r->$title() "-- LINK:" %r->$link() "-- SOURCE:" %r->$source();
+		#debug "-- DESCRIPTION:" %r->$description()
+		#debug "-- DATE:" %r->$date()
+		@%m_szLastTitle = ""
+		@%m_szLastLink = ""
+		@%m_szLastDescription = ""
+		@%m_szLastDate = ""
+		@%m_lItems->$inSort(%r)
+		return $true;
+	}
+
+	internal onElementStart($0 = qualified name,...)
+	{
+		if(@%m_eState == "Nothing")
+		{
+			if($0 == "item")
+			{
+				@%m_eState = "InsideItem"
+				return $true
+			}
+		} else {
+			switch($0)
+			{
+				case("title"):
+					@%m_eState = "InsideTitle"
+				break;
+				case("link"):
+					@%m_eState = "InsideLink"
+				break;
+				case("description"):
+					@%m_eState = "InsideDescription"
+				break;
+				case("date"):
+				{
+					#debug "got date element date"
+					@%m_eState = "InsideDate"
+				}
+				break;
+				case("dc:date"):
+				{
+					#debug "got date element dc:date"
+					@%m_eState = "InsideDate"
+				}
+				break;
+				case("pubDate"):
+				{
+					#debug "got date element pubDate"
+					@%m_eState = "InsideDate"
+				}
+				break;
+			}
+		}
+		return $true;
+	}
+	
+	internal onElementEnd($0 = qualified name,...)
+	{
+		if(@%m_eState != "Nothing")
+		{
+			switch($0)
+			{
+				case("item"):
+				{
+					$this->$storeLastItem()
+					@%m_eState = "Nothing"
+				}
+				break;
+				case("title"):
+					@%m_eState = "InsideItem"
+				break;
+				case("link"):
+					@%m_eState = "InsideItem"
+				break;
+				case("description"):
+					@%m_eState = "InsideItem"
+				break;
+				case("date"):
+					@%m_eState = "InsideItem"
+				break;
+				case("dc:date"):
+					@%m_eState = "InsideItem"
+				break;
+				case("pubDate"):
+					@%m_eState = "InsideItem"
+				break;
+			}
+		}
+		return $true;
+	}
+}
+

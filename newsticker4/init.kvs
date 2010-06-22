@@ -1,0 +1,26 @@
+# script newsticker for KVIrc :)
+# Written by Szymon Stefanek (2006)
+
+
+# register the script: this must be the first instruction executed
+# since it will abort with an error when a greater version is already installed
+addon.register("newsticker","1.2.0",$tr("Newsticker: The RSS News Reader","newsticker"),$tr("Displays RSS news feeds from various sources","newsticker"),"3.2.0.99.20051230",newsticker_32.png)
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	newsticker::uninstallfiles
+}
+
+addon.setconfigurecallback(newsticker)
+{
+	newsticker::configure
+}
+
+
+include "src/main.kvs"
+
+
+# make sure any previous instance is closed
+newsticker::close
+# show it up :)
+newsticker::show
+

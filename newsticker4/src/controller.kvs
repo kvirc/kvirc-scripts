@@ -1,0 +1,119 @@
+class(newsticker::controller)
+{
+	constructor()
+	{
+		@%m_eState = "Idle"; // can be "Idle" or "Fetching" for now...
+		// the list of sources.
+		// each source is a child of the list, so it will be destroyed with it
+		// eventually a child of $this object, will be destroyed with us
+		@%m_lSources = $null; 
+		@%m_lNews = $new(newsticker::rss::entrylist)
+		$$->$configurationChanged()
+		// this will be automatically killed when this object dies
+		@%m_iHeartbeatTimer = @$startTimer(10000)
+		%c = $newsticker::core::configuration()
+		objects.connect %c "configurationChanged" $this "configurationChanged"
+	}
+	
+	destructor()
+	{
+		delete @%m_lNews
+		if(@%m_lSources)delete @%m_lSources
+	}
+	
+	internal createSource($0 = name,$1 = url,$2 = use notifier, $3 = last notification)
+	{
+		%s = $new(newsticker::source,@%m_lSources)
+		%s->$setName($0)
+		%s->$setUrl($1)
+		%s->$setNotify($2)
+		%s->$setLastNotification($3)
+		%s->$setController($this)
+		objects.connect %s "newDataAvailable" $this "sourceNewDataAvailable"
+		return %s
+	}
+
+	newsList()
+	{
+		return @%m_lNews
+	}
+
+	configurationChanged()
+	{
+		%c = $newsticker::core::configuration()
+
+		if(@%m_lSources)delete @%m_lSources;
+		@%m_lSources = $new(list,$this)
+
+		%l = %c->$sourceList()
+		if(%l->$moveFirst())
+		{
+			do {
+				%s = %l->$current()
+				if(%s->$enabled())
+					@%m_lSources->$append(@$createSource(%s->$name(),%s->$url(),%s->$useNotifier(),%s->$lastNotification()))
+			} while(%l->$moveNext())
+		}
+		
+		delete @%m_lNews
+		@%m_lNews = $new(newsticker::rss::entrylist)
+		// emit our "changed" signal...
+		$$->$sourceNewDataAvailable()
+	}
+
+	notified($0 = entry)
+	{
+		if(@%m_lSources && @%m_lSources->$moveFirst())
+		{
+			do {
+				%s = @%m_lSources->$current()
+				if($0->$source() == %s->$name())
+				{
+					%s->$setLastNotification($0->$date())
+					break
+				}
+			} while(@%m_lSources->$moveNext())
+		}
+	}
+
+	internal tryToFetchNews()
+	{
+		if(@%m_lSources->$moveFirst())
+		{
+			%now = $unixtime
+			%uTimeout = $newsticker::core::configuration()->$feedRefetchTimeoutInSeconds()
+			do {
+				%src = @%m_lSources->$current();
+				if(%src->$isIdle())
+				{
+					if((%now - %src->$lastFetched()) > %uTimeout)
+					{
+						// more than 5 minutes passed since last fetch: refetch again
+						// and put it at the end of the list
+						%src->$fetch()
+						@%m_lSources->$removeCurrent()
+						@%m_lSources->$append(%src)
+						return
+					}
+				}
+			} while(@%m_lSources->$moveNext());
+		}
+	}
+
+	sourceNewDataAvailable()
+	{
+		// @%m_lNews has changed...
+		$this->$emit("newDataAvailable")
+	}
+
+	internal timerEvent($0 = timer id)
+	{
+		if($0 == @%m_iHeartbeatTimer)
+		{
+			# debug "Heartbeat"
+			// this is our heartbeat
+			@$tryToFetchNews()
+		}
+	}
+}
+

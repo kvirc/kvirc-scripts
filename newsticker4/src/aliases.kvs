@@ -1,0 +1,45 @@
+alias(newsticker::close)
+{
+	# On versions of KVIrc that support it, be nice and
+	# Avoid global namespace pollution: use $object.instances()
+	# to implement the singleton
+	if($version("s") >= "20061110")
+	{
+		%aInstances = $objects.instances(newsticker::window)
+		if(%aInstances)
+		{
+			# There should be only one.. but well...
+			foreach(%x,%aInstances)
+				delete %x
+		}
+	} else {
+		if($objects.exists(%G_NewstickerWindowHandle))
+			delete %G_NewstickerWindowHandle
+		unset %G_NewstickerWindowHandle
+	}
+}
+
+alias(newsticker::show)
+{
+	if($version("s") >= "20061110")
+	{
+		if($objects.instances(newsticker::window)) 
+		{
+			%dock=$objects.instances(newsticker::window)[0]
+			if (%dock->$isVisible()) return
+			%dock->$dock(l)
+			%dock->$show()
+			return 		
+		}
+		%h = $new(newsticker::window,0,"newsticker")
+		%h->$dock(l)
+		%h->$show()
+	} else {
+		if($objects.exists(%G_NewstickerWindowHandle))return
+		%G_NewstickerWindowHandle = $new(newsticker::window,0,"newsticker")
+		%G_NewstickerWindowHandle->$dock(l)
+		%G_NewstickerWindowHandle->$show()
+	}
+}
+
+
