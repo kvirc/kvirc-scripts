@@ -18,8 +18,8 @@ class(newsticker::window,dockwindow)
 	
 	constructor()
 	{
-		if ($str.contains($features(),"QT4"))@$setWindowTitle($tr("Newsticker","newsticker"))
-		  else @$setWindowTitle($tr("Newsticker","newsticker"))
+		@$setWindowTitle($tr("Newsticker","newsticker"))
+
 		@%m_hCurrentEntry = $new(newsticker::rss::entry)
 		@%m_bAutoDisplay = $true
 		@%m_tLastDisplayedEntryTimestamp = 0

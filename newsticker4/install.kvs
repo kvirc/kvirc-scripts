@@ -1,0 +1,56 @@
+# script newsticker for KVIrc :)
+# Written by Szymon Stefanek (2006)
+# 2010: Adapted for the new addon engine
+
+# Make sure we unload the old translation catalogue
+trunload "newsticker"
+
+# register the script: this must be the first instruction executed
+# since it will abort with an error when a greater version is already installed
+addon.register( \
+		"newsticker", \
+		"2.0.0", \
+		$tr("Newsticker: The RSS News Reader","newsticker"), \
+		$tr("Displays RSS news feeds from various sources","newsticker"), \
+		"4.0.0", \
+		newsticker_32.png \
+	)
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	newsticker::core::uninstall
+}
+
+addon.setconfigurecallback(newsticker)
+{
+	newsticker::configure
+}
+
+
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+
+# The installer will copy our files and generate automatically an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+
+# copy files in each subdirectory
+
+# the pics
+%installer->$copyFiles("%mypath/pics/","*.png",$file.localdir("pics"))
+%installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
+
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("newsticker::core::uninstall")
+
+# finally kill the installer helper
+delete %installer
+
+# Fetch the script now
+
+include "src/main.kvs"
+
+
+# make sure any previous instance is closed
+newsticker::close
+# show it up :)
+newsticker::show
+

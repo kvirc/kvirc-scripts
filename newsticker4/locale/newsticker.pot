@@ -1,0 +1,238 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-06-26 03:34+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../install.kvs:10
+msgid "Newsticker: The RSS News Reader"
+msgstr ""
+
+#: ../install.kvs:11
+msgid "Displays RSS news feeds from various sources"
+msgstr ""
+
+#: ../src/actions.kvs:1
+msgid "Show Newsticker"
+msgstr ""
+
+#: ../src/actions.kvs:1
+msgid "Shows the Newsticker Window"
+msgstr ""
+
+#: ../src/configuration.kvs:5 ../src/configuration.kvs:6
+msgid "Edit source"
+msgstr ""
+
+#: ../src/configuration.kvs:10
+msgid "Source Name:"
+msgstr ""
+
+#: ../src/configuration.kvs:17
+msgid "Source Url:"
+msgstr ""
+
+#: ../src/configuration.kvs:24
+msgid "Language:"
+msgstr ""
+
+#: ../src/configuration.kvs:31
+msgid "Category:"
+msgstr ""
+
+#: ../src/configuration.kvs:38 ../src/configuration.kvs:223
+msgid "Use notifier"
+msgstr ""
+
+#: ../src/configuration.kvs:39
+msgid "Use the notifier window to inform about news"
+msgstr ""
+
+#: ../src/configuration.kvs:43 ../src/configuration.kvs:322
+msgid "Cancel"
+msgstr ""
+
+#: ../src/configuration.kvs:48 ../src/configuration.kvs:329
+msgid "OK"
+msgstr ""
+
+#: ../src/configuration.kvs:65 ../src/configuration.kvs:124
+#: ../src/configuration.kvs:164 ../src/configuration.kvs:199
+#: ../src/window.kvs:265
+msgid "Yes"
+msgstr ""
+
+#: ../src/configuration.kvs:94
+msgid "Error"
+msgstr ""
+
+#: ../src/configuration.kvs:94
+msgid "Ok"
+msgstr ""
+
+#: ../src/configuration.kvs:104
+msgid "Oops.. internal error: the listviewitem object no longer exists"
+msgstr ""
+
+#: ../src/configuration.kvs:108
+msgid "Unnamed"
+msgstr ""
+
+#: ../src/configuration.kvs:112
+msgid "The url can't be empty!"
+msgstr ""
+
+#: ../src/configuration.kvs:117
+msgid "The url must start with http://"
+msgstr ""
+
+#: ../src/configuration.kvs:127 ../src/configuration.kvs:167
+#: ../src/window.kvs:265
+msgid "No"
+msgstr ""
+
+#: ../src/configuration.kvs:222
+msgid "Name"
+msgstr ""
+
+#: ../src/configuration.kvs:224
+msgid "Language"
+msgstr ""
+
+#: ../src/configuration.kvs:225
+msgid "Topic"
+msgstr ""
+
+#: ../src/configuration.kvs:226
+msgid "Url"
+msgstr ""
+
+#: ../src/configuration.kvs:231
+msgid "Defaults"
+msgstr ""
+
+#: ../src/configuration.kvs:236
+msgid "New..."
+msgstr ""
+
+#: ../src/configuration.kvs:241
+msgid "Remove"
+msgstr ""
+
+#: ../src/configuration.kvs:246
+msgid "Edit..."
+msgstr ""
+
+#: ../src/configuration.kvs:250
+msgid "Sources"
+msgstr ""
+
+#: ../src/configuration.kvs:278
+msgid "Other"
+msgstr ""
+
+#: ../src/configuration.kvs:281
+msgid "Strip Html Tags"
+msgstr ""
+
+#: ../src/configuration.kvs:285
+msgid "Remove Downloaded RSS Feed Files"
+msgstr ""
+
+#: ../src/configuration.kvs:289
+msgid "Refetch RSS Feeds After"
+msgstr ""
+
+#: ../src/configuration.kvs:297
+msgid "seconds"
+msgstr ""
+
+#: ../src/configuration.kvs:309 ../src/configuration.kvs:310
+msgid "Newsticker Configuration"
+msgstr ""
+
+#: ../src/configuration.kvs:378
+msgid "New RSS Source"
+msgstr ""
+
+#: ../src/configuration.kvs:378
+msgid "http://url.to.your.rss.feed"
+msgstr ""
+
+#: ../src/window.kvs:21
+msgid "Newsticker"
+msgstr ""
+
+#: ../src/window.kvs:41
+msgid "Show the first available news entry"
+msgstr ""
+
+#: ../src/window.kvs:46
+msgid "Show previous news entry"
+msgstr ""
+
+#: ../src/window.kvs:55
+msgid "Show the next unread news entry"
+msgstr ""
+
+#: ../src/window.kvs:60
+msgid "Show the next news entry"
+msgstr ""
+
+#: ../src/window.kvs:65
+msgid "Show the last available news entry"
+msgstr ""
+
+#: ../src/window.kvs:70
+msgid "Close the Newsticker"
+msgstr ""
+
+#: ../src/window.kvs:75
+msgid "Configure the Newsticker"
+msgstr ""
+
+#: ../src/window.kvs:80
+msgid ""
+"Automatic slide-show of news. If you keep it on, the news will be displayed "
+"passively, for 30 seconds each one."
+msgstr ""
+
+#: ../src/window.kvs:85
+msgid "View the current article online"
+msgstr ""
+
+#: ../src/window.kvs:90
+msgid "Advertise the current news entry to the current channel or query"
+msgstr ""
+
+#: ../src/window.kvs:172
+msgid "No news (yet)"
+msgstr ""
+
+#: ../src/window.kvs:183 ../src/window.kvs:185
+msgid "of"
+msgstr ""
+
+#: ../src/window.kvs:183 ../src/window.kvs:185
+msgid "unread"
+msgstr ""
+
+#: ../src/window.kvs:265
+msgid "Confirm close"
+msgstr ""
+
+#: ../src/window.kvs:265
+msgid "Do you really want to close the Newsticker ?"
+msgstr ""

@@ -1,0 +1,239 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Newsticker 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-06-26 03:34+0200\n"
+"PO-Revision-Date: 2010-60-26 03:34+0200\n"
+"Last-Translator: Szymon Tomasz Stefanek <s dot stefanek at gmail dot com>\n"
+"Language-Team: IT <it@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../install.kvs:10
+msgid "Newsticker: The RSS News Reader"
+msgstr "Newsticker: Il Reader di News RSS"
+
+#: ../install.kvs:11
+msgid "Displays RSS news feeds from various sources"
+msgstr "Mostra feed RSS di news da varie fonti"
+
+#: ../src/actions.kvs:1
+msgid "Show Newsticker"
+msgstr "Mostra Newsticker"
+
+#: ../src/actions.kvs:1
+msgid "Shows the Newsticker Window"
+msgstr "Mostra la Finestra del Newsticker"
+
+#: ../src/configuration.kvs:5 ../src/configuration.kvs:6
+msgid "Edit source"
+msgstr "Modifica fonte"
+
+#: ../src/configuration.kvs:10
+msgid "Source Name:"
+msgstr "Nome Fonte:"
+
+#: ../src/configuration.kvs:17
+msgid "Source Url:"
+msgstr "Url Fonte:"
+
+#: ../src/configuration.kvs:24
+msgid "Language:"
+msgstr "Lingua:"
+
+#: ../src/configuration.kvs:31
+msgid "Category:"
+msgstr "Categoria:"
+
+#: ../src/configuration.kvs:38 ../src/configuration.kvs:223
+msgid "Use notifier"
+msgstr "Usa notificatore"
+
+#: ../src/configuration.kvs:39
+msgid "Use the notifier window to inform about news"
+msgstr "Usa il notifier per avvertire di nuove news"
+
+#: ../src/configuration.kvs:43 ../src/configuration.kvs:322
+msgid "Cancel"
+msgstr "Annulla"
+
+#: ../src/configuration.kvs:48 ../src/configuration.kvs:329
+msgid "OK"
+msgstr "OK"
+
+#: ../src/configuration.kvs:65 ../src/configuration.kvs:124
+#: ../src/configuration.kvs:164 ../src/configuration.kvs:199
+#: ../src/window.kvs:265
+msgid "Yes"
+msgstr "Si"
+
+#: ../src/configuration.kvs:94
+msgid "Error"
+msgstr "Errore"
+
+#: ../src/configuration.kvs:94
+msgid "Ok"
+msgstr "Ok"
+
+#: ../src/configuration.kvs:104
+msgid "Oops.. internal error: the listviewitem object no longer exists"
+msgstr ""
+
+#: ../src/configuration.kvs:108
+msgid "Unnamed"
+msgstr "SenzaNome"
+
+#: ../src/configuration.kvs:112
+msgid "The url can't be empty!"
+msgstr "L'url non puo' essere vuota!"
+
+#: ../src/configuration.kvs:117
+msgid "The url must start with http://"
+msgstr "L'url deve iniziare con http://"
+
+#: ../src/configuration.kvs:127 ../src/configuration.kvs:167
+#: ../src/window.kvs:265
+msgid "No"
+msgstr "No"
+
+#: ../src/configuration.kvs:222
+msgid "Name"
+msgstr "Nome"
+
+#: ../src/configuration.kvs:224
+msgid "Language"
+msgstr "Lingua"
+
+#: ../src/configuration.kvs:225
+msgid "Topic"
+msgstr "Tema"
+
+#: ../src/configuration.kvs:226
+msgid "Url"
+msgstr "Url"
+
+#: ../src/configuration.kvs:231
+msgid "Defaults"
+msgstr "Predefinito"
+
+#: ../src/configuration.kvs:236
+msgid "New..."
+msgstr "Nuova..."
+
+#: ../src/configuration.kvs:241
+msgid "Remove"
+msgstr "Rimuovi"
+
+#: ../src/configuration.kvs:246
+msgid "Edit..."
+msgstr "Modifica..."
+
+#: ../src/configuration.kvs:250
+msgid "Sources"
+msgstr "Fonti"
+
+#: ../src/configuration.kvs:278
+msgid "Other"
+msgstr "Altro"
+
+#: ../src/configuration.kvs:281
+msgid "Strip Html Tags"
+msgstr "Elimina Tag Html"
+
+#: ../src/configuration.kvs:285
+msgid "Remove Downloaded RSS Feed Files"
+msgstr "Elimina i Files RSS Temporanei"
+
+#: ../src/configuration.kvs:289
+msgid "Refetch RSS Feeds After"
+msgstr "Scarica i Feed RSS Dopo"
+
+#: ../src/configuration.kvs:297
+msgid "seconds"
+msgstr "secondi"
+
+#: ../src/configuration.kvs:309 ../src/configuration.kvs:310
+msgid "Newsticker Configuration"
+msgstr "Configurazione Newsticker"
+
+#: ../src/configuration.kvs:378
+msgid "New RSS Source"
+msgstr "Nuova Fonte RSS"
+
+#: ../src/configuration.kvs:378
+msgid "http://url.to.your.rss.feed"
+msgstr "http://url.del.tuo.feed.rss"
+
+#: ../src/window.kvs:21
+msgid "Newsticker"
+msgstr "Newsticker"
+
+#: ../src/window.kvs:41
+msgid "Show the first available news entry"
+msgstr "Mostra la prima news disponibile"
+
+#: ../src/window.kvs:46
+msgid "Show previous news entry"
+msgstr "Mostra la news precedente"
+
+#: ../src/window.kvs:55
+msgid "Show the next unread news entry"
+msgstr "Mostra la prossima news non letta"
+
+#: ../src/window.kvs:60
+msgid "Show the next news entry"
+msgstr "Mostra la prossima news"
+
+#: ../src/window.kvs:65
+msgid "Show the last available news entry"
+msgstr "Mostra l'ultima news disponibile"
+
+#: ../src/window.kvs:70
+msgid "Close the Newsticker"
+msgstr "Chiudi il Newsticker"
+
+#: ../src/window.kvs:75
+msgid "Configure the Newsticker"
+msgstr "Configura il Newsticker"
+
+#: ../src/window.kvs:80
+msgid ""
+"Automatic slide-show of news. If you keep it on, the news will be displayed "
+"passively, for 30 seconds each one."
+msgstr "Slide-show automatico delle news. Se lo tieni attivo le news saranno mostrate in modo passivo, per 30 secondi ognuna"
+
+#: ../src/window.kvs:85
+msgid "View the current article online"
+msgstr "Mostra l'articolo corrente online"
+
+#: ../src/window.kvs:90
+msgid "Advertise the current news entry to the current channel or query"
+msgstr "Publicizza la news entry sul canale attivo o sulla query attiva"
+
+#: ../src/window.kvs:172
+msgid "No news (yet)"
+msgstr "Nessuna news (ancora)"
+
+#: ../src/window.kvs:183 ../src/window.kvs:185
+msgid "of"
+msgstr "di"
+
+#: ../src/window.kvs:183 ../src/window.kvs:185
+msgid "unread"
+msgstr "nuove"
+
+#: ../src/window.kvs:265
+msgid "Confirm close"
+msgstr "Conferma chiusura"
+
+#: ../src/window.kvs:265
+msgid "Do you really want to close the Newsticker ?"
+msgstr "Vuoi veramente chiudere il Newsticker ?"
+
