@@ -34,7 +34,7 @@ include "utils/installer.kvs"
 # the translations
 #%installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
 # the documentation
-#%installer->$copyFiles("%mypath/help/en/nowplaying/","*.html",$file.localdir("help/en/nowplaying"))
+#%installer->$copyFiles("%mypath/help/en/newsticker/","*.html",$file.localdir("help/en/newsticker"))
 # parse source files
 %installer->$includeFiles("%mypath/src/","*.kvs")
 # then generate the uninstall alias

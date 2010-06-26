@@ -1,0 +1,126 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-06-26 05:55+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../install.kvs:15
+msgid "Now Playing: The media advertiser"
+msgstr ""
+
+#: ../install.kvs:16
+msgid "Allows advertising and sharing the currently played media"
+msgstr ""
+
+#: ../install.kvs:124
+msgid "Now Playing Script Configuration"
+msgstr ""
+
+#: ../install.kvs:135
+msgid "Output Format"
+msgstr ""
+
+#: ../install.kvs:140
+msgid "Use Colors"
+msgstr ""
+
+#: ../install.kvs:141
+msgid "Bold Title"
+msgstr ""
+
+#: ../install.kvs:146
+msgid "Output Contents"
+msgstr ""
+
+#: ../install.kvs:150
+msgid "Show Year"
+msgstr ""
+
+#: ../install.kvs:151
+msgid "Show Bitrate"
+msgstr ""
+
+#: ../install.kvs:152
+msgid "Show Sample Rate"
+msgstr ""
+
+#: ../install.kvs:153
+msgid "Show Channels"
+msgstr ""
+
+#: ../install.kvs:154
+msgid "Show File Size"
+msgstr ""
+
+#: ../install.kvs:155
+msgid "Show Total Time"
+msgstr ""
+
+#: ../install.kvs:156
+msgid "Show Current Time"
+msgstr ""
+
+#: ../install.kvs:163
+msgid "Other"
+msgstr ""
+
+#: ../install.kvs:167
+msgid "Share Media"
+msgstr ""
+
+#: ../install.kvs:173
+msgid "Share Timeout"
+msgstr ""
+
+#: ../install.kvs:178
+msgid "seconds"
+msgstr ""
+
+#: ../install.kvs:184
+msgid "OK"
+msgstr ""
+
+#: ../install.kvs:192
+msgid "Cancel"
+msgstr ""
+
+#: ../install.kvs:280
+msgid "Seems that your media player is not playing at the moment (status:"
+msgstr ""
+
+#: ../install.kvs:287
+msgid ""
+"You can advertise the currently played media only on channels and queries"
+msgstr ""
+
+#: ../install.kvs:423
+msgid "Advertise current media"
+msgstr ""
+
+#: ../install.kvs:423
+msgid "Advertises the currently played media and shares it"
+msgstr ""
+
+#: ../install.kvs:428
+msgid "Configure \"Now Playing\""
+msgstr ""
+
+#: ../install.kvs:428
+msgid "Allows configuring the \"Now Playing\" script addon"
+msgstr ""
+
+#: ../install.kvs:436
+msgid "Now Playing"
+msgstr ""
