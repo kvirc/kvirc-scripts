@@ -26,7 +26,6 @@ addon.register( \
 	alias(nowplaying::help){}
 	alias(nowplaying::core::loadconfig){}
 	alias(nowplaying::core::saveconfig){}
-	alias(nowplaying::core::uninstallfiles){}
 
 	# Kill our actions
 	action.destroy nowplaying::advertise
