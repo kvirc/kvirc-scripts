@@ -2,8 +2,10 @@ class(newsticker::core::configuration::sourceeditor,dialog)
 {
 	constructor()
 	{
-		if ($str.contains($features(),"QT4"))@$setWindowTitle($tr("Edit source","newsticker"))
-		  else @$setWindowTitle($tr("Edit source","newsticker"))
+		if ($str.contains($features(),"QT4"))
+			@$setWindowTitle($tr("Edit source","newsticker"))
+		else
+			@$setWindowTitle($tr("Edit source","newsticker"))
 		%l = $new(layout,$this)
 
 		%lb = $new(label,$this)

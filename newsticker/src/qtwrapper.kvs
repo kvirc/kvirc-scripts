@@ -2,8 +2,10 @@ class(listviewwrapper,listview)
 {
 	constructor()
 	{
-		if ($str.contains($features(),"QT4")) {@%qt4=$true;@%idx=0;}
-		else @%qt4=$false
+		if ($str.contains($features(),"QT4"))
+			{@%qt4=$true;@%idx=0;}
+		else
+			@%qt4=$false
 	
 	}
 	selectedItem()
