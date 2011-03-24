@@ -8,170 +8,171 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-26 03:34+0200\n"
+"POT-Creation-Date: 2011-03-25 00:38+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../install.kvs:10
+#: ../install.kvs:9
 msgid "Newsticker: The RSS News Reader"
 msgstr ""
 
-#: ../install.kvs:11
+#: ../install.kvs:10
 msgid "Displays RSS news feeds from various sources"
 msgstr ""
 
-#: ../src/actions.kvs:1
+#: ../src/actions.kvs:3
 msgid "Show Newsticker"
 msgstr ""
 
-#: ../src/actions.kvs:1
+#: ../src/actions.kvs:4
 msgid "Shows the Newsticker Window"
 msgstr ""
 
-#: ../src/configuration.kvs:5 ../src/configuration.kvs:6
+#: ../src/configuration.kvs:6 ../src/configuration.kvs:8
 msgid "Edit source"
 msgstr ""
 
-#: ../src/configuration.kvs:10
+#: ../src/configuration.kvs:12
 msgid "Source Name:"
 msgstr ""
 
-#: ../src/configuration.kvs:17
+#: ../src/configuration.kvs:19
 msgid "Source Url:"
 msgstr ""
 
-#: ../src/configuration.kvs:24
+#: ../src/configuration.kvs:26
 msgid "Language:"
 msgstr ""
 
-#: ../src/configuration.kvs:31
+#: ../src/configuration.kvs:33
 msgid "Category:"
 msgstr ""
 
-#: ../src/configuration.kvs:38 ../src/configuration.kvs:223
+#: ../src/configuration.kvs:40 ../src/configuration.kvs:225
 msgid "Use notifier"
 msgstr ""
 
-#: ../src/configuration.kvs:39
+#: ../src/configuration.kvs:41
 msgid "Use the notifier window to inform about news"
 msgstr ""
 
-#: ../src/configuration.kvs:43 ../src/configuration.kvs:322
+#: ../src/configuration.kvs:45 ../src/configuration.kvs:324
 msgid "Cancel"
 msgstr ""
 
-#: ../src/configuration.kvs:48 ../src/configuration.kvs:329
+#: ../src/configuration.kvs:50 ../src/configuration.kvs:331
 msgid "OK"
 msgstr ""
 
-#: ../src/configuration.kvs:65 ../src/configuration.kvs:124
-#: ../src/configuration.kvs:164 ../src/configuration.kvs:199
+#: ../src/configuration.kvs:67 ../src/configuration.kvs:126
+#: ../src/configuration.kvs:166 ../src/configuration.kvs:201
 #: ../src/window.kvs:265
 msgid "Yes"
 msgstr ""
 
-#: ../src/configuration.kvs:94
+#: ../src/configuration.kvs:96
 msgid "Error"
 msgstr ""
 
-#: ../src/configuration.kvs:94
+#: ../src/configuration.kvs:96
 msgid "Ok"
 msgstr ""
 
-#: ../src/configuration.kvs:104
+#: ../src/configuration.kvs:106
 msgid "Oops.. internal error: the listviewitem object no longer exists"
 msgstr ""
 
-#: ../src/configuration.kvs:108
+#: ../src/configuration.kvs:110
 msgid "Unnamed"
 msgstr ""
 
-#: ../src/configuration.kvs:112
+#: ../src/configuration.kvs:114
 msgid "The url can't be empty!"
 msgstr ""
 
-#: ../src/configuration.kvs:117
+#: ../src/configuration.kvs:119
 msgid "The url must start with http://"
 msgstr ""
 
-#: ../src/configuration.kvs:127 ../src/configuration.kvs:167
+#: ../src/configuration.kvs:129 ../src/configuration.kvs:169
 #: ../src/window.kvs:265
 msgid "No"
 msgstr ""
 
-#: ../src/configuration.kvs:222
+#: ../src/configuration.kvs:224
 msgid "Name"
 msgstr ""
 
-#: ../src/configuration.kvs:224
+#: ../src/configuration.kvs:226
 msgid "Language"
 msgstr ""
 
-#: ../src/configuration.kvs:225
+#: ../src/configuration.kvs:227
 msgid "Topic"
 msgstr ""
 
-#: ../src/configuration.kvs:226
+#: ../src/configuration.kvs:228
 msgid "Url"
 msgstr ""
 
-#: ../src/configuration.kvs:231
+#: ../src/configuration.kvs:233
 msgid "Defaults"
 msgstr ""
 
-#: ../src/configuration.kvs:236
+#: ../src/configuration.kvs:238
 msgid "New..."
 msgstr ""
 
-#: ../src/configuration.kvs:241
+#: ../src/configuration.kvs:243
 msgid "Remove"
 msgstr ""
 
-#: ../src/configuration.kvs:246
+#: ../src/configuration.kvs:248
 msgid "Edit..."
 msgstr ""
 
-#: ../src/configuration.kvs:250
+#: ../src/configuration.kvs:252
 msgid "Sources"
 msgstr ""
 
-#: ../src/configuration.kvs:278
+#: ../src/configuration.kvs:280
 msgid "Other"
 msgstr ""
 
-#: ../src/configuration.kvs:281
+#: ../src/configuration.kvs:283
 msgid "Strip Html Tags"
 msgstr ""
 
-#: ../src/configuration.kvs:285
+#: ../src/configuration.kvs:287
 msgid "Remove Downloaded RSS Feed Files"
 msgstr ""
 
-#: ../src/configuration.kvs:289
+#: ../src/configuration.kvs:291
 msgid "Refetch RSS Feeds After"
 msgstr ""
 
-#: ../src/configuration.kvs:297
+#: ../src/configuration.kvs:299
 msgid "seconds"
 msgstr ""
 
-#: ../src/configuration.kvs:309 ../src/configuration.kvs:310
+#: ../src/configuration.kvs:311 ../src/configuration.kvs:312
 msgid "Newsticker Configuration"
 msgstr ""
 
-#: ../src/configuration.kvs:378
+#: ../src/configuration.kvs:380
 msgid "New RSS Source"
 msgstr ""
 
-#: ../src/configuration.kvs:378
+#: ../src/configuration.kvs:380
 msgid "http://url.to.your.rss.feed"
 msgstr ""
 
-#: ../src/window.kvs:21
+#: ../src/window.kvs:21 ../src/window.kvs:22
 msgid "Newsticker"
 msgstr ""
 

@@ -1,28 +1,30 @@
 # script newsticker for KVIrc :)
 # Written by Szymon Stefanek (2006)
 
-
 # register the script: this must be the first instruction executed
 # since it will abort with an error when a greater version is already installed
-addon.register(
-		"newsticker",
-		"1.2.0",
-		$tr("Newsticker: The RSS News Reader","newsticker"),
-		$tr("Displays RSS news feeds from various sources","newsticker"),
-		"4.0.4",
-		newsticker_32.png
+addon.register( \
+		"newsticker", \
+		"1.2.0", \
+		$tr("Newsticker: The RSS News Reader","newsticker"), \
+		$tr("Displays RSS news feeds from various sources","newsticker"), \
+		"4.0.4", \
+		newsticker_32.png \
 	)
 {
 	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
 	
 	# The stuff should be destroyed in reverse order, if possible.
+
+	# Unload the translation, if any
+	trunload "newsticker"
 	
 	# Close any running instance
-	newsticker::close
+	#newsticker::close
 	
 	# Kill aliases
-	alias("newsticker::close"){}
-	alias("newsticker::show"){}
+	alias -q ("newsticker::close"){}
+	alias -q ("newsticker::show"){}
 	
 	# Kill actions
 	action.destroy "newsticker::toggle";
@@ -52,9 +54,9 @@ addon.setconfigurecallback(newsticker)
 %mypath = $file.extractPath($0)
 //%mypath = $str.lefttolast($0,/)
 
-addon.copyfiles "newsticker" "pics" "%mypath/pics/*.png"
-addon.copyfiles "newsticker" "locale" "%mypath/locale/*.mo"
-addon.copyfiles "newsticker" "help" "%mypath/help/en/newsticker/*.html"
+addon.installfiles "newsticker" "pics" "%mypath/pics/*.png"
+addon.installfiles "newsticker" "locale" "%mypath/locale/*.mo"
+addon.installfiles "newsticker" "help/en" "%mypath/help/en/newsticker/*.html"
 
 parse "%mypath/src/rssentry.kvs"
 parse "%mypath/src/rssentrylist.kvs"

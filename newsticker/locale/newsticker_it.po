@@ -8,170 +8,171 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Newsticker 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-26 03:34+0200\n"
+"POT-Creation-Date: 2011-03-25 00:38+0100\n"
 "PO-Revision-Date: 2010-60-26 03:34+0200\n"
 "Last-Translator: Szymon Tomasz Stefanek <s dot stefanek at gmail dot com>\n"
 "Language-Team: IT <it@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../install.kvs:10
+#: ../install.kvs:9
 msgid "Newsticker: The RSS News Reader"
 msgstr "Newsticker: Il Reader di News RSS"
 
-#: ../install.kvs:11
+#: ../install.kvs:10
 msgid "Displays RSS news feeds from various sources"
 msgstr "Mostra feed RSS di news da varie fonti"
 
-#: ../src/actions.kvs:1
+#: ../src/actions.kvs:3
 msgid "Show Newsticker"
 msgstr "Mostra Newsticker"
 
-#: ../src/actions.kvs:1
+#: ../src/actions.kvs:4
 msgid "Shows the Newsticker Window"
 msgstr "Mostra la Finestra del Newsticker"
 
-#: ../src/configuration.kvs:5 ../src/configuration.kvs:6
+#: ../src/configuration.kvs:6 ../src/configuration.kvs:8
 msgid "Edit source"
 msgstr "Modifica fonte"
 
-#: ../src/configuration.kvs:10
+#: ../src/configuration.kvs:12
 msgid "Source Name:"
 msgstr "Nome Fonte:"
 
-#: ../src/configuration.kvs:17
+#: ../src/configuration.kvs:19
 msgid "Source Url:"
 msgstr "Url Fonte:"
 
-#: ../src/configuration.kvs:24
+#: ../src/configuration.kvs:26
 msgid "Language:"
 msgstr "Lingua:"
 
-#: ../src/configuration.kvs:31
+#: ../src/configuration.kvs:33
 msgid "Category:"
 msgstr "Categoria:"
 
-#: ../src/configuration.kvs:38 ../src/configuration.kvs:223
+#: ../src/configuration.kvs:40 ../src/configuration.kvs:225
 msgid "Use notifier"
 msgstr "Usa notificatore"
 
-#: ../src/configuration.kvs:39
+#: ../src/configuration.kvs:41
 msgid "Use the notifier window to inform about news"
 msgstr "Usa il notifier per avvertire di nuove news"
 
-#: ../src/configuration.kvs:43 ../src/configuration.kvs:322
+#: ../src/configuration.kvs:45 ../src/configuration.kvs:324
 msgid "Cancel"
 msgstr "Annulla"
 
-#: ../src/configuration.kvs:48 ../src/configuration.kvs:329
+#: ../src/configuration.kvs:50 ../src/configuration.kvs:331
 msgid "OK"
 msgstr "OK"
 
-#: ../src/configuration.kvs:65 ../src/configuration.kvs:124
-#: ../src/configuration.kvs:164 ../src/configuration.kvs:199
+#: ../src/configuration.kvs:67 ../src/configuration.kvs:126
+#: ../src/configuration.kvs:166 ../src/configuration.kvs:201
 #: ../src/window.kvs:265
 msgid "Yes"
 msgstr "Si"
 
-#: ../src/configuration.kvs:94
+#: ../src/configuration.kvs:96
 msgid "Error"
 msgstr "Errore"
 
-#: ../src/configuration.kvs:94
+#: ../src/configuration.kvs:96
 msgid "Ok"
 msgstr "Ok"
 
-#: ../src/configuration.kvs:104
+#: ../src/configuration.kvs:106
 msgid "Oops.. internal error: the listviewitem object no longer exists"
 msgstr ""
 
-#: ../src/configuration.kvs:108
+#: ../src/configuration.kvs:110
 msgid "Unnamed"
 msgstr "SenzaNome"
 
-#: ../src/configuration.kvs:112
+#: ../src/configuration.kvs:114
 msgid "The url can't be empty!"
 msgstr "L'url non puo' essere vuota!"
 
-#: ../src/configuration.kvs:117
+#: ../src/configuration.kvs:119
 msgid "The url must start with http://"
 msgstr "L'url deve iniziare con http://"
 
-#: ../src/configuration.kvs:127 ../src/configuration.kvs:167
+#: ../src/configuration.kvs:129 ../src/configuration.kvs:169
 #: ../src/window.kvs:265
 msgid "No"
 msgstr "No"
 
-#: ../src/configuration.kvs:222
+#: ../src/configuration.kvs:224
 msgid "Name"
 msgstr "Nome"
 
-#: ../src/configuration.kvs:224
+#: ../src/configuration.kvs:226
 msgid "Language"
 msgstr "Lingua"
 
-#: ../src/configuration.kvs:225
+#: ../src/configuration.kvs:227
 msgid "Topic"
 msgstr "Tema"
 
-#: ../src/configuration.kvs:226
+#: ../src/configuration.kvs:228
 msgid "Url"
 msgstr "Url"
 
-#: ../src/configuration.kvs:231
+#: ../src/configuration.kvs:233
 msgid "Defaults"
 msgstr "Predefinito"
 
-#: ../src/configuration.kvs:236
+#: ../src/configuration.kvs:238
 msgid "New..."
 msgstr "Nuova..."
 
-#: ../src/configuration.kvs:241
+#: ../src/configuration.kvs:243
 msgid "Remove"
 msgstr "Rimuovi"
 
-#: ../src/configuration.kvs:246
+#: ../src/configuration.kvs:248
 msgid "Edit..."
 msgstr "Modifica..."
 
-#: ../src/configuration.kvs:250
+#: ../src/configuration.kvs:252
 msgid "Sources"
 msgstr "Fonti"
 
-#: ../src/configuration.kvs:278
+#: ../src/configuration.kvs:280
 msgid "Other"
 msgstr "Altro"
 
-#: ../src/configuration.kvs:281
+#: ../src/configuration.kvs:283
 msgid "Strip Html Tags"
 msgstr "Elimina Tag Html"
 
-#: ../src/configuration.kvs:285
+#: ../src/configuration.kvs:287
 msgid "Remove Downloaded RSS Feed Files"
 msgstr "Elimina i Files RSS Temporanei"
 
-#: ../src/configuration.kvs:289
+#: ../src/configuration.kvs:291
 msgid "Refetch RSS Feeds After"
 msgstr "Scarica i Feed RSS Dopo"
 
-#: ../src/configuration.kvs:297
+#: ../src/configuration.kvs:299
 msgid "seconds"
 msgstr "secondi"
 
-#: ../src/configuration.kvs:309 ../src/configuration.kvs:310
+#: ../src/configuration.kvs:311 ../src/configuration.kvs:312
 msgid "Newsticker Configuration"
 msgstr "Configurazione Newsticker"
 
-#: ../src/configuration.kvs:378
+#: ../src/configuration.kvs:380
 msgid "New RSS Source"
 msgstr "Nuova Fonte RSS"
 
-#: ../src/configuration.kvs:378
+#: ../src/configuration.kvs:380
 msgid "http://url.to.your.rss.feed"
 msgstr "http://url.del.tuo.feed.rss"
 
-#: ../src/window.kvs:21
+#: ../src/window.kvs:21 ../src/window.kvs:22
 msgid "Newsticker"
 msgstr "Newsticker"
 
@@ -207,7 +208,9 @@ msgstr "Configura il Newsticker"
 msgid ""
 "Automatic slide-show of news. If you keep it on, the news will be displayed "
 "passively, for 30 seconds each one."
-msgstr "Slide-show automatico delle news. Se lo tieni attivo le news saranno mostrate in modo passivo, per 30 secondi ognuna"
+msgstr ""
+"Slide-show automatico delle news. Se lo tieni attivo le news saranno "
+"mostrate in modo passivo, per 30 secondi ognuna"
 
 #: ../src/window.kvs:85
 msgid "View the current article online"
@@ -236,4 +239,3 @@ msgstr "Conferma chiusura"
 #: ../src/window.kvs:265
 msgid "Do you really want to close the Newsticker ?"
 msgstr "Vuoi veramente chiudere il Newsticker ?"
-
