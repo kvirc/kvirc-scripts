@@ -27,7 +27,7 @@ addon.register( \
 	alias -q ("newsticker::show"){}
 	
 	# Kill actions
-	action.destroy "newsticker::toggle";
+	action.destroy -q "newsticker::toggle";
 	
 	# Kill classes (reversed order)
 	objects.killClass -q "newsticker::window"
