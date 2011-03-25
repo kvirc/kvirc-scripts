@@ -5,7 +5,7 @@
 # since it will abort with an error when a greater version is already installed
 addon.register( \
 		"newsticker", \
-		"1.2.0", \
+		"2.0.0", \
 		$tr("Newsticker: The RSS News Reader","newsticker"), \
 		$tr("Displays RSS news feeds from various sources","newsticker"), \
 		"4.0.4", \
