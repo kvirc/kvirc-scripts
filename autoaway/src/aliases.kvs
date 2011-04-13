@@ -10,7 +10,7 @@ alias(autoaway::core::config::load)
 	%AutoAway{"Reason"} = $config.read(%c,"Reason",$tr("felt asleep over the keyboard...","autoaway"));
 	%AutoAway{"InactivityTimeoutInMins"} = $config.read(%c,"InactivityTimeoutInMins",10);
 	%AutoAway{"UseAwayMessage"} = $config.read(%c,"UseAwayMessage",0)
-	%AutoAway{"AwayMessage"} = $config.read(%c,"AwayMessage",$tr("felt asleep over the keyboard after \%AutoAwayTime minutes of inactivity...","autoaway"))
+	%AutoAway{"AwayMessage"} = $config.read(%c,"AwayMessage",$tr("fell asleep over the keyboard after \%AutoAwayTime minutes of inactivity...","autoaway"))
 	config.close %c
 
 	%AutoAway{"configloaded"} = 1
