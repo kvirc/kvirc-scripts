@@ -507,7 +507,7 @@ alias(cryption)
 }
 
 # add event-handlers to do the "automatism"
-event(OnChannelSync,cryption)
+event(OnChannelWindowCreated,cryption)
 {
 	# check the joined channel for cryption
 	cryption check
