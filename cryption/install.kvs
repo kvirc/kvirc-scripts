@@ -472,7 +472,8 @@ alias(cryption)
 			echo -i=$msgtype(ChanPrivmsgCrypted) "%scripttag the cryption script has been uninstalled succesfully"
 			# defining the alias by empty code will remove it
 			alias(cryption){}
-			event(OnChannelSync,cryption){}
+			#event(OnChannelSync,cryption){}
+			event(OnChannelWindowCreated,cryption){}
 			event(OnQueryWindowCreated,cryption){}
 			cryption_uninstallfiles
 			alias(cryption_uninstallfiles) {}
@@ -507,7 +508,8 @@ alias(cryption)
 }
 
 # add event-handlers to do the "automatism"
-event(OnChannelSync,cryption)
+#event(OnChannelSync,cryption)
+event(OnChannelWindowCreated,cryption)
 {
 	# check the joined channel for cryption
 	cryption check
