@@ -1,0 +1,95 @@
+alias(slap)
+{
+	%nick = $0
+	%name = "Monster slap"
+	%boast = "Slapping in IRC never been so much fun!\nExclusive to KVIrc!"
+	%version = "1.0.0"
+	
+	%action[0] = "sacrifices"
+	%action[1] = "slaps"
+	%action[2] = "drags"
+	%action[3] = "whips"
+	%action[4] = "caresses"
+	%a = $rand(4)
+	%vaction = $b%action[%a]$b
+	
+	%times[0] = "once"
+	%times[1] = "twice"
+	%times[2] = "three times"
+	%times[3] = "several times"
+	%b = $rand(3)
+	%ntimes = %times[%b]
+	
+	%location[0] = "in the room,"
+	%location[1] = "in the desert,"
+	%location[2] = "in the dungeon,"
+	%location[3] = "in the channel,"
+	%c = $rand(3)
+	%vlocation = %location[%c]
+	
+	%where[0] = "around"
+	%where[1] = "everywhere"
+	%where[2] = "at chanserv's feet"
+	%where[3] = "at nickserv's feet"
+	%where[4] = "at the altar of krull"
+	%d = $rand(4)
+	%vwhere = $b%where[%d]$b
+	
+	%with[0] = "with"
+	%with[1] = "and forces $0 to eat"
+	%with[2] = "and forces $0 to stare at"
+	%with[3] = "and $0 eats"
+	%e = $rand(3)
+	%vwith = $b%with[%e]$b
+	
+	%slap[0]  = "a large wild salmon!"
+	%slap[1]  = "10K lines of source code!"
+	%slap[2]  = "a bag of dirty laundry!"
+	%slap[3]  = "a flying cow!"
+	%slap[4]  = "some apt-get commands!"
+	%slap[5]  = "a wet, smelly, hairy and sloppy old vagina!"
+	%slap[6]  = "a flying pig!"
+	%slap[7]  = "a self deprecating wise crack!"
+	%slap[8]  = "a pile of primordial gue!"
+	%slap[9]  = "a box of Corn Flakes!"
+	%slap[10] = "some really smelly shoes!"
+	%slap[11] = "a huge wet smelly trout!"
+	%slap[12] = "a sharp and pointy object!"
+	%slap[13] = "a long pole!"
+	%slap[14] = "a ping-pong paddle!"
+	%slap[15] = "a cardboard cut-out of Chuck Norris!"
+	%slap[16] = "some nails in a chalkboard!"
+	%slap[17] = "an apple product!"
+	%slap[18] = "a talking duck!"
+	%slap[19] = "a wasps nest!"
+	%slap[20] = "a zombies rotting brains!"
+	%slap[21] = "some annoying movie quotes!"
+	%slap[22] = "a wire coat hanger!"
+	%slap[23] = "some disgusting alien food!"
+	%slap[24] = "a dozen live whole squids!"
+	%f = $rand(24)
+	%vslap = %slap[%f]
+		 
+	if(($window.type == "query") && (%nick == ""))
+	{
+		%nick = $window.caption 
+		%nick = $str.lefttofirst(%nick,"[")
+		%nick = $str.stripright(%nick)
+	}
+	
+	if(!$0)
+	{
+		echo $tr("Usage:","defscript") "%name - v$b%version$b"
+		echo "	  /slap <nick>"
+		echo "	  /slap version"
+		halt
+	}
+	
+	if ($0 == version)
+	{
+		echo %name - v$b%version$b \n%boast
+		halt
+	}
+	else
+		me %vaction %nick %ntimes %vwhere %vlocation %vwith %vslap
+}
