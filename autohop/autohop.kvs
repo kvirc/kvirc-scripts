@@ -1,0 +1,33 @@
+# autohop: script which automatically parts and rejoins a channel when you're the last one left and aren't opped
+# author: Cizzle
+# version: 1.0 (20150912)
+# license: Unlicense <http://unlicense.org>
+
+addon.register("autohop","1.0",$tr("Autohop","autohop"),$tr("Auto hop channel when last one left and not opped","autohop"),"4.2.0")
+{
+	# uninstall callback
+	event(OnQuit,autohop){}
+	event(OnPart,autohop){}
+}
+
+event(OnQuit,autohop)
+{
+	if ($me != $0) {
+		# go over all channels we share with the quiting user
+		foreach(%chan,$str.split(",",$4)) {
+			%chanid = $channel(%chan,$context)
+			# event is invoked when user hasn't completed quiting
+			if ($chan.usercount(%chanid) == 2 && !($chan.isMeOp(%chanid))) {
+				hop %chan
+			}
+		}
+	}
+}
+
+event(OnPart,autohop)
+{
+	# event is invoked when user hasn't completed parting
+	if ($chan.usercount == 2 && !($chan.isMeOp)) {
+		hop
+	}
+}
