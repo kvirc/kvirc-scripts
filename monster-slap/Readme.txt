@@ -24,8 +24,13 @@ Download the slap.kvs anywhere you like.
 
  $ /slap <nick>
 
+For more other usage type:
+
+ $ /slap
+
 +------------------------+
 +         License        +
 +------------------------+
 
 This is released as a public domain licence.
+https://creativecommons.org/publicdomain/zero/1.0/
