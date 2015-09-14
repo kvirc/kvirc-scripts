@@ -5,7 +5,7 @@
 %szDescription = "This addon makes you enter away state automatically after a certain period of inactivity. You can configure it via /autoaway::configure"
 %szAuthor = "Szymon Tomasz Stefanek"
 %szMinKVIrcVersion = "4.3.2"
-%szIcon = "autoaway_32.png"
+%szImage = "autoaway/pics/autoaway_128.png"
 %szPath = "autoaway"
 
 
@@ -22,7 +22,7 @@ addon.pack \
 		%szDescription \
 		%szAuthor \
 		%szMinKVIrcVersion \
-		%szIcon \
+		%dir/%szImage \
 		%dir/%szPath
 	
 echo "Package is ready at" %szOutPath "("$file.size(%szOutPath) "bytes)"
