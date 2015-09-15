@@ -1,0 +1,34 @@
+# dump informations about a single kva package to the system console
+# Execute with:
+#
+#   kvirc -e "parse get-package-info.kvs /full/path/to/*.kv[a|t]"
+
+%inf = $package.info($1)
+
+debug -s ""
+
+if(%inf{error} != "")
+{
+	debug -s "Could not read package $1"
+	debug -s %inf{error}
+	return;
+}
+
+debug -s "File: "%inf{info}{path}
+debug -s "Size: "%inf{info}{size}
+
+debug -s "Metadata:"
+
+%mt = %inf{metadata}
+%keys = $sort($keys(%mt))
+
+foreach(%k,%keys)
+	debug -s "* "%k": "%mt{%k}
+
+debug -s "Files:"
+
+foreach(%k,%inf{files})
+	debug -s "* "%k
+
+debug -s ""
+

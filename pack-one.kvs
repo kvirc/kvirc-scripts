@@ -1,8 +1,8 @@
 # Pack a single addon
 
-%szAddonName = "Autoaway"
+%szAddonName = "AutoAway"
 %szAddonVersion = "2.0.0"
-%szDescription = "This addon makes you enter away state automatically after a certain period of inactivity. You can configure it via /autoaway::configure"
+%szDescription = "This simple addon makes you enter away state automatically after a certain period of inactivity. You can configure the timeout interval and the away message."
 %szAuthor = "Szymon Tomasz Stefanek"
 %szMinKVIrcVersion = "4.3.2"
 %szImage = "autoaway/pics/autoaway_128.png"
