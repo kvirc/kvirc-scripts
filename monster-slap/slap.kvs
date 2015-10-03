@@ -3,7 +3,7 @@ alias(slap)
 	%nick = $0
 	%name = "Monster slap"
 	%boast = "Slapping in IRC never been so much fun!\nExclusive to KVIrc!"
-	%version = "1.0.0"
+	%version = "1.0.1"
 	
 	%action[0] = "sacrifices"
 	%action[1] = "slaps"
@@ -11,7 +11,7 @@ alias(slap)
 	%action[3] = "whips"
 	%action[4] = "caresses"
 	%a = $rand(4)
-	%vaction = $b%action[%a]$b
+	%vaction = %action[%a]
 	
 	%times[0] = "once"
 	%times[1] = "twice"
@@ -33,14 +33,14 @@ alias(slap)
 	%where[3] = "at nickserv's feet"
 	%where[4] = "at the altar of krull"
 	%d = $rand(4)
-	%vwhere = $b%where[%d]$b
+	%vwhere = %where[%d]
 	
 	%with[0] = "with"
 	%with[1] = "and forces $0 to eat"
 	%with[2] = "and forces $0 to stare at"
 	%with[3] = "and $0 eats"
 	%e = $rand(3)
-	%vwith = $b%with[%e]$b
+	%vwith = %with[%e]
 	
 	%slap[0]  = "a large wild salmon!"
 	%slap[1]  = "10K lines of source code!"
