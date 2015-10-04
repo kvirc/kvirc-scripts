@@ -1,7 +1,7 @@
 alias(slap)
 {
 	%nick = $0
-	%self = own ass
+	%self = "own ass"
 	%name = "Monster slap"
 	%version = "1.0.2"
 
@@ -34,8 +34,8 @@ alias(slap)
 	%location[1] = "in the desert,"
 	%location[2] = "in the dungeon,"
 	%location[3] = "in the IRC channel,"
-	%location[4] = "on an asteroid"
-	%location[5] = "on an alien planet"
+	%location[4] = "on an asteroid,"
+	%location[5] = "on an alien planet,"
 	%c = $rand(5)
 	%vlocation = %location[%c]
 
@@ -43,8 +43,8 @@ alias(slap)
 	%where[1] = "everywhere"
 	%where[2] = "at chanserv's feet"
 	%where[3] = "at nickserv's feet"
-	%where[4] = "at the altar of krull"
-	%where[5] = "inside a active volcano"
+	%where[4] = "at the altar of Krull"
+	%where[5] = "inside an active volcano"
 	%where[6] = "at some undisclosed location"
 	%d = $rand(6)
 	%vwhere = %where[%d]
@@ -94,7 +94,7 @@ alias(slap)
 
 	if(($window.type == "query") && (%nick == ""))
 	{
-		%nick = $window.caption 
+		%nick = $window.caption
 		%nick = $str.lefttofirst(%nick,"[")
 		%nick = $str.stripright(%nick)
 	}
@@ -108,7 +108,7 @@ alias(slap)
 	}
 
 	if($0 == self)
-	{	
+	{
 		me %vaction %nick %ntimes %vwhere %vlocation %vwith %vslap
 		unset %nick
 		halt
