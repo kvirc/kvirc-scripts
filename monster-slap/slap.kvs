@@ -1,9 +1,9 @@
 alias(slap)
 {
 	%nick = $0
-	%self = "own ass"
+	%self = "own self"
 	%name = "Monster slap"
-	%version = "1.0.2"
+	%version = "1.0.3"
 
 	if ($0 == self)
 	{
@@ -27,7 +27,7 @@ alias(slap)
 	%times[2] = "several times"
 	%times[3] = "twice"
 	%times[4] = "three times"
-	%b = $rand(5)
+	%b = $rand(4)
 	%ntimes = %times[%b]
 
 	%location[0] = "in the room,"
@@ -115,4 +115,7 @@ alias(slap)
 	}
 	else
 		me %vaction %nick %ntimes %vwhere %vlocation %vwith %vslap
+		%RESLAP = 1
+		timer -s (delayreslap,5000)
+		%RESLAP = 0
 }

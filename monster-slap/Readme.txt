@@ -3,28 +3,45 @@
 +------------------------+
 
 This is a monster slap script.
-It randomises the entries of 6 arrays to give a slightly different slap each time.
+It add an alias called slap to KVIrc.
+This alias randomizes the multiple variables of 6 arrays to give a slightly different slap each time.
 
 This is the culmination of a couple of KVIrc fans getting together to produce this.
+
+Since version 1.0.3 it includes a reslap event and ability to slap self.
+
+The reslap event is a OnHighlight event that catches known list of trigger words.
+The reslap event is protected to avoid endless loops between 2 users with reslap active.
+It only reslaps once over a certain period.
+
+Currently you can use the slap alias on its own without needing to use reslap.
+This is why it is provided as a separate file to give you the choice.
+
+Slapping self is equally as fun, because we all feel like it sometimes.
 
 +------------------------+
 + Installation in KVIrc. +
 +------------------------+
 
-Download the slap.kvs anywhere you like.
+Download the slap.kvs and reslap.kvs anywhere you like.
 
 1 - Open Execute script.
-2 - Navigate to directory where you have the slap.kvs
-3 - Select script and Click OK.
-4 - Open Aliases and confirm you have an Alias names Slap.
+2 - Navigate to directory where you have the slap.kvs reslap.kvs
+3 - Select a script and Click OK.
+4 - Rinse and repeat for other file.
+5 - Open Aliases Editor and confirm you have an Alias names slap.
+    Then open the Event Editor Find  OnHighlight and veryfy you have a reslap handler.
+
+Enjoy and use wisely and sparingly.
 
 +------------------------+
 +          Usage         +
 +------------------------+
 
  $ /slap <nick>
+ $ /slap self
 
-For more other usage type:
+For usage type:
 
  $ /slap
 
