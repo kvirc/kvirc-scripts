@@ -1,55 +1,71 @@
 alias(slap)
 {
 	%nick = $0
+	%self = own ass
 	%name = "Monster slap"
-	%boast = "Slapping in IRC never been so much fun!\nExclusive to KVIrc!"
-	%version = "1.0.1"
-	
-	%action[0] = "sacrifices"
-	%action[1] = "slaps"
-	%action[2] = "drags"
-	%action[3] = "whips"
-	%action[4] = "caresses"
-	%a = $rand(4)
+	%version = "1.0.2"
+
+	if ($0 == self)
+	{
+		%nick = %self
+	}
+
+	%action[0] = "caresses"
+	%action[1] = "drags"
+	%action[2] = "hits"
+	%action[3] = "kicks"
+	%action[4] = "pushes"
+	%action[5] = "sacrifices"
+	%action[6] = "slaps"
+	%action[7] = "throws"
+	%action[8] = "whips"
+	%a = $rand(8)
 	%vaction = %action[%a]
-	
+
 	%times[0] = "once"
-	%times[1] = "twice"
-	%times[2] = "three times"
-	%times[3] = "several times"
-	%b = $rand(3)
+	%times[1] = "over and over"
+	%times[2] = "several times"
+	%times[3] = "twice"
+	%times[4] = "three times"
+	%b = $rand(5)
 	%ntimes = %times[%b]
-	
+
 	%location[0] = "in the room,"
 	%location[1] = "in the desert,"
 	%location[2] = "in the dungeon,"
-	%location[3] = "in the channel,"
-	%c = $rand(3)
+	%location[3] = "in the IRC channel,"
+	%location[4] = "on an asteroid"
+	%location[5] = "on an alien planet"
+	%c = $rand(5)
 	%vlocation = %location[%c]
-	
+
 	%where[0] = "around"
 	%where[1] = "everywhere"
 	%where[2] = "at chanserv's feet"
 	%where[3] = "at nickserv's feet"
 	%where[4] = "at the altar of krull"
-	%d = $rand(4)
+	%where[5] = "inside a active volcano"
+	%where[6] = "at some undisclosed location"
+	%d = $rand(6)
 	%vwhere = %where[%d]
-	
+
 	%with[0] = "with"
-	%with[1] = "and forces $0 to eat"
-	%with[2] = "and forces $0 to stare at"
-	%with[3] = "and $0 eats"
-	%e = $rand(3)
+	%with[1] = "and forces %nick to eat"
+	%with[2] = "while %nick is forced to stare at"
+	%with[3] = "while %nick eats"
+	%with[4] = "and %nick has nightmares about"
+	%with[5] = "while some alien zaps %nick with"
+	%e = $rand(5)
 	%vwith = %with[%e]
-	
+
 	%slap[0]  = "a large wild salmon!"
 	%slap[1]  = "10K lines of source code!"
 	%slap[2]  = "a bag of dirty laundry!"
 	%slap[3]  = "a flying cow!"
 	%slap[4]  = "some apt-get commands!"
 	%slap[5]  = "a wet, smelly, hairy and sloppy old vagina!"
-	%slap[6]  = "a flying pig!"
-	%slap[7]  = "a self deprecating wise crack!"
+	%slap[6]  = "a super flying pig!"
+	%slap[7]  = "Hasselhoff's sweaty swimming trunks!"
 	%slap[8]  = "a pile of primordial gue!"
 	%slap[9]  = "a box of Corn Flakes!"
 	%slap[10] = "some really smelly shoes!"
@@ -58,36 +74,43 @@ alias(slap)
 	%slap[13] = "a long pole!"
 	%slap[14] = "a ping-pong paddle!"
 	%slap[15] = "a cardboard cut-out of Chuck Norris!"
-	%slap[16] = "some nails in a chalkboard!"
+	%slap[16] = "some internet troll!"
 	%slap[17] = "an apple product!"
 	%slap[18] = "a talking duck!"
 	%slap[19] = "a wasps nest!"
 	%slap[20] = "a zombies rotting brains!"
 	%slap[21] = "some annoying movie quotes!"
 	%slap[22] = "a wire coat hanger!"
-	%slap[23] = "some disgusting alien food!"
-	%slap[24] = "a dozen live whole squids!"
-	%f = $rand(24)
+	%slap[23] = "some live and wriggling alien food!"
+	%slap[24] = "a dozen live squids!"
+	%slap[25] = "a horde of zombies vampires!"
+	%slap[26] = "a soft and cute kitten!"
+	%slap[27] = "%nick's own arm!"
+	%slap[28] = "a Klingon disruptor!"
+	%slap[29] = "some monkey's feces!"
+	%slap[30] = "a cast iron frying pan!"
+	%f = $rand(30)
 	%vslap = %slap[%f]
-		 
+
 	if(($window.type == "query") && (%nick == ""))
 	{
 		%nick = $window.caption 
 		%nick = $str.lefttofirst(%nick,"[")
 		%nick = $str.stripright(%nick)
 	}
-	
+
 	if(!$0)
 	{
-		echo $tr("Usage:","defscript") "%name - v$b%version$b"
+		echo $tr("Usage: %name - v%version")
 		echo "	  /slap <nick>"
-		echo "	  /slap version"
+		echo "	  /slap self"
 		halt
 	}
-	
-	if ($0 == version)
-	{
-		echo %name - v$b%version$b \n%boast
+
+	if($0 == self)
+	{	
+		me %vaction %nick %ntimes %vwhere %vlocation %vwith %vslap
+		unset %nick
 		halt
 	}
 	else
