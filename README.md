@@ -10,11 +10,11 @@ We are looking for script authors to submit fresh new scripts compatible with KV
 
 The scripts can be in form of addons or standalone format in their own directory with any documentation if applicable.
 
-[Fork this repository](https://github.com/kvirc/kvirc-scripts/fork/) and submit your scripts via [Pull request}(https://help.github.com/articles/using-pull-requests/).
+[Fork this repository](https://github.com/kvirc/kvirc-scripts/fork/) and submit your scripts via [Pull request](https://help.github.com/articles/using-pull-requests/).
 
 ### Licensing
 
-All works submitted to KVIrc scripts repository should contain an accompanying licence.
+All works submitted to KVIrc scripts repository should contain an accompanying licence.  
 The scripts in this repository are migrated from old SVN repository and were licensed under **GPL**
 
 As the author of the work, you have complete freedom to choose what licensing model which
