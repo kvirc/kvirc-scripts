@@ -3,7 +3,7 @@
 +------------------------+
 
 This is a monster slap script.
-It add an alias called slap to KVIrc.
+It adds an alias to KVIrc called slap.
 This alias randomizes the multiple variables of 6 arrays to give a slightly different slap each time.
 
 This is the culmination of a couple of KVIrc fans getting together to produce this.
@@ -30,7 +30,7 @@ Download the slap.kvs and reslap.kvs anywhere you like.
 3 - Select a script and Click OK.
 4 - Rinse and repeat for other file.
 5 - Open Aliases Editor and confirm you have an Alias names slap.
-    Then open the Event Editor Find  OnHighlight and veryfy you have a reslap handler.
+    Then open the Event Editor, find OnHighlight and verify you have a reslap handler.
 
 Enjoy and use wisely and sparingly.
 
