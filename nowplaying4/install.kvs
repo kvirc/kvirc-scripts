@@ -30,10 +30,10 @@ addon.register( \
 	# Kill our actions
 	action.destroy nowplaying::advertise
 	action.destroy nowplaying::configure
-	
+
 	# And finally our toolbar
 	toolbar.destroy nowplaying
-	
+
 	# Done
 }
 
@@ -113,7 +113,7 @@ alias(nowplaying::configure)
 			%h->$setChecked($2)
 			return %h
 		}
-	
+
 		constructor()
 		{
 			# first of all load the config
@@ -161,7 +161,7 @@ alias(nowplaying::configure)
 			%l->$addMultiCellWidget(%gb,2,2,0,2)
 			%gb->$setTitle($tr("Other","nowplaying"))
 			%gb->$setOrientation(Vertical)
-			
+
 			# and yet another set of children
 			@%hShareMedia = $this->$createCheckBox(%gb,$tr("Share Media","nowplaying"),%NowPlaying{"ShareMedia"})
 			# this child is composed of two children itself
@@ -183,7 +183,7 @@ alias(nowplaying::configure)
 			%pb->$setText($tr("OK","nowplaying"))
 			%pb->$setMinimumWidth(80)
 			%l->$addWidget(%pb,4,1)
-			
+
 			# invoke $okClicked() when this button is pressed
 			objects.connect %pb "clicked" $this "okClicked"
 
@@ -199,7 +199,7 @@ alias(nowplaying::configure)
 			%l->$setRowStretch(3,10)
 			%l->$setColumnStretch(0,1)
 		}
-		
+
 		okClicked()
 		{
 			# the ok button was clicked
@@ -220,13 +220,13 @@ alias(nowplaying::configure)
 			nowplaying::core::saveconfig
 			delete $this
 		}
-		
+
 		cancelClicked()
 		{
 			# just die ignoring all the changes
 			delete $this
 		}
-		
+
 		showEvent()
 		{
 			# center us to screen
@@ -279,14 +279,14 @@ alias(nowplaying::advertise)
 		echo $tr("Seems that your media player is not playing at the moment (status:","nowplaying") $mediaplayer.status() ")"
 		return
 	}
-	
+
 	# make sure that there is some target
 	if(($window.type != "channel") && ($window.type != "query"))
 	{
 		echo $tr("You can advertise the currently played media only on channels and queries","nowplaying")
 		return
 	}
-	
+
 	# now get the media information from the mediaplayer module
 	# and build our advertisement string
 	%artist = $mediaplayer.artist
@@ -300,14 +300,14 @@ alias(nowplaying::advertise)
 		%clrbegin = ""
 		%clrend = ""
 	}
-	
+
 	if(%NowPlaying{"BoldTitle"})
 	{
 		%bold = "$b"
 	} else {
 		%bold = ""
 	}
-	
+
 	if((%artist != "") && (%title != ""))
 	{
 		# add a "null" control code to avoid the title
@@ -333,7 +333,7 @@ alias(nowplaying::advertise)
 	%position = $mediaplayer.position
 	%file = $mediaplayer.localfile
 	if(!$file.exists(%file))%file = ""
-	
+
 	%info = ""
 
 	if((%year != "") && (%NowPlaying{"ShowYear"}))%info .= "[Year "%year"]"
@@ -354,7 +354,7 @@ alias(nowplaying::advertise)
 		%lh = $(%length / 3600000)
 		%lm = $((%length % 3600000) / 60000)
 		%ls = $((%length % 60000) / 1000)
-			
+
 		if(%lh > 0)%infolength .= %lh":"
 		if(%lm < 10)%infolength .= "0"%lm":"
 		else %infolength .= %lm":"
@@ -366,7 +366,7 @@ alias(nowplaying::advertise)
 			%ph = $(%position / 3600000)
 			%pm = $((%position % 3600000) / 60000)
 			%ps = $((%position % 60000) / 1000)
-			
+
 			if(%ph > 0)%infoposition .= %ph":"
 			if(%pm < 10)%infoposition .= "0"%pm":"
 			else %infoposition .= %pm":"
@@ -378,7 +378,7 @@ alias(nowplaying::advertise)
 			%info .= "["%infolength"]"
 		}
 	}
-	
+
 	if((%file != "") && (%NowPlaying{"ShowFileSize"}))
 	{
 		%size = $file.size(%file)
@@ -395,9 +395,9 @@ alias(nowplaying::advertise)
 	}
 
 	%s = %nowplaying
-	
+
 	if(%info != "")%s .= "" %info
-	
+
 	# share the media if the user has requested it
 	if((%file != "") && (%NowPlaying{"ShareMedia"}))
 	{
@@ -410,12 +410,12 @@ alias(nowplaying::advertise)
 		%name .= $rand(9)
 		%name .= $rand(9)
 		sharedfile.add -t=%NowPlaying{"ShareTimeout"} -n=%name %file
-		
+
 		%s .= "[$b/ctcp $me xdcc get %name$b to download]"
 	}
-	
+
 	# and finally do the one-line command that this addon is all about :)
-	me plays %s
+	me is playing %s
 }
 
 # create the actions so the user can access our functions via GUI
