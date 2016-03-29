@@ -62,17 +62,17 @@ alias(autoaway::start)
 		echo $tr("Autoaway must be started in a connected IRC context","autoaway")
 		halt
 	}
-	
+
 	if(!$server)
 	{
 		echo $tr("Autoaway must be started in a connected IRC context","autoaway")
 		halt
 	}
-	
+
 	autoaway::core::config::load
-	
+
 	if(!%AutoAway{"Enabled"})return; # not enabled at all
-	
+
 	if($isTimer("autoaway_check_$ic"))killtimer "autoaway_check_$ic"
 
 	%AutoAway{"Timestamp$ic"} = $unixtime
@@ -83,9 +83,9 @@ alias(autoaway::start)
 		if(!%AutoAway{"Timestamp$ic"})%AutoAway{"Timestamp$ic"} = $unixtime
 
 		%timediff = $($unixtime - %AutoAway{"Timestamp$ic"})
-		
+
 		if(!%AutoAway{"InactivityTimeoutInMins"})%AutoAway{"InactivityTimeoutInMins"} = 10
-		
+
 		%mintime = $(%AutoAway{"InactivityTimeoutInMins"} * 60)
 		if(%mintime < %timediff)
 		{
@@ -134,4 +134,3 @@ alias(autoaway::stopall)
 
 	autoaway::core::config::save
 }
-

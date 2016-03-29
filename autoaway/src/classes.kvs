@@ -12,7 +12,7 @@ class(autoaway::configure_dialog,dialog)
 		%h->$setChecked($2)
 		return %h
 	}
-		
+
 	constructor()
 	{
 		# first of all load the config
@@ -95,28 +95,27 @@ class(autoaway::configure_dialog,dialog)
 		# invoke $cancelClicked() when this button is pressed
 		objects.connect %pb "clicked" $this "cancelClicked"
 
-
 		%pb = $new(button,$this)
 		%pb->$setText($tr("System Options...","autoaway"))
 		%l->$addWidget(%pb,5,0)
-		
+
 		objects.connect %pb "clicked" $this "editSystemOptions"
 
 		# adjust the layout so it looks nicer
 		%l->$setRowStretch(4,10)
 		%l->$setColumnStretch(0,1)
 	}
-		
+
 	enableDisableAwayMessage()
 	{
 		@%hAwayMessage->$setEnabled($(@%hUseAwayMessage->$isChecked() && @%hEnabled->$isChecked()))
 	}
-		
+
 	editSystemOptions()
 	{
-		options.edit -m KviAwayOptionsWidget
+		options.edit -m OptionsWidget_away
 	}
-		
+
 	okClicked()
 	{
 		# the ok button was clicked
@@ -127,20 +126,20 @@ class(autoaway::configure_dialog,dialog)
 		%AutoAway{"Reason"} = @%hReason->$text()
 		%AutoAway{"UseAwayMessage"} = @%hUseAwayMessage->$isChecked()
 		%AutoAway{"AwayMessage"} = @%hAwayMessage->$text()
-		
+
 		autoaway::core::config::save
-			
+
 		if(%AutoAway{"Enabled"})autoaway::startall
 		else autoaway_stopall
 		delete $this
 	}
-		
+
 	cancelClicked()
 	{
 		# just die ignoring all the changes
 		delete $this
 	}
-		
+
 	showEvent()
 	{
 		# center us to screen

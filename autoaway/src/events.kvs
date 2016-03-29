@@ -13,4 +13,3 @@ event(OnTextInput,autoaway)
 	if(!$ic)return
 	%AutoAway{"Timestamp$ic"} = $unixtime
 }
-
