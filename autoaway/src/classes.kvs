@@ -130,7 +130,7 @@ class(autoaway::configure_dialog,dialog)
 		autoaway::core::config::save
 
 		if(%AutoAway{"Enabled"})autoaway::startall
-		else autoaway_stopall
+		else autoaway::stopall
 		delete $this
 	}
 
