@@ -51,12 +51,12 @@ defpopup(urltitle) {
   
   label(The preview download failed.) (%:status == 0)
   
-  item(Open link,14) {
-    openurl $0
+  item(Open Link,14) {
+    openurl $1
   }
   
   item($tr("Copy To Clipboard","defscript"),259) {
-    str.toClipboard $0
+    str.toClipboard $1
   }
 }
 
