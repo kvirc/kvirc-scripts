@@ -1,65 +1,70 @@
-event(OnURLLinkPopupRequest,URLTitle) {
-  // HTTP URLs must have the scheme specified, otherwise http.asyncGet will throw an error.
-  if ($str.left($0, 3) == www) %url = "http://$0";
-  else %url = $0;
-  
-  if ($str.left(%url, 4) == http) {
-    http.asyncGet -m=1048576 -t=10 -w=m (%url, $file.localdir(.title-preview)) {
-      popup.show urltitle $0 $1 $2 $3;
-    }
-  } else {
-    // Not a HTTP URL; use the normal popup.
-    popup.show urlpopup $0;
-  }
+event(OnURLLinkPopupRequest,URLtitle)
+{
+	// HTTP URLs must have the scheme specified, otherwise http.asyncGet will throw an error.
+	if ($str.left($0, 3) == www) %url = "http://$0";
+	else %url = $0;
+
+	if ($str.left(%url, 4) == http)
+	{
+		http.asyncGet -m=1048576 -t=10 -w=m (%url, $file.localdir(.title-preview))
+		{
+			popup.show urltitle $0 $1 $2 $3;
+		}
+	}
+	else
+	{
+		// Not a HTTP URL; use the normal popup.
+		popup.show urlpopup $0;
+	}
 }
 
-defpopup(urltitle) {
-  prologue {
-    %:status = $0;
-    %:title_found = $false;
-    %:title = "";
-    %title_open = -1;
-    %title_close = -1;
-    
-    if ($0 == 1) {
-      // Read in the file.
-      %data = $file.read($2, 1048576);
-    
-      // Find the HTML title.
-      %title_open = $str.findfirst(%data, "<title>", $false, 0);
-    
-      if (%title_open != -1)
-        %title_close = $str.findfirst(%data, "</title>", $false, $(%title_open + 7));
-    
-      if (%title_open != -1 && %title_close != -1) {
-        %:title = $str.mid(%data, $(%title_open + 7), $(%title_close - %title_open - 7));
-        if ($isset($aliasbody(htmldecode))) %:title = $htmldecode(%:title);
-        %:title_found = $true;
-    
-        echo Page title: $k(2)%:title;
-      }
-    }
-    
-    if ($file.exists($2)) file.remove $2;
-  }
-  
-  label(Page title:) (%:title_found)
-  
-  label(%:title) (%:title_found)
-  
-  label(No page title was found.) (%:status == 1 && !%:title_found)
-  
-  label(The preview download failed.) (%:status == 0)
-  
-  item(Open Link,14) {
-    openurl $1
-  }
-  
-  item($tr("Copy To Clipboard","defscript"),259) {
-    str.toClipboard $1
-  }
-}
+defpopup(urltitle)
+{
+	prologue
+	{
+		%:status = $0;
+		%:title_found = $false;
+		%:title = "";
+		%title_open = -1;
+		%title_close = -1;
 
-// Disable the default event handler.
-eventctl -d OnURLLinkPopupRequest "URL popup";
-eventctl -d -q OnURLLinkPopupRequest URLpopup;
+		if ($0 == 1)
+		{
+		// Read in the file.
+		%data = $file.read($2, 1048576);
+
+		// Find the HTML title.
+		%title_open = $str.findfirst(%data, "<title>", $false, 0);
+
+		if (%title_open != -1)
+			%title_close = $str.findfirst(%data, "</title>", $false, $(%title_open + 7));
+
+		if (%title_open != -1 && %title_close != -1)
+			{
+			%:title = $str.mid(%data, $(%title_open + 7), $(%title_close - %title_open - 7));
+
+			if ($isset($aliasbody(htmldecode))) %:title = $htmldecode(%:title);
+				%:title_found = $true;
+				echo Page title: $k(2)%:title;
+			}
+		}
+
+		if ($file.exists($2)) file.remove $2;
+	}
+
+	label(Page title: %:title) (%:title_found)
+
+	label(No page title was found.) (%:status == 1 && !%:title_found)
+
+	label(The preview download failed.) (%:status == 0)
+
+	item(Open Link,185)
+	{
+		openurl $1
+	}
+
+	item(Copy to Clipboard,18)
+	{
+		str.toClipboard $0
+	}
+}
