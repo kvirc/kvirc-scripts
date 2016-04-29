@@ -68,3 +68,7 @@ defpopup(urltitle)
 		str.toClipboard $0
 	}
 }
+
+// Disable the default event handler.
+// Using a quote enclosed handler name works for both handler with space in name and without.
+eventctl -d OnURLLinkPopupRequest "URL popup";
