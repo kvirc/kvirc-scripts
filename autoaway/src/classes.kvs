@@ -46,7 +46,7 @@ class(autoaway::configure_dialog,dialog)
 		%l->$addMultiCellWidget(@%hReason,1,1,2,4)
 		objects.connect @%hEnabled "toggled" @%hReason "setEnabled"
 
-		%tip = $tr("This is the aproximate timeout after that KVIrc will automatically set away mode","autoaway");
+		%tip = $tr("This is the approximate timeout after that KVIrc will automatically set away mode","autoaway");
 		%label = $new(label,$this)
 		%label->$setText($tr("Inactivity Timeout","autoaway") "  ")
 		%label->$setEnabled(%AutoAway{"Enabled"})
@@ -64,7 +64,7 @@ class(autoaway::configure_dialog,dialog)
 		%l->$addMultiCellWidget(@%hInactivityTimeout,2,2,2,4)
 		objects.connect @%hEnabled "toggled" @%hInactivityTimeout "setEnabled"
 
-		%tip = $tr("While setting away mode, the addon can also execute a /me command on all the channels and queries you are on.<br>Please be aware that away actions are often looked suspiciously by operators...","autoaway");
+		%tip = $tr("While setting away mode, the add-on can also execute a /me command on all the channels and queries you are on.<br>Please be aware that away actions are often looked suspiciously by operators...","autoaway");
 		@%hUseAwayMessage = $this->$createCheckBox($this,$tr("Use Away Message","autoaway"),%AutoAway{"UseAwayMessage"})
 		@%hUseAwayMessage->$setEnabled(%AutoAway{"Enabled"})
 		@%hUseAwayMessage->$setToolTip(%tip)
