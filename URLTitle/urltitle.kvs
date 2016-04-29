@@ -70,5 +70,5 @@ defpopup(urltitle)
 }
 
 // Disable the default event handler.
-// Using a quote enclosed handler name works for both handler with space in name and without.
-eventctl -d OnURLLinkPopupRequest "URL popup";
+eventctl -d -q OnURLLinkPopupRequest "URL popup";
+eventctl -d -q OnURLLinkPopupRequest URLpopup;
