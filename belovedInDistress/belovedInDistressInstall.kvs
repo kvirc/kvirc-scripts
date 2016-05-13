@@ -345,7 +345,7 @@ event(OnChannelMessage,DearlyLovedInDistress)
 };
 
 
-echo installed;
+echo installed, please insure that dictionary file exists at $file.localdir(ScriptFiles/wordsEn.txt) or else create folder and place file.;
 
 #			%remadeword=""; %mm=0;
 #			while (%mm>=0)
