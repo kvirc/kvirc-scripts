@@ -3,14 +3,14 @@ alias(slap)
 	%nick = $0
 	%self = "own self"
 	%name = "Monster slap"
-	%version = "1.0.3"
+	%version = "1.2.0"
 
 	if ($0 == self)
 	{
 		%nick = %self
 	}
 
-	%action[0] = "caresses"
+	%action[0] = "hugs"
 	%action[1] = "drags"
 	%action[2] = "hits"
 	%action[3] = "kicks"
@@ -36,17 +36,20 @@ alias(slap)
 	%location[3] = "in the IRC channel,"
 	%location[4] = "on an asteroid,"
 	%location[5] = "on an alien planet,"
-	%c = $rand(5)
+	%location[6] = "on the edge of a cliff,"
+	%c = $rand(6)
 	%vlocation = %location[%c]
 
 	%where[0] = "around"
 	%where[1] = "everywhere"
-	%where[2] = "at chanserv's feet"
-	%where[3] = "at nickserv's feet"
-	%where[4] = "at the altar of Krull"
-	%where[5] = "inside an active volcano"
-	%where[6] = "at some undisclosed location"
-	%d = $rand(6)
+	%where[2] = "at ChanServ's feet"
+	%where[3] = "at NickServ's feet"
+	%where[4] = "at HostServ's feet"
+	%where[5] = "at the altar of Krull"
+	%where[6] = "inside an active volcano"
+	%where[7] = "at some undisclosed location"
+	%where[8] = "in a secret hide-out"
+	%d = $rand(8)
 	%vwhere = %where[%d]
 
 	%with[0] = "with"
@@ -75,7 +78,7 @@ alias(slap)
 	%slap[14] = "a ping-pong paddle!"
 	%slap[15] = "a cardboard cut-out of Chuck Norris!"
 	%slap[16] = "some internet troll!"
-	%slap[17] = "an apple product!"
+	%slap[17] = "an Apple product!"
 	%slap[18] = "a talking duck!"
 	%slap[19] = "a wasps nest!"
 	%slap[20] = "a zombies rotting brains!"
@@ -89,6 +92,7 @@ alias(slap)
 	%slap[28] = "a Klingon disruptor!"
 	%slap[29] = "some monkey's feces!"
 	%slap[30] = "a cast iron frying pan!"
+	%slap[31] = "a reconstituted frozen genetically modified fart!"
 	%f = $rand(30)
 	%vslap = %slap[%f]
 
@@ -104,7 +108,33 @@ alias(slap)
 		echo $tr("Usage: %name - v%version")
 		echo "	  /slap <nick>"
 		echo "	  /slap self"
+		echo "	  /slap uninstall"
 		halt
+	}
+
+	if($0 == uninstall)
+	{
+		if ($window($tr(Alias Editor)) != "0")
+		if ($window($tr(Event Editor)) != "0")
+		{
+			echo The Alias Editor is open,
+			echo Cannot uninstall monster slap while editors are open! Closing...
+			window.close $window($tr(Alias Editor))
+			window.close $window($tr(Event Editor))
+			echo "Uninstalling alias(slap) and event(OnHighlight,reslap){}"
+			alias(slap){}
+			event(OnHighlight,reslap){}
+			echo "Uninstallation complete!"
+			break;
+		}
+		else
+		{
+			echo "Uninstalling alias(slap) and event(OnHighlight,reslap){}"
+			alias(slap){}
+			event(OnHighlight,reslap){}
+			echo "Uninstallation complete!"
+			break;
+		}
 	}
 
 	if($0 == self)
@@ -119,3 +149,4 @@ alias(slap)
 		timer -s (delayreslap,5000)
 		%RESLAP = 0
 }
+

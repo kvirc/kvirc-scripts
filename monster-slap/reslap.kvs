@@ -1,17 +1,26 @@
-event(OnHighlight,reslap){
-%actions = $array("caresses","drags","kicks","kicks","hits","pushes","sacrifices","slaps","throws","whips")
-%count = %actions[]#
+event(OnHighlight,reslap)
+{
+	%actions = $array("hugs","drags","hits","kicks","pushes","sacrifices","slaps","throws","whips")
+	%count = %actions[]#
 
-if($0 == me){return;}
-if(($5 == 32) && (%RESLAP == 0)){
-	for(%i=0;%i<%count;%i++){
-		%theslap = $str.stripcolors($3)
-		if($str.contains(%theslap,%actions[%i],0)){
-			%RESLAP = 1
-			slap $0
-			timer -s (delayslap, 8000)
-			unset %RESLAP
+	if($0 == me)
+	{
+		return;
+	}
+
+	if(($5 == 32) && (%RESLAP == 0))
+	{
+		for(%i=0;%i<%count;%i++)
+		{
+			%theslap = $str.stripcolors($3)
+			if($str.contains(%theslap,%actions[%i],0))
+			{
+				%RESLAP = 1
+				slap $0
+				timer -s (delayslap, 8000)
+				unset %RESLAP
+			}
 		}
 	}
 }
-}
+
