@@ -9,16 +9,16 @@ It has been constructed in such a way that no matter which variables are used, t
 perhaps somewhat shocking ;) but most definitely fun and not meant to be offensive... Its a reality check slap.
 
 The reslap event is an OnHighlight event that catches a slap directed at yourself and auto-reslaps
-point of origin using the slap alias.  
-To avoid endless loops between 2 users with reslap active, the event is protected and
-it only reslaps once over a certain period to avoid excess.
+point of origin using the slap alias. To avoid endless loops between 2 users with reslap active,
+the event is protected and it only reslaps once over a certain period to avoid excess.
 
 #### Notable changes
 
-* Since version 1.0.3 it includes a reslap event and ability to slap self.
 * Since version 1.2.0 it now includes a complete uninstallation trigger via /slap uninstall
-  The unistallation routine checks if the 
-
+  The unistallation routine checks if the Event or Alias editors are open and closes them,
+  else nothing is really uninstalled.  
+* Since version 1.0.3 it includes a reslap event and ability to slap self.
+  
 Currently you can use the slap alias on its own without needing to use reslap.
 This is why it is provided as a separate file to give you the choice.
 
