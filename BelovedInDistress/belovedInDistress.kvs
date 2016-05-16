@@ -411,6 +411,7 @@ alias (BIDuninstall)
 	config.clear %BID ;
 	config.close %BID ;
 	alias (BIDuninstall) {};
+	echo "All belovedInDistress files and settings removed."
 };
 
 
