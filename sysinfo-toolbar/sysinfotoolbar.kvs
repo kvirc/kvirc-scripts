@@ -1,0 +1,383 @@
+/*
+	A modified version of : SysInfo alias KVIrc script © un1versal 2016
+	License: GPLv2
+	Requires inxi 2.2 or newer
+	sen (sensors) option requires lm-sensors installed and configured
+	Modified by slaboff © 2016
+	* Added a toolbar popup menu
+	* Added 'inxi' color scheme changes
+	Package now includes the following:
+*/
+
+# First check if previous version is installed and uninstall.
+if($aliasBody(sys) != "")
+{
+	echo -i=$msgtype(GenericWarning) $tr("Please wait - uninstalling previous version...")
+	alias -q (sys){};
+}
+
+# Get extract path and make directory where needed.
+%mypath = $file.extractPath($0)
+
+# Directory should exist but check anyway.
+if(!$file.exists($file.localdir/pics))
+{
+	file.mkdir $file.localdir/pics
+}
+
+%myinfo = $file.localdir/pics
+%icons = $array("Linux16","Linux32")
+%t = %icons[]#
+for(%i=0;%i<%t;%i++)
+{
+	file.copy -o $file.fixpath(%mypath/pics/%icons[%i].png) $file.fixpath(%myinfo/%icons[%i].png)
+}
+
+# Main alias
+alias(sys)
+{
+	# SysInfo alias KVIrc script © un1versal 2016
+	# License: GPLv2
+	# Requires inxi 2.2 or newer
+	# sen (sensors) option requires lm-sensors installed and configured
+	%scriptname = "SysInfo Toolbar"
+	%version = "v1.2.0"
+	%cpright = "© un1versal 2016 - GPLv2"
+	%link = "https://git.io/vKT2p"
+	%S = "$b":"$b"
+	%aliasname = "sys"
+
+	if("$system.ostype" != "UNIX")
+	{
+		echo -i=$msgtype(GenericStatus) $tr("This is not a supported Linux/UNIX OS! Support maybe added later.")
+		return;
+	}
+
+	switch($0)
+	{
+		case("col"):
+		{
+			dialog.textinput -d= %SI (SysInfo Color Selector,<center>Uses 'inxi' Color Scheme Range 0-32<h1>Enter Color Scheme #</h1></center>,"&Save","&Cancel")
+			{
+				if($0 == 1)
+				{
+					echo -i=$msgtype(GenericStatus) $tr("No changes made to current color scheme settings.")
+					halt;
+				}
+				if((!$isNumeric($1)) && ($0 == 0))
+				{
+					echo -i=$msgtype(GenericStatus) $tr("Invalid Entry - A non-numeric entry.")
+					halt;
+				}
+				if(($isNumeric($1)) && (($1 < 0) || ($1 > 32)))
+				{
+					echo -i=$msgtype(GenericWarning) $tr("Invalid Entry - Out of Range!")
+					halt;
+				}
+				if(($1 < %SI) || ($1 > %SI))
+				{
+					%SI = $integer($1)
+					echo -i=$msgtype(GenericStatus) $tr(Color Scheme was changed to : %SI)
+					%sicolorcfg = $config.open(SICLR.kvc)
+					config.write %sicolorcfg SI %SI
+					config.close %sicolorcfg
+				}
+			}
+			break;
+		}
+		case("cpu"):
+		{
+			exec ("inxi -c"%SI" -C")
+			{
+				msg $target $1;
+			}
+			break;
+		}
+		case("mob"):
+		{
+			exec ("inxi -c"%SI" -M")
+			{
+				msg $target $1;
+			}
+			break;
+		}
+		case("net"):
+		{
+			exec ("inxi -c"%SI" -N")
+			{
+				msg $target $1;
+			}
+			break;
+		}
+		case("gfx"):
+		{
+			exec ("inxi -c"%SI" -G")
+			{
+				msg $target $1;
+			}
+			break;
+		}
+		case("snd"):
+		{
+			exec ("inxi -c"%SI" -A")
+			{
+				msg $target $1;
+			}
+			break;
+		}
+		case("hdd"):
+		{
+			exec ("inxi -c"%SI" -D")
+			{
+				msg $target $1;
+			}
+			break;
+		}
+		case("osv"):
+		{
+			exec ("inxi -c"%SI" -! 31 -S")
+			{
+				msg $target $1;
+			}
+			break;
+		}
+		case("sen"):
+		{
+			exec ("inxi -c"%SI" -s")
+			{
+				msg $target $1;
+			}
+			break;
+		}
+		case("share"):
+		{
+			%nick = $1:
+			if(%nick != "")
+			{
+				say $tr("%nick have a look at %scriptname %version %link")
+				break;
+			}
+			else
+			{
+				say $tr("Why dont you have a look at %scriptname %version %link")
+				break;
+			}
+		}
+		case("uninstall"):
+		{
+			%scriptname = "SysInfo Toolbar"
+			if(($window($tr(Alias Editor)) != "0") || (($window($tr(Action Editor)) != "0") || (($window($tr(Event Editor)) != "0") || (($window($tr(Popup Editor)) != "0"))))
+			{
+				dialog.message -b ($tr("%scriptname Uninstaller - KVIrc"), $tr("The <b>%scriptname</b> uninstaller detected some editor window(s) open."<br> \
+				"Do you want the uninstaller to close the open editor window(s) and proceed with uninstallation?"), information, \
+				$tr("&Yes Proceed"), $tr("&No, I have Work to Save"), $tr("&Quit"))
+				{
+					%scriptname = "SysInfo Toolbar"
+					switch($0)
+					{
+						case("0"):
+						{
+							echo -i=$msgtype(GenericStatus) $tr("The user told $b%scriptname$b's uninstaller to proceed.")
+							timer -s (uninstall,2000)
+							echo -i=$msgtype(GenericWarning) $tr("Closing "$b"$window"$b" open editor window(s).")
+							window.close -q $window($tr("Action Editor"))
+							window.close -q $window($tr("Alias Editor"))
+							window.close -q $window($tr("Popup Editor"))
+							window.close -q $window($tr("Event Editor"))
+							echo -i=$msgtype(GenericVerbose) $tr("Now uninstalling $b%scriptname$b...")
+							$sysuninstall()
+							break;
+						}
+						case("1"):
+						{
+							echo -i=$msgtype(GenericWarning) $tr("The user told $b%scriptname$b uninstaller to exit, so any work in progress can be saved.")
+							break;
+						}
+						default:
+						{
+							echo -i=$msgtype(GenericWarning) $tr("The user has quit $b%scriptname$b's uninstaller.")
+							break;
+						}
+					}
+				}
+			}
+			else
+			{
+				dialog.message -b ($tr("Uninstalling %scriptname - KVIrc"), $tr("Uninstallation for <b>%scriptname</b> will proceed now."), information, \
+				$tr("&Yes Proceed"), $tr("&Quit"))
+				{
+					%scriptname = "SysInfo Toolbar"
+					switch($0)
+					{
+						case("0"):
+						{
+							echo -i=$msgtype(GenericStatus) $tr("The user told $b%scriptname$b's uninstaller to proceed.")
+							echo -i=$msgtype(GenericStatus) $tr("There were no open editor windows.")
+							echo -i=$msgtype(GenericVerbose) $tr("Now uninstalling $b%scriptname$b...")
+							$sysuninstall()
+							break;
+						}
+						default:
+						{
+							echo -i=$msgtype(GenericWarning) $tr("The user has quit $b%scriptname$b's uninstaller.")
+							break;
+						}
+					}
+				}
+			}
+			break;
+		}
+		case(""):
+		{
+			echo $tr("Usage:")
+			echo "     "/%aliasname <cpu> %S $tr("Output CPU information.")
+			echo "     "/%aliasname <net> %S $tr("Output Network Card information.")
+			echo "     "/%aliasname <mob> %S $tr("Output Motherboard information.")
+			echo "     "/%aliasname <gfx> %S $tr("Output Graphics Card information.")
+			echo "     "/%aliasname <snd> %S $tr("Output Audio Card information.")
+			echo "     "/%aliasname <osv> %S $tr("Output Operative system information.")
+			echo "     "/%aliasname <hdd> %S $tr("Output HDD/SSD information.")
+			echo "     "/%aliasname <sen> %S $tr("Output Sensors information.")
+			echo "     "/%aliasname <share> <nick> %S $tr("Outputs a link to share %scriptname with a specific KVIrc user.")
+			echo "     "/%aliasname <share> %S $tr("Output a link to share %scriptname with other KVIrc users.")
+			echo \n
+			echo "     "/%aliasname <uninstall> %S $tr("This uninstalls the alias(%aliasname) from KVIrc.")
+			echo \n
+			echo -i=$msgtype(GenericVerbose) %scriptname %version - %cpright\n
+
+			exec ("inxi -c"%SI" -! 31 -V")
+			{
+				echo $1;
+			}
+			break;
+		}
+		default:
+			echo $tr("Command $0 is not defined, type $b/%aliasname$b for usage information!")
+			break;
+	}
+}
+# The uninstall alias
+alias(sysuninstall)
+{
+	# Delete icons
+	%myinfo = $file.localdir/pics
+	%icons = $array("Linux16","Linux32")
+	%t = %icons[]#
+	for(%i=0;%i<%t;%i++)
+	{
+		if($file.exists(%myinfo/%icons[%i].png))
+		{
+			file.remove -q %myinfo/%icons[%i].png
+		}
+	}
+
+	# Delete toolbar
+	toolbar.destroy -q sysinfo
+
+	# Delete action
+	action.destroy -q popupSysInfo
+
+	# Delete popup
+	popup.destroy -q sysInfo
+
+	# Remove the event handler
+	event(OnKVIrcStartup,siColorcfg){};
+
+	#Delete all aliases
+	alias -q (sys){};
+	alias -q (sysuninstall){};
+
+	echo -i=$msgtype(GenericStatus) $tr("The "$b"SysInfo's"$b" icons have been completely removed.")
+	echo -i=$msgtype(GenericStatus) $tr("The "$b"SysInfo's"$b" toolbar has been completely removed.")
+	echo -i=$msgtype(GenericStatus) $tr("The "$b"SysInfo's"$b" action has been completely removed.")
+	echo -i=$msgtype(GenericStatus) $tr("The "$b"SysInfo's"$b" popup has been completely removed.")
+	echo -i=$msgtype(GenericStatus) $tr("The "$b"SysInfo's"$b" siColorcfg event has been completely removed.")
+	echo -i=$msgtype(GenericStatus) $tr("The "$b"SysInfo's"$b" sys and sysuninstall alias have been completely removed.")
+	echo -i=$msgtype(GenericWarning) $tr("The "$b"SysInfo Toolbar"$b" uninstall , exiting now. Bye, bye...")
+}
+
+# Create the startup event
+event(OnKVIrcStartup,siColorcfg)
+{
+	# Open config file
+	%sicolorcfg = $config.open(SICLR.kvc)
+	# Get SysInfo color setting
+	%SI = $config.read(%sicolorcfg,SI,$true)
+	# Close config file
+	config.close %sicolorcfg
+}
+
+# Create the popup menu
+defpopup(sysInfo)
+{
+	item($tr("System OS"))
+	{
+		sys osv
+	}
+
+	item($tr("Processor"))
+	{
+		sys cpu
+	}
+
+	item($tr("Drives"))
+	{
+		sys hdd
+	}
+
+	item($tr("Motherboard"))
+	{
+		sys mob
+	}
+
+	item($tr("Graphics Card"))
+	{
+		sys gfx
+	}
+
+	item($tr("Audio Card"))
+	{
+		sys snd
+	}
+
+	item($tr("Network Card"))
+	{
+		sys net
+	}
+
+	item($tr("Sensors"))
+	{
+		sys sen
+	}
+
+	separator
+
+	item($tr("Color Scheme Selector"))
+	{
+		sys col
+	}
+}
+
+# Create the necessary action for the toolbar & popup menu
+action.create -w=cq -t=generic ("popupSysInfo","SysInfo","SysInfo Toolbar","Linux32.png","Linux16.png")
+{
+	popup.show "sysInfo"
+}
+
+# Create the toolbar
+toolbar.create -p sysinfo SYSINFO
+toolbar.additem sysinfo popupSysInfo
+toolbar.show sysinfo
+
+# Initialization
+# Setup default color scheme for 'inxi'
+# Since I use 5 will go with that :)
+%SI = 5
+%sicolorcfg = $config.open(SICLR.kvc)
+config.write %sicolorcfg SI %SI
+config.close %sicolorcfg
+
+# Install is complete
+echo -i=$msgtype(GenericStatus) $tr("The SysInfo Toolbar" %version "has been successfully installed.")
+echo -i=$msgtype(GenericStatus) $tr("You should see a "$b"Chip + info overlay$b" icon on the toolbar.")
+echo -i=$msgtype(GenericStatus) $tr("To remove SysInfo Toolbar just enter "$b"/sys uninstall"$b".")
