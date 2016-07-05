@@ -3,7 +3,8 @@ alias(slap)
 	%nick = $0
 	%self = "own self"
 	%name = "Monster slap"
-	%version = "1.2.0"
+	%aliasname = "slap"
+	%version = "1.3.0"
 
 	if ($0 == self)
 	{
@@ -36,7 +37,7 @@ alias(slap)
 	%location[3] = "in the IRC channel,"
 	%location[4] = "on an asteroid,"
 	%location[5] = "on an alien planet,"
-	%location[6] = "on the edge of a cliff,"
+	%location[6] = "at the edge of a cliff,"
 	%c = $rand(6)
 	%vlocation = %location[%c]
 
@@ -86,13 +87,13 @@ alias(slap)
 	%slap[22] = "a wire coat hanger!"
 	%slap[23] = "some live and wriggling alien food!"
 	%slap[24] = "a dozen live squids!"
-	%slap[25] = "a horde of zombies vampires!"
+	%slap[25] = "a horde of zombie vampires!"
 	%slap[26] = "a soft and cute kitten!"
-	%slap[27] = "%nick's own arm!"
+	%slap[27] = "%nick's own severed arm!"
 	%slap[28] = "a Klingon disruptor!"
 	%slap[29] = "some monkey's feces!"
 	%slap[30] = "a cast iron frying pan!"
-	%slap[31] = "a reconstituted frozen genetically modified fart!"
+	%slap[31] = "a reconstituted, frozen and genetically modified fart!"
 	%f = $rand(30)
 	%vslap = %slap[%f]
 
@@ -109,32 +110,74 @@ alias(slap)
 		echo "	  /slap <nick>"
 		echo "	  /slap self"
 		echo "	  /slap uninstall"
-		halt
+		halt;
 	}
 
 	if($0 == uninstall)
 	{
-		if ($window($tr(Alias Editor)) != "0")
-		if ($window($tr(Event Editor)) != "0")
+		%scriptname = "Monster Slap"
+		if(($window($tr(Alias Editor)) != "0") || (($window($tr(Event Editor)) != "0")))
 		{
-			echo The Alias Editor is open,
-			echo Cannot uninstall monster slap while editors are open! Closing...
-			window.close $window($tr(Alias Editor))
-			window.close $window($tr(Event Editor))
-			echo "Uninstalling alias(slap) and event(OnHighlight,reslap){}"
-			alias(slap){}
-			event(OnHighlight,reslap){}
-			echo "Uninstallation complete!"
-			break;
+			dialog.message -b ($tr("%scriptname Uninstaller - KVIrc"), $tr("The <b>%scriptname</b> uninstaller detected some editor window(s) open."<br> \
+			"Do you want the uninstaller to close the open editor window(s) and proceed with uninstallation?"), information, \
+			$tr("&Yes Proceed"), $tr("&No, I have Work to Save"), $tr("&Quit"))
+			{
+				%scriptname = "Monster Slap"
+				switch($0)
+				{
+					case("0"):
+					{
+						echo -i=$msgtype(GenericStatus) $tr("The user told $b%scriptname$b's uninstaller to proceed.")
+						echo -i=$msgtype(GenericStatus) $tr("Cannot uninstall $balias(%aliasname)$b while script editors are open! Closing them..."
+						timer -s (uninstall,2000))
+						window.close -q $window($tr(Alias Editor))
+						window.close -q $window($tr(Event Editor))
+						echo -i=$msgtype(GenericStatus) $tr("Uninstalling alias(%aliasname) and event(OnHighlight,reslap){}")
+						alias(slap){}
+						event(OnHighlight,reslap){}
+						echo -i=$msgtype(GenericStatus) $tr("The $b%scriptname$b's alias(%aliasname) has been completely removed.")
+						break;
+					}
+					case("1"):
+					{
+						echo -i=$msgtype(GenericWarning) $tr("The user told $b%scriptname$b uninstaller to exit, so any work in progress can be saved.")
+						break;
+					}
+					default:
+					{
+						echo -i=$msgtype(GenericWarning) $tr("The user has quit $b%scriptname$b's uninstaller.")
+						break;
+					}
+				}
+			}
 		}
 		else
 		{
-			echo "Uninstalling alias(slap) and event(OnHighlight,reslap){}"
-			alias(slap){}
-			event(OnHighlight,reslap){}
-			echo "Uninstallation complete!"
-			break;
+			dialog.message -b ($tr("Uninstalling %scriptname - KVIrc"), $tr("Uninstallation for <b>%scriptname</b> will proceed now."), information, \
+			$tr("&Yes Proceed"), $tr("&Quit"))
+			{
+				%scriptname = "Monster Slap"
+				switch($0)
+				{
+					case("0"):
+					{
+						echo -i=$msgtype(GenericStatus) $tr("The user told $b%scriptname$b's uninstaller to proceed.")
+						echo -i=$msgtype(GenericStatus) $tr("There were no open editor windows.")
+						echo -i=$msgtype(GenericStatus) $tr("Uninstalling alias(%aliasname) and event(OnHighlight,reslap...")
+						alias(%aliasname){}
+						event(OnHighlight,reslap){}
+						echo -i=$msgtype(GenericStatus) $tr("The $b%scriptname slap$b alias has been completely removed.")
+						break;
+					}
+					default:
+					{
+						echo -i=$msgtype(GenericWarning) $tr("The user has quit $b%scriptname$b's uninstaller.")
+						break;
+					}
+				}
+			}
 		}
+		break;
 	}
 
 	if($0 == self)
@@ -144,9 +187,10 @@ alias(slap)
 		halt
 	}
 	else
+	{
 		me %vaction %nick %ntimes %vwhere %vlocation %vwith %vslap
 		%RESLAP = 1
 		timer -s (delayreslap,5000)
 		%RESLAP = 0
+	}
 }
-
