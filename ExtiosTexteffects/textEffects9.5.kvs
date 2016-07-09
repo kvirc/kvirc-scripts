@@ -1,0 +1,1165 @@
+echo Now installing TextEffects Version 9.5 by extio;
+echo Building Rainbow random color alias;
+alias(randcolor)
+{
+	if ($0 == blue)
+	{
+		%nr = $rand(2);
+		if ( %nr == 0 ) { return "02"; };
+		if ( %nr == 1 ) { return "12"; };
+		if ( %nr == 2 ) { return "14"; };
+	}
+	if ($0 == purple)
+	{
+		%nr = $rand(2)
+		if ( %nr == 0 ) { return "02"; };
+		if ( %nr == 1 ) { return "13"; };
+		if ( %nr == 2 ) { return "06"; };
+	}
+	if ($0 == whitemetal)
+	{
+		%nr = $rand(2);
+		if ( %nr == 0 ) { return "00"; };
+		if ( %nr == 1 ) { return "00"; };
+		if ( %nr == 2 ) { return "15"; };
+		
+	}
+	if ($0 == neonwhim)
+	{
+		%nr = $rand(2);
+		if ( %nr == 0 ) { return "08"; };
+		if ( %nr == 1 ) { return "09"; };
+		if ( %nr == 2 ) { return "11"; };
+	}
+	if ($0 == superneon)
+	{
+		%nr = $rand(2);
+		if ( %nr == 0 ) { return "07"; };
+		if ( %nr == 1 ) { return "08"; };
+		if ( %nr == 2 ) { return "09"; };
+	}
+	if ($0 == custom)
+	{
+		%nr = $rand(2);
+		if ( %nr == 0 ) { if($isNumeric(%Ct1)) { return %Ct1; } else { return 01; }; };
+		if ( %nr == 1 ) { if($isNumeric(%Ct2)) { return %Ct2; } else { return 01; }; };	
+		if ( %nr == 2 ) { if($isNumeric(%Ct3)) { return %Ct3; } else { return 01; }; };
+	}
+%rnum = $($rand(14)+1);
+return %rnum;
+}
+
+echo Building per input processor, TextEffectsProc;
+alias(TextEffectsProc)
+{
+	%saytext = $0;
+	%tl=$str.len($0);
+	if (%Fstate == 1) 
+	{
+		%word2[] = $array("pe","kip","x","ch","ck","ss","ck","nt","re","ke","um","at","ard","iot");
+#this is a list of bad words.  this should later be replaced with a local text file.... that is read.
+# they are built
+# then filtered
+# k? its useful on monitored channels where one might accidently say a banned word.  right now the script must be edited to change words.
+# k 
+# k? Yeah it should be redone properly i know... but later later.  
+# k.
+		%word[] = $array("sky","mud","se","bit","di","a","fu","cu","who","di","c","tw","ret","id");
+		# 2 = partial matching, 1 = whole words.
+		%regex1[] = $array(2,1,1,1,1,1,2,1,1,1,1,1,1,1);
+		%blevel[] = $array(1,1,2,2,2,2,2,2,2,2,2,2,1,1);
+		%mi=$($length(%word[])-1);
+		while(%mi>-1)
+		{
+			%xword = %word[%mi]%word2[%mi];
+			if (%regex1[%mi]==1)
+			{
+				if($str.match("(^|[,.!?:\"\'\/\\-=+]|" ")%xword([,.!?:\"\'\/\\-=+]|" "|$)",%saytext,r))
+				{
+					if (%Fmode=="intelligent"||%Fmode=="")
+					{
+						if ($window.type==channel||$window.type==console)
+						{
+							if (%blevel[%mi]==1) 
+							{
+								%saytext = $str.replace(%saytext,%xword,"\" \""); echo %xword word blocked;
+							};
+							if (%blevel[%mi]==2) 
+							{
+								echo %xword word found. intelligent halting.; halt;
+							};
+						}
+						if ($window.type==query)
+						{
+							if (%blevel[%mi]==1) 
+							{
+								%saytext = $str.replace(%saytext,%xword,%word[%mi]"."%word2[%mi]); echo %xword word switched;
+							};
+							if (%blevel[%mi]==2) 
+							{
+								%saytext = $str.replace(%saytext,%xword,\" \"); echo %xword word blocked;
+							};
+						};
+					};
+					if (%Fmode=="switch")
+					{
+						%saytext = $str.replace(%saytext,%xword,%word[%mi]"."%word2[%mi]); echo %xword word switched;
+					};
+					if (%Fmode=="block")
+					{
+						%saytext = $str.replace(%saytext,%xword, \" \"); echo %xword word blocked;
+					};
+					if (%Fmode=="halt")
+					{echo %xword word found, halting mode set. halting.; halt;};
+				}
+			};
+			if (%regex1[%mi]==2)
+			{
+				if($str.match("%xword",%saytext,r))
+				{
+					if (%Fmode=="intelligent"||%Fmode=="")
+					{
+						
+						if ($window.type==channel||$window.type==console)
+						{
+							%saytext = $str.replace(%saytext,%xword,\" \"); echo %xword word blocked;
+						}
+						if ($window.type==query)
+						{
+							if (%blevel[%mi]==1) 
+							{
+								%saytext = $str.replace(%saytext,%xword,%word[%mi]"."%word2[%mi]); echo %xword word switched;
+							};
+							if (%blevel[%mi]==2) 
+							{
+								%saytext = $str.replace(%saytext,%xword,\" \"); echo %xword word blocked;
+							};
+						}
+					};
+					if (%Fmode=="switch")
+					{
+						%saytext = $str.replace(%saytext,%xword,%word[%mi]"."%word2[%mi]); echo %xword word switched;
+					};
+					if (%Fmode=="block")
+					{
+						%saytext = $str.replace(%saytext,%xword, \" \"); echo %xword word blocked;
+					};
+					if (%Fmode=="halt")
+					{echo %xword word found, halting mode set. halting.; halt;};
+				};				
+			};
+			%mi--;
+		};
+	};
+	if (%Mstate > 0) 
+	{
+		%mi=$str.len(%saytext);
+		%saytext2 = "";
+		if (%Mstate == 1 || %Mstate == 3 )
+		{
+			while(%mi>0)
+			{
+				%left = $str.left(%saytext,%mi);
+				%right = $str.right(%left,1);
+				%saytext2 .= %right;
+				%mi--;
+			}
+			%saytext = %saytext2;
+			%saytext2 = "";
+		};
+		if (%Mstate > 1)
+		{
+			#yes this should all be in its own alias  due to the length... but later later.
+			# this for loop iterates through every character in the string.
+			for (%f=0;%f<%tl;%f++)   
+			{
+				%tmp = $str.mid(%saytext,%f,1);
+				switch(%tmp)
+				{
+					case(a):
+						%saytext2 .= "ɐ"
+					break;
+					case(b)
+						%saytext2 .= "q"
+					break;
+					case(c):
+						%saytext2 .= "ɔ"
+					break;
+					case(d)
+						%saytext2 .= "p"
+					break;
+					case(e):
+						%saytext2 .= "ǝ"
+					break;
+					case(f)
+						%saytext2 .= "ɟ"
+					break;
+					case(g):
+						%saytext2 .= "ƃ"
+					break;
+					case(h)
+						%saytext2 .= "ɥ"
+					break;
+					case(i):
+						%saytext2 .= "ᴉ"
+					break;
+					case(j)
+						%saytext2 .= "ɾ"
+					break;
+					case(k):
+						%saytext2 .= "ʞ"
+					break;
+					case(l)
+						%saytext2 .= "l"
+					break;
+					case(m):
+						%saytext2 .= "ɯ"
+					break;
+					case(n)
+						%saytext2 .= "u"
+					break;
+					case(o):
+						%saytext2 .= "o"
+					break;
+					case(p)
+						%saytext2 .= "d"
+					break;
+					case(q):
+						%saytext2 .= "b"
+					break;
+					case(r)
+						%saytext2 .= "ɹ"
+					break;
+					case(s):
+						%saytext2 .= "s"
+					break;
+					case(t)
+						%saytext2 .= "ʇ"
+					break;
+					case(u):
+						%saytext2 .= "n"
+					break;
+					case(v)
+						%saytext2 .= "ʌ"
+					break;
+					case(w):
+						%saytext2 .= "ʍ"
+					break;
+					case(x)
+						%saytext2 .= "x"
+					break;
+					case(y):
+						%saytext2 .= "ʎ"
+					break;
+					case(z)
+						%saytext2 .= "z"
+					break;
+ # made placeholders for capital letters, but until i can find a way to make it match case sensitive, they wont work. 
+					case(A):
+						%saytext2 .= "∀" 
+					break;
+					case(B)
+						%saytext2 .= "q"
+					break;
+					case(C):
+						%saytext2 .= "Ɔ"
+					break;
+					case(D)
+						%saytext2 .= "p"
+					break;
+					case(E):
+						%saytext2 .= "Ǝ"
+					break;
+					case(F)
+						%saytext2 .= "Ⅎ"
+					break;
+					case(G):
+						%saytext2 .= "פ"
+					break;
+					case(H)
+						%saytext2 .= "H"
+					break;
+					case(I):
+						%saytext2 .= "I"
+					break;
+					case(J)
+						%saytext2 .= "ſ"
+					break;
+					case(K):
+						%saytext2 .= "ʞ"
+					break;
+					case(L)
+						%saytext2 .= "˥"
+					break;
+					case(M):
+						%saytext2 .= "W"
+					break;
+					case(N)
+						%saytext2 .= "N"
+					break;
+					case(O):
+						%saytext2 .= "O"
+					break;
+					case(P)
+						%saytext2 .= "Ԁ"
+					break;
+					case(Q):
+						%saytext2 .= "Q"
+					break;
+					case(R)
+						%saytext2 .= "ɹ"
+					break;
+					case(S):
+						%saytext2 .= "S"
+					break;
+					case(T)
+						%saytext2 .= "┴"
+					break;
+					case(U):
+						%saytext2 .= "∩"
+					break;
+					case(V)
+						%saytext2 .= "Λ"
+					break;
+					case(W):
+						%saytext2 .= "M"
+					break;
+					case(X)
+						%saytext2 .= "X"
+					break;
+					case(Y):
+						%saytext2 .= "⅄"
+					break;
+					case(Z)
+						%saytext2 .= "Z"
+					break;
+					case(1):
+						%saytext2 .= "Ɩ"
+					break;
+					case(2)
+						%saytext2 .= "ᄅ"
+					break;
+					case(3):
+						%saytext2 .= "Ɛ"
+					break;
+					case(4)
+						%saytext2 .= "ㄣ"
+					break;
+					case(5):
+						%saytext2 .= "ϛ"
+					break;
+					case(6)
+						%saytext2 .= "9"
+					break;
+					case(7):
+						%saytext2 .= "ㄥ"
+					break;
+					case(8)
+						%saytext2 .= "8"
+					break;
+					case(9):
+						%saytext2 .= "6"
+					break;
+					case(0)
+						%saytext2 .= "0"
+					break;
+					case("!")
+						%saytext2 .= "¡"
+					break;
+					case("@")
+						%saytext2 .= "@"
+					break;
+					case("#")
+						%saytext2 .= "#"
+					break;
+					case("&")
+						%saytext2 .= "⅋"
+					break;
+					case("_")
+						%saytext2 .= "‾"
+					break;
+					case("?")
+						%saytext2 .= "¿"
+					break;
+					case(".")
+						%saytext2 .= "˙"
+					break;
+					case(",")
+						%saytext2 .= "'"
+					break;
+					case(" ")
+						%saytext2 .= " "
+					break;
+					default:
+						%saytext2 .= %tmp
+					break;
+				}
+			}
+			%saytext = %saytext2;
+		};
+	};
+	if (%RBstate == 1) 
+	{
+		%r2=1;
+		while(%r2<=10)
+		{	
+			%rbtext = "";
+			%ri=1;
+			while(%ri<=$str.len(%saytext))
+			{
+				%left = $str.left(%saytext,%ri);
+				%right = $str.right(%left,1);
+				if (!$isNumeric(%right))
+				{
+					if (%Cthemeb != "") { %rbtext .= $k($randcolor(%Ctheme),%Cthemeb)%right; } else { %rbtext .= $k($randcolor(%Ctheme))%right; }
+				} else %rbtext .= %right ;
+				%finalwhilecount = 1;
+				while (%r2 > %finalwhilecount)
+				{
+					%ri++;
+#					%left = $str.left(%saytext,%ri);
+#					%right = $str.right(%left,1);
+					%mid = $str.mid(%saytext,$(%ri-1),1);
+#					echo mid: %mid;	
+					%rbtext .= %mid ;
+					%finalwhilecount++;
+				}
+				%ri++;
+			}
+			if ($str.len(%rbtext) < 399)
+			{
+				%saytext = %rbtext ; %r2 = 11 ;
+			} else {
+				if(%r2 == 10) 
+				{	
+					echo Standard rainbow text length is exceeded, Attempting to apply single color.;
+					if ($str.len(%saytext) < 392) {if (%Cthemeb != "") { %saytext = $k($randcolor(%Ctheme),%Cthemeb) %saytext; } else {%saytext = $k($randcolor(%Ctheme)) %saytext;};  ;} else { echo rainbow text length maximum exceeded, passing normal. ;}; 
+				}; 
+			};
+			%r2++;
+		}
+	};
+	if (%Cstate == 1) 
+	{
+		%left = $str.left(%saytext,1);
+		%right = $str.right(%left,1);
+		if ($isNumeric(%right)) { %saytext = " "%saytext; };
+		if ($isNumeric(%Cfore)) {
+			if ($isNumeric(%Cback)) { %partk1 = "$k(%Cfore,%Cback)"; } else { %partk1 = "$k(%Cfore)"; } ;
+			%partk2 = "$k()"
+		} else { echo "Foreground color invalid, use /colors <color#1> <color#2>"; };
+#		%ci=1;
+#		while(%ci<=3)
+#		{	
+#		};
+	};
+	if (%Bstate == 1) 
+	{
+	%partb = "$b"
+	};
+	if (%Ustate == 1) 
+	{
+	%partu = "$u"
+	};
+	if ($1=="return") { 
+	return %partb%partu%partk1%saytext%partk2%partu%partb ;
+	} else {
+	say %partb%partu%partk1%saytext%partk2%partu%partb ;
+	};
+}
+echo Building primary TextEffects alias;
+alias(TextEffects)
+{
+	if ($0 == "help") 
+	{
+		echo TextEffects 9.5 by extio
+		echo This script is designed to apply color, underline, bold, 
+		echo and similar control codes to text. It is also capable of
+		echo manipulating outgoing text.  This script is designed to
+		echo be used through the popup primarily. 
+		echo Commands: [ USE THE POPUP MENU FOR EASE ]
+		echo \----------------------------------------
+		echo \/texteffects - bring up the popup, (or double click channel area).
+		echo \/texteffects off -  turn off all text manipulation;
+		echo \/texteffects uninstall - uninstalls text effects
+		echo \/texteffects help - show this text.
+		echo \/texteffects [menuon|menuoff] - adds a menu to the menu bar for texteffects
+		echo \/texteffects load - loads a saved state.
+		echo \/texteffects save save - saves settings state for colors, underline, etc.
+		echo \/texteffects autoload [on|off] - turn on or off save loading on kvirc start.
+		echo \/texteffects save netstate [on|off] - saves a network to default colors on or off.
+		echo \/texteffects save netdefault [on|off] - saves all networks to default colors on or off.
+		echo \----------------------------------------
+		echo explanation of netstates: if you turn on texteffects, it will color your text in
+		echo all networks by default.  you can change this behaviour to only work on networks
+		echo that you have specifically set it to work on. Netstates does this. if i only
+		echo want network jesusrocksonirc to work with texteffects, and others not to by default,
+		echo I would: \"\/texteffects save netdefault off\"
+		echo then while on a channel on that network: \"\/texteffects save netstate on\"
+		echo \----------------------------------------
+
+		echo shortalias \"\/bold [on|off]\"
+		echo \/texteffects underline [on|off] - turn on and off underline
+		echo shortalias \"\/underline [on|off]\"
+		echo \/texteffects colors [on|off] - turn on and off colors - 
+		echo shortalias \"\/colors [on|off]\"
+		echo \/texteffects colors [foreground|background] # - set foreground or background colors to a number;
+		echo \/texteffects bold [on|off]- turn on and off bold 
+		echo \/texteffects mirror [on|off|flip|reverse] - turn on and off mirror effect, mirror is reversed and flipped text.
+		echo \/texteffects rainbow [on|off] - turn on or off rainbow;
+		echo \/texteffects rainbow theme [...] = activates a theme.  themes are in popup menu only.
+		echo \/texteffects rainbow theme custom - tells rainbow to use custom theme settings.
+		echo \/texteffects rainbow theme custom[1|2|3] # - sets a custom theme setting to a number.
+		echo \/texteffects rainbow background # - sets the color theme background, for rainbow.
+		echo \/texteffects filter [on|off] - turn on and off filter
+		echo \/texteffects filtermode [intelligent|switch|block|halt] - sets how filter behaves.
+		echo \----------------------------------------
+		echo explanation of filtermodes: when the filter sees a bad word, it has 4 mode choices
+		echo [intelligent] mode will block most words in main, but will modify
+		echo some words in pm so they will not set off server filters. 
+		echo [switch] mode will always modify and always cause words, even bad, to be sent modified.
+		echo [block] mode will simply remove the offending word and send the rest 
+		echo of the text, with \" \" replacing the blocked word
+		echo [halt] will stop all text from being sent that has a bad word in it.
+		echo \----------------------------------------
+		echo All credit to whom life was given through, jesus christ, through whom everything that is possible, is possible.
+		echo To use poppup, type \"/texteffects\" or just double click in an open channel.
+	}
+	if ($0 == "menuOn")
+	{setmenu -i=6 TextEffects texteffects ;};
+	if ($0 == "menuOff")
+	{setmenu TextEffects;};
+	if ($0 == "load")
+	{
+		%TE = $config.open(texteffectsave.kvs) ;
+		%Cstate = $config.read(%TE,Cstate,"0") ;
+		%Cfore = $config.read(%TE,Cfore,"") ;
+		%Cback = $config.read(%TE,Cback,"") ;
+		%RBstate = $config.read(%TE,RBstate,"0") ;
+		%Mstate = $config.read(%TE,Mstate,"0") ;
+		%Fstate = $config.read(%TE,Fstate,"0") ;
+		%Fmode = $config.read(%TE,Fmode,"intelligent") ;
+		%Ustate = $config.read(%TE,Ustate,"0") ;
+		%Bstate = $config.read(%TE,Bstate,"0") ;
+		%Ctheme = $config.read(%TE,Ctheme,"") ;
+		%Cthemeb = $config.read(%TE,Cthemeb,"") ;
+		%Ct1 = $config.read(%TE,Ct1,"") ;
+		%Ct2 = $config.read(%TE,Ct2,"") ;
+		%Ct3 = $config.read(%TE,Ct3,"") ;
+		echo TextEffects States Loaded
+		config.close %TE ;
+	}
+
+	if ($0 == "save")
+	{
+		%TE = $config.open(texteffectsave.kvs) ;
+		if ($1 == "save")
+		{
+			config.write %TE Cstate %Cstate ;
+			config.write %TE Cfore %Cfore ;
+			config.write %TE Cback %Cback ;
+			config.write %TE RBstate %RBstate ;
+			config.write %TE Mstate %Mstate ;
+			config.write %TE Fstate %Fstate ;
+			config.write %TE Fmode %Fmode ;
+			config.write %TE Ustate %Ustate ;
+			config.write %TE Bstate %Bstate ;
+			config.write %TE Ctheme %Ctheme ;
+			config.write %TE Cthemeb %Cthemeb ;
+			config.write %TE Ct1 %Ct1 ;
+			config.write %TE Ct2 %Ct2 ;
+			config.write %TE Ct3 %Ct3 ;
+			echo TextEffects States Saved
+		}
+		if ($1 == "netstate")
+		{
+			if ($2 == "on" || $2== "off" || $2=="" ) 
+			{
+				config.write %TE "State"$my.network $2 ;
+				echo $my.network defaults network color overide set to \"$2\";
+			};
+		};
+		if ($1 == "netdefault")
+		{ 
+			if ($2 == "on" || $2== "off") 
+			{
+				config.write %TE defaultNetworkState $2; 
+				echo All networks that are not saved specifically on or off will default to $2 for colors.;
+			};
+		};
+		config.close %TE ;
+	}
+
+	if ($0 == "autoload")
+	{
+		%TE = $config.open(texteffectsave.kvs) ;
+		if ($1 == "off") { config.write %TE Saved 0 ; }
+		if ($1 == "on") { config.write %TE Saved 1 ; }
+		echo Autoload is now $1".";
+		config.close %TE ;
+	}
+
+	if ($0 == "off") 
+	{
+		%Cstate = 0;
+		%RBstate = 0;
+		%Mstate = 0;
+		%Fstate = 0;
+		%Ustate = 0;
+		%Bstate = 0;
+		echo All TextEffect states turned off;
+		echo For God so loved the world, He gave His only son that whosoever believes in Him would have everlasting life.
+	};
+	if ($0 == "colors") 
+	{
+		if ($1 == "on") 
+		{
+			%Cstate = 1;
+			echo colors turned on;
+			if (%RBstate == 1) 
+			{
+				%RBstate = 0;
+				echo Other colors (rainbow) turned off;
+			}
+		}
+		if ($1 == "off") 
+		{
+			%Cstate = 0;
+			echo colors turned off;
+		};
+		if ($isNumeric($1)) 
+		{
+			%Cfore = $1;
+			echo foreground color set to $1;
+			if ($isNumeric($2)) 
+			{
+				%Cback =  $2;
+				echo background color set to $2;
+			} else { %Cback = null; };
+		};
+		if ($1 == "foreground") 
+		{
+			if ($isNumeric($2)) 
+			{
+				%Cfore = $2;
+				echo Foregound set to $2;
+			} else { echo Foreground color invalid!; };
+		};
+		if ($1 == "background") 
+		{
+			if ($isNumeric($2)) 
+			{
+				%Cback =  $2;
+				echo background color set to $2;
+			} else { %Cback = null; echo background color removed; };		
+		};		
+		
+	};
+	if ($0 == "bold") 
+	{
+		if ($1 == "on") 
+		{
+			%Bstate = 1;
+			echo ASV Hebrews 4\:16  Let us therefore draw near with boldness
+			echo unto the throne of grace, that we may receive mercy, and may 
+			echo find grace to help us in time of need.
+			echo Bold turned on;
+		}
+		if ($1 == "off") 
+		{
+			%Bstate = 0;
+			echo Bold turned off;
+		};
+		
+	};
+	if ($0 == "underline") 
+	{
+		if ($1 == "on") 
+		{
+			%Ustate = 1;
+			echo Underline turned on;
+		}
+		if ($1 == "off") 
+		{
+			%Ustate = 0;
+			echo Underline turned off;
+		};
+	};
+	if ($0 == "mirror") 
+	{
+		if ($1 == "on") 
+		{
+			%Mstate = 3;
+			echo "Please note flipped text does not display correctly in all clients.";
+			echo Full Mirror turned on;
+		}
+		if ($1 == "off") 
+		{
+			%Mstate = 0;
+			echo Mirror turned off;
+		};
+		if ($1 == "flip") 
+		{
+			%Mstate = 2;
+			echo Mirror flip Only;
+		}
+		if ($1 == "reverse") 
+		{
+			%Mstate = 1;
+			echo Mirror reverse Only;
+		}
+	};
+	if ($0 == "filter") 
+	{
+		if ($1 == "on") 
+		{
+			%Fstate = 1;
+			echo Filter turned on;
+		}
+		if ($1 == "off") 
+		{
+			%Fstate = 0;
+			echo Filter turned off;
+		};
+	};
+	if ($0 == "filtermode") 
+	{
+		if ($1 == "intelligent") 
+		{
+			%Fmode = $1;
+		}
+		if ($1 == "switch") 
+		{
+			%Fmode = $1;
+		}
+		if ($1 == "block") 
+		{
+			%Fmode = $1;
+		}
+		if ($1 == "halt") 
+		{
+			%Fmode = $1;
+		}
+		echo Filter mode set to %Fmode;
+	};
+	if ($0 == "rainbow") 
+	{
+		if ($1 == "on") 
+		{
+			%RBstate = 1;
+			echo Rainbow turned on;
+			if (%Cstate == 1) 
+			{
+				%Cstate = 0;
+				echo Regular Colors (nonrainbow) turned off;
+			}
+		}
+		if ($1 == "off") 
+		{
+			%RBstate = 0;
+			echo Rainbow turned off;
+		};
+		if ($1 == "theme") 
+		{
+			if ($2 == "purple") 
+			{
+				%Ctheme = purple;
+				echo Royal Purple Theme Set;
+			}
+			if ($2 == "blue") 
+			{
+				%Ctheme = blue;
+				echo Blue Rainbow Theme Set; 
+			}
+			if ($2 == "whitemetal") 
+			{
+				%Ctheme = whitemetal;
+				%Cthemeb = 01;
+				echo ASV Isaiah 1\:18  Come now, and let us reason together, saith Jehovah: 
+				echo though your sins be as scarlet, they shall be as white as snow; 
+				echo though they be red like crimson, they shall be as wool.
+				echo White Metal Theme Set; 
+			}
+			if ($2 == "superneon") 
+			{
+				%Ctheme = superneon;
+				%Cthemeb = 01;
+				echo Super Neon Theme Set; 
+			}
+			if ($2 == "neonwhim") 
+			{
+				%Ctheme = neonwhim;
+				%Cthemeb = 14;
+				echo Neon Whimsical Theme Set; 
+			}
+			if ($2 == "custom") 
+			{			
+				%Ctheme = custom;
+				echo Custom Rainbow Theme Set; 
+			}
+			if (!$2 || $2 == "default") 
+			{				
+				%Ctheme = "";
+				%Cthemeb = "";				
+				echo Default Rainbow Theme Set;
+			}
+			if ($2 == "background") 
+			{	
+				if ($isNumeric($3)) { %Cthemeb = $3; echo Theme Background set to $3; } else { %Cthemeb = ""; echo Theme Background removed; };
+			}
+			if ($isNumeric($3)) 
+			{	
+				if ($2 == "custom1") 
+				{	
+					%Ct1 = $3;
+					echo Custom Theme Color 1 set to $3;				
+				}
+				if ($2 == "custom2") 
+				{	
+					%Ct2 = $3;
+					echo Custom Theme Color 2 set to $3;
+				}
+				if ($2 == "custom3") 
+				{	
+					%Ct3 = $3;
+					echo Custom Theme Color 3 set to $3;
+				}				
+			}
+		}
+	};
+	if (!$0) { echo Glory to the King of Kings!; popup.show texteffects $target; };
+	if (%Cstate == 1 || %Bstate == 1 || %Ustate == 1 || %Mstate > 0 || %Fstate == 1 || %RBstate == 1 ) { %TextEffectState = 1; } else { %TextEffectState = 0; }
+
+	if ($0 == "Uninstall") 
+	{
+	echo Now uninstalling all TextEffects scripts and popups.
+	echo All credit to whom life was given through, jesus christ, through whom everything that is possible, is possible.
+	alias(randcolor) {};
+	alias(TextEffectsProc) {};
+	event(OnTextInput,TextEffectStateCheck) {};	
+	alias(colors) {};
+	alias(bold) {};
+	alias(underline) {};
+	event(OnTextViewDoubleClicked,TextEffects) {};
+	defpopup(texteffects){};
+	event(OnKVIrcStartup,TextEffectsAutoload) {};
+	alias(TextEffects){};
+	%TE = $config.open(texteffectsave.kvs) ;
+	config.clear %TE ;
+	config.close %TE ;
+	if ($file.exists($file.localdir(config/scripts/texteffectsave.kvs))) 
+	{;	
+		echo removing file $file.localdir(config/scripts/texteffectsave.kvs) ;
+		file.remove $file.localdir(config/scripts/texteffectsave.kvs);			
+	};
+	echo All TextEffects script has been removed.
+	}
+
+};
+echo Built uninstaller (\/texteffects uninstall) ;
+
+echo building OnStartup Loader event, TextEffectsAutoLoad;
+event(OnKVIrcStartup,TextEffectsAutoload)
+{
+%TE = $config.open(texteffectsave.kvs) ;
+%reads = $config.read(%TE,Saved,0) ;
+config.close %TE ;
+if (%reads == 1) { texteffects load ; } ;
+}
+
+
+
+echo Building OnMeAction Text passer event, key event.
+event(OnMeAction,TextEffectStateCheck)
+{
+	if (%TextEffectState == 1 ) 
+	{
+		%TE = $config.open(texteffectsave.kvs) ;
+		%def = $config.read(%TE,"defaultNetworkState","on") ;		
+		%netstate = $config.read(%TE,"State"$my.network,%def) ;
+		if (%netstate == "on") 
+		{
+			%returnedtext = $TextEffectsProc($0,"return"); 
+			ctcp $1 action %returnedtext;
+			echo -i=$msgtype(action) -w=$active $me %returnedtext;
+			config.close %TE ;
+			halt;
+		};
+		config.close %TE ;
+	}
+}
+
+
+echo Building OnTextInput Text passer event, key event.
+event(OnTextInput,TextEffectStateCheck)
+{
+	if (%TextEffectState == 1 ) 
+	{
+		%TE = $config.open(texteffectsave.kvs) ;
+		%def = $config.read(%TE,"defaultNetworkState","on") ;		
+		%netstate = $config.read(%TE,"State"$my.network,%def) ;
+		if (%netstate == "on") 
+		{
+			%pass[] = $str.split($lf,$0)
+			%i = 0;
+			while (%i < %pass[]#)
+			{
+				TextEffectsProc %pass[%i] ; 
+				%i++;
+			};
+			config.close %TE ;
+			halt;
+		};
+		config.close %TE ;
+	}
+}
+
+echo Building Helper Aliases (colors,bold,underline);
+alias(colors)
+{
+texteffects colors $0-
+}
+alias(bold)
+{
+texteffects bold $0-
+}
+alias(underline)
+{
+texteffects underline $0-
+}
+
+echo Building Window PopUp event, OnTextViewDoubleClicked;
+event(OnTextViewDoubleClicked,TextEffects)
+{
+popup.show texteffects $target;
+}
+
+echo Clearing any previous popup, Building channeltextview menu popup ;
+
+defpopup(texteffects)
+{
+	prologue(texteffects.open)
+	{
+		%TE = $config.open(texteffectsave.kvs) ;
+		%:currentNetworkState = $config.read(%TE,"State"$my.network,"");
+		%:networksDefault = $config.read(%TE,defaultNetworkState,"");
+		%:currentNetwork = $my.network
+	}
+	epilogue(texteffects.close) config.close %TE;
+	popup(TextEffects,42,texteffects.menu)
+	{
+		item(TextEffects Help,49,texteffects.menu.help) { texteffects help; }
+		item(Turn all TextEffects off,8,texteffects.menu.off)(%TextEffectState) { texteffects off; }  # echo icon 8;
+	}
+	label(Font Modifiers);
+	item(Bold On,273,texteffects.boldon)(%Bstate==0) { texteffects bold on; }
+	item(Bold Off,273,texteffects.boldoff)(%Bstate==1) { texteffects bold off; }
+	item(Underline On,240,texteffects.underlineon)(%Ustate==0) { texteffects underline on; }
+	item(Underline Off,42,texteffects.underlineoff)(%Ustate==1) { texteffects underline off; }
+	label(Text Manipulation);
+	popup(Self Filter,101,texteffects.filter)
+	{
+		item(Filter On,100,texteffects.filter.filteron)(%Fstate==0) { texteffects Filter On; }
+		item(Filter Off,104,texteffects.filter.filteroff)(%Fstate==1) { texteffects Filter Off; }
+		popup(Filter Mode,102,texteffects.filter.mode)
+		{
+			label(Current mode %Fmode)(%Fmode)
+			item(Intelligent,100,texteffects.filter.mode.intelligent)() { texteffects filtermode intelligent; }
+			item(Switching,61,texteffects.filter.mode.switch)() { texteffects filtermode switch; }
+			item(Blocking,104,texteffects.filter.mode.block)() { texteffects filtermode block; }
+			item(Halting,98,texteffects.filter.mode.halt)() { texteffects filtermode halt; }
+		}
+	}
+	popup(Mirror,108,texteffects.mirror)
+	{
+		item(Mirror Off,225,texteffects.mirror.off)(%Mstate>0) { texteffects mirror off; }
+		item(Mirror Reverse"+"Flip,108,texteffects.mirror.on)(%Mstate!=3) { texteffects mirror on; }
+		item(Flip only,0,texteffects.mirror.flip)(%Mstate!=2) { texteffects mirror flip; }
+		item(Reverse only,0,texteffects.mirror.reverse)(%Mstate!=1) { texteffects mirror reverse; }
+	}
+	label(Color Effects);
+	popup(Colors,149,texteffects.colors)
+	{
+		item(Colors On,43,texteffects.colors.on)(%Cstate==0) { texteffects colors on; }
+		item(Colors Off,44,texteffects.colors.off)(%Cstate==1) { texteffects colors off; }
+		popup(Set Foreground Color,73,texteffects.colors.foreground)
+		{
+			label(Current Foreground: %Cfore)(%Cfore)
+			item(0:White,220,texteffects.colors.foreground.0) { texteffects colors foreground 00; }
+			item(1:Black,82,texteffects.colors.foreground.1) { texteffects colors foreground 01; }
+			item(2:Dark Blue,130,texteffects.colors.foreground.2) { texteffects colors foreground 02; }
+			item(3:Dark Green,137,texteffects.colors.foreground.3) { texteffects colors foreground 03; }
+			item(4:Red,168,texteffects.colors.foreground.4) { texteffects colors foreground 04; }
+			item(5:Crimson,124,texteffects.colors.foreground.5) { texteffects colors foreground 05; }
+			item(6:Purple,131,texteffects.colors.foreground.6) { texteffects colors foreground 06; }
+			item(7:Orange,26,texteffects.colors.foreground.7) { texteffects colors foreground 07; }
+			item(8:Yellow,132,texteffects.colors.foreground.8) { texteffects colors foreground 08; }
+			item(9:Light Green,133,texteffects.colors.foreground.9) { texteffects colors foreground 09; }
+			item(10:Teal\-Aquamarine,136,texteffects.colors.foreground.10) { texteffects colors foreground 10; }
+			item(11:VeryLight BlueGrey,28,texteffects.colors.foreground.11) { texteffects colors foreground 11; }
+			item(12:Blue,27,texteffects.colors.foreground.12) { texteffects colors foreground 12; }
+			item(13:Pink\-Magenta,135,texteffects.colors.foreground.13) { texteffects colors foreground 13; }
+			item(14:Dark Grey,134,texteffects.colors.foreground.14) { texteffects colors foreground 14; }
+			item(15:Silver,243,texteffects.colors.foreground.15) { texteffects colors foreground 15; }
+			label(Note: Colors are Off)(%Cstate==0)
+		}
+		popup(Set Background Color,74,texteffects.colors.Background)
+		{
+			label(Current Background: %Cback)(%Cback)
+			item(None,0,texteffects.colors.background.null) { texteffects colors background null; }
+			item(0:White,220,texteffects.colors.background.0) { texteffects colors background 00; }
+			item(1:Black,82,texteffects.colors.background.1) { texteffects colors background 01; }
+			item(2:Dark Blue,130,texteffects.colors.background.2) { texteffects colors background 02; }
+			item(3:Dark Green,137,texteffects.colors.background.3) { texteffects colors background 03; }
+			item(4:Red,168,texteffects.colors.background.4) { texteffects colors background 04; }
+			item(5:Crimson,124,texteffects.colors.background.5) { texteffects colors background 05; }
+			item(6:Purple,131,texteffects.colors.background.6) { texteffects colors background 06; }
+			item(7:Orange,26,texteffects.colors.background.7) { texteffects colors background 07; }
+			item(8:Yellow,132,texteffects.colors.background.8) { texteffects colors background 08; }
+			item(9:Light Green,133,texteffects.colors.background.9) { texteffects colors background 09; }
+			item(10:Teal\-Aquamarine,136,texteffects.colors.background.10) { texteffects colors background 10; }
+			item(11:VeryLight BlueGrey,28,texteffects.colors.background.11) { texteffects colors background 11; }
+			item(12:Blue,27,texteffects.colors.background.12) { texteffects colors background 12; }
+			item(13:Pink\-Magenta,135,texteffects.colors.background.13) { texteffects colors background 13; }
+			item(14:Dark Grey,134,texteffects.colors.background.14) { texteffects colors background 14; }
+			item(15:Silver,243,texteffects.colors.background.15) { texteffects colors background 15; }
+			label(Note: Colors are Off)(%Cstate==0)
+		}
+	}
+	popup(Rainbow,267,texteffects.rainbow)
+	{
+		item(Rainbow On,43,texteffects.rainbow.on)(%RBstate==0) { texteffects rainbow on; }
+		item(Rainbow Off,44,texteffects.rainbow.off)(%RBstate==1) { texteffects rainbow off; }
+		popup(Set Rainbow Theme,288,texteffects.rainbow.options)
+		{
+			item(Default,265,texteffects.rainbow.options.default) { texteffects rainbow theme default; }
+			item(Blue Theme,130,texteffects.rainbow.options.blue) { texteffects rainbow theme blue; }	
+			item(PinkPurple Theme,131,texteffects.rainbow.options.purple) { texteffects rainbow theme purple; }
+			item(White Metal Theme,62,texteffects.rainbow.options.whitemetal) { texteffects rainbow theme whitemetal; }
+			item(Super Neon,203,texteffects.rainbow.options.superneon) { texteffects rainbow theme superneon; }
+			item(Neon Whimsical,12,texteffects.rainbow.options.neonwhim) { texteffects rainbow theme neonwhim; }
+			label(Custom Settings);
+			item(Use Custom Theme,205,texteffects.rainbow.options.custom) { texteffects rainbow theme custom; }
+			popup(Set Theme Background,204,texteffects.rainbow.options.themeback)
+			{
+					label(Current Background %Cthemeb)(%Cthemeb)
+					item(None,0,texteffects.rainbow.options.themeback.none) { texteffects rainbow theme background ""; }
+					item(0:White,220,texteffects.rainbow.options.themeback.0) { texteffects rainbow theme background 00; }
+					item(1:Black,82,texteffects.rainbow.options.themeback.1) { texteffects rainbow theme background 01; }
+					item(2:Dark Blue,130,texteffects.rainbow.options.themeback.2) { texteffects rainbow theme background 02; }
+					item(3:Dark Green,137,texteffects.rainbow.options.themeback.3) { texteffects rainbow theme background 03; }
+					item(4:Red,168,texteffects.rainbow.options.themeback.4) { texteffects rainbow theme background 04; }
+					item(5:Crimson,124,texteffects.rainbow.options.themeback.5) { texteffects rainbow theme background 05; }
+					item(6:Purple,131,texteffects.rainbow.options.themeback.6) { texteffects rainbow theme background 06; }
+					item(7:Orange,26,texteffects.rainbow.options.themeback.7) { texteffects rainbow theme background 07; }
+					item(8:Yellow,132,texteffects.rainbow.options.themeback.8) { texteffects rainbow theme background 08; }
+					item(9:Light Green,133,texteffects.rainbow.options.themeback.9) { texteffects rainbow theme background 09; }
+					item(10:Teal\-Aquamarine,136,texteffects.rainbow.options.themeback.10) { texteffects rainbow theme background 10; }
+					item(11:VeryLight Blue,28,texteffects.rainbow.options.themeback.11) { texteffects rainbow theme background 11; }
+					item(12:Blue,27,texteffects.rainbow.options.themeback.12) { texteffects rainbow theme background 12; }
+					item(13:Pink\-Magenta,135,texteffects.rainbow.options.themeback.13) { texteffects rainbow theme background 13; }
+					item(14:Dark Grey,134,texteffects.rainbow.options.themeback.14) { texteffects rainbow theme background 14; }
+					item(15:Silver,243,texteffects.rainbow.options.themeback.15) { texteffects rainbow theme background 15; }
+			}
+			popup(Set Custom Theme Colors,180,texteffects.rainbow.options.customset)
+			{
+				popup(Set First Color,45,texteffects.rainbow.options.customset.customcolor1)
+				{
+					label(1: Currently %Ct1)(%Ct1)
+					item(0:White,220,texteffects.rainbow.options.customset.customcolor1.0) { texteffects rainbow theme custom1 00; }
+					item(1:Black,82,texteffects.rainbow.options.customset.customcolor1.1) { texteffects rainbow theme custom1 01; }
+					item(2:Dark Blue,130,texteffects.rainbow.options.customset.customcolor1.2) { texteffects rainbow theme custom1 02; }
+					item(3:Dark Green,137,texteffects.rainbow.options.customset.customcolor1.3) { texteffects rainbow theme custom1 03; }
+					item(4:Red,168,texteffects.rainbow.options.customset.customcolor1.4) { texteffects rainbow theme custom1 04; }
+					item(5:Crimson,124,texteffects.rainbow.options.customset.customcolor1.5) { texteffects rainbow theme custom1 05; }
+					item(6:Purple,131,texteffects.rainbow.options.customset.customcolor1.6) { texteffects rainbow theme custom1 06; }
+					item(7:Orange,26,texteffects.rainbow.options.customset.customcolor1.7) { texteffects rainbow theme custom1 07; }
+					item(8:Yellow,132,texteffects.rainbow.options.customset.customcolor1.8) { texteffects rainbow theme custom1 08; }
+					item(9:Light Green,133,texteffects.rainbow.options.customset.customcolor1.9) { texteffects rainbow theme custom1 09; }
+					item(10:Teal\-Aquamarine,136,texteffects.rainbow.options.customset.customcolor1.10) { texteffects rainbow theme custom1 10; }
+					item(11:VeryLight BlueGrey,28,texteffects.rainbow.options.customset.customcolor1.11) { texteffects rainbow theme custom1 11; }
+					item(12:Blue,27,texteffects.rainbow.options.customset.customcolor1.12) { texteffects rainbow theme custom1 12; }
+					item(13:Pink\-Magenta,135,texteffects.rainbow.options.customset.customcolor1.13) { texteffects rainbow theme custom1 13; }
+					item(14:Dark Grey,134,texteffects.rainbow.options.customset.customcolor1.14) { texteffects rainbow theme custom1 14; }
+					item(15:Silver,243,texteffects.rainbow.options.customset.customcolor1.15) { texteffects rainbow theme custom1 15; }
+				}
+				popup(Set Second Color,46,texteffects.rainbow.options.customset.customcolor2)
+				{
+					label(2: Currently %Ct2)(%Ct2)
+					item(0:White,220,texteffects.rainbow.options.customset.customcolor2.0) { texteffects rainbow theme custom2 00; }
+					item(1:Black,82,texteffects.rainbow.options.customset.customcolor2.1) { texteffects rainbow theme custom2 01; }
+					item(2:Dark Blue,130,texteffects.rainbow.options.customset.customcolor2.2) { texteffects rainbow theme custom2 02; }
+					item(3:Dark Green,137,texteffects.rainbow.options.customset.customcolor2.3) { texteffects rainbow theme custom2 03; }
+					item(4:Red,168,texteffects.rainbow.options.customset.customcolor2.4) { texteffects rainbow theme custom2 04; }
+					item(5:Crimson,124,texteffects.rainbow.options.customset.customcolor2.5) { texteffects rainbow theme custom2 05; }
+					item(6:Purple,131,texteffects.rainbow.options.customset.customcolor2.6) { texteffects rainbow theme custom2 06; }
+					item(7:Orange,26,texteffects.rainbow.options.customset.customcolor2.7) { texteffects rainbow theme custom2 07; }
+					item(8:Yellow,132,texteffects.rainbow.options.customset.customcolor2.8) { texteffects rainbow theme custom2 08; }
+					item(9:Light Green,133,texteffects.rainbow.options.customset.customcolor2.9) { texteffects rainbow theme custom2 09; }
+					item(10:Teal\-Aquamarine,136,texteffects.rainbow.options.customset.customcolor2.10) { texteffects rainbow theme custom2 10; }
+					item(11:VeryLight BlueGrey,28,texteffects.rainbow.options.customset.customcolor2.11) { texteffects rainbow theme custom2 11; }
+					item(12:Blue,27,texteffects.rainbow.options.customset.customcolor2.12) { texteffects rainbow theme custom2 12; }
+					item(13:Pink\-Magenta,135,texteffects.rainbow.options.customset.customcolor2.13) { texteffects rainbow theme custom2 13; }
+					item(14:Dark Grey,134,texteffects.rainbow.options.customset.customcolor2.14) { texteffects rainbow theme custom2 14; }
+					item(15:Silver,243,texteffects.rainbow.options.customset.customcolor2.15) { texteffects rainbow theme custom2 15; }
+				}
+				popup(Set Third Color,47,texteffects.rainbow.options.customset.customcolor3)
+				{
+					label(3: Currently %Ct3)(%Ct3)				
+					item(0:White,220,texteffects.rainbow.options.customset.customcolor3.0) { texteffects rainbow theme custom3 00; }
+					item(1:Black,82,texteffects.rainbow.options.customset.customcolor3.1) { texteffects rainbow theme custom3 01; }
+					item(2:Dark Blue,130,texteffects.rainbow.options.customset.customcolor3.2) { texteffects rainbow theme custom3 02; }
+					item(3:Dark Green,137,texteffects.rainbow.options.customset.customcolor3.3) { texteffects rainbow theme custom3 03; }
+					item(4:Red,168,texteffects.rainbow.options.customset.customcolor3.4) { texteffects rainbow theme custom3 04; }
+					item(5:Crimson,124,texteffects.rainbow.options.customset.customcolor3.5) { texteffects rainbow theme custom3 05; }
+					item(6:Purple,131,texteffects.rainbow.options.customset.customcolor3.6) { texteffects rainbow theme custom3 06; }
+					item(7:Orange,26,texteffects.rainbow.options.customset.customcolor3.7) { texteffects rainbow theme custom3 07; }
+					item(8:Yellow,132,texteffects.rainbow.options.customset.customcolor3.8) { texteffects rainbow theme custom3 08; }
+					item(9:Light Green,133,texteffects.rainbow.options.customset.customcolor3.9) { texteffects rainbow theme custom3 09; }
+					item(10:Teal\-Aquamarine,136,texteffects.rainbow.options.customset.customcolor3.10) { texteffects rainbow theme custom3 10; }
+					item(11:VeryLight BlueGrey,28,texteffects.rainbow.options.customset.customcolor3.11) { texteffects rainbow theme custom3 11; }
+					item(12:Blue,27,texteffects.rainbow.options.customset.customcolor3.12) { texteffects rainbow theme custom3 12; }
+					item(13:Pink\-Magenta,135,texteffects.rainbow.options.customset.customcolor3.13) { texteffects rainbow theme custom3 13; }
+					item(14:Dark Grey,134,texteffects.rainbow.options.customset.customcolor3.14) { texteffects rainbow theme custom3 14; }
+					item(15:Silver,243,texteffects.rainbow.options.customset.customcolor3.15) { texteffects rainbow theme custom3 15; }
+				}
+			label(Note: Custom Theme Off)(%Ctheme!="custom")
+			}
+			label(Note: Rainbow off)(%RBstate==0)
+		}
+	}
+	separator;
+	popup(Texteffect Saves,119,texteffects.saves)
+	{
+		item(Save State,10,texteffects.saves.save) { texteffects save save; }
+		item(Load State,10,texteffects.saves.load) { texteffects load; }
+		popup(AutoLoad Saves,9,texteffects.saves.autoload)
+		{
+			item(AutoLoad On,69,texteffects.saves.autoload.on) { texteffects autoload on; }
+			item(AutoLoad Off,68,texteffects.saves.autoload.off) { texteffects autoload off; }
+		}
+		popup(Network Restrict Texteffects,9,texteffects.saves.netstate)
+		{
+			item(Unrestrict %:currentNetwork,69,texteffects.saves.netstate.netstateon)(%:currentNetworkState=="off"||%:currentNetworkState=="") { texteffects save netstate on; }
+			item(Restrict %:currentNetwork,68,texteffects.saves.netstate.netstateoff)(%:currentNetworkState=="on"||%:currentNetworkState=="") { texteffects save netstate off; }
+			item(Clear %:currentNetwork,68,texteffects.saves.netstate.netstateclear)(%:currentNetworkState!="") { texteffects save netstate ""; }
+			popup(Networks Restrict Defaults,9,texteffects.saves.netstate.default)
+			{	
+				item(Default to Unrestrict,69,texteffects.saves.netstate.default.on)  { texteffects save netdefault on; }
+				item(Default to Restrict,68,texteffects.saves.netstate.default.off) { texteffects save netdefault off; }
+			}
+		}
+	}
+#	separator($popup.exists(nicktools));
+#	item(NickTools!,275,texteffects.NickTools.menu)($popup.exists(nicktools)) { popup.show nicktools $target; }	
+}
+echo Script Install Completed;
+echo Hi thanks for installing TextEffects 9.5.  to use it, you can type [/texteffects]
+echo or just double click in the channel.  the menu is mostly self explanatory.
+echo The long and extensive help file can be accessed by [/texteffects help]
+
+# saved for future upgrades, wont work with flip on : 
+#ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏ
+#ⓐⓑⓒⓓⓔⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩ
+#➊➋➌➍➎➏➐➑➒➓ ●
+# additional flipped caps:  ZʎXMΛ∩⊥SᴚὉԀONW⅂ʞſIH⅁ℲƎᗡϽq∀
