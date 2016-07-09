@@ -872,6 +872,8 @@ if (%reads == 1) { texteffects load ; } ;
 echo Building OnMeAction Text passer event, key event.
 event(OnMeAction,TextEffectStateCheck)
 {
+# due to actions being weird when colored, this is hard disabled by comment.  can remove comments to restore functionality.
+/*
 	if (%TextEffectState == 1 ) 
 	{
 		%TE = $config.open(texteffectsave.kvs) ;
@@ -887,6 +889,7 @@ event(OnMeAction,TextEffectStateCheck)
 		};
 		config.close %TE ;
 	}
+*/
 }
 
 
