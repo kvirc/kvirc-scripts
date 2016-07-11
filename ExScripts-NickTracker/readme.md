@@ -19,14 +19,15 @@ type ```/nicktracker``` or click a name in a channel, or right click a name in t
 
 to remove script use ```/nicktracker uninstall```
 
-(Legacy update changelog from before github)
-*update 4-21-2013 - If you have a previous install and are updating, its recommended that you use /nicktracker clear or /nicktracker uninstall before installing this.  It should be noted that due to the changes in this script, updating will cause you to lose your database of names. However it should also respond more quickly int the future if multiple networks are frequented.
-*last updated 4-26-13 - Added feature to to track entire name, and now tracks in pm on opening pm, no long falsly tracks * as a host.
-updated 4-29-13 - added settings file, can set number of nicks to show now.
-updated nov 20 2013 - added clone scanner, still needs controls.
-updated nov 21 2013 - added controls.  "/nicktracker" to see basic controls.
-changed output to be smaller.  || nov. 24 2013 - more small changes
-updated jan 12 2014 - added more controls to "/nicktracker" menu, ability to just disable username tracking, disable
-onchannelsync clone display, and to turn off ip tracking display on userjoins.  may rework some of these options later.
+#### Legacy changelog from before GitHub
 
-Please test this script and post any problems in the issues, or with this script.
+* update 4-21-2013 - If you have a previous install and are updating, its recommended that you use `/nicktracker clear` or `/nicktracker uninstall` before installing this.  It should be noted that due to the changes in this script, updating will cause you to lose your database of names. However it should also respond more quickly int the future if multiple networks are frequented.
+* last updated 4-26-13 - Added feature to to track entire name, and now tracks in pm on opening pm, no long falsly tracks * as a host.  
+* updated 4-29-13 - added settings file, can set number of nicks to show now.  
+* updated nov 20 2013 - added clone scanner, still needs controls.  
+* updated nov 21 2013 - added controls. /nicktracker` to see basic controls. Changed output to be smaller.  
+* updated nov. 24 2013 - more small changes  
+* updated jan 12 2014 - added more controls to `/nicktracker` menu, ability to just disable username tracking, disable  
+  onchannelsync clone display, and to turn off ip tracking display on userjoins.  may rework some of these options later.  
+
+#### Please test this script and post any problems in the issues, or with this script.
