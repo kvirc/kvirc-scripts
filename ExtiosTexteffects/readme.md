@@ -1,11 +1,25 @@
+#Warning
+
+This script currently contains some echos of text that are christian in nature.  until the allowance of this is determined, if you download and use the script and do not want the echos to appear, pleased edit the downloaded script before installing to remove them
+
+#Purpose
+
 This is a script designed for KVIrc, a client program.  I wrote this script from scratch,  it allows a user to add color and effects to input text.
 
-This script is primarly controled through pop-up, but /texteffects can control it through aliase if you read the script to know the commands.
+#Installation
 
 to install, download the script file.
 Open KVIrc and navigate to Menu > scripting > execute script, or push ctrl+shift+x.   navigate to and select the script file and run it.  you can now delete the script file if you desire.
 
+to remove the script, type ```/texteffects uninstall```
+
+#Operation
+
+This script is primarly controled through pop-up, but ```/texteffects``` can control it through aliase if you read the script to know the commands.
+
 type /texteffects or double click in a channel to display the options.
+
+
 
 (legacy update log)
 jan 16th 2013 updated
