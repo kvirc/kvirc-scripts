@@ -76,4 +76,4 @@ The SysInfo Toolbar installer should be able to remove all installed components 
 
 ### License
 
-[![my kvirc scripts GPLv2](https://img.shields.io/badge/sysinfo-toolbar-GPLv2-blue.svg)](https://github.com/kvirc/kvirc-scripts/blob/master/LICENCE)
+[![SySInfo Toolbar GPLv2+](https://img.shields.io/badge/%20%20SysInfo_Toolbar%20%20-%20GPLv2+%20-blue.svg)](LICENCE)
