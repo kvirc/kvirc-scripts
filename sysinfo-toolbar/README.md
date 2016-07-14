@@ -1,25 +1,25 @@
 ### About SysInfo Toolbar
 
-#####**sysinfotoolbar.kvs**
-
-This is a toolbar/alias script named *SysInfo Toolbar*, and as the name may indicate, it provides a comprehensive way to output system information about various hardware components in your machine and your OS.  
-**SysInfo Toolbar** requires [inxi](https://github.com/smxi/inxi) and [lm-sensors](https://github.com/groeck/lm-sensors/issues/3).
+This is a toolbar/alias script ```sysinfotoolbar.kvs``` aka *SysInfo Toolbar*, and as the name may indicate, it provides a comprehensive way to output system information about various hardware components in your machine and your OS.  
+SysInfo Toolbar requires [inxi](https://github.com/smxi/inxi) and [lm-sensors](https://github.com/groeck/lm-sensors/issues/3) to operate fully.
 
 SysInfo Toolbar is an original work from slaboff modified to include [SysInfo](https://github.com/un1versal/my-kvirc-scripts/tree/master/aliases) script
 
+SysInfo Toolbar boasts fully and easily configurable output colors, saved to configuration file **siColorcfg** and read at KVIrc startup.
+
+>##### Hard dependency on  **inxi** 2.2 or newer  
+>##### Soft dependency on  **lm-sensors** installed and configured for sen (sensors) to operate.
+
+### Usage:
+
 :black_small_square:  For alias usage, type ```/sys``` and press ```[Enter]``` to get a list of supported switches with explanations on what each action does.  
-:black_small_square:  Click the Linux Penguin icon on toolbar button
+:black_small_square:  Click the ![Chip + info overlay](../sysinfo-toolbar/pics/Linux32.png) icon on toolbar button
 
->###### Requires **inxi** 2.2 or newer  
->###### sen (sensors) option requires **lm-sensors** installed and configured (not required otherwise)
-
->###### OS availability
+>### OS availability
 
 At this time *SysInfo Toolbar* is only available for UNIX-like / Linux systems at this time.
 
-SysInfo Toolbar boasts fully and easily configurable output colors, saved to configuration file **siColorcfg** and read at KVIrc startup.
-
-##### Output information for:
+### SysInfo Toolbar Features:
 
 >##### System:
 
