@@ -4,7 +4,7 @@ alias(slap)
 	%self = "own self"
 	%name = "Monster slap"
 	%aliasname = "slap"
-	%version = "1.3.2"
+	%version = "1.3.3"
 
 	if ($0 == self)
 	{
@@ -93,8 +93,8 @@ alias(slap)
 	%slap[28] = "a Klingon disruptor!"
 	%slap[29] = "some monkey's feces!"
 	%slap[30] = "a cast iron frying pan!"
-	%slap[31] = "a reconstituted, frozen and genetically modified fart!"
-	%f = $rand(30)
+	%slap[31] = "a reconstituted, flash-frozen and genetically modified fart!"
+	%f = $rand(31)
 	%vslap = %slap[%f]
 
 	if(($window.type == "query") && (%nick == ""))
