@@ -128,7 +128,7 @@ alias(slap)
 					case("0"):
 					{
 						echo -i=$msgtype(GenericStatus) $tr("The user told $b%scriptname$b's uninstaller to proceed.")
-						echo -i=$msgtype(GenericStatus) $tr("Cannot uninstall $balias(%aliasname)$b while script editors are open! Closing them..."
+						echo -i=$msgtype(GenericStatus) $tr("Cannot uninstall $balias(%aliasname)$b while script editors are open! Closing them...")
 						timer -s (uninstall,2000))
 						window.close -q $window($tr(Alias Editor))
 						window.close -q $window($tr(Event Editor))
