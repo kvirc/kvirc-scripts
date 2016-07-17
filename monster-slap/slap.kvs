@@ -2,9 +2,12 @@ alias(slap)
 {
 	%nick = $0
 	%self = "own self"
-	%name = "Monster slap"
+	%scriptname = "Monster slap"
 	%aliasname = "slap"
-	%version = "1.3.5"
+	%slink = "https://git.io/vKgaa"
+	%S = "$b":"$b"
+	%version = "1.4.0"
+	%lic = "Public domain - https://creativecommons.org/publicdomain/zero/1.0/"
 
 	if ($0 == self)
 	{
@@ -78,7 +81,7 @@ alias(slap)
 	%slap[13] = "a long pole!"
 	%slap[14] = "a ping-pong paddle!"
 	%slap[15] = "a cardboard cut-out of Chuck Norris!"
-	%slap[16] = "some internet troll!"
+	%slap[16] = "some Internet troll!"
 	%slap[17] = "an Apple product!"
 	%slap[18] = "a talking duck!"
 	%slap[19] = "a wasps nest!"
@@ -104,12 +107,23 @@ alias(slap)
 		%nick = $str.stripright(%nick)
 	}
 
+	if($0 == share)
+	{
+		say $tr("Why dont you have a look at %scriptname %version %slink")
+		break;
+	}
+
 	if(!$0)
 	{
-		echo $tr("Usage: %name - v%version")
-		echo "	  /slap <nick>"
-		echo "	  /slap self"
-		echo "	  /slap uninstall"
+		echo $tr("Usage: %scriptname")
+		echo "     "/%aliasname <nick>      %S $tr("Slaps the target nickname.")
+		echo "     "/%aliasname self        %S $tr("Slaps own self.")
+		echo "     "/%aliasname share       %S $tr("Output a link to share %scriptname with other KVIrc users.")
+		echo \n
+		echo "     "/%aliasname <uninstall> %S $tr("This uninstalls the "$b"alias(%aliasname)$b from KVIrc.")
+		echo \n
+		echo %scriptname %version - $tr("Licensed under:) %lic
+		echo \n
 		halt;
 	}
 
@@ -192,8 +206,10 @@ alias(slap)
 	else
 	{
 		me %vaction %nick %ntimes %vwhere %vlocation %vwith %vslap
-		%RESLAP = 1
-		timer -s (delayreslap,5000)
-		%RESLAP = 0
+
+	# Notice /!\ reslap isnt working right now
+	%RESLAP = 1
+	timer -s (delayreslap,5000)
+	%RESLAP = 0
 	}
 }
