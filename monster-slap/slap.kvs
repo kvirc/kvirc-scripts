@@ -183,17 +183,17 @@ alias(slap)
 		break;
 	}
 
-		if($0 == self)
-		{
-			me %vaction %nick %ntimes %vwhere %vlocation %vwith %vslap
-			unset %nick
-			halt;
-		}
-		else
-		{
-			me %vaction %nick %ntimes %vwhere %vlocation %vwith %vslap
-			%RESLAP = 1
-			timer -s (delayreslap,5000)
-			%RESLAP = 0
-		}
+	if($0 == self)
+	{
+		me %vaction %nick %ntimes %vwhere %vlocation %vwith %vslap
+		unset %nick
+		halt;
+	}
+	else
+	{
+		me %vaction %nick %ntimes %vwhere %vlocation %vwith %vslap
+		%RESLAP = 1
+		timer -s (delayreslap,5000)
+		%RESLAP = 0
+	}
 }
