@@ -6,7 +6,7 @@ alias(slap)
 	%aliasname = "slap"
 	%slink = "https://git.io/vKgaa"
 	%S = "$b":"$b"
-	%version = "1.4.0"
+	%version = "1.4.2"
 	%lic = "Public domain - https://creativecommons.org/publicdomain/zero/1.0/"
 
 	if ($0 == self)
@@ -149,7 +149,7 @@ alias(slap)
 						window.close -q $window($tr(Alias Editor))
 						window.close -q $window($tr(Event Editor))
 						echo -i=$msgtype(GenericStatus) $tr("Uninstalling alias(%aliasname) and event(OnHighlight,reslap){}")
-						alias(slap){}
+						alias(%aliasname){}
 						event(OnHighlight,reslap){}
 						echo -i=$msgtype(GenericStatus) $tr("The $b%scriptname$b's alias(%aliasname) has been completely removed.")
 						break;
