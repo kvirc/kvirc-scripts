@@ -122,7 +122,7 @@ alias(slap)
 		echo \n
 		echo "     "/%aliasname <uninstall> %S $tr("This uninstalls the "$b"alias(%aliasname)$b from KVIrc.")
 		echo \n
-		echo %scriptname %version - $tr("Licensed under:) %lic
+		echo %scriptname %version - $tr("Licensed under:") %lic
 		echo \n
 		halt;
 	}
