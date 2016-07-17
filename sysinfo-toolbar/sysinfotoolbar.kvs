@@ -41,7 +41,7 @@ alias(sys)
 	# Requires inxi 2.2 or newer
 	# sen (sensors) option requires lm-sensors installed and configured
 	%scriptname = "SysInfo Toolbar"
-	%version = "v1.2.0"
+	%version = "v1.2.1"
 	%cpright = "© un1versal 2016 - GPLv2"
 	%link = "https://git.io/vKT2p"
 	%S = "$b":"$b"
@@ -166,6 +166,7 @@ alias(sys)
 		case("uninstall"):
 		{
 			%scriptname = "SysInfo Toolbar"
+			%aliasname = "sys"
 			if(($window($tr(Alias Editor)) != "0") || (($window($tr(Action Editor)) != "0") || (($window($tr(Event Editor)) != "0") || (($window($tr(Popup Editor)) != "0"))))
 			{
 				dialog.message -b ($tr("%scriptname Uninstaller - KVIrc"), $tr("The <b>%scriptname</b> uninstaller detected some editor window(s) open."<br> \
@@ -173,6 +174,7 @@ alias(sys)
 				$tr("&Yes Proceed"), $tr("&No, I have Work to Save"), $tr("&Quit"))
 				{
 					%scriptname = "SysInfo Toolbar"
+					%aliasname = "sys"
 					switch($0)
 					{
 						case("0"):
