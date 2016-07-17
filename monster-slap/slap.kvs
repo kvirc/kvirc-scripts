@@ -4,7 +4,7 @@ alias(slap)
 	%self = "own self"
 	%name = "Monster slap"
 	%aliasname = "slap"
-	%version = "1.3.3"
+	%version = "1.3.5"
 
 	if ($0 == self)
 	{
@@ -116,6 +116,7 @@ alias(slap)
 	if($0 == uninstall)
 	{
 		%scriptname = "Monster Slap"
+		%aliasname = "slap"
 		if(($window($tr(Alias Editor)) != "0") || (($window($tr(Event Editor)) != "0")))
 		{
 			dialog.message -b ($tr("%scriptname Uninstaller - KVIrc"), $tr("The <b>%scriptname</b> uninstaller detected some editor window(s) open."<br> \
@@ -123,12 +124,13 @@ alias(slap)
 			$tr("&Yes Proceed"), $tr("&No, I have Work to Save"), $tr("&Quit"))
 			{
 				%scriptname = "Monster Slap"
+				%aliasname = "slap"
 				switch($0)
 				{
 					case("0"):
 					{
 						echo -i=$msgtype(GenericStatus) $tr("The user told $b%scriptname$b's uninstaller to proceed.")
-						echo -i=$msgtype(GenericStatus) $tr("Cannot uninstall $balias(%aliasname)$b while script editors are open! Closing them...")
+						echo -i=$msgtype(GenericStatus) $tr("Cannot uninstall "$b"alias(%aliasname)$b while script editors are open! Closing them...")
 						timer -s (uninstall,2000)
 						window.close -q $window($tr(Alias Editor))
 						window.close -q $window($tr(Event Editor))
@@ -157,6 +159,7 @@ alias(slap)
 			$tr("&Yes Proceed"), $tr("&Quit"))
 			{
 				%scriptname = "Monster Slap"
+				%aliasname = "slap"
 				switch($0)
 				{
 					case("0"):
@@ -180,17 +183,17 @@ alias(slap)
 		break;
 	}
 
-	if($0 == self)
-	{
-		me %vaction %nick %ntimes %vwhere %vlocation %vwith %vslap
-		unset %nick
-		halt
-	}
-	else
-	{
-		me %vaction %nick %ntimes %vwhere %vlocation %vwith %vslap
-		%RESLAP = 1
-		timer -s (delayreslap,5000)
-		%RESLAP = 0
-	}
+		if($0 == self)
+		{
+			me %vaction %nick %ntimes %vwhere %vlocation %vwith %vslap
+			unset %nick
+			halt;
+		}
+		else
+		{
+			me %vaction %nick %ntimes %vwhere %vlocation %vwith %vslap
+			%RESLAP = 1
+			timer -s (delayreslap,5000)
+			%RESLAP = 0
+		}
 }
