@@ -4,7 +4,7 @@ alias(slap)
 	%self = "own self"
 	%name = "Monster slap"
 	%aliasname = "slap"
-	%version = "1.3.0"
+	%version = "1.3.2"
 
 	if ($0 == self)
 	{
@@ -129,7 +129,7 @@ alias(slap)
 					{
 						echo -i=$msgtype(GenericStatus) $tr("The user told $b%scriptname$b's uninstaller to proceed.")
 						echo -i=$msgtype(GenericStatus) $tr("Cannot uninstall $balias(%aliasname)$b while script editors are open! Closing them...")
-						timer -s (uninstall,2000))
+						timer -s (uninstall,2000)
 						window.close -q $window($tr(Alias Editor))
 						window.close -q $window($tr(Event Editor))
 						echo -i=$msgtype(GenericStatus) $tr("Uninstalling alias(%aliasname) and event(OnHighlight,reslap){}")
