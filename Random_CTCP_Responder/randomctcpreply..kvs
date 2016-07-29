@@ -1,0 +1,263 @@
+# Random CTCP Request Responder
+# Version 1.0.0  Oct. 2015
+# Version 1.0.1  Jul. 2016
+##############################
+
+# Get install path first & create the destination directory
+# Then copy the about files to the local directory
+
+%mypath = $file.extractPath($0)
+file.mkdir $file.localdir/Info
+%myinfo = $file.localdir/Info
+file.copy -o $file.fixpath(%mypath/info/rctcpr.html) $file.fixpath(%myinfo/rctcpr.html)
+
+# Check to see how current Ignore CTCP options are set.
+# And save to file for reset when this feature is removed.
+echo Saving your current Ignore CTCP options. 
+%t = $option(boolIgnoreCtcpPing)
+%current[] <+ %t
+%t = $option(boolIgnoreCtcpVersion)
+%current[] <+ %t
+%t = $option(boolIgnoreCtcpClientinfo)
+%current[] <+ %t
+%t = $option(boolIgnoreCtcpUserinfo)
+%current[] <+ %t
+%t = $option(boolIgnoreCtcpFinger)
+%current[] <+ %t
+%t = $option(boolIgnoreCtcpSource)
+%current[] <+ %t
+%t = $option(boolIgnoreCtcpTime)
+%current[] <+ %t
+%t = $option(boolIgnoreCtcpAvatar)
+%current[] <+ %t
+echo %current[]
+file.write  $file.localdir/ignctcp.txt %current[]
+
+# If not ON, then we need to turn them ON.
+#
+echo Checking your CTCP request settings... 
+
+if(!$option(boolIgnoreCtcpPing))
+{
+	option boolIgnoreCtcpPing 1
+	echo Ignore CTCP Ping now ON
+}
+else
+{
+	echo Ignore CTCP Ping was ON
+}
+	
+if(!$option(boolIgnoreCtcpVersion))
+{
+	option boolIgnoreCtcpVersion 1
+	echo Ignore CTCP Version now ON
+}
+else
+{
+	echo Ignore CTCP Version was ON
+}
+
+if(!$option(boolIgnoreCtcpClientinfo))
+{
+	option boolIgnoreCtcpClientinfo 1
+	echo Ignore CTCP Clientinfo now ON
+}
+else
+{
+	echo Ignore CTCP Clientinfo was ON
+}
+
+if(!$option(boolIgnoreCtcpUserinfo))
+{
+	option boolIgnoreCtcpUserinfo 1
+	echo Ignore CTCP Userinfo now ON
+}
+else
+{
+	echo Ignore CTCP Userinfo was ON
+}
+
+if(!$option(boolIgnoreCtcpFinger))
+{
+	option boolIgnoreCtcpFinger 1
+	echo Ignore CTCP Finger now ON
+}
+else
+{
+	echo Ignore CTCP Finger was ON
+}
+
+if(!$option(boolIgnoreCtcpSource))
+{
+	option boolIgnoreCtcpSource 1
+	echo Ignore CTCP Source now ON
+}
+else
+{
+	echo Ignore CTCP Source was ON
+}
+
+if(!$option(boolIgnoreCtcpTime))
+{
+	option boolIgnoreCtcpTime 1
+	echo Ignore CTCP Time now ON
+}
+else
+{
+	echo Ignore CTCP Time was ON
+}
+if(!$option(boolIgnoreCtcpAvatar))
+{
+	option boolIgnoreCtcpAvatar 1
+	echo Ignore CTCP Avatar now ON
+}
+else
+{
+	echo Ignore CTCP Avatar was ON
+}
+
+# Grab CTCP Requests & send to vreply.
+
+event(OnCTCPRequest,responder)
+{
+	if(($4 == "VERSION") || ($4 == "CLIENTINFO") || ($4 == "TIME") || ($4 == "FINGER"))
+	{
+		$vreply($0,$4)
+	}
+
+	if(($4 == "USERINFO") || ($4 == "SOURCE") || ($4 == "PING") || ($4 == "AVATAR"))
+	{
+		$vreply($0,$4)
+	}
+}
+
+# Now the fun part - randomized CTCP Request replies.
+# If you wish to edit or add more replies be sure to check $rand() has correct number.
+
+alias(vreply)
+{
+	%this_user = $0
+	%vfired = 0
+
+	switch($1)
+	{
+		case(""):
+		{
+			%cmd = $str.upcase($0)
+			if(%cmd == "ABOUT")
+			{
+				help.open $file.localdir/Info/rctcpr.html
+			}
+			break;
+		}
+		case("VERSION")
+		{
+			%vresponse[0] = $b"CTCP VERSION - REQUEST DENIED!!!"$b
+			%vresponse[1] = $b"CTCP VERSION"$b" - I'll never tell..."
+			%vresponse[2] = $b"CTCP VERSION"$b" - I'm confused, mIRC, HexChat, irssi, KVIrc, hell I don't know."
+			%t = $rand(2)
+			%vfired = 1
+			break;
+		}
+		case("CLIENTINFO")
+		{
+			%vresponse[0] = $b"CTCP CLIENTINFO - REQUEST DENIED!!!"$b
+			%vresponse[1] = $b"CTCP CLIENTINFO"$b" - And you expect me to answer...LOL"
+			%vresponse[2] = $b"CTCP CLIENTINFO"$b" - I'm confused, Windows, OSX or Linux, and I don't care."
+			%t = $rand(2)
+			%vfired =1
+			break;
+		}
+		case("TIME"):
+		{
+			%vresponse[0] = $b"CTCP TIME - REQUEST DENIED!!!"$b
+			%vresponse[1] = $b"CTCP TIME"$b" - Tick - Tock"
+			%vresponse[2] = $b"CTCP TIME"$b" - Sorry, I seem to have misplaced my watch."
+			%t = $rand(2)
+			%vfired = 1
+			break;
+		}
+		case("FINGER"):
+		{
+			%vresponse[0] = $b"CTCP FINGER - REQUEST DENIED!!!"$b
+			%vresponse[1] = $b"CTCP FINGER"$b" - Just the Big Bird!"
+			%vresponse[2] = $b"CTCP FINGER"$b" - 10 the last time I counted."
+			%t = $rand(2)
+			%vfired = 1
+			break;
+		}
+		case("SOURCE"):
+		{
+			%vresponse[0] = $b"CTCP SOURCE - REQUEST DENIED!!!"$b
+			%vresponse[1] = $b"CTCP SOURCE"$b" - Why do you want to know?"
+			%vresponse[2] = $b"CTCP SOURCE"$b" - I compiled my own."
+			%t = $rand(2)
+			%vfired = 1
+			break;
+		}
+		case("USERINFO"):
+		{
+			%vresponse[0] = $b"CTCP USERINFO - REQUEST DENIED!!!"$b
+			%vresponse[1] = $b"CTCP USERINFO"$b" - You don't need to know that info."
+			%vresponse[2] = $b"CTCP USERINFO"$b" - I don't see where that's any of your business."
+			%t = $rand(2)
+			%vfired =1
+			break;
+		}
+		case("PING"):
+		{
+			%vresponse[0] = $b"CTCP PING - REQUEST DENIED!!!"$b
+			%vresponse[1] = $b"CTCP PING"$b" - PING - PONG"
+			%vresponse[2] = $b"CTCP PING"$b" - 10000000000000000000 secs"
+			%t = $rand(2)
+			%vfired = 1
+			break;
+		}
+		case("AVATAR"):
+		{
+			%vresponse[0] = $b"CTCP AVATAR - REQUEST DENIED!!!"$b
+			%vresponse[1] = $b"CTCP AVATAR"$b" - Avatar 2009 Movie by James Cameron"
+			%vresponse[2] = $b"CTCP AVATAR"$b" - I don't use them at all."
+			%t = $rand(2)
+			%vfired = 1
+			break;
+		}
+	}
+
+	# Send reply as a notice.
+	if(%vfired == 1)
+	{
+		notice -q %this_user %vresponse[%t];
+	}
+}
+
+# This will reset everything and remove itself from KVIrc.
+
+alias(vremove)
+{
+	# Remove event trigger and aliases
+
+	event(OnCTCPRequest,responder){};
+	alias -q (vreply){};
+	alias -q (vremove){};
+
+	# Reset Ignore CTCP Request to previous state and remove file.
+
+	%previous = $file.readBytes($file.localdir/ignctcp.txt)
+	option boolIgnoreCtcpPing $char(%previous[0])
+	option boolIgnoreCtcpVersion $char(%previous[2])
+	option boolIgnoreCtcpClientinfo $char(%previous[4])
+	option boolIgnoreCtcpUserinfo $char(%previous[6])
+	option boolIgnoreCtcpFinger $char(%previous[8])
+	option boolIgnoreCtcpSource $char(%previous[10])
+	option boolIgnoreCtcpTime $char(%previous[12])
+	option boolIgnoreCtcpAvatar $char(%previous[14])
+	file.remove -q $file.localdir/ignctcp.txt
+	file.remove -q $file.localdir/Info/rctcpr.html
+	file.rmdir -q Info
+	echo $k(8)"Successfully removed Random Replies for CTCP Requests."$k
+}
+
+echo $k(8)"Random CTCP Request Responder was successfully installed."$k
+echo $k(8)"To read info about the script, just enter /vreply about"$k
+echo $k(8)"Should you wish to remove this package, just enter /vremove"$k

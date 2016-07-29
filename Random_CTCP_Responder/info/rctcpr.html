@@ -1,0 +1,35 @@
+ <!DOCTYPE html>
+<html>
+<header>
+	<style>
+    tab { padding-left: 4em; }
+</style>
+</header>
+<body>
+<table bgcolor="#202020" width="100%">
+  <tbody>
+    <tr>
+      <td>&nbsp; <font color="#ffffff" size="+1"> <b>Random CTCP Responder</b> </font> </td>
+    </tr>
+  </tbody>
+</table>
+<p>This script is designed to capture the incoming CTCP requests listed below, and generate a random reply which is sent to the target user as a NOTICE. Using this method, no information other than your nick is sent to target user.</p>
+<h4>Captured CTCP Requests:</h4>
+<ul>
+	<li>PING</li>
+	<li>FINGER</li>
+	<li>VERSION</li>
+	<li>USERINFO</li>
+	<li>CLIENTINFO</li>
+	<li>SOURCE</li>
+	<li>TIME</li>
+	<li>AVATAR</li>
+</ul>
+<h4>Description:</h4>
+<p>When first installed, the script will scan for the currently set ignore CTCP request options and save their current status. That way if you remove the script with the supplied '<i>vremove</i>' it restores the prior settings.<br>Using the <b>OnCTCPRequest</b> event, the incoming request is captured; the user name and request type is sent to '<i>vreply</i>'.
+This alias handles generating the random reply for each type request and sends it as a NOTICE to the target user.</p>
+<h4>Summary:</h4>
+<p>Feel free to edit or add your own replies as you see fit. If you add additional replies to any section, be sure you also change the number in the random function to match.</p>
+<h4>Have fun and enjoy!</h4>
+</body>
+</html>
