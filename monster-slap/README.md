@@ -4,8 +4,8 @@ Monster slap is a super slap script on steroids.
 It is the culmination of a couple of KVIrc fans getting together to produce this. and adopted by a few users.
 Monster slap consists of an alias called slap and if you also choose, an `OnHighlight` auto-reslap event catcher.
 
-The slap alias, randomizes multiple variable entries of 6 arrays to give a slightly different slap each time.
-It has been constructed in such a way that no matter which variables are used, the result is always logical,
+The slap alias, randomizes multiple variable entries of **8** arrays to give a slightly different *slap* each time.
+It has been constructed in such a way that no matter which variables are used, the result is always (pretty close to) logical,
 perhaps somewhat shocking ;) but most definitely fun and not meant to be offensive... Its a reality check slap.
 
 The reslap event is an `OnHighlight` event that catches a slap directed at yourself and auto-reslaps
@@ -22,6 +22,10 @@ the event is protected and it only reslaps once over a certain period to avoid e
 
 * Since version 2.0.1 it was rewritten using `switch()` and added ability to slap any nick
   also added script share switch to share a link with other KVIrc users.
+
+* Since version 2.0.5 another 2 arrays have been added:
+1) *Fictional Characters* that turn up to and make target nick to funny, surprising  and unexpected things.
+2) Target nick also performs random actions against random things.  
   
 Currently you can use the slap alias on its own without needing to use reslap.
 This is why it is provided as a separate file to give you the choice.

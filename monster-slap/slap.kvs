@@ -6,13 +6,13 @@ alias(slap)
 	%aliasname = "slap"
 	%slink = "https://git.io/vKgaa"
 	%s = "$b":"$b"
-	%version = "2.0.1"
+	%version = "2.0.5"
 	%lic = "Public domain - https://creativecommons.org/publicdomain/zero/1.0/"
 
-		if($0 == "custom")
+		if($0 == "*")
 			%nick = $1
 
-	%action[0] = "hugs"
+	%action[0] = "pokes"
 	%action[1] = "drags"
 	%action[2] = "hits"
 	%action[3] = "kicks"
@@ -21,7 +21,8 @@ alias(slap)
 	%action[6] = "slaps"
 	%action[7] = "throws"
 	%action[8] = "whips"
-	%a = $rand(8)
+	%action[9] = "taunts"
+	%a = $rand(9)
 	%vaction = %action[%a]
 
 	%times[0] = "once"
@@ -36,10 +37,11 @@ alias(slap)
 	%location[1] = "in the desert,"
 	%location[2] = "in the dungeon,"
 	%location[3] = "in the IRC channel,"
-	%location[4] = "on an asteroid,"
-	%location[5] = "on an alien planet,"
-	%location[6] = "at the edge of a cliff,"
-	%c = $rand(6)
+	%location[4] = "in a spaceship,"
+	%location[5] = "on an asteroid,"
+	%location[6] = "on an alien planet,"
+	%location[7] = "at the edge of a cliff,"
+	%c = $rand(7)
 	%vlocation = %location[%c]
 
 	%where[0] = "around"
@@ -54,14 +56,39 @@ alias(slap)
 	%d = $rand(8)
 	%vwhere = %where[%d]
 
-	%with[0] = "with"
-	%with[1] = "and forces %nick to eat"
-	%with[2] = "while %nick is forced to stare at"
-	%with[3] = "while %nick eats"
-	%with[4] = "and %nick has nightmares about"
-	%with[5] = "while some alien zaps %nick with"
-	%e = $rand(5)
-	%vwith = %with[%e]
+	%naction[0] = "eats"
+	%naction[1] = "stares at"
+	%naction[2] = "hits"
+	%naction[3] = "kicks"
+	%naction[4] = "has nightmares about"
+	%naction[5] = "has wet dreams about"
+	%naction[6] = "walks around with"
+	%naction[7] = "picks own nose with"
+	%e = $rand(7)
+	%vnaction = %naction[%e]
+
+	%who[0]  = "an alien"
+	%who[1]  = "Jean Luc Picard"
+	%who[2]  = "Yoda"
+	%who[3]  = "Darth Vader"
+	%who[4]  = "Pac-Man"
+	%who[5]  = "Superman"
+	%who[6]  = "Iron Man"
+	%who[7]  = "The Hulk"
+	%who[8]  = "Thor"
+	%who[9]  = "a replicator"
+	%who[10] = "Snow White"
+	%f = $rand(10)
+	%vwho = %who[%f]
+
+	%target[0] = "with"
+	%target[1] = "and %nick %vnaction"
+	%target[2] = "while %nick %vnaction"
+	%target[3] = "and %vwho turns up and teases %nick with"
+	%target[4] = "and %vwho makes %nick poop"
+	%target[5] = "and %vwho talks %nick into buying"
+	%g = $rand(5)
+	%vtarget = %target[%g]
 
 	%slap[0]  = "a large wild salmon!"
 	%slap[1]  = "10K lines of source code!"
@@ -79,7 +106,7 @@ alias(slap)
 	%slap[13] = "a long pole!"
 	%slap[14] = "a ping-pong paddle!"
 	%slap[15] = "a cardboard cut-out of Chuck Norris!"
-	%slap[16] = "some Internet troll!"
+	%slap[16] = "a rabid Internet troll!"
 	%slap[17] = "an Apple product!"
 	%slap[18] = "a talking duck!"
 	%slap[19] = "a wasps nest!"
@@ -90,13 +117,13 @@ alias(slap)
 	%slap[24] = "a dozen live squids!"
 	%slap[25] = "a horde of zombie vampires!"
 	%slap[26] = "a soft and cute kitten!"
-	%slap[27] = "%nick's own severed arm!"
+	%slap[27] = "a severed arm!"
 	%slap[28] = "a Klingon disruptor!"
 	%slap[29] = "some monkey's feces!"
 	%slap[30] = "a cast iron frying pan!"
 	%slap[31] = "a reconstituted, flash-frozen and genetically modified fart!"
-	%f = $rand(31)
-	%vslap = %slap[%f]
+	%h = $rand(31)
+	%vslap = %slap[%h]
 
 	if(($window.type == "query") && (%nick == ""))
 	{
@@ -110,7 +137,7 @@ alias(slap)
 		case("self"):
 		{
 			%nick = %self
-			me %vaction %nick %ntimes %vwhere %vlocation %vwith %vslap
+			me %vaction %nick %ntimes %vwhere %vlocation %vtarget %vslap
 			unset %nick
 			break;
 		}
@@ -200,13 +227,13 @@ alias(slap)
 		case(""):
 		{
 			echo $tr("Usage: %scriptname")
-			echo "      "/%aliasname <nick>"   "%s $tr("Slaps the target nickname with random slap.")
-			echo "      "/%aliasname <self>"   "%s $tr("Slaps own self with a random slap.")
-			echo "      "/%aliasname <sshare>" "%s $tr("Output a link to share %scriptname with other KVIrc users.")
-			echo "      "/%aliasname <sshare> <nick> %s $tr("Outputs a link to share %scriptname with a specific KVIrc user.")
-			echo "      "/%aliasname <custom> <nick> %s $tr("Slap every possible nickname including triggers used in script.")
+			echo "      "/%aliasname nick"   "%s $tr("Slaps the target nickname with random slap.")
+			echo "      "/%aliasname self"   "%s $tr("Slaps own self with a random slap.")
+			echo "      "/%aliasname * nick" "%s $tr("Slap every possible nickname including triggers used in script.")
+			echo "      "/%aliasname sshare" "%s $tr("Output a link to share %scriptname with other KVIrc users.")
+			echo "      "/%aliasname sshare nick %s $tr("Outputs a link to share %scriptname with a specific KVIrc user.")
 			echo \n
-			echo "      "/%aliasname <uninstall> %s $tr("This uninstalls the "$b"alias(%aliasname)$b from KVIrc.")
+			echo "      "/%aliasname uninstall %s $tr("This uninstalls the "$b"alias(%aliasname)$b from KVIrc.")
 			echo \n
 			echo %scriptname %version - $tr("Licensed under:") %lic
 			echo \n
@@ -214,7 +241,7 @@ alias(slap)
 		}
 		default:
 		{
-			me %vaction %nick %ntimes %vwhere %vlocation %vwith %vslap
+			me %vaction %nick %ntimes %vwhere %vlocation %vtarget %vslap
 			%RESLAP = 1
 			timer -s (delayreslap,5000)
 			%RESLAP = 0

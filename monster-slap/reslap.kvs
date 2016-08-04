@@ -1,6 +1,6 @@
 event(OnHighlight,reslap)
 {
-	%actions = $array("hugs","drags","hits","kicks","pushes","sacrifices","slaps","throws","whips")
+	%actions = $array("pokes","drags","hits","kicks","pushes","sacrifices","slaps","throws","whips","taunts")
 	%count = %actions[]#
 
 	if($0 == me)
