@@ -41,10 +41,10 @@ alias(sys)
 	# Requires inxi 2.2 or newer
 	# sen (sensors) option requires lm-sensors installed and configured
 	%scriptname = "SysInfo Toolbar"
-	%version = "v1.2.1"
+	%version = "v1.2.2"
 	%cpright = "© un1versal 2016 - GPLv2"
 	%link = "https://git.io/vKT2p"
-	%S = "$b":"$b"
+	%s = "$b":"$b"
 	%aliasname = "sys"
 
 	if("$system.ostype" != "UNIX")
@@ -232,18 +232,18 @@ alias(sys)
 		case(""):
 		{
 			echo $tr("Usage:")
-			echo "     "/%aliasname <cpu> %S $tr("Output CPU information.")
-			echo "     "/%aliasname <net> %S $tr("Output Network Card information.")
-			echo "     "/%aliasname <mob> %S $tr("Output Motherboard information.")
-			echo "     "/%aliasname <gfx> %S $tr("Output Graphics Card information.")
-			echo "     "/%aliasname <snd> %S $tr("Output Audio Card information.")
-			echo "     "/%aliasname <osv> %S $tr("Output Operative system information.")
-			echo "     "/%aliasname <hdd> %S $tr("Output HDD/SSD information.")
-			echo "     "/%aliasname <sen> %S $tr("Output Sensors information.")
-			echo "     "/%aliasname <share> <nick> %S $tr("Outputs a link to share %scriptname with a specific KVIrc user.")
-			echo "     "/%aliasname <share> %S $tr("Output a link to share %scriptname with other KVIrc users.")
+			echo "     "/%aliasname <cpu> %s $tr("Output CPU information.")
+			echo "     "/%aliasname <net> %s $tr("Output Network Card information.")
+			echo "     "/%aliasname <mob> %s $tr("Output Motherboard information.")
+			echo "     "/%aliasname <gfx> %s $tr("Output Graphics Card information.")
+			echo "     "/%aliasname <snd> %s $tr("Output Audio Card information.")
+			echo "     "/%aliasname <osv> %s $tr("Output Operative system information.")
+			echo "     "/%aliasname <hdd> %s $tr("Output HDD/SSD information.")
+			echo "     "/%aliasname <sen> %s $tr("Output Sensors information.")
+			echo "     "/%aliasname <share> <nick> %s $tr("Outputs a link to share %scriptname with a specific KVIrc user.")
+			echo "     "/%aliasname <share> %s $tr("Output a link to share %scriptname with other KVIrc users.")
 			echo \n
-			echo "     "/%aliasname <uninstall> %S $tr("This uninstalls the alias(%aliasname) from KVIrc.")
+			echo "     "/%aliasname <uninstall> %s $tr("This uninstalls the alias(%aliasname) from KVIrc.")
 			echo \n
 			echo -i=$msgtype(GenericVerbose) %scriptname %version - %cpright\n
 
