@@ -1,12 +1,12 @@
 alias(slap)
 {
-	%nick = $0
+	%nick = $0-
 	%self = "own self"
 	%scriptname = "Monster slap"
 	%aliasname = "slap"
 	%slink = "https://git.io/vKgaa"
 	%s = "$b":"$b"
-	%version = "2.0.5"
+	%version = "2.1.5"
 	%lic = "Public domain - https://creativecommons.org/publicdomain/zero/1.0/"
 
 		if($0 == "*")
@@ -56,17 +56,6 @@ alias(slap)
 	%d = $rand(8)
 	%vwhere = %where[%d]
 
-	%naction[0] = "eats"
-	%naction[1] = "stares at"
-	%naction[2] = "hits"
-	%naction[3] = "kicks"
-	%naction[4] = "has nightmares about"
-	%naction[5] = "has wet dreams about"
-	%naction[6] = "walks around with"
-	%naction[7] = "picks own nose with"
-	%e = $rand(7)
-	%vnaction = %naction[%e]
-
 	%who[0]  = "an alien"
 	%who[1]  = "Jean Luc Picard"
 	%who[2]  = "Yoda"
@@ -78,52 +67,70 @@ alias(slap)
 	%who[8]  = "Thor"
 	%who[9]  = "a replicator"
 	%who[10] = "Snow White"
-	%f = $rand(10)
-	%vwho = %who[%f]
+	%e = $rand(10)
+	%vwho = %who[%e]
 
-	%target[0] = "with"
-	%target[1] = "and %nick %vnaction"
-	%target[2] = "while %nick %vnaction"
-	%target[3] = "and %vwho turns up and teases %nick with"
-	%target[4] = "and %vwho makes %nick poop"
-	%target[5] = "and %vwho talks %nick into buying"
-	%g = $rand(5)
-	%vtarget = %target[%g]
+	%dowhat[0]  = "choke on"
+	%dowhat[1]  = "poop"
+	%dowhat[2]  = "eat"
+	%dowhat[3]  = "sneeze on"
+	%dowhat[4]  = "draw a picture of"
+	%dowhat[5]  = "buy"
+	%dowhat[6]  = "sell"
+	%dowhat[7]  = "3D print"
+	%dowhat[8]  = "have nightmares about"
+	%dowhat[9]  = "have wet dreams about"
+	%dowhat[10] = "walk around with"
+	%dowhat[11] = "pick own nose with"
+	%dowhat[12] = "give a lecture about"
+	%dowhat[13] = "write songs about"
+	%f = $rand(12)
+	%vdowhat = %dowhat[%f]
 
 	%slap[0]  = "a large wild salmon!"
 	%slap[1]  = "10K lines of source code!"
 	%slap[2]  = "a bag of dirty laundry!"
 	%slap[3]  = "a flying cow!"
-	%slap[4]  = "some apt-get commands!"
+	%slap[4]  = "some apt commands!"
 	%slap[5]  = "a wet, smelly, hairy and sloppy old vagina!"
-	%slap[6]  = "a super flying pig!"
-	%slap[7]  = "Hasselhoff's sweaty swimming trunks!"
-	%slap[8]  = "a pile of primordial gue!"
-	%slap[9]  = "a box of Corn Flakes!"
-	%slap[10] = "some really smelly shoes!"
-	%slap[11] = "a huge wet smelly trout!"
-	%slap[12] = "a sharp and pointy object!"
-	%slap[13] = "a long pole!"
-	%slap[14] = "a ping-pong paddle!"
-	%slap[15] = "a cardboard cut-out of Chuck Norris!"
-	%slap[16] = "a rabid Internet troll!"
-	%slap[17] = "an Apple product!"
-	%slap[18] = "a talking duck!"
-	%slap[19] = "a wasps nest!"
-	%slap[20] = "a zombies rotting brains!"
-	%slap[21] = "some annoying movie quotes!"
-	%slap[22] = "a wire coat hanger!"
-	%slap[23] = "some live and wriggling alien food!"
-	%slap[24] = "a dozen live squids!"
-	%slap[25] = "a horde of zombie vampires!"
-	%slap[26] = "a soft and cute kitten!"
-	%slap[27] = "a severed arm!"
-	%slap[28] = "a Klingon disruptor!"
-	%slap[29] = "some monkey's feces!"
-	%slap[30] = "a cast iron frying pan!"
-	%slap[31] = "a reconstituted, flash-frozen and genetically modified fart!"
-	%h = $rand(31)
-	%vslap = %slap[%h]
+	%slap[6]  = "a flying pig!"
+	%slap[7]  = "a spider pig!"
+	%slap[8]  = "Hasselhoff's sweaty swimming trunks!"
+	%slap[9]  = "a pile of primordial goo!"
+	%slap[10]  = "a box of Corn Flakes!"
+	%slap[11] = "some really smelly shoes!"
+	%slap[12] = "a huge wet smelly trout!"
+	%slap[13] = "a sharp and pointy object!"
+	%slap[14] = "a 10ft pole!"
+	%slap[15] = "a ping-pong paddle!"
+	%slap[16] = "a cardboard cut-out of Chuck Norris!"
+	%slap[17] = "a rabid Internet troll!"
+	%slap[18] = "an Apple product!"
+	%slap[19] = "a talking duck!"
+	%slap[20] = "a wasps nest!"
+	%slap[21] = "a zombies rotting brains!"
+	%slap[22] = "some annoying movie quotes!"
+	%slap[23] = "a wire coat hanger!"
+	%slap[24] = "some live and wriggling alien food!"
+	%slap[25] = "a dozen live squids!"
+	%slap[26] = "a horde of zombie vampires!"
+	%slap[27] = "a soft and cute kitten!"
+	%slap[28] = "a severed arm!"
+	%slap[29] = "a Klingon disruptor!"
+	%slap[30] = "some monkey's feces!"
+	%slap[31] = "a cast iron frying pan!"
+	%slap[32] = "a reconstituted, flash-frozen and genetically modified fart!"
+	%g = $rand(32)
+	%vslap = %slap[%g]
+
+	%complex[0] = "%vaction %nick %ntimes %vwhere %vlocation and %vwho makes %nick %vdowhat %vslap"
+	%complex[1] = "%vaction %nick %ntimes %vwhere %vlocation and %nick %vaction %vslap"
+	%complex[2] = "%vaction %nick %ntimes %vwhere %vlocation with %vslap"
+	%complex[3] = "%vaction %nick %vlocation with %vslap"
+	%complex[4] = "%vaction %nick %vwhere with %vslap"
+	%complex[5] = "%vaction %nick with %vslap"
+	%h = $rand(5)
+	%vcomplex = %complex[%h]
 
 	if(($window.type == "query") && (%nick == ""))
 	{
@@ -137,7 +144,7 @@ alias(slap)
 		case("self"):
 		{
 			%nick = %self
-			me %vaction %nick %ntimes %vwhere %vlocation %vtarget %vslap
+			me %vaction %nick %ntimes %vwhere %vlocation and %vwho makes $me %vdowhat %vslap
 			unset %nick
 			break;
 		}
@@ -158,7 +165,6 @@ alias(slap)
 		case(uninstall):
 		{
 			%scriptname = "Monster Slap"
-			%aliasname = "slap"
 			if(($window($tr(Alias Editor)) != "0") || (($window($tr(Event Editor)) != "0")))
 			{
 				dialog.message -b ($tr("%scriptname Uninstaller - KVIrc"), $tr("The <b>%scriptname</b> uninstaller detected some editor window(s) open."<br> \
@@ -176,7 +182,7 @@ alias(slap)
 							timer -s (uninstall,2000)
 							window.close -q $window($tr(Alias Editor))
 							window.close -q $window($tr(Event Editor))
-							echo -i=$msgtype(GenericStatus) $tr("Uninstalling alias(%scriptname) and event(OnHighlight,reslap){}")
+							echo -i=$msgtype(GenericStatus) $tr("Uninstalling "$b"alias(%scriptname)$b and "$b"event(OnHighlight,reslap)$b...")
 							alias(%aliasname){}
 							event(OnHighlight,reslap){}
 							echo -i=$msgtype(GenericStatus) $tr("The $b%scriptname$b alias has been completely removed.")
@@ -208,10 +214,10 @@ alias(slap)
 						{
 							echo -i=$msgtype(GenericStatus) $tr("The user told $b%scriptname$b's uninstaller to proceed.")
 							echo -i=$msgtype(GenericStatus) $tr("There were no open editor windows.")
-							echo -i=$msgtype(GenericStatus) $tr("Uninstalling alias(%scriptname) and event(OnHighlight,reslap...")
+							echo -i=$msgtype(GenericStatus) $tr("Uninstalling "$b"alias(%scriptname)$b and "$b"event(OnHighlight,reslap)$b...")
 							alias(%aliasname){}
 							event(OnHighlight,reslap){}
-							echo -i=$msgtype(GenericStatus) $tr("The "$b"slap$b alias has been completely removed.")
+							echo -i=$msgtype(GenericStatus) $tr("The "$b"slap$b alias and reslap event have been completely removed.")
 							break;
 						}
 						default:
@@ -241,7 +247,7 @@ alias(slap)
 		}
 		default:
 		{
-			me %vaction %nick %ntimes %vwhere %vlocation %vtarget %vslap
+			me %vcomplex
 			%RESLAP = 1
 			timer -s (delayreslap,5000)
 			%RESLAP = 0

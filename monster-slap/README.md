@@ -22,19 +22,26 @@ Enjoy this script and use wisely.
 
 #### Notable changes
 
-* Since version 1.2.0 it now includes a complete uninstallation trigger via `/slap uninstall`
-  The uninstallation routine checks if the Event or Alias editors are open and closes them
-  before proceeding with uninstall. (rewritten to have popup up dialogs with options around)
-
-* Since version 1.0.3 it includes a *reslap* event and ability to `/slap self`.
-
-* Since version 2.0.1 it was rewritten using `switch()` and added ability to slap any nick
-  also added script share switch to share a link with other KVIrc users.
+* Since version 2.1.5 added slap complexity:
+  Slap complexity, picks at random from 6 differently structured sentences ranging from complex to really simple, 
+  in the end it seems you have even more randomness. 
+  
+  You can also type a nickname separated by a space e.g. /slap `<some nick>` a caveat is if you try to perform any action 
+  to more than one nick at a time (it will work but result wont be logical, so its not a bug its just not meant to do this.).
 
 * Since version 2.0.5 another 2 arrays have been added:
 1) *Fictional Characters* that turn up to and make the target nick to funny, surprising and unexpected things.
 2) The target nick also performs random actions against random things.  
 
+* Since version 2.0.1 it was rewritten using `switch()` and added ability to slap any nick
+  also added script share switch to share a link with other KVIrc users.
+
+* Since version 1.0.3 it includes a *reslap* event and ability to `/slap self`.
+
+* Since version 1.2.0 it now includes a complete uninstallation trigger via `/slap uninstall`
+  The uninstallation routine checks if the Event or Alias editors are open and closes them
+  before proceeding with uninstall. (rewritten to have popup up dialogs with options around)
+  
 ## Installation in KVIrc.
 
 Download the slap.kvs and reslap.kvs anywhere you like.
