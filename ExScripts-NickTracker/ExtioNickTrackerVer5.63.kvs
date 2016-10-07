@@ -75,7 +75,7 @@ alias(NT::NickTrackerProcess)
 {
 	%NTSet = $config.open(NickTrackerSettings.kvs) ;
 	%nOfN = $config.read(%NTSet,NickNum,6) ;
-	%ntUserDisplay = $config.read(%NTSet,NTdisplayUser,"on");
+	%ntUserDisplay = $config.read(%NTSet,NTdisplayUser,"off");
 	%ntIpDisplay = $config.read(%NTSet,NTdisplayIp,"on");
 	%powerstate = $config.read(%NTSet,NTpower,"on")
 	config.close %NTSet ; 
