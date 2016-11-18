@@ -6,7 +6,7 @@ alias(slap)
 	%aliasname = "slap"
 	%slink = "https://git.io/vKgaa"
 	%s = "$b":"$b"
-	%version = "2.1.5"
+	%version = "2.1.6"
 	%lic = "Public domain - https://creativecommons.org/publicdomain/zero/1.0/"
 
 		if($0 == "*")
@@ -236,8 +236,8 @@ alias(slap)
 			echo "      "/%aliasname nick"   "%s $tr("Slaps the target nickname with random slap.")
 			echo "      "/%aliasname self"   "%s $tr("Slaps own self with a random slap.")
 			echo "      "/%aliasname * nick" "%s $tr("Slap every possible nickname including triggers used in script.")
-			echo "      "/%aliasname sshare" "%s $tr("Output a link to share %scriptname with other KVIrc users.")
-			echo "      "/%aliasname sshare nick %s $tr("Outputs a link to share %scriptname with a specific KVIrc user.")
+			echo "      "/%aliasname shareslap" "%s $tr("Output a link to share %scriptname with other KVIrc users.")
+			echo "      "/%aliasname shareslap nick %s $tr("Outputs a link to share %scriptname with a specific KVIrc user.")
 			echo \n
 			echo "      "/%aliasname uninstall %s $tr("This uninstalls the "$b"alias(%aliasname)$b from KVIrc.")
 			echo \n
