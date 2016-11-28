@@ -19,7 +19,7 @@ Using this method, no information other than your nick is sent to target user.
  * TIME
  * AVATAR
 
-Description:
+## Description:
 
 When first installed, the script will scan for the currently set ignore CTCP request options and save their current status.  
 That way if you remove the script with the supplied '*vremove*' it restores the prior settings.  
@@ -38,10 +38,8 @@ Download the randomctcpreply.kvs into any directory you prefer.
 
 ### Via command line
 
-1- Type /parse path/to/where/you/downloaded/monster-slap/filename.kvs  
-2- Rinse and repeat for other file
+1- Type ```/parse path/to/where/you/downloaded/randomctcpreply/filename.kvs```
 
 #### Verifying installation:
 
-Open Aliases Editor and confirm you have an Alias names slap.
-Then open the Event Editor, find OnHighlight event and verify you have a reslap handler.
+Open Aliases Editor and confirm you have an Alias names randomctcpreply.
