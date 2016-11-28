@@ -1,4 +1,7 @@
 # Random CTCP Request Responder
+This script is a original work by slaboff, fixed formatting and wording and minor fixes and commited by un1versal.
+
+Thank you slaboff, it was nice working with you.
 
 ## About
 
@@ -29,13 +32,13 @@ Download the randomctcpreply.kvs into any directory you prefer.
 
 ### Via UI
 
-1- Open *Execute script* (Ctrl+Shift+X)
-2- Navigate to directory where you have the randomctcpreply.kvs
+1- Open *Execute script* (Ctrl+Shift+X)  
+2- Navigate to directory where you have the randomctcpreply.kvs  
 3- Select a script and click OK.
 
 ### Via command line
 
-1- Type /parse path/to/where/you/downloaded/monster-slap/filename.kvs
+1- Type /parse path/to/where/you/downloaded/monster-slap/filename.kvs  
 2- Rinse and repeat for other file
 
 #### Verifying installation:
