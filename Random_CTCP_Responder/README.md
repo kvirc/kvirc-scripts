@@ -28,18 +28,18 @@ This alias handles generating the random reply for each type request and sends i
  
 ## Installation in KVIrc.
 
-Download the randomctcpreply.kvs into any directory you prefer.
+Download the randomctcpresponder.kvs into any directory you prefer.
 
 ### Via UI
 
 1- Open *Execute script* (Ctrl+Shift+X)  
-2- Navigate to directory where you have the randomctcpreply.kvs  
+2- Navigate to directory where you have the randomctcpresponder.kvs  
 3- Select a script and click OK.
 
 ### Via command line
 
-1- Type ```/parse path/to/where/you/downloaded/randomctcpreply/filename.kvs```
+1- Type ```/parse path/to/where/you/downloaded/randomctcpresponder/filename.kvs```
 
 #### Verifying installation:
 
-Open Aliases Editor and confirm you have an Alias names randomctcpreply.
+Open Aliases Editor and confirm you have an Alias named **randomctcpresponder**.
