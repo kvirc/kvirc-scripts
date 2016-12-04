@@ -1,0 +1,352 @@
+event(OnQueryNotice,DearlyLovedInDistress)
+{
+  if ($BIDnoticeProcess($0,$3)==halt) {halt;};
+};
+
+alias (BID)
+{
+say $0;
+BIDprocess $0 $me;
+};
+
+alias (BIDprocess)
+{
+if ($str.stripcolors($0) == "commands")
+{	
+	say Commands: commands, quit, debug,(before game starts: bid, random, easier, harder);
+};
+if ($str.stripcolors($0) == "random")
+{	
+	if ($BIDnoticeProcess($1,$str.stripcolors($0))==halt) {halt;};
+};
+if ($str.stripcolors($0) == "quit")
+{	
+	rebind %BIDwindow;
+	echo quiting;
+	%BIDpower = 0;
+	say current game powered off, use \"BID\" in room to start;
+};
+if ($str.stripcolors($0) == "harder" && %BIDdifficultyincrease > .02)
+{ %BIDdifficultyincrease = $( %BIDdifficultyincrease - .01 ) ; say New difficulty set: $integer( $(%BIDdifficultyincrease * 100) ), 8 is default, lower numbers are harder.; };
+if ($str.stripcolors($0) == "easier" && %BIDdifficultyincrease < 0.15)
+{ %BIDdifficultyincrease = $( %BIDdifficultyincrease + .01 ); say New difficulty set: $integer( $(%BIDdifficultyincrease*100) ). 8 is default, higher numbers are easier.; };
+if ($str.stripcolors($0) == "debug")
+{	
+	say debug: %BIDDebug;
+};
+if (%BIDpower == 1 || %BIDpower == 0 || %BIDpower=="")
+{
+	if ($str.mid($str.stripcolors($0),0,8) == "hangman") { say Use \"BID\" to start a game; };
+	if ($str.mid($str.stripcolors($0),0,4) == "BID")
+	{
+		%message = $escape($str.stripcolors($0)) ;
+		%BIDpower=1;
+		say Game Beloved in Distress started, use \"/notice $me random\" or say \"random\" in the room to start or for a specific word \"/notice $me set <word here>\";
+		say When the game is started, it is played like hangman.  Just guess single letters and read along.  use \"commands\" for commands.
+		%BIDwindow=$window;
+	}
+};
+if (%BIDpower == 2)
+{
+	if ($window==%BIDwindow) 
+	{
+		%message = $escape($str.mid($str.stripcolors($0),0,1)) ;
+		%hidden2= "";
+		if ($str.mid($str.stripcolors($0),1,1) == "")
+		{
+			
+			%anslen = $str.len(%BIDanswer);
+			%i=0; # increments for building hidden _ spaces and letters
+			%alphafound=0;   # set to 2 if 1 of %UNusedLetters is found to match user message.
+			%numright=0;  # increments for every correct answer, checked to see if any got right, and display how many.
+			%c=0; # increments for letters found (check to see if letter has already been used)
+			%letterslen = $str.len(%UNusedLetters);  # length of global unused letters, for checking and displaying
+			%alphaLen = $str.len(%ALPHA); # length of alphabet global variable, holds entire alphabet
+			while (%c < %alphaLen) # checking to see if answer is a letter in alphabet
+			{
+				%alpha = $str.mid(%ALPHA,%c,1) ;
+				if (%message == %alpha) { %alphafound=1; };
+				%c++;
+			};
+			%c=0;
+			while (%c < %letterslen) # checking to see if answer input (players) equals an unused letter
+			{
+				%alpha = $str.mid(%UNusedLetters,%c,1) ;
+				if (%message == %alpha) { %alphafound=2; } else { %unusedletters2 .= %alpha; };
+				%c++;
+			};
+			if (%alphafound == 0) { echo non alpha found; halt; }
+			if (%alphafound == 1) { say That letter has already been used! | Remaining Letters: %UNusedLetters; halt;}
+
+			while (%i < %anslen) # building the partially revealed and blocked word, and checking if any are correct answers
+			{
+				%char = $str.mid(%BIDanswer,%i,1) ;  # is set equal to save word true letter
+				%char2 = $str.mid(%BIDhidden,%i,1) ;  # is set equalt to possible letter, or space for each increment.
+				if (%char2 == "_")
+				{
+					if(%char=="a"||%char=="b"||%char=="c"||%char=="d"||%char=="e"||%char=="f"||%char=="g"||%char=="h"||%char=="i"||%char=="j"||%char=="k"||%char=="l"||%char=="m"||%char=="n"||%char=="o"||%char=="p"||%char=="q"||%char=="r"||%char=="s"||%char=="t"||%char=="u"||%char=="v"||%char=="w"||%char=="x"||%char=="y"||%char=="z")
+					{
+						if (%char == %message)
+						{
+							%hidden2 .= %char;
+							#  echo letter matched;
+							%numright++;
+							} else { %hidden2 .= "_" ; };
+					} else { %hidden2 .= %char2 ;};
+				} else { %hidden2 .= %char2 ; };
+				%i++ ;
+			} ;
+			if (%numright == 0)
+			{	
+				%BID = $config.open(BelovedInDistress.kvs);
+				%score = $real($config.read(%BID,$1,10));
+				if (%score>2)
+				{
+					%score--;
+					config.write %BID $1 %score; 
+				};
+				config.close %BID;
+				say Sorry no \'%message\'s, Miss! score: %score;
+				%BIDmisses++;
+			};
+			%missed = $($(%BIDmisses / 26.0) / $($(26.0 - %BIDlettersInteger) / 26.0)) ; # percentage of misses if 26 misses is 100 percent over (26 - the number of different letters divided by 26) the percent of unused letters in the alphabet, unused by answer
+			%BIDDebug = %BIDmisses misses , length of word: %BIDlen2 \(%anslen\) dif letters: %BIDlettersInteger , Number of misses: %BIDmisses , percent of letters not taken by answer:  $($(26 - %BIDlettersInteger) / 26.00) , percent misses out of 26: $(%BIDmisses / 26.00) , level required to counts as strike: %BIDdifficultyincrease , current absolute percent missed: %missed ;
+			echo %missed letters missed percent.;
+			while (%missed > %BIDdifficulty) { %BIDstrikes++ ; say scene: $BIDscene(%BIDscene,%BIDstrikes,"n",$1) ; %BIDdifficulty = $(%BIDdifficultyincrease + %BIDdifficulty); };
+			if (%numright != 0)
+			{
+				%BIDnumright= $(%BIDnumright + %numright);
+				%BID = $config.open(BelovedInDistress.kvs);
+				%score = $real($config.read(%BID,$1,10));
+				echo score is %score set;
+				if(%score<99)
+				{
+					%newscore = $( %score + $( %numright * $(10 / $real($str.len(%BIDanswer)))) );
+					echo $1 is YOU and $( %numright * $(10 / $real($str.len(%BIDanswer))) ) and %newscore is the score set;
+					config.write %BID $1 %newscore;
+				};
+				config.close %BID;
+				say Found %numright letters! $1 score: %newscore;
+			};
+
+			%complete = $($real(%BIDnumright) / $real(%BIDlen2)) ; 
+			while (%complete >= $($(1 / $real(%BIDscene)) * $real(%BIDcompleted))) 
+			{
+				%BIDDebug .= ... Scene information: Number correct so far: %BIDnumright , ammount completed: %complete , scene add up $(1 / $real(%BIDscene)) , amount completed of scenes: %BIDcompleted ,  final calc to compair to and true if less than completed: $($(1 / $real(%BIDscene)) * $real(%BIDcompleted))  ;
+				say $BIDscene(%BIDscene,%BIDcompleted,"p",$1) ; %BIDcompleted++ ; 
+			};
+			%BIDhidden = %hidden2;
+			%UNusedLetters = %unusedLetters2;
+			if (%BIDpower != 0) 
+			{
+				say Current: %BIDhidden | Remaining letters: %UNusedLetters ;
+			} else {say Final word: %BIDanswer | Current: %BIDhidden | Remaining letters: %UNusedLetters ;};
+			if (%BIDhidden == %BIDanswer) 
+			{
+				%BID = $config.open(BelovedInDistress.kvs);
+				%score = $real($config.read(%BID,$1,10));
+				if(%score<99)
+				{
+					%score = $(%score+1);
+					#  echo $1 is YOU;
+					config.write %BID $1 %score;
+				};
+				config.close %BID;
+				say Congratulations, you saved the day! $1's new score is %score;
+				%BIDpower = 0 ;
+			};
+
+		} ;
+	};
+};
+};
+
+alias (BIDnoticeProcess)
+{
+%message = $escape($str.stripcolors($1)) ;
+%msglen = $str.len(%message);
+%setby = "";
+if ($str.mid(%message,0,5) == "!quit")
+{
+	rebind %BIDwindow;
+	echo quiting;
+	%BIDpower = 0;
+	echo current game quit;
+notice $0 current game powered off, use \"BID\" in room to start;
+}
+if ($str.mid(%message,0,4) == "set " || %message == "random")
+{
+	if (%message == "random" && %BIDpower == 1)
+	{
+	# file:///home/benjamin/.config/KVIrc/ScriptFiles/wordsEn.txt\
+		if ($file.exists($file.localdir(ScriptFiles/wordsEn.txt)))
+		{
+			if ($file.size($file.localdir(ScriptFiles/wordsEn.txt)) < 2100000)
+			{
+				rebind %BIDwindow;
+				echo attempting to set random;
+				%wordlist = $file.readLines($file.localdir(ScriptFiles/wordsEn.txt));
+				# $rand($length(<value>));
+				%message = "set "%wordlist[$rand($length(%wordlist))];
+				%msglen = $str.len(%message);
+				%setby = $k(3)randomly$k;
+			};
+		};
+	};
+	if (%BIDpower == 1)
+	{
+		rebind %BIDwindow;
+		if ($isEmpty(%setby)) {%setby = $k(5)by $0$k; }
+		%ALPHA="abcdefghijklmnopqrstuvwxyz";   # complete alphabet for use in comparing loops
+		%BIDcompleted=0;
+		%BIDnumright=0;
+		%BIDstrikes=0;
+		%BIDhidden = "";
+		%BIDmisses = 0;  # incremented each time an answer is given that was valid, but didnt find a letter.
+		%BIDDebug = "";
+		# The following variable is added to the difficulty number each time misses percent exceed the difficulty, and a miss scene is triggered each time.
+		# so at .08, 8% of the alphabet is used up, then it triggers a miss.  next at 16% alphabet used up triggers, and so on. this means at 40% 5 misses have occured. at 48 percent, death.  this should be percent of alphabet REMAINING after word is considered taking up some letters.
+		if (!%BIDdifficultyincrease){%BIDdifficultyincrease = .08;};
+		%BIDdifficulty = %BIDdifficultyincrease;
+		%BIDanswer = $str.mid(%message,4,$(%msglen-4));
+		%anslen = $str.len(%BIDanswer);
+		%BIDlettersInteger=0;  # integer incremented for each different letter in the correct answer, used for
+		%BIDanswerCmprsd=""; # a string of the answer for holding just the valid letters of the alphabet.
+		%i=0;
+		while (%i < %anslen)
+		{
+			%alpha = $str.mid(%BIDanswer,%i,1) ;
+			if (%alpha == "a" || %alpha == "b" || %alpha == "c" || %alpha == "d" || %alpha == "e" || %alpha == "f" || %alpha == "g" || %alpha == "h" || %alpha == "i" || %alpha == "j" || %alpha == "k" || %alpha == "l" || %alpha == "m" || %alpha == "n" || %alpha == "o" || %alpha == "p" || %alpha == "q" || %alpha == "r" || %alpha == "s" || %alpha == "t" || %alpha == "u" || %alpha == "v" || %alpha == "w" || %alpha == "x" || %alpha == "y" || %alpha == "z") { %BIDanswerCmprsd .= %alpha; };
+			%i++;
+		};
+		%BIDlen2= $str.len(%BIDanswerCmprsd);   # length of just the valid letter form of answer
+		%i=0; 
+		%BIDletters="";  # a remodified string of BIDanswerCmprsd to have no repeat letters.
+		while (%i < %BIDlen2)
+		{
+			%alpha = $str.mid(%BIDanswerCmprsd,%i,1) ;
+			if (!$str.contains(%BIDletters,%alpha)){ %BIDletters .= %alpha; %BIDlettersInteger++;} ;
+			%i++;
+		}
+		# echo individual letters count: %BIDlettersInteger , and new word: %BIDanswerCmprsd , new length of word: %BIDlen2 ;
+		%i = 0;
+		if (%anslen>=6 && %anslen<=10) { %BIDscene=4; };
+		if (%anslen<6) { %BIDscene=3; };
+		if (%anslen>10) { %BIDscene=5; };
+		while (%i < %anslen)  # builds initial hidden string
+		{
+			%char = $str.mid(%BIDanswer,%i,1) ;
+			if (%char == "a" || %char == "b" || %char == "c" || %char == "d" || %char == "e" || %char == "f" || %char == "g" || %char == "h" || %char == "i" || %char == "j" || %char == "k" || %char == "l" || %char == "m" || %char == "n" || %char == "o" || %char == "p" || %char == "q" || %char == "r" || %char == "s" || %char == "t" || %char == "u" || %char == "v" || %char == "w" || %char == "x" || %char == "y" || %char == "z" )
+			{
+				%BIDhidden .= "_";
+			} else { %BIDhidden .= %char; };
+			%i++ ;
+		};
+		%BIDpower = 2;  # primes the power setting to 2, because everything is now set up.
+		%UNusedLetters="abcdefghijklmnopqrstuvwxyz";  #primes an alphabet that is modified to hold letteers that havent been used yet
+		# echo New answer set: %BIDanswer;
+		say $k(7)To play the game$k(), just guess single letters.  You cannot guess the whole word, just guess letters till you fill it out. ;
+		say New answer set %setby: %BIDhidden | Game Difficulty: $integer($(%BIDdifficultyincrease*100)) | Answer Length: %anslen ;
+		say $BIDscene(%BIDscene,%BIDcompleted,"p",$1) ;
+		%BIDcompleted++;
+		return halt;
+	} else {
+		if (%BIDpower == 2) 
+		{ notice $0 The current scenario is still on, please renotice after ending the current game. ; return halt;};
+		if (%BIDpower == 0) 
+		{ notice $0 No Window Set, please use \"BID\" in the window you wish to play in.  renotice after starting the game. ; return halt;};
+	};
+};
+};
+
+
+
+alias (BIDscene)
+{
+%pscen3_0 = "The lights of the old building flickered as the swat member led you to the evacuated zone.  There sat your best friend and police officer, Beloved.  One mechanism was strapped to her and the chair, and they called on you to get her out.";
+%pscen3_1 = "You pull out your special tool case and use a pocket size sonogram machine to determine the inner structure. You take off the front panel.";
+%pscen3_2 = "You see 3 wires, one red, one yellow, one blue.  You ignore the blue, for now, realizing the ground is the red or yellow on this device.  you carefully choose which should be cut...";
+%pscen3_3 = "You carefully cut the red wire.  the devices beeooowwwp..s....  and it seems to lose its power.  You quickly peel it off and put it in a disposal container, and Beloved leaps up and kisses your forehead before you lead Beloved out to friends and family.";
+
+%nscen3_0 = "The morning had started so uneventfully, except for a flat tire on your way to the office.  But then the phone and rang and you heard the terrible words.... Beloved... is being held hostage.  it took you a while to get to the scene, but you barely made it.";
+%nscen3_1 = "As you had bumbled down the dark hall, you had seen on her face a look of terror you shall never forget again.  \'Beloved, don't worry.  I can get you out!\'  But you know one wrong move and this could be the end.";
+%nscen3_2 = "You are trying to see the backside of the device and you accidently jiggle a wire, suddenly the device beeps twice.  You wait and hope you didn't mess up.... and nothing happens.  You sigh and get back to the task.";
+%nscen3_3 = "You are trying to see the backside of the device and you accidently jiggle a wire, suddenly the device beeps twice.  You wait and hope you didn't mess up.... and nothing happens.  You sigh and get back to the task.";
+%nscen3_4 = "You attempt to move the wires a bit, when you accidently engage some switch in the advice.  beep. beep. beepbeepbeep!!  quickly you frantically try to disable the switch with your srewdriver, and as you take surely your last breathe, you manage.";
+%nscen3_5 = "As you attempt to cut the yellow wire, you slips and nick the blue one.  You hold your breath.  nothing happens.  you cut the yellow wire... but then the device beeps three times, and you wake up in a hospital without any arms.  You have failed. If only you had known the word $k(4)\'%BIDanswer\'$k\...";
+
+%pscen4_0 = "Your Beloved has been captured by the enemy, Goliath. You are the biggest badest soldier... at 6 1.  Unfortunately thats nothing compared to the giant. but you strap up anyway and grab up 5 arrows, a sword and a shield.";
+%pscen4_1 = "You get in close for some combat to face the giant at over 9 feet tall.. and you feel like an ant.  But your courage holds fast!";
+%pscen4_2 = "You charge at the giant and dodge his thrust at you.  swing your sword to find his strength and speed are ridiculous, he blocks, but you follow it with a shield bash, nothing doing.  he acts like you hit him with paper.";
+%pscen4_3 = "You notch an arrow, and let fly.  the arrow finds its target in the giants shoulder, now you have enough advantage to maybe get a victory.";
+%pscen4_4 = "You know your strength isn't enough, but maybe with some help...  You are charged by the Giant, and you see your opportunity.  you in one swift motion pull your bow off your back and sling it at him, hoping to catch him off guard.  As you throw it, the string breaks, and it goes to the giants feet, and he trips.  As he plummets toward you, you make sure your sword is what he falls on.  You won, by sheer providence.  You go and free Beloved of the bonds that bind Beloved, and Beloved hugs you and thanks you for saving the day.";
+
+%nscen4_0 = "You had been at home watching the sheep when they asked you to fight the Giant.  Sure there were actually stronger, better suited people to fight, but... you got the short end of the straw.  but it didnt matter when you found Beloved was in danger, you would have took on at least two giants for her.";
+%nscen4_1 = "The Giant lets out a frightening battle cry, you ready your bow and arrow and let loose!  ... but the arrow sailes 20 feet over his head.... wow... But you are resilient!!!  You load up one more and carefully aim at his face, and pull back... let loose.... and it whizzes past his head by mere inches.... at least you getting more accurate... now you are down by 2 arrows.";
+%nscen4_2 = "The Giant rushes at you and takes a swing, you back pedal to get away but you trip on a rock.... as you try to scamble to get up and get away you drop two arrows.. and as you get to your feet you feel the hair cut off the back of your neck by him swinging his spear.  You arent gonna be able to reclaim those.";
+%nscen4_3 = "The Giant grabs up his spear and rushes again, this time he connects with your shield, and it rips through like tin foil.  one more hit and you are a goner... you scoop up sand and throw it at his face, and buy just enough time to escape an instant death.";
+%nscen4_4 = "You feel battered from the few hits you blocked, you are seeing double and you can barely make your body do what you tell it.  You hear Beloved\'s voice in your mind and it spurs you on.  You have to win.  For Beloved.";
+%nscen4_5 = "The Giant throws his spear, you take a fatal blow. As your blood pours out, you wonder where you went wrong. Probably in not learning $k(4)\'%BIDanswer.\'$k";
+
+
+%pscen5_0 = "You are walking down the lane in a moonlight stroll with Beloved.  Leave Beloved at Beloved's house, but next morning you get a call.  Beloved has been kidnapped.  As the head sheriff, it is your job to get Beloved back.";
+%pscen5_1 = "You visit the scene of the crime, and find that Beloved's door has been broken into.  On the table is a ransom note 'oif uy evr wnt to c ur blved agin, pay \$60.000 dollors to Smelly Pete bye noon.'";
+%pscen5_2 = "Hot in pursuit, you locate the head of the evil posse through a means of underground information.... you go to the jailhouse and ask where pete can be found.  You collect up the 60 dollars and grab your rifle.  time to pay out some justice.";
+%pscen5_3 = "You ride out and head to the location, near the canyon run.  you ride out with a group of dedicated friends who are going to help you rescue Beloved.  but then, in the distance, you hear a train somewhere off.";
+%pscen5_4 = "As you approach the hideout, you find it was a trap for your life!  They didnt want the money!  They have Beloved tied to the train tracks, and the train is coming!  you ride to her aid to be fired upon as you try, and your men return fire at the bandits.  this is the last time you play poker at the barber shop with people you dont know.";
+%pscen5_5 = "You dodge bullets and bugs as you get to Beloved and get the ropes off.  By now the train is only a few yards away, and you barely get her off with your pocket knife in time.  your men have about taken care of the bandits, but you bring up your sights and fire on the bandit leader.  He wont ever play poker again.  Beloved kisses you and everything is right again.";
+
+%nscen5_1 = "Your first mistake was walking in the barber shop to get a haircut, but instead finding a robbery in progress.  With your quick wit, you said, \'All the money here aint nothing.  ill give you double if you can beat me in a game of poker.\' Most surprisingly, the bandit went for it and you saved Haran the barber from robbery, Winning also your own freedom.  Sadly it was still a mistake....";
+%nscen5_1 = "Old pete takes Beloved from the house and carts Beloved by way of wagon out to the old hideout,'ill have my revenge on that one that fancies ya, ill have it or ma name ai'nt pete!'  a lacky chimes in, 'but boss...i thought ya name was peter.";
+%nscen5_2 = "Beloved is tied up and kept in an outback house.  How uncivilized!  Beloved attempts to get free of the ropes but to no avail ... Beloved hears them talking about how the train is going to be here soon enough...";
+%nscen5_3 = "They tied Beloved to tracks, and the train is going to be here any minute. and Beloved is afraid that the conductor is asleep.";
+%nscen5_4 = "The train is so close, Beloved is very afraid and struggling to get out of those darned ropes.  If only the sheriff wasn\'t such a lazy bum.";
+%nscen5_5 = "The train arrives, and finally, so does the sheriff.  But its too late, the ropes wont budge... in a last ditch effort you struggle more until Beloved, tied by hands, uses both feet to kick you free of the train and save your life.  But Beloveds life is taken.  In a rage you unload your six shooter on the bandits and take 3 out, but finally a bullet catches your chest.  As the world goes black, You wonder how you went wrong... if only you had known about $k(4)\'%BIDanswer.\'$k";
+
+
+%pscen6_0 = "";
+%pscen6_1 = "";
+%pscen6_2 = "";
+%pscen6_3 = "";
+%pscen6_4 = "";
+%pscen6_5 = "";
+%pscen6_6 = "";
+
+%nscen6_1 = "";
+%nscen6_2 = "";
+%nscen6_3 = "";
+%nscen6_4 = "";
+%nscen6_5 = "";
+%nscen6_6 = "";
+
+if ($2 == "n") { %addendum = " \("$(5-$1)" Miss Scenes remain.\) "; };
+if(5==$1 && $2=="n") 
+{
+	%BID = $config.open(BelovedInDistress.kvs);
+	%score = $real($config.read(%BID,$3,10));
+	echo score is %score set;
+	if(%score>2)
+	{
+		%score = $(%score-1);
+		config.write %BID $3 %score;
+	};
+	config.close %BID;
+	%addendum .= $k(5)Sorry, But you lose. $k(4)game over.$k(5) Player score $3 %score restart it with \"BID\"$k; %BIDpower = 0;
+} ;
+
+%scene = "\%"$2"scen"$0"_"$1 ;
+# echo scene %scene;
+eval return %scene" "%addendum;
+};
+	
+event(OnChannelMessage,DearlyLovedInDistress)
+{
+	BIDprocess $3 $0;
+};
+
+
+echo installed, please insure that dictionary file exists at $file.localdir(ScriptFiles/wordsEn.txt) or else create folder and place file.;
+
+#			%remadeword=""; %mm=0;
+#			while (%mm>=0)
+#			{%ifry=$str.word(%mm,%BIDanswer); if(%ifry!=""){%remadeword .= %ifry; %mm++;} else {%mm = -1;};};			
