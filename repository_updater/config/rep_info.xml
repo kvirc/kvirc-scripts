@@ -1,0 +1,338 @@
+<?xml version="1.0"?>
+<repository>
+    <addon>
+		<name>Hush</name>
+		<version>0.2.2</version>
+		<title>Hush</title>
+		<description>XDCC passive search system.</description>
+        <description_ru>Пассивная XDCC система поиска.</description_ru>
+		<minimal_version_kvirc>4.2.0</minimal_version_kvirc>
+		<date>28.12.2016</date>
+		<author>hush</author>
+		<group>Internet</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>repository_browser</name>
+		<version>3.0.6</version>
+		<title>Repository browser</title>
+        <description_ru>Браузер репозитория.</description_ru>
+        <description>Repository browser.</description>
+		<minimal_version_kvirc>4.2.0</minimal_version_kvirc>
+		<date>13.01.2017</date>
+		<author>alexzulu</author>
+		<group>Tools</group>
+		<image>1</image>
+	</addon>
+    <addon>
+		<name>repository_browser</name>
+		<version>3.0.4</version>
+		<title>Repository browser</title>
+		<description>Repository browser.</description>
+        <description_ru>Браузер репозитория.</description_ru>
+		<minimal_version_kvirc>4.2.0</minimal_version_kvirc>
+		<date>12.01.2017</date>
+		<author>alexzulu</author>
+		<group>Old version</group>
+		<image>1</image>
+	</addon>
+	<addon>
+		<name>gen_installer</name>
+		<version>3.0.0</version>
+		<title>Install.kvs generator</title>
+		<description>The script to automatically create an installer file install.kvs.</description>
+        <description_ru>Скрипт для автоматического создания файла установки install.kvs.</description_ru>
+		<minimal_version_kvirc>4.2.0</minimal_version_kvirc>
+		<date>06.11.2016</date>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<image>1</image>
+	</addon>
+   	<addon>
+		<name>bookmarks</name>
+		<version>2.0.0</version>
+		<title>Bookmarks</title>
+		<description>Keep your bookmarks and manage.</description>
+        <description_ru>Создавайте закладки на интересные каналы и  управляйте ими.</description_ru>
+		<minimal_version_kvirc>4.2.0</minimal_version_kvirc>
+		<date>05.11.2016</date>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<image>1</image>
+	</addon>
+    <addon>
+		<name>hellmediaplayer</name>
+		<version>0.1.0</version>
+		<title>Hell Mediaplayer</title>
+        <description_ru>Простой скрипт для объявления проигрываемых композиций.</description_ru>
+		<description>A simple script for announcing mp3s that are played by someone.</description>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>04.11.2016</date>
+		<author>HelLViS69</author>
+		<group>Multimedia</group>
+		<image>0</image>
+	</addon>
+   	<addon>
+		<name>newsticker</name>
+		<version>2.0.0</version>
+		<title>Newsticker: The RSS News Reader</title>
+		<description>Displays RSS news feeds from various sources. Updated for KVIrc 4.2.0.</description>
+        <description_ru>Просматривайте новостные RSS-ленты из различных источников. Обновлено для KVIrc 4.2.0</description_ru>
+		<minimal_version_kvirc>4.2.0</minimal_version_kvirc>
+		<date>14.10.2016</date>
+		<author>Szymon Stefanek(Pragma)</author>
+        <group>Internet</group>
+		<image>0</image>
+	</addon>
+    <addon>
+		<name>minesweeper</name>
+		<version>1.1.0</version>
+		<title>Minesweeper Game</title>
+		<description>A nice "time eater"</description>
+        <description_ru>Прекрасный "пожиратель времени"</description_ru>
+		<minimal_version_kvirc>4.2.0</minimal_version_kvirc>
+		<date>12.10.2016</date>
+		<author>Szymon Stefanek(Pragma)</author>
+		<group>Games</group>
+		<image>1</image>
+	</addon>
+    <addon>
+		<name>auto_away</name>
+		<version>2.0.2</version>
+		<title>Auto away</title>
+		<description>Upgraded auto away.</description>
+        <description_ru>Обновлённый автоэвэй.</description_ru>
+		<minimal_version_kvirc>4.2.0</minimal_version_kvirc>
+		<date>11.10.2016</date>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+    <addon>
+		<name>SysInfo</name>
+		<version>1.2.2</version>
+		<title>SysInfo</title>
+		<description>SysInfo alias.</description>
+        <description_ru>Просмотр и показ системной информации.</description_ru>
+		<minimal_version_kvirc>4.4.2</minimal_version_kvirc>
+		<date>29.09.2016</date>
+		<author>un1versal</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>znctool</name>
+		<version>0.1.0</version>
+		<title>ZNC tool</title>
+		<description>Menu for ZNC bouncer.</description>
+        <description_ru>Меню для управления ZNC.</description_ru>
+		<minimal_version_kvirc>4.0.0</minimal_version_kvirc>
+		<date>17.02.2013</date>
+		<author>Prof. BiG BanG</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>player_control</name>
+		<version>1.0.2</version>
+		<title>The player control</title>
+        <description>Player control script with the custom string display the currently playing song in the channel.</description>
+		<description_ru>Скрипт управления проигрывателя с настраиваемой строкой отображения проигрываемой композиции в канал.</description_ru>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>22.12.2014</date>
+		<author>alexzulu</author>
+        <group>Multimedia</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>pastebin</name>
+		<version>0.0.1</version>
+		<title>Pastebin.com Utility</title>
+		<description>Pastebin.com Utility</description>
+        <description_ru>Утилита для размещения кода на pastebin.com.</description_ru>
+		<minimal_version_kvirc>4.0.4</minimal_version_kvirc>
+		<date>08.02.2012</date>
+		<author>alexzulu</author>
+        <group>Internet</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>paste</name>
+		<version>2.0.0</version>
+		<title>Sticky Notes Pastebin Utility</title>
+		<description>Sticky Notes Pastebin Utility</description>
+        <description_ru>Утилита для размещения кода на сайтах построенных на Sticky Notes.</description_ru>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>25.01.2012</date>
+		<author>alexzulu</author>
+        <group>Internet</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>hlog</name>
+		<version>0.2.0</version>
+		<title>Highlight log</title>
+		<description>Highlight log and viewer</description>
+        <description_ru>Лог хайлайтов и просмотрщик для него.</description_ru>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>24.12.2014</date>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>deadbeef_control</name>
+		<version>1.0.3</version>
+		<title>deadbeef player control</title>
+		<description>deadbeef player control.</description>
+        <description_ru>Управление проигрывателем deadbeef.</description_ru>
+		<minimal_version_kvirc>4.0.0</minimal_version_kvirc>
+		<date>07.12.2012</date>
+		<author>Prof. BiG BanG</author>
+        <group>Multimedia</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>slaps_l7508</name>
+		<version>0.0.1</version>
+		<title>Slaps and greetings</title>
+		<description>Slaps and greetings.</description>
+        <description_ru>Слапы и приветствия.</description_ru>
+		<minimal_version_kvirc>4.0.0</minimal_version_kvirc>
+		<date>13.10.2011</date>
+		<author>unknown</author>
+        <group>Others</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>lag_control</name>
+		<version>0.0.6</version>
+		<title>Lag control</title>
+        <description>Automatically reconnect a client to a server with a long delay.</description>
+        <description_ru>Пересоединение клиента с серверами с большим лагом.</description_ru>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>09.09.2011</date>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>favorites</name>
+		<version>1.0.2</version>
+		<title>Favorites</title>
+        <description>Create a list of favorite channels and manage them.</description>
+		<description_ru>Создание списка избранных каналов и управление им.</description_ru>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>17.03.2013</date>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>chanstats</name>
+		<version>2.0.0</version>
+		<title>Channel Statistics</title>
+		<description>Shows Statistics for a joined channel.</description>
+        <description_ru>Показывает статистику для канала.</description_ru>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>29.09.2016</date>
+		<author>g00dsP33D</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>chanops</name>
+		<version>1.0.0</version>
+		<title>Channel Operations</title>
+		<description>Provides toolbar buttons for several commonly used channel operations.</description>
+        <description_ru>Предоставляет кнопки на панели инструментов для нескольких часто используемых операций канала.</description_ru>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>05.10.2010</date>
+		<author>Szymon Stefanek(Pragma)</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>twinsmediaplayer</name>
+		<version>1.1.0</version>
+		<title>The Twins Mediaplayer</title>
+		<description>An interface to the Mediaplayer module to play music and advertise it</description>
+        <description_ru>Интерфейс к модулю Mediaplayer для воспроизведения музыки</description_ru>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>04.10.2010</date>
+		<author>Ahinu</author>
+        <group>Multimedia</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>twininputcolor</name>
+		<version>1.2.0</version>
+		<title>The Twins Input Text Coloriser</title>
+		<description>Colorizes your text in channel, queries and DCC chats.</description>
+        <description_ru>Раскрашивайте текст в каналах, приватах и DCC-чатах.</description_ru>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>04.10.2010</date>
+		<author>Ahinu</author>
+        <group>Others</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>reverse2</name>
+		<version>2.6.4</version>
+		<title>Reverse2</title>
+		<description>Reverse2 - keyboards char-reverse</description>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>04.10.2010</date>
+		<author>runkoff</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>diksi_slaps</name>
+		<version>1.0.0</version>
+		<title>[Diksi] slaps</title>
+        <description>Menu with these funky slaps. You can scoff at the people on the channel.</description>
+		<description_ru>Менюшка с такими прикольными слапами. Можно издеваться над народом на канале.</description_ru>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>04.10.2010</date>
+		<author>[Diksi]</author>
+        <group>Others</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>amaranth</name>
+		<version>1.6.1</version>
+		<title>Amaranth</title>
+		<description>An interface to the Mediaplayer module</description>
+        <description_ru>Интерфейс к модулю Mediaplayer для воспроизведения музыки</description_ru>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>04.10.2010</date>
+		<author>Blaze</author>
+        <group>Multimedia</group>
+		<image>1</image>
+	</addon>
+	<addon>
+		<name>tools_panel</name>
+		<version>0.0.1</version>
+		<title>Tools buttons panel</title>
+        <description>A small panel with buttons frequently performed commands.</description>
+		<description_ru>Небольшая панель с кнопками часто выполняемых команд</description_ru>
+		<minimal_version_kvirc>4.0.0</minimal_version_kvirc>
+		<date>16.11.2010</date>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+		<addon>
+		<name>debug_tools</name>
+		<version>0.0.1</version>
+		<title>Debug tools</title>
+		<description>Debug tools for KVS</description>
+        <description_ru>Утилиты отладки для KVS</description_ru>
+		<minimal_version_kvirc>4.2.0</minimal_version_kvirc>
+		<date>02.03.2013</date>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+</repository>

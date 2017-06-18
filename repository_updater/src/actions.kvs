@@ -1,0 +1,10 @@
+action.create -t=generic ("repository_browser_updater",$tr("Repository browser updater",repository_updater),$tr("Open repository browser updater",repository_updater),"repository_updater/updater32x32.png","")
+{
+	repository_updater::update
+}
+
+action.create -t=tools ("repository_browser_updater_settings",$tr("Repository browser updater settings",repository_updater),$tr("Repository browser updater settings",repository_updater),"repository_updater/updater32x32.png","")
+{
+	repository_updater::settings
+}
+

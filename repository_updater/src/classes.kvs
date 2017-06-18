@@ -1,0 +1,485 @@
+class("repository_updater::xmlparser","xmlreader")
+{
+	function parse()
+	{
+		if ($0 == ""){
+		    debug "[repository_browser::xmlparser] The name of the file to parse was not specified"
+		    return $false
+		}
+		if (!$file.exists($0)){
+		    debug "[repository_browser::xmlparser] The file to parse was not found"
+		    return $false
+		}
+		if(!$$->$xmlreader::parse($file.read($0))){
+		    debug "[repository_browser::xmlparser] Critical error: $$->$xmlreader::lastError()"
+		    return $false;
+		}else{
+		    return @%stations
+		    debug @%stations
+		}
+	}
+	
+	function onWarning()
+	{
+		warning $0
+		return $true;
+	}
+	
+	function onText()
+	{
+		// debug $0
+		%text = $0;
+		//Trim leading and trailing space characters
+		%text = $str.strip(%text)
+		if (%text)        {
+		    if (@%currentkey == n)            {
+		        %text =~ s/^\///g
+		    }
+		    //	debug @%currentindex : \"%text\"
+		    @%stations[@%currentindex]{@%currentkey} = %text
+		}
+		return $true;
+	}
+	
+	function onElementStart()
+	{
+		if ($0 == repository) return $true
+		    if ($0 != addon)
+		    {
+		        @%currentkey = $0
+		        //	debug @%currentkey
+		    }
+		    return $true;
+	}
+	
+	function onElementEnd()
+	{
+		//debug </$0>
+		if ($0 == addon) @%currentindex++
+		    return $true;
+	}
+	
+	function onDocumentStart()
+	{
+		@%stations = $array();
+		@%currentindex = 0;
+		return $true;
+	}
+	
+	function onDocumentEnd()
+	{
+		return $true
+	}
+	
+}
+
+class("repository_updater::update","object")
+{
+	function update()
+	{
+		%version = $0;
+		if($addon.exists(repository_browser)){
+		    %installed_version = $addon.version(repository_browser);
+		    @$uninstall();
+		    @$install(%version);
+		}else{
+		    @$install(%version);
+		}
+	}
+	
+	function uninstall()
+	{
+		%cfg=$config.open($file.localdir/config/repository_updater/repository_updater_cfg.kvc)
+		config.setsection %cfg "Main"
+		%cache = $config.read(%cfg,Cache)
+		config.close %cfg
+		
+		if($system.osname == "Linux"){
+		    %s_name = "repository_browser-$addon.version(repository_browser)"
+		    %package = "%s_name.tar.gz"
+		    if($file.exists(%cache/%s_name)){
+		        exec("rm -Rf %cache/%s_name"){};
+		    }
+		    if($file.exists(%cache/%package)){
+		        exec("rm -Rf %cache/%package"){};
+		    }
+		    if($addon.exists(repository_browser)){
+		        addon.uninstall repository_browser
+		    }
+		}
+		
+		if($system.osname == "Windows"){
+		    %s_name = "repository_browser-$addon.version(repository_browser)"
+		    %package = "%s_name.tar.gz"
+		    if($addon.exists(repository_browser)){
+		        addon.uninstall repository_browser
+		    }
+		    if($file.exists(%cache/%s_name)){
+		        %txt <+ "cd %cache"
+		        %txt <+ "rmdir /s /q %s_name"
+		        %txt <+ "ping 127.0.0.1 -n 5 > nul"
+		        %txt <+ "del /q del.bat"
+		        file.writeLines %cache/del.bat %txt
+		        run %cache/del.bat;
+		    }
+		    if($file.exists(%cache/%package)){
+		        file.remove %cache/%package
+		    }
+		}
+	}
+	
+	function search()
+	{
+		@%data = @$getData();
+		if($addon.exists(repository_browser)){
+		    %rep_version = $addon.version(repository_browser);
+		} else {
+		    %rep_version = "1.0.0";
+		}
+		for (%i=0; %i<$length(@%data); %i++){
+		    if(@%data[%i]{name} == "repository_browser"){
+		        if($int($str.replace(%rep_version,".","")) < $int($str.replace(@%data[%i]{version},".",""))){
+		            %rep_version = @%data[%i]{version};
+		        }
+		    }
+		}
+		if($int($str.replace(%rep_version,".","")) > $int($str.replace($addon.version(repository_browser),".",""))){
+		    @$update(%rep_version);
+		}else{
+		    notifier.message -i=318 -t=10 "You have a current version of the script.";
+		}
+	}
+	
+	function install()
+	{
+		%Rep = "$file.localdir/config/repository_updater"
+		%cfg=$config.open(%Rep/repository_updater_cfg.kvc)
+		config.setsection %cfg "Main"
+		%CurrentUrl = $config.read(%cfg,CurrentUrl)
+		%Ver = $config.read(%cfg,Version)
+		%Cache = $config.read(%cfg,Cache)
+		%n = $str.split(".",%Ver)
+		%VerM = %n[0]
+		config.close %cfg
+		
+		%version = $0;
+		%S_name = "repository_browser-%version"
+		%Package = "%S_name.tar.gz"
+		if($system.osname == "Linux"){
+		    http.asyncGet -w=h -e=o (%CurrentUrl/pool/%VerM/%Package,%Cache/%Package){
+		        exec("tar zxvf %Cache/%Package -C %Cache"){};
+		        timer(iidl,3000){
+		            if($file.exists(%Cache/%S_name/install.kvs)){
+		                parse "%Cache/%S_name/install.kvs"
+		                dialog.message($tr("Info",repository_updater),$tr("Addon installed",repository_updater),information,$tr("Close",repository_updater)){}
+		                killtimer iidl
+		            }
+		        }
+		    }
+		}
+		if($system.osname == "Windows"){
+		    %txt <+ "cd \"%Cache\""
+		    %txt <+ "\"%Rep/7za\" x -y %Package"
+		    %txt <+ "ping 127.0.0.1 -n 5 > nul"
+		    %txt <+ "\"%Rep/7za\" x -y *.tar"
+		    %txt <+ "ping 127.0.0.1 -n 5 > nul"
+		    %txt <+ "del /q *.tar"
+		    %txt <+ "ping 127.0.0.1 -n 5 > nul"
+		    %txt <+ "del /q install.bat"
+		    file.writeLines %Cache/install.bat %txt
+		    
+		    http.asyncGet -w=h -e=o (%CurrentUrl/pool/%VerM/%Package,%Cache/%Package){
+		        run %Cache/install.bat;
+		        %N = 0
+		        timer (iidl,1000){
+		            %N = $(%N +1)
+		            if($file.exists(%Cache/%S_name/install.kvs)){
+		                parse "%Cache/%S_name/install.kvs"
+		                dialog.message($tr("Info",repository_updater),$tr("Addon installed",repository_updater),information,$tr("Ok",repository_updater)){}
+		                killtimer iidl
+		            }
+		            if(%N == 20){
+		                dialog.message($tr("Warning",repository_updater),$tr("Addon not installed",repository_updater),warning,$tr("Ok",repository_updater)){}
+		                killtimer iidl
+		            }
+		        }
+		    }
+		}
+	}
+	
+	function getData()
+	{
+		%xml = $new(repository_updater::xmlparser);
+		if($file.exists("$file.localdir/config/repository_updater/rep_info.xml")){
+		    %addons = %xml->$parse("$file.localdir/config/repository_updater/rep_info.xml")
+		}
+		if (!%addons)        {
+		    debug "[repository_updater::xmlparser] Error while parsing xml-file $0"
+		    return
+		}
+		return %addons;
+	}
+	
+	function constructor()
+	{
+		@$search();
+	}
+	
+	function close()
+	{
+		unset %CurrentUrl,%Ver,%Cache,%VerM,%Rep,%S_name,%Package,%S_name,%Package
+		delete $$
+	}
+	
+}
+
+class("repository_updater::settings","dialog")
+{
+	function switch()
+	{
+		if(@%ckbAutoUpdateList->$isChecked()){
+		    @%cbAutoUpdateListPeriod->$setEnabled(1)
+		} else {
+		    @%cbAutoUpdateListPeriod->$setEnabled(0)
+		}
+	}
+	
+	function selectDir()
+	{
+		dialog.file(dir,Choose addon folder,,"All files (*.*)")
+		{
+		    if($0 == ""){
+		        dialog.message($tr("Warning",repository_updater),$tr("Path can not be empty!",repository_updater),warning,$tr("Close",repository_updater)){}
+		    }else{
+		        %U_Set->%leCache->$setText($0)
+		    }
+		}
+	}
+	
+	function save()
+	{
+		if($str.match("/*",@%leCache->$text())){
+		    %cfg=$config.open(%Rep/repository_updater_cfg.kvc)
+		    config.setsection %cfg "Main"
+		    config.write %cfg UrlList %UrlList
+		    config.write %cfg CurrentUrl @%cbUrl->$current();
+		    config.write %cfg CurrentPeriod @%cbAutoUpdateListPeriod->$current();
+		    config.write %cfg Version @%leVersion->$text();
+		    config.write %cfg Cache @%leCache->$text();
+		    config.write %cfg AutoUpdateList @%ckbAutoUpdateList->$isChecked();
+		    config.close %cfg
+		    
+		    repository_updater::init
+		    @$close();
+		}else{
+		    dialog.message($tr("Warning",repository_updater),$tr("Please select a folder!",repository_updater),warning,$tr("Close",repository_updater)){}
+		}
+	}
+	
+	function itemSelected()
+	{
+		// %CurrentUrl = @%cbUrl->$current()
+	}
+	
+	function getParams()
+	{
+		%Rep = "$file.localdir/config/repository_updater"
+		%cfg=$config.open(%Rep/repository_updater_cfg.kvc)
+		config.setsection %cfg "Main"
+		%CurrentUrl = $config.read(%cfg,CurrentUrl)
+		%UrlList = $config.read(%cfg,UrlList)
+		%PeriodsList = $config.read(%cfg,PeriodsList);
+		%CurrentPeriod = $config.read(%cfg,CurrentPeriod);
+		%Ver = $config.read(%cfg,Version)
+		%AutoUpdateList = $config.read(%cfg,AutoUpdateList)
+		%Cache = $config.read(%cfg,Cache)
+		%n = $str.split(".",%Ver)
+		%VerM = %n[0]
+		config.close %cfg
+	}
+	
+	function constructor()
+	{
+		@$getParams()
+		@%urllist = $str.split(",",%UrlList)
+		@%periodsList = $str.split(",",%PeriodsList)
+		
+		@$setWindowTitle($tr("Updater settings",repository_updater))
+		@$setMinimumWidth(300)
+		@$setMaximumWidth(300)
+		@$setWFlags(Dialog)
+		@$centerToScreen()
+		
+		%l = $new(layout,$$);
+		%l->$setMargin(5)
+		%l->$setSpacing(0)
+		%l->$setColumnStretch(0,4)
+		%l->$setColumnStretch(1,1)
+		%l->$setColumnStretch(2,0)
+		
+		%l->$setRowStretch(0,1)
+		%l->$setRowStretch(1,1)
+		%l->$setRowStretch(2,1)
+		%l->$setRowStretch(3,2)
+		%l->$setRowStretch(4,2)
+		
+		%hb = $new(hbox,$$);
+		%hb->$setMargin(0)
+		%hb->$setSpacing(0)
+		%l->$addmulticellwidget(%hb,5,5,0,2)
+		
+		@%lbUrl = $new(label,$$)
+		@%lbUrl->$setMinimumHeight(30);
+		@%lbUrl->$setText($tr("URL repository",repository_updater))
+		%l->$addwidget(@%lbUrl,0,0);
+		
+		@%cbUrl = $new(combobox,$$)
+		@%cbUrl->$setToolTip("Test tooltip");
+		// @%cbUrl->$setEditable(true)
+		for(%i = 0;%i < $length(@%urllist);%i++){
+		    @%cbUrl->$insertItem("@%urllist[%i]")
+		    if(@%urllist[%i] == %CurrentUrl){
+		        @%cbUrl->$setCurrentItem(%i)
+		    }
+		}
+		%l->$addmulticellwidget(@%cbUrl,0,0,1,2);
+		
+		@%lbVersion = $new(label,$$)
+		@%lbVersion->$setMinimumHeight(30);
+		@%lbVersion->$setText($tr("Version KVIrc",repository_updater))
+		%l->$addwidget(@%lbVersion,1,0);
+		
+		@%leVersion = $new(lineedit,$$)
+		@%leVersion->$setText("%Ver")
+		%l->$addmulticellwidget(@%leVersion,1,1,1,2);
+		
+		@%lbCache = $new(label,$$)
+		@%lbCache->$setMinimumHeight(30);
+		@%lbCache->$setText($tr("Local cache",repository_updater))
+		%l->$addwidget(@%lbCache,2,0);
+		
+		@%leCache = $new(lineedit,$$)
+		@%leCache->$setText("%Cache")
+		%l->$addwidget(@%leCache,2,1);
+		
+		@%btCacheDir = $new(button,$$)
+		@%btCacheDir->$setImage(106)
+		%l->$addwidget(@%btCacheDir,2,2);
+		
+		@%lbAutoUpdateList = $new(label,$$)
+		@%lbAutoUpdateList->$setMinimumHeight(30);
+		@%lbAutoUpdateList->$setText($tr("Autoupdate list",repository_updater))
+		%l->$addwidget(@%lbAutoUpdateList,3,0);
+		
+		@%ckbAutoUpdateList = $new(checkbox,$$);
+		if(%AutoUpdateList == 1){
+		    @%ckbAutoUpdateList->$setChecked(1);
+		}
+		%l->$addwidget(@%ckbAutoUpdateList,3,2);
+		
+		@%lbAutoUpdateListPeriod = $new(label,$$)
+		@%lbAutoUpdateListPeriod->$setMinimumHeight(30);
+		@%lbAutoUpdateListPeriod->$setText($tr("Autoupdate time",repository_updater))
+		%l->$addwidget(@%lbAutoUpdateListPeriod,4,0);
+		
+		@%cbAutoUpdateListPeriod = $new(combobox,$$)
+		for(%i = 0;%i < $length(@%periodsList);%i++){
+		    @%cbAutoUpdateListPeriod->$insertItem("@%periodsList[%i]");
+		    if(@%periodsList[%i] == %CurrentPeriod){
+		        @%cbAutoUpdateListPeriod->$setCurrentItem(%i)
+		    }
+		}
+		if(@%ckbAutoUpdateList->$isChecked()){
+		    @%cbAutoUpdateListPeriod->$setEnabled(1)
+		} else {
+		    @%cbAutoUpdateListPeriod->$setEnabled(0)
+		}
+		%l->$addMultiCellWidget(@%cbAutoUpdateListPeriod,4,4,1,2);
+		objects.connect @%ckbAutoUpdateList "toggled" $$ switch
+		
+		@%btSave = $new(button, %hb)
+		@%btSave->$setText($tr("Save",repository_updater))
+		
+		
+		@%btCancel = $new(button, %hb)
+		@%btCancel->$setText($tr("Cancel",repository_updater))
+		
+		objects.connect @%btCacheDir "clicked" $$ selectDir
+		objects.connect @%btSave "clicked" $$ save
+		objects.connect @%btCancel "clicked" $$ close
+		
+		@$show()
+	}
+	
+	function closeEvent()
+	{
+		unset %U_Set,%CurrentUrl,%UrlList,%Ver,%Cache,%VerM,%Rep,%S_name,%Package,%AutoUpdateList,%PeriodsList,%CurrentPeriod
+	}
+	
+	function close()
+	{
+		if($str.match("/*",@%leCache->$text()))        {
+		    delete $$
+		    unset %U_Set,%CurrentUrl,%UrlList,%Ver,%Cache,%VerM,%Rep,%S_name,%Package,%AutoUpdateList,%PeriodsList,%CurrentPeriod
+		}        else        {
+		    dialog.message($tr("Warning",repository_updater),$tr("Please select a folder!",repository_updater),warning,$tr("Close",repository_updater)){}
+		}
+	}
+	
+}
+
+class("repository_updater::data","object")
+{
+	function search()
+	{
+		@%data = @$getData();
+		if($addon.exists(repository_browser)){
+		    %rep_version = $addon.version(repository_browser);
+		} else {
+		    %rep_version = "1.0.0";
+		}
+		for (%i=0; %i<$length(@%data); %i++){
+		    if(@%data[%i]{name} == "repository_browser"){
+		        if($int($str.replace(%rep_version,".","")) < $int($str.replace(@%data[%i]{version},".",""))){
+		            %rep_version = @%data[%i]{version};
+		        }
+		    }
+		}
+		// debug installed $addon.version(repository_browser)
+		// debug in rep %rep_version;
+		if($int($str.replace(%rep_version,".","")) > $int($str.replace($addon.version(repository_browser),".",""))){
+		    notifier.message -i=318 -t=10 "Repository browser need update!"
+		    if(%updater_snd == "1"){
+		        snd.play $file.homedir/r2d2.wav
+		    }
+		}else{
+		    notifier.message -i=318 -t=10 "You have a current version of the script.";
+		}
+		@$close();
+	}
+	
+	function getData()
+	{
+		%xml = $new(repository_updater::xmlparser);
+		if($file.exists("$file.localdir/config/repository_updater/rep_info.xml")){
+		    %addons = %xml->$parse("$file.localdir/config/repository_updater/rep_info.xml")
+		}
+		if (!%addons){
+		    debug "[repository_updater::xmlparser] Error while parsing xml-file $0"
+		    return
+		}
+		return %addons;
+	}
+	
+	function constructor()
+	{
+		@$search();
+	}
+	
+	function close()
+	{
+		delete $$
+	}
+	
+}
+

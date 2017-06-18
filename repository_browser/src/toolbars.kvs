@@ -1,0 +1,3 @@
+toolbar.create repo Repository "repository_browser/rp_button.png"
+toolbar.additem repo open_repository
+toolbar.show repo

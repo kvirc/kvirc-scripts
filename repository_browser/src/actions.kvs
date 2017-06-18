@@ -1,0 +1,10 @@
+action.create -t=generic ("open_repository",$tr("Repository browser",repository_browser),$tr("Open repository browser",repository_browser),"repository_browser/rp_button.png","repository_browser/rp_button.png")
+{
+	if($objects.exists(%Rep_main)){
+		%Rep_main->$raise();
+		%Rep_main->$setFocus();
+	} else {
+		repository_browser::main
+	}
+}
+

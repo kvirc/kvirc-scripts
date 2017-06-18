@@ -1,0 +1,312 @@
+<?xml version="1.0"?>
+<repository>
+    <addon>
+		<name>hellmediaplayer</name>
+		<version>0.1.0</version>
+		<title>Hell Mediaplayer</title>
+		<description>A simple script for announcing mp3s that are played by someone</description>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>04.11.2016</date>
+		<author>HelLViS69</author>
+		<group>Multimedia</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>gen_installer</name>
+		<version>2.0.2</version>
+		<title>Install.kvs generator</title>
+		<description>The script to automatically create an installer file install.kvs.</description>
+		<minimal_version_kvirc>4.2.0</minimal_version_kvirc>
+		<date>16.10.2016</date>
+		<author>alexzulu</author>
+		<group>Tools</group>
+		<image>0</image>
+	</addon>
+   	<addon>
+		<name>newsticker</name>
+		<version>2.0.0</version>
+		<title>Newsticker: The RSS News Reader</title>
+		<description>Displays RSS news feeds from various sources. Updated for KVIrc 4.2.0.</description>
+		<minimal_version_kvirc>4.2.0</minimal_version_kvirc>
+		<date>14.10.2016</date>
+		<author>Szymon Stefanek(Pragma)</author>
+        <group>Internet</group>
+		<image>0</image>
+	</addon>
+    <addon>
+		<name>minesweeper</name>
+		<version>1.1.0</version>
+		<title>Minesweeper Game</title>
+		<description>A nice "time eater"</description>
+		<minimal_version_kvirc>4.2.0</minimal_version_kvirc>
+		<date>12.10.2016</date>
+		<author>Szymon Stefanek</author>
+		<group>Games</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>repository_browser_lin</name>
+		<version>2.0.4</version>
+		<title>Repository browser for Linux</title>
+		<description>Repository browser for Linux. New repository mirror added</description>
+		<minimal_version_kvirc>4.2.0</minimal_version_kvirc>
+		<date>11.10.2016</date>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+    <addon>
+		<name>auto_away</name>
+		<version>2.0.2</version>
+		<title>Auto away</title>
+		<description>Upgraded auto away.</description>
+		<minimal_version_kvirc>4.2.0</minimal_version_kvirc>
+		<date>11.10.2016</date>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+    <addon>
+		<name>SysInfo</name>
+		<version>1.2.2</version>
+		<title>SysInfo</title>
+		<description>SysInfo alias</description>
+		<minimal_version_kvirc>4.4.2</minimal_version_kvirc>
+		<date>29.09.16</date>
+		<author>un1versal</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>repository_browser_win</name>
+		<version>2.1.0</version>
+		<title>Repository browser for Windows</title>
+		<description>The interface is changed. The format of the list of add-ons (now stored in the xml). Changed the mechanism updates to plugins. Изменён интерфейс. Изменён формат списка дополнений(теперь хранится в xml). Переделан механизм обновления дополнений.</description>
+		<minimal_version_kvirc>4.2.0</minimal_version_kvirc>
+		<date>07.07.16</date>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>znctool</name>
+		<version>0.1.0</version>
+		<title>ZNC tool</title>
+		<description>Menu for ZNC bouncer</description>
+		<minimal_version_kvirc>4.0.0</minimal_version_kvirc>
+		<date>17.02.13</date>
+		<author>Prof. BiG BanG</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>clearall</name>
+		<version>0.0.1</version>
+		<title>Clear windows</title>
+		<description>Clear windows with arguments</description>
+		<minimal_version_kvirc>4.0.0</minimal_version_kvirc>
+		<date>11.12.12</date>
+		<author>b0nk</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>player_control</name>
+		<version>1.0.2</version>
+		<title>The player control</title>
+		<description>Скрипт управления проигрывателя с настраиваемой строкой отображения проигрываемой композиции в канал. Добавлена перекодировка тэгов с cp1251 в utf8 на лету. Теперь интерфейс на русском и английском.</description>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>22.12.14</date>
+		<author>alexzulu</author>
+        <group>Multimedia</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>pastebin</name>
+		<version>0.0.1</version>
+		<title>Pastebin.com Utility</title>
+		<description>Pastebin.com Utility</description>
+		<minimal_version_kvirc>4.0.4</minimal_version_kvirc>
+		<date>08.02.12</date>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>paste</name>
+		<version>2.0.0</version>
+		<title>Sticky Notes Pastebin Utility</title>
+		<description>Sticky Notes Pastebin Utility</description>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>25.01.12</date>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<image>1</image>
+	</addon>
+	<addon>
+		<name>recent_editor</name>
+		<version>0.0.1</version>
+		<package>recent_editor-0.0.1.tar.gz</package>
+		<title>Recent editor</title>
+		<description>Editor for recent lists</description>
+		<minimal_version>4.0.4</minimal_version>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<date>18.01.12</date>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>hlog</name>
+		<version>0.2.0</version>
+		<title>Highlight log</title>
+		<description>Highlight log and viewer</description>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>24.12.14</date>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>deadbeef_control</name>
+		<version>1.0.3</version>
+		<title>deadbeef player control</title>
+		<description>deadbeef player control</description>
+		<minimal_version_kvirc>4.0.0</minimal_version_kvirc>
+		<date>07.12.12</date>
+		<author>Prof. BiG BanG</author>
+        <group>Multimedia</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>slaps_l7508</name>
+		<version>0.0.1</version>
+		<title>Slaps and greetings</title>
+		<description>Slaps and greetings(Слапы и приветствия).</description>
+		<minimal_version_kvirc>4.0.0</minimal_version_kvirc>
+		<date>13.10.11</date>
+		<author>unknown</author>
+        <group>Others</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>lag_control</name>
+		<version>0.0.6</version>
+		<title>Lag control</title>
+		<description>Automatically reconnect a client to a server with a long delay.(Автоматическое пересоединение клиента с серверами с большим лагом.)</description>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>09.09.11</date>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>favorites</name>
+		<version>1.0.2</version>
+		<title>Favorites</title>
+		<description>Создание списка избранных каналов и управление им.</description>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>17.03.13</date>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>chanstats</name>
+		<version>2.0.0</version>
+		<title>Channel Statistics</title>
+		<description>Shows Statistics for a joined channel</description>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>29.09.16</date>
+		<author>g00dsP33D</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>chanops</name>
+		<version>1.0.0</version>
+		<title>Channel Operations</title>
+		<description>Provides toolbar buttons for several commonly used channel operations</description>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>05.10.10</date>
+		<author>Szymon Stefanek</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>twinsmediaplayer</name>
+		<version>1.1.0</version>
+		<title>The Twins Mediaplayer</title>
+		<description>An interface to the Mediaplayer module to play music and advertise it</description>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>04.10.10</date>
+		<author>Ahinu</author>
+        <group>Multimedia</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>twininputcolor</name>
+		<version>1.2.0</version>
+		<title>The Twins Input Text Coloriser</title>
+		<description>Colorizes your text in channel, queries and DCC chats.</description>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>04.10.10</date>
+		<author>Ahinu</author>
+        <group>Others</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>reverse2</name>
+		<version>2.6.4</version>
+		<title>Reverse2</title>
+		<description>Reverse2 - keyboards char-reverse</description>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>04.10.10</date>
+		<author>runkoff</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>diksi_slaps</name>
+		<version>1.0.0</version>
+		<title>[Diksi] slaps</title>
+		<description>Менюшка с такими прикольными слапами. Можно издеваться над народом на канале.</description>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>04.10.10</date>
+		<author>[Diksi]</author>
+        <group>Others</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>amaranth</name>
+		<version>1.6.1</version>
+		<title>Amaranth</title>
+		<description>An interface to the Mediaplayer module</description>
+		<minimal_version_kvirc>4.0.2</minimal_version_kvirc>
+		<date>04.10.10</date>
+		<author>Blaze</author>
+        <group>Multimedia</group>
+		<image>0</image>
+	</addon>
+	<addon>
+		<name>tools_panel</name>
+		<version>0.0.1</version>
+		<title>Tools buttons panel</title>
+		<description>Небольшая панель с кнопками часто выполняемых команд</description>
+		<minimal_version_kvirc>4.0.0</minimal_version_kvirc>
+		<date>16.11.10</date>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+		<addon>
+		<name>debug_tools</name>
+		<version>0.0.1</version>
+		<title>Debug tools</title>
+		<description>Debug tools for KVS</description>
+		<minimal_version_kvirc>4.2.0</minimal_version_kvirc>
+		<date>02.03.13</date>
+		<author>alexzulu</author>
+        <group>Tools</group>
+		<image>0</image>
+	</addon>
+</repository>

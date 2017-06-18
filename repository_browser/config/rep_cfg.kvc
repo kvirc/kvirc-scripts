@@ -1,0 +1,10 @@
+# KVIrc configuration file
+[Main]
+UrlList=http://kvirc.alexzulu.ru,http://kvirc-addons.buriedalive.ru/
+CurrentPeriod=15
+CurrentUrl=http://kvirc.alexzulu.ru
+Cache=TYPE YOUR CACHE PATH HERE!
+Version=4.0.0
+Groups=All,Tools,Games,Multimedia,Internet,Others,Old%20version
+PeriodsList=15,30,60,90,120
+AutoUpdateList=0

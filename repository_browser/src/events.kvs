@@ -1,0 +1,5 @@
+event(OnKVIrcStartup,repository_updater)
+{
+	repository_updater::init
+}
+
