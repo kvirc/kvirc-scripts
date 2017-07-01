@@ -392,7 +392,7 @@ class("repository_browser::list","widget")
 		    }
 		    else
 		    {
-		        dialog.message($tr("Warning","I can not remove yourself!!!",repository_browser),warning,$tr("Close",repository_browser)){}
+		        dialog.message($tr("Warning","I can not remove myself!!!",repository_browser),warning,$tr("Close",repository_browser)){}
 		    }
 		}
 		if($system.osname == "Windows"){
@@ -417,7 +417,7 @@ class("repository_browser::list","widget")
 		    }
 		    else
 		    {
-		        dialog.message($tr("Warning","I can not remove yourself!!!",repository_browser),warning,$tr("Ok",repository_browser)){}
+		        dialog.message($tr("Warning","I can not remove myself!!!",repository_browser),warning,$tr("Ok",repository_browser)){}
 		    }
 		}
 	}
@@ -649,7 +649,7 @@ class("repository_browser::list","widget")
 			if($addon.exists(repository_updater)){
 				repository_updater::update
 			}else{
-			        notifier.message -t=5 -i=318 $tr("I can not install yourself!!!",repository_browser)
+			        notifier.message -t=5 -i=318 $tr("I can not install myself!!!",repository_browser)
 			}
 		    }
 		}
@@ -709,7 +709,7 @@ class("repository_browser::list","widget")
 		        if($addon.exists(repository_updater)){
 				repository_updater::update
 			}else{
-			        notifier.message -t=5 -i=318 $tr("I can not install yourself!!!",repository_browser)
+			        notifier.message -t=5 -i=318 $tr("I can not install myself!!!",repository_browser)
 			}
 		    }
 		}
@@ -786,7 +786,7 @@ class("repository_browser::list","widget")
 		    }
 		    else
 		    {
-		        dialog.message($tr("Warning",repository_browser),$tr("I can not remove yourself!!!",repository_browser),warning,$tr("Close",repository_browser)){}
+		        dialog.message($tr("Warning",repository_browser),$tr("I can not remove myself!!!",repository_browser),warning,$tr("Close",repository_browser)){}
 		    }
 		}
 		if($system.osname == "Windows"){
@@ -815,7 +815,7 @@ class("repository_browser::list","widget")
 		    }
 		    else
 		    {
-		        dialog.message($tr("Warning","I can not remove yourself!!!",repository_browser),warning,$tr("Ok",repository_browser)){}
+		        dialog.message($tr("Warning","I can not remove myself!!!",repository_browser),warning,$tr("Ok",repository_browser)){}
 		    }
 		}
 	}
