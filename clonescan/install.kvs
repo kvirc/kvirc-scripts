@@ -2,7 +2,7 @@
 # Written by HelLViS69 (2005)
 # Rewritten by LaCosa 23/3/2013
 
-addon.register("HellClonescan","1.1","HelL Clonescan",$tr("A simple script for scanning clones in channels"),"3.2.0")
+addon.register("HellClonescan","1.2","HelL Clonescan",$tr("A simple script for scanning clones in channels"),"3.2.0")
 {
 	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
 	delpopupitem -d -q channeltextview 696968
