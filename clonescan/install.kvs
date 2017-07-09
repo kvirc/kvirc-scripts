@@ -1,13 +1,18 @@
 # Clone scanner script
 # Written by HelLViS69 (2005)
+# Rewritten by LaCosa 23/3/2013
 
-addon.register("HellClonescan","1.0","HelL Clonescan",$tr("A simple script for scanning clones in channels"),"3.2.0")
+addon.register("HellClonescan","1.1","HelL Clonescan",$tr("A simple script for scanning clones in channels"),"3.2.0")
 {
 	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
-	# This is an automatically generated alias that will erase the installed files
-	alias(hell_clonescan){}
-	event(OnJoin,clonescan){}
+	delpopupitem -d -q channeltextview 696968
 	delpopupitem -d -q channeltextview 696969
+	event(OnJoin,clonescan){}
+	alias(hell_clonescan){}
+	class(helltrixclone,object){}
+	objects.killclass helltrixclone
+	hell_clonescan_remove
+	alias(hell_clonescan_remove){}
 	# Done
 }
 
@@ -27,160 +32,141 @@ parse %mypath/utils/installer.kvs
 %installer->$copyFiles("%mypath/pics/","*.png",$file.localdir("pics"))
 # the translations
 %installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
-# the documentation
-%installer->$copyFiles("%mypath/help/en/nowplaying/","*.html",$file.localdir("help/en/nowplaying"))
 # then generate the uninstall alias
 %installer->$generateUninstallAlias("hell_clonescan_remove")
 # finally kill the installer helper
 delete %installer
 
-# Script Alias
-alias(hell_clonescan)
-{
-	class(helltrixclone,object){
-		constructor(){
-			# Channel mask array in the form nick!ident@host
-			%i=0
-	
-			foreach(%nick,$chan.users()){
-				%host=$str.append("*!*@",$mask.host($mask(%nick)))
-	
-				# Nick array in the form *!*@host
-				%ArrayNick[%i]=%nick
-				%DbHost{%ArrayNick[%i]}=%host
-				%DbCloneNum{%ArrayNick[%i]}=0
-				%i++;
-			}
-		}
-	
-		cloneCheck($0=nick,$1=host){
-			%checkNick=$0
-			%checkHost=$1
-
-			# Global scan
-			if(!%checkNick){
-				for(%i=0; %i<%ArrayNick[]#; %i++){
-					for(%j=0; %j<%ArrayNick[]#; %j++){
-						if($str.cmp(%DbHost{%ArrayNick[%i]},%DbHost{%ArrayNick[%j]})==0){
-							%DbCloneNum{%ArrayNick[%i]}=$(%DbCloneNum{%ArrayNick[%i]}+1)
-							if(!%DbCloneNick{%ArrayNick[%i]})
-								%DbCloneNick{%ArrayNick[%i]}=%ArrayNick[%j]
-							else
-								%DbCloneNick{%ArrayNick[%i]}=$str.append(%DbCloneNick{%ArrayNick[%i]},", "%ArrayNick[%j])
-	
-							# Delete clone
-							#%DbHost{%ArrayNick[%j]}=clone_%j
-						}
-					}
-				}
-			} else {
-				%DbCloneNum{%checkNick}=0
-				# Nick scan
-				if(!%checkHost){
-					# Just for sanity check
-					echo -w=$active [BUG]: $tr("The system could not retrieve the host of",helltrix) %checkNick
-					return
-				} else {
-					for(%i=0; %i<%ArrayNick[]#; %i++){
-						if($str.cmp(%DbHost{%ArrayNick[%i]},%checkHost)==0){
-							%DbCloneNum{%checkNick}=$(%DbCloneNum{%checkNick}+1)
-							if(!%DbCloneNick{%checkNick})
-								%DbCloneNick{%checkNick}=%ArrayNick[%i]
-							else
-								%DbCloneNick{%checkNick}=$str.append(%DbCloneNick{%checkNick},", "%ArrayNick[%i])
-	
-							# Delete clone
-							#%DbHost{%ArrayNick[%j]}=
-							#%ArrayNick[%j]=
-						}
-					}
-				}
-			}
-		}
-	
-		createWin(){
-			# Environment creation
-			%Clone_win=$window.open(,$tr("Clones",helltrix) $chan.name,$context,113)
-			echo -w=%Clone_win $b$tr("Scanning for clones...",helltrix)
-		}
-	
-		output($0=windowId,$1=nick){
-			%win=$0
-			%checkNick=$1
-
-			# Output for global scan
-			if(!%checkNick){
-				for(%i=0; %i<%ArrayNick[]#; %i++){
-					if(%DbCloneNum{%ArrayNick[%i]}>1){
-						if(%win)
-							echo -w=%win $b%DbCloneNick{%ArrayNick[%i]} $o$tr("on channel",helltrix) $b$chan.name $o$tr("have same mask",helltrix) $b%DbHost{%ArrayNick[%i]}
-						else
-							echo -w=$active $b%DbCloneNick{%ArrayNick[%i]} $o$tr("on channel",helltrix) $b$chan.name $o$tr("have same mask",helltrix) $b%DbHost{%ArrayNick[%i]}
-					}
-				}
-			} else {
-				# Output for nick scan
-				if(%DbCloneNum{%checkNick}>1){
-					if(%win)
-							echo -w=%win $b%DbCloneNick{%checkNick} $o$tr("on channel",helltrix) $b$chan.name $o$tr("have same mask",helltrix) $b%DbHost{%checkNick}
-						else
-							echo -w=$active $b%DbCloneNick{%checkNick} $o$tr("on channel",helltrix) $b$chan.name $o$tr("have same mask",helltrix) $b%DbHost{%checkNick}
-				}
-	
-			}
-	
-			if(%win)
-				echo -w=%win $b$tr("Scan End",helltrix)
-			#echo -w=%Clone_win $b$tr("No clones found on",helltrix) $chan.name
+# Script object
+class(helltrixclone,object){
+	constructor(){
+		$$->%ArrayNick[] = $chan.users()
+		$$->%NumNicks = $length($$->%ArrayNick)
+		for(%i=0; %i < $$->%NumNicks; %i++){
+			$$->%DbHost[%i]=$mask.host($mask($$->%ArrayNick[%i]))
 		}
 	}
 	
+	cloneCheck($0=nick,$1=host){
+		%checkNick=$0
+		%checkHost=$1
+		if(!%checkNick){
+			# Global scan
+			%i_last=$($$->%NumNicks-1)
+			for(%i=0; %i<%i_last; %i++){
+				# If is marked as -1 then this is a clone, skip it
+				if(!$$->%DbCloneNum[%i]){
+					# Skip the nick previously parsed
+					for(%j=$(%i+1); %j<$$->%NumNicks; %j++){
+						if($str.cmp($$->%DbHost[%i],$$->%DbHost[%j])==0){
+							if(0==$$->%DbCloneNum[%i]){
+								$$->%DbCloneNick{$$->%ArrayNick[%i]}=$$->%ArrayNick[%i]", "$$->%ArrayNick[%j]
+								$$->%DbCloneNum[%i]=2
+							}else{
+								$$->%DbCloneNick{$$->%ArrayNick[%i]}.=", "$$->%ArrayNick[%j]
+								$$->%DbCloneNum[%i]++
+							}
+							# Puts a Mark on clone
+							$$->%DbCloneNum[%j]=-1
+						}
+					}
+				}
+			}
+		} else {		
+			# Nick scan
+			if(!%checkHost){
+				# Just for sanity check
+				echo -w=$active [BUG]: $tr("The system could not retrieve the host of",helltrix) %checkNick
+				return
+			} else {
+				$$->%DbCloneNick{%checkNick} = $chan.users(,$mask(%checkNick,9),)
+				if ($str.contains($$->%DbCloneNick{%checkNick},",")){
+					$$->%DbCloneNick{%checkNick} = $str.replace($$->%DbCloneNick{%checkNick},',',", ")
+				} else {
+					$$->%DbCloneNick{%checkNick}=
+				}
+			}
+		}
+	}
+
+	createWin(){
+		# Environment creation
+		if(!$window.exists(%Clone_win)){
+			%Clone_win=$window.open(,$tr("Clones",helltrix) $chan.name,$context,113)
+		}
+		echo -w=%Clone_win $b$tr("Scanning for clones...",helltrix)
+	}
+
+	output($0=windowId,$1=nick){
+		if ($0){
+			%win=$0
+		}else{
+			%win=$channel
+		}
+		%checkNick=$1
+		%cloneFound=0
+		if(!%checkNick){
+			# Output for global scan
+			for(%i=0; %i<$$->%NumNicks; %i++){
+				if($$->%DbCloneNum[%i]>1){
+					echo -w=%win $b$$->%DbCloneNick{$$->%ArrayNick[%i]} $o$tr("on channel",helltrix) $b$chan.name $o$tr("have same mask",helltrix)$b "*!*@"$$->%DbHost[%i]
+					%cloneFound++
+				}
+			}
+			if(!%cloneFound){
+				echo -w=%win $b$tr("No clones found on",helltrix) $chan.name
+			}
+		} else {
+			# Output for nick scan
+			if($$->%DbCloneNick{%checkNick}){
+				echo -w=%win $b$$->%DbCloneNick{%checkNick} $o$tr("on channel",helltrix) $b$chan.name $o$tr("have same mask",helltrix) $b$mask(%checkNick,9)
+				%cloneFound++
+			}
+		}
+
+		if($0) echo -w=%win $b$tr("Scan End",helltrix)
+	}
+}
+	
+# Script Alias
+alias(hell_clonescan)
+{
 	%clonescan=$new(helltrixclone)
 	
 	if(!$0){
-		%clonescan->$cloneCheck()
 		%clonescan->$createWin()
+		%clonescan->$cloneCheck()
 		%clonescan->$output(%Clone_win,)
 	} else {
 		# If we want a nick scan
-		foreach(%isNick,%ArrayNick[]){
-			if(%isNick==$0)
-				break
-		}
-	
-		if(%isNick!=$0){
-			echo -w=$active $tr("Usage",helltrix): /helltrix_clonescan [nick]
+		if(!$chan.ison($0,$channel)){
+			echo $tr("Usage",helltrix): /helltrix_clonescan [nick]
 			return
 		}
-	
+		%isNick=$0
 		%isHost=$mask(%isNick,9)
 	
 		%clonescan->$cloneCheck(%isNick,%isHost)
 		%clonescan->$output(,%isNick)
 	}
 	
-	# Clean array
-	%ArrayNick[]=
-	%DbHost{}=
-	%DbCloneNum{}=
-	%DbCloneNick{}=
-	
+	# Clean object
+	delete %clonescan
 	# TODO:
-	# fix global scan
 	# language files
 }
 
 # Script Event
 event(OnJoin,clonescan)
 {
-	hell_clonescan $0
+	hell_clonescan $0 $2
 }
 
 # Script Popups
-defpopup-m ("channeltextview")
+defpopup -m ("channeltextview")
 {
-	label(HelLViS69 Clonescan)
-	item("Clonescan","113"){
+	label(HelLViS69 Clonescan,,696968)
+	item("Clonescan",113,696969){
 		hell_clonescan
 	}
 }

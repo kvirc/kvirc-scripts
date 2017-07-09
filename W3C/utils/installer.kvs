@@ -11,19 +11,19 @@ class(installer,object)
 	{
 		if($0 == "")
 		{
-			echo "[Installer] SCRIPT BUG: The second argument to installer_copyfiles must be a source directory"
+			echo "[Installer] SCRIPT BUG: The first argument to installer_copyfiles must be a source directory"
 			halt
 		}
 	
 		if($1 == "")
 		{
-			echo "[Installer] SCRIPT BUG: The third argument to installer_copyfiles must be a file name or file regexp"
+			echo "[Installer] SCRIPT BUG: The second argument to installer_copyfiles must be a file name or file regexp"
 			halt
 		}
 	
 		if($2 == "")
 		{
-			echo "[Installer] SCRIPT BUG: The second argument to installer_copyfiles must be a destination directory"
+			echo "[Installer] SCRIPT BUG: The third argument to installer_copyfiles must be a destination directory"
 			halt
 		}
 	
@@ -53,6 +53,9 @@ class(installer,object)
 			{
 				%c .= "	file.remove \"%file\"$lf";
 			}
+		} else {
+			# To avoid generating an empty alias, this causes an error message, something must be entered
+			%c .= " # Automatically generated alias"
 		}
 		%c .= "}"
 		eval %c
