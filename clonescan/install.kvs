@@ -54,8 +54,8 @@ class(helltrixclone,object){
 			%host=$mask(%nick,9)
 			# Nick array in the form *!*@host
 			%ArrayNick[%i]=%nick
-			%DbHost{%ArrayNick[%i]}=%host
-			%DbCloneNum{%ArrayNick[%i]}=0
+			%DbHost{%nick}=%host
+			%DbCloneNum{%nick}=0
 			%i++;
 		}
 	}
