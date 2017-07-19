@@ -4,10 +4,17 @@
 addon.register("HellClonescan","1.0","HelL Clonescan",$tr("A simple script for scanning clones in channels"),"3.2.0")
 {
 	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
-	# This is an automatically generated alias that will erase the installed files
-	alias(hell_clonescan){}
-	event(OnJoin,clonescan){}
 	popup.delitem -d -q channeltextview 696969
+	event(OnJoin,clonescan){}
+	alias(hell_clonescan){}
+	# This is an automatically generated alias that will erase the installed files
+	if ($aliasBody(hell_clonescan_remove) != "")
+	{
+		hell_clonescan_remove
+		alias(hell_clonescan_remove){}
+	}
+	object.killclass "helltrixclone"
+	eval "window.close -q %Clone_win"
 	# Done
 }
 
@@ -29,8 +36,12 @@ parse %mypath/utils/installer.kvs
 %installer->$copyFiles("%mypath/locale/","*.mo",$file.localdir("locale"))
 # the documentation
 %installer->$copyFiles("%mypath/help/en/hellclonescan/","*.html",$file.localdir("help/en/hellclonescan"))
-# then generate the uninstall alias
-%installer->$generateUninstallAlias("hell_clonescan_remove")
+
+# then generate the uninstall alias, only if at least one file is copied
+if (%installer->%iNumFiles > 0)
+{
+	%installer->$generateUninstallAlias("hell_clonescan_remove")
+}
 # finally kill the installer helper
 delete %installer
 
