@@ -40,7 +40,7 @@ class(helltrixclone,object){
 		%i=0
 
 		foreach(%nick,$chan.users()){
-			%host=$str.append("*!*@",$mask.host($mask(%nick)))
+			%host=$mask(%nick,9)
 			# Nick array in the form *!*@host
 			%ArrayNick[%i]=%nick
 			%DbHost{%ArrayNick[%i]}=%host
