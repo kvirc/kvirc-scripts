@@ -7,7 +7,7 @@ addon.register("HellClonescan","1.0","HelL Clonescan",$tr("A simple script for s
 	# This is an automatically generated alias that will erase the installed files
 	alias(hell_clonescan){}
 	event(OnJoin,clonescan){}
-	delpopupitem -d -q channeltextview 696969
+	popup.delitem -d -q channeltextview 696969
 	# Done
 }
 
@@ -177,8 +177,11 @@ event(OnJoin,clonescan)
 # Script Popups
 defpopup-m ("channeltextview")
 {
-	label(HelLViS69 Clonescan)
-	item("Clonescan","113"){
-		hell_clonescan
+	popup(HelLViS69 Clonescan,113,696969)
+	{
+		item("Clonescan","113")
+		{
+			hell_clonescan
+		}
 	}
 }
