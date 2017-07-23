@@ -13,7 +13,7 @@ addon.register("HellClonescan","1.0","HelL Clonescan",$tr("A simple script for s
 		hell_clonescan_remove
 		alias(hell_clonescan_remove){}
 	}
-	object.killclass "helltrixclone"
+	objects.killclass "helltrixclone"
 	eval "window.close -q %Clone_win"
 	# Done
 }
