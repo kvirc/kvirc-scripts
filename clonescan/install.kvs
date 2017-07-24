@@ -64,19 +64,22 @@ class(helltrixclone,object){
 		%checkNick=$0
 		%checkHost=$1
 
-		# Global scan
 		if(!%checkNick){
-			for(%i=0; %i<%ArrayNick[]#; %i++){
-				for(%j=0; %j<%ArrayNick[]#; %j++){
-					if($str.cmp(%DbHost{%ArrayNick[%i]},%DbHost{%ArrayNick[%j]})==0){
-						%DbCloneNum{%ArrayNick[%i]}=$(%DbCloneNum{%ArrayNick[%i]}+1)
-						if(!%DbCloneNick{%ArrayNick[%i]})
-							%DbCloneNick{%ArrayNick[%i]}=%ArrayNick[%j]
-						else
-							%DbCloneNick{%ArrayNick[%i]}=$str.append(%DbCloneNick{%ArrayNick[%i]},", "%ArrayNick[%j])
-
-						# Delete clone
-						#%DbHost{%ArrayNick[%j]}=clone_%j
+			# Global scan
+			for(%i=0; %i<$(%ArrayNick[]# - 1); %i++){
+				if(%DbCloneNum{%ArrayNick[%i]} != -1){
+					for(%j=$(%i + 1); %j<%ArrayNick[]#; %j++){
+						if($str.cmp(%DbHost{%ArrayNick[%i]},%DbHost{%ArrayNick[%j]})==0){
+							if(!%DbCloneNum{%ArrayNick[%i]}){
+								%DbCloneNick{%ArrayNick[%i]}=%ArrayNick[%i]", "%ArrayNick[%j]
+								%DbCloneNum{%ArrayNick[%i]} = 2
+							} else {
+								%DbCloneNick{%ArrayNick[%i]}=$str.append(%DbCloneNick{%ArrayNick[%i]},", "%ArrayNick[%j])
+								%DbCloneNum{%ArrayNick[%i]}++
+							}
+							# We mark the clone
+							%DbCloneNum{%ArrayNick[%j]} = -1
+						}
 					}
 				}
 			}
@@ -175,7 +178,6 @@ alias(hell_clonescan)
 	%DbCloneNick{}=
 	
 	# TODO:
-	# fix global scan
 	# language files
 }
 
