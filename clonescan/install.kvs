@@ -111,36 +111,34 @@ class(helltrixclone,object){
 	createWin(){
 		# Environment creation
 		%Clone_win=$window.open(,$tr("Clones",helltrix) $chan.name,$context,113)
-		echo -w=%Clone_win $b$tr("Scanning for clones...",helltrix)
+		echo -w=%Clone_win -i=114 $b$tr("Scanning for clones in",helltrix) $chan.name
 	}
 
 	output($0=windowId,$1=nick){
-		%win=$0
+		if($0){
+			%win=$0
+		} else {
+			%win=$channel
+		}
 		%checkNick=$1
-		# Output for global scan
 		if(!%checkNick){
+			# Output for global scan
+			%cf=0
 			for(%i=0; %i<%ArrayNick[]#; %i++){
 				if(%DbCloneNum{%ArrayNick[%i]}>1){
-					if(%win)
-						echo -w=%win $b%DbCloneNick{%ArrayNick[%i]} $o$tr("on channel",helltrix) $b$chan.name $o$tr("have same mask",helltrix) $b%DbHost{%ArrayNick[%i]}
-					else
-						echo -w=$active $b%DbCloneNick{%ArrayNick[%i]} $o$tr("on channel",helltrix) $b$chan.name $o$tr("have same mask",helltrix) $b%DbHost{%ArrayNick[%i]}
+					echo -w=%win -i=117 "  "$b%DbCloneNick{%ArrayNick[%i]} $o$tr("have same mask",helltrix) $b%DbHost{%ArrayNick[%i]}
+					%cf++
 				}
 			}
+			if(!%cf)
+				echo -w=%win -i=114 $b$tr("  No clones found on",helltrix) $chan.name
+			echo -w=%win -i=114 $b$tr("Scan End",helltrix)
 		} else {
 			# Output for nick scan
 			if(%DbCloneNum{%checkNick}>1){
-				if(%win)
-					echo -w=%win $b%DbCloneNick{%checkNick} $o$tr("on channel",helltrix) $b$chan.name $o$tr("have same mask",helltrix) $b%DbHost{%checkNick}
-				else
-					echo -w=$active $b%DbCloneNick{%checkNick} $o$tr("on channel",helltrix) $b$chan.name $o$tr("have same mask",helltrix) $b%DbHost{%checkNick}
+				echo -w=%win -i=117 $b%DbCloneNick{%checkNick} $o$tr("have same mask",helltrix) $b%DbHost{%checkNick}
 			}
-
 		}
-
-		if(%win)
-			echo -w=%win $b$tr("Scan End",helltrix)
-		#echo -w=%Clone_win $b$tr("No clones found on",helltrix) $chan.name
 	}
 }
 
