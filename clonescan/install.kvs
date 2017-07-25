@@ -159,7 +159,7 @@ alias(hell_clonescan)
 		}
 	
 		if(%isNick!=$0){
-			echo -w=$active $tr("Usage",helltrix): /helltrix_clonescan [nick]
+			echo -w=$active $tr("Usage",helltrix): /hell_clonescan [nick]
 			return
 		}
 	
