@@ -1,7 +1,7 @@
 # Clone scanner script
 # Written by HelLViS69 (2005)
 
-addon.register("HellClonescan","1.0","HelL Clonescan",$tr("A simple script for scanning clones in channels"),"3.2.0")
+addon.register("HellClonescan","1.1","HelL Clonescan",$tr("A simple script for scanning clones in channels"),"3.2.0")
 {
 	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
 	popup.delitem -d -q channeltextview 696969
@@ -14,8 +14,12 @@ addon.register("HellClonescan","1.0","HelL Clonescan",$tr("A simple script for s
 		alias(hell_clonescan_remove){}
 	}
 	objects.killclass "helltrixclone"
-	eval "if (%Clone_win) window.close -q %Clone_win"
+	foreach(%win,%HClone_win{}){
+		window.close -q %win;
+	}
+	%HClone_win{}=$nothing;
 	# Done
+	echo -i=116 
 }
 
 # Ok, addon.register succeeded. We can go on with the installation.
@@ -101,8 +105,13 @@ class(helltrixclone,object){
 
 	createWin(){
 		# Environment creation
-		%Clone_win=$window.open(,$tr("Clones",helltrix) $chan.name,$context,113)
-		echo -w=%Clone_win -i=114 $b$tr("Scanning for clones in",helltrix) $chan.name
+		if (!%HClone_win{$context} || !$window.exists(%HClone_win{$context})){
+			%HClone_win{$context} = $window.open(,$tr("Clones",helltrix) $context.networkName,$context,113)
+		} else {
+			window.maximize %HClone_win{$context}
+		}
+		echo -w=%HClone_win{$context} -i=114 $b$tr("Scanning for clones in",helltrix) $chan.name
+		return %HClone_win{$context}
 	}
 
 	output($0=windowId,$1=nick,$2=host){
@@ -139,10 +148,10 @@ alias(hell_clonescan)
 	%isNick=$0
 	%clonescan=$new(helltrixclone)
 	
-	if(!$0){
+	if(!%isNick){
 		%clonescan->$cloneCheck()
-		%clonescan->$createWin()
-		%clonescan->$output(%Clone_win,)
+		%win=%clonescan->$createWin()
+		%clonescan->$output(%win,)
 	} else {
 		# If we want a nick scan
 		%isHost=$1
@@ -175,7 +184,7 @@ defpopup-m ("channeltextview")
 {
 	popup(HelLViS69 Clonescan,113,696969)
 	{
-		item("Clonescan","113")
+		item("Clonescan", )
 		{
 			hell_clonescan
 		}
