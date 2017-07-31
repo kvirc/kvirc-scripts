@@ -156,7 +156,7 @@ alias(hell_clonescan)
 		# If we want a nick scan
 		%isHost=$1
 		if (!%isHost){
-			%isHost=$mask.host($mask(%isNick,9))
+			%isHost=$hostname(%isNick)
 		}
 		if (!%isHost){
 			echo -w=$active $tr("Usage",helltrix): /hell_clonescan [nick]
