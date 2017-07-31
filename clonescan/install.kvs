@@ -1,7 +1,7 @@
 # Clone scanner script
 # Written by HelLViS69 (2005)
 
-addon.register("HellClonescan","1.1","HelL Clonescan",$tr("A simple script for scanning clones in channels"),"3.2.0")
+addon.register("HellClonescan","1.1","HelL Clonescan",$tr("A simple script for scanning clones in channels"),"4.0.4")
 {
 	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
 	popup.delitem -d -q channeltextview 696969
@@ -19,7 +19,7 @@ addon.register("HellClonescan","1.1","HelL Clonescan",$tr("A simple script for s
 	}
 	%HClone_win{}=$nothing;
 	# Done
-	echo -i=116 
+	#echo -i=116 Bye 
 }
 
 # Ok, addon.register succeeded. We can go on with the installation.
@@ -88,17 +88,20 @@ class(helltrixclone,object){
 			}
 		} else {
 			# Nick scan
+			if (!%checkHost){
+				%checkHost=$hostname(%checkNick)
+			}
 			if(!%checkHost){
 				# Just for sanity check
 				echo -w=$active [BUG]: $tr("The system could not retrieve the host of",helltrix) %checkNick
 				return
+			}
+			$$->%DbCloneNick{%checkNick} = $chan.users(,"*!*@"%checkHost,)
+			if ($str.contains($$->%DbCloneNick{%checkNick}, ",")){
+				$$->%DbCloneNick{%checkNick} = $str.replace($$->%DbCloneNick{%checkNick}, ",", ", ")
+				$$->%DbHost = %checkHost
 			} else {
-				$$->%DbCloneNick{%checkNick} = $chan.users(,"*!*@"%checkHost,)
-				if ($str.contains($$->%DbCloneNick{%checkNick}, ",")){
-					$$->%DbCloneNick{%checkNick} = $str.replace($$->%DbCloneNick{%checkNick}, ",", ", ")
-				} else {
-					$$->%DbCloneNick{%checkNick} =
-				}
+				$$->%DbCloneNick{%checkNick} =
 			}
 		}
 	}
@@ -134,9 +137,10 @@ class(helltrixclone,object){
 			echo -w=%win -i=114 $b$tr("Scan End",helltrix)
 		} else {
 			# Output for nick scan
-			%host=$2
 			if($$->%DbCloneNick{%checkNick}){
-				echo -w=%win -i=117 $b$$->%DbCloneNick{%checkNick} $o$tr("have same host",helltrix) $b%host
+				echo -w=%win -i=117 $b$$->%DbCloneNick{%checkNick} $o$tr("have same host",helltrix) $b$$->%DbHost
+			} elseif (!$2) {
+				echo -w=%win -i=114 $tr("No clones found for",helltrix) $b%checkNick
 			}
 		}
 	}
@@ -145,6 +149,10 @@ class(helltrixclone,object){
 # Script Alias
 alias(hell_clonescan)
 {
+	if (!$channel){
+		echo -w=$active -i=118 $tr("[Clonescan]: This is not a channel window",helltrix)
+		return
+	}
 	%isNick=$0
 	%clonescan=$new(helltrixclone)
 	
@@ -155,16 +163,16 @@ alias(hell_clonescan)
 	} else {
 		# If we want a nick scan
 		%isHost=$1
-		if (!%isHost){
-			%isHost=$hostname(%isNick)
+		if ($chan.ison(%isNick)){
+			if (!%isHost || (%isHost == $hostName(%isNick))){
+				%clonescan->$cloneCheck(%isNick,%isHost)
+				%clonescan->$output(,%isNick,%isHost)
+			} else {
+				echo -w=$active $tr("Usage",helltrix): /hell_clonescan [nick]
+			}
+		} else {
+			echo -w=$active -i=114 $b%isNick $o$tr("is not in",helltrix) $b$target
 		}
-		if (!%isHost){
-			echo -w=$active $tr("Usage",helltrix): /hell_clonescan [nick]
-			return
-		}
-
-		%clonescan->$cloneCheck(%isNick,%isHost)
-		%clonescan->$output(,%isNick,%isHost)
 	}
 
 	delete %clonescan
