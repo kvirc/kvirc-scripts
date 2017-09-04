@@ -1,0 +1,65 @@
+# Traducción del clonescan al castellano.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the KVIrc package.
+# MindUser00 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: clonescan 1.2.7\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-08-31 15:59+0200\n"
+"PO-Revision-Date: 2017-09-04 17:21-0000\n"
+"Last-Translator: MindUser00\n"
+"Language-Team: castellano\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.4\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: es\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: $tr\n"
+
+#: install.kvs:7
+msgid "A simple script for scanning clones in channels"
+msgstr "Un script simple para buscar clones en los canales"
+
+#: install.kvs:88
+msgid "[BUG]: The system could not retrieve the host of"
+msgstr "[Error]: El sistema no pudo obtener la máquina de"
+
+#: install.kvs:105
+msgid "Clones"
+msgstr "Clones"
+
+#: install.kvs:109
+msgid "Scanning for clones in"
+msgstr "Buscando clones en"
+
+#: install.kvs:125 install.kvs:134
+msgid "have same host"
+msgstr "tienen el mismo host"
+
+#: install.kvs:129
+msgid "  No clones found on"
+msgstr "  No se encontraron clones en"
+
+#: install.kvs:130
+msgid "Scan End"
+msgstr "Fin de la búsqueda"
+
+#: install.kvs:136
+msgid "No clones found for"
+msgstr "No se encontraron clones para"
+
+#: install.kvs:146
+msgid "[Clonescan]: This is not a channel window"
+msgstr "[Clonescan]: Esta no es una ventana de canal"
+
+#: install.kvs:160
+msgid "is not in"
+msgstr "no está en"
+
+#: install.kvs:169
+msgid "Usage"
+msgstr "Uso"
