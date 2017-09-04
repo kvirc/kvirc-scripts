@@ -1,0 +1,62 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: clonescan 1.2.7\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-08-31 15:59+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: install.kvs:7
+msgid "A simple script for scanning clones in channels"
+msgstr ""
+
+#: install.kvs:88
+msgid "[BUG]: The system could not retrieve the host of"
+msgstr ""
+
+#: install.kvs:105
+msgid "Clones"
+msgstr ""
+
+#: install.kvs:109
+msgid "Scanning for clones in"
+msgstr ""
+
+#: install.kvs:125 install.kvs:134
+msgid "have same host"
+msgstr ""
+
+#: install.kvs:129
+msgid "  No clones found on"
+msgstr ""
+
+#: install.kvs:130
+msgid "Scan End"
+msgstr ""
+
+#: install.kvs:136
+msgid "No clones found for"
+msgstr ""
+
+#: install.kvs:146
+msgid "[Clonescan]: This is not a channel window"
+msgstr ""
+
+#: install.kvs:160
+msgid "is not in"
+msgstr ""
+
+#: install.kvs:169
+msgid "Usage"
+msgstr ""
