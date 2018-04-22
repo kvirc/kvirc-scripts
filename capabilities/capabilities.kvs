@@ -1,0 +1,73 @@
+event (OnCap, Capabilities) {
+	if (!%Caps) return;
+
+	if ($1 == "LS" || $1 == "NEW") {
+		if ($option(uintOutputVerbosityLevel) >= 3) {
+			if ($1 == "NEW") echo -i=$msgtype(Cap) "New capabilities available: $2";
+			if ($1 == "LS") echo -i=$msgtype(Cap) "Capabilities available: $2";
+		}
+
+		foreach (%token, $str.split(" ", $2, n)) {
+			%fields = $str.split("=", %token, "", 2);
+			%cap = %fields[0];
+			%CapsAvailable{$context}{%cap} = $true;
+			%CapParameter{$context}{%cap} = %fields[1];  // TODO: v3.2 capability negotiation is not yet supported by KVIrc.
+			if (%Caps{%cap} && !%CapsEnabled{$context}{%cap}) %caps << %cap;
+		}
+
+		// This will request SASL even if SASL authentication is disabled in the server database.
+		// Currently there seems to be no way to check for this.
+		// This isn't a problem, as KVIrc will then simply not authenticate using SASL.
+
+		if (%caps) {
+			if ($option(uintOutputVerbosityLevel) >= 3) echo -i=$msgtype(Cap) "Requesting capabilities: %caps";
+			raw -q "CAP REQ :%caps";
+			halt;
+		}
+	} else if ($1 == "ACK") {
+		foreach (%cap, $str.split(" ", $2, n)) {
+			if ($str.left(%cap, 1) == "-") {
+				%cap = $str.mid(%cap, 1);
+				%CapsEnabled{$context}{%cap} = $nothing;
+			} else {
+				%CapsEnabled{$context}{%cap} = $true;
+			}
+		}
+	} else if ($1 == "DEL") {
+		if ($option(uintOutputVerbosityLevel) >= 3) echo -i=$msgtype(Cap) "Capabilities removed: $2";
+		foreach (%cap, $str.split(" ", $2, n)) {
+			if (%CapsEnabled{$context}{%cap}) %caps << "-%cap";
+			%CapsAvailable{$context}{%cap} = $nothing;
+			%CapsEnabled{$context}{%cap} = $nothing;
+			%CapParameter{$context}{%cap} = $nothing;
+		}
+
+		// Inject a CAP ACK message to tell KVIrc that the caps are no longer enabled.
+		if (%caps) inject "CAP * ACK :%caps";
+		halt;
+	}
+}
+
+// Check that the event handler was added correctly.
+if (!$iseventenabled(OnCap, Capabilities)) error "The OnCap event is not supported in this version of KVIrc. Please upgrade.";
+
+event (OnIRCConnectionTerminated,Capabilities) {
+	%CapsEnabled{$context} = $nothing;
+}
+
+event (OnKVIrcStartup,Capabilities) {
+	%Caps{"account-notify"        } = $true;
+	%Caps{"away-notify"           } = $true;
+	%Caps{"cap-notify"            } = $true;
+	%Caps{"chghost"               } = $true;
+	%Caps{"extended-join"         } = $true;
+	%Caps{"multi-prefix"          } = $true;
+	%Caps{"sasl"                  } = $true;
+	%Caps{"server-time"           } = $true;
+	%Caps{"userhost-in-names"     } = $true;
+	%Caps{"znc.in/self-message"   } = $true;
+	%Caps{"znc.in/server-time-iso"} = $true;
+}
+
+eventctl OnKVIrcStartup Capabilities;
+echo -i=$msgtype(SystemMessage) Capabilities script has been installed.
