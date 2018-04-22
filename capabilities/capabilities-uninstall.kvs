@@ -1,0 +1,6 @@
+unset %Caps, %CapsAvailable, %CapsEnabled, %CapParameter;
+eventctl -u OnCap Capabilities;
+eventctl -u OnIRCConnectionTerminated Capabilities;
+eventctl -u OnKVIrcStartup Capabilities;
+
+echo -i=$msgtype(SystemMessage) Capabilities script has been removed.;

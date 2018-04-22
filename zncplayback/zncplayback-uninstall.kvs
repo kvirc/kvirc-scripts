@@ -1,0 +1,8 @@
+%Caps{"znc.in/playback"} = $nothing;
+unset %PlaybackTimestamp;
+eventctl -u OnIRC ZncPlayback;
+eventctl -u OnIRCConnectionTerminated ZncPlayback;
+eventctl -u OnKVIrcStartup ZncPlayback;
+if ($file.exists($file.localdir(config/ZncPlayback.tsv))) file.remove $file.localdir(config/ZncPlayback.tsv);
+
+echo -i=$msgtype(SystemMessage) ZNC Playback has been removed.

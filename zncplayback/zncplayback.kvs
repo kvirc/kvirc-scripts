@@ -1,0 +1,45 @@
+if (!%Caps) error "This script requires the Capabilities script. Download it from https://github.com/kvirc/kvirc-scripts/capabilities";
+
+event (OnIRC, ZncPlayback) {
+	if (%CapsEnabled{$context}{"znc.in/playback"}) {
+		%ts = %PlaybackTimestamp{$context.serverdbNetworkName};
+		if (!%ts) %ts = 0;
+		raw -q znc *playback play * %ts;
+	}
+}
+
+event (OnIRCConnectionTerminated, ZncPlayback) {
+	%PlaybackTimestamp{$context.serverdbNetworkName} = $context.lastMessageTime();
+
+	%file = $new(file);
+	%file->$setName($file.localdir(config/ZncPlayback.tsv));
+	%file->$open(WriteOnly);
+
+	foreach (%key, $keys(%PlaybackTimestamp))
+		%file->$writeLine(%key\t%PlaybackTimestamp{%key}\n);
+
+	%file->$close();
+}
+
+event (OnKVIrcStartup, ZncPlayback) {
+	%Caps{"znc.in/playback"} = $true;
+
+	if ($file.exists($file.localdir(config/ZncPlayback.tsv))) {
+		%file = $new(file);
+		%file->$setName($file.localdir(config/ZncPlayback.tsv));
+		%file->$open(ReadOnly);
+
+		while (!%file->$atEnd()) {
+			%line = %file->$readLine();
+			if (%line == "") continue;
+
+			%tokens = $str.split("\t", %line);
+			%PlaybackTimestamp{%tokens[0]} = $int(%tokens[1]);
+		}
+
+		%file->$close();
+	}
+}
+
+eventctl OnKVIrcStartup ZncPlayback;
+echo -i=$msgtype(SystemMessage) ZNC Playback has been installed.
