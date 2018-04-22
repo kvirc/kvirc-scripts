@@ -27,7 +27,7 @@ you understand that the default **[GPLv2](http://opensource.org/licenses/GPL-2.0
 
 KVIrc version compatibility should be noted prominently where applicable.
 
-Read [porting scripts to KVIrc 4.x](https://github.com/kvirc/KVIrc/wiki/Porting-scripts-to-Kvirc4) for more information.
+Read [porting scripts to KVIrc 4](https://github.com/kvirc/KVIrc/wiki/Porting-scripts-to-KVIrc-4) for more information.
 
 ### Support
 
