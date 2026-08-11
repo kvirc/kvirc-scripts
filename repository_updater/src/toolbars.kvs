@@ -1,0 +1,3 @@
+toolbar.create repository_updater Repository browser updater "repository_updater/updater32x32.png"
+toolbar.additem repository_updater repository_browser_updater
+toolbar.show repository_updater

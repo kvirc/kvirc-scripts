@@ -1,0 +1,55 @@
+#Generate with Installer generator 0.0.1 (21:36:13 17.01.2017)
+ 
+# Written by alexzulu(2017)
+ 
+# register the script: this must be the first instruction executed
+# since it will abort with an error when a greater version is already installed
+ 
+addon.register("repository_updater","0.0.1",$tr("Repository browser updater",repository_updater),$tr("Updater for repository browser",repository_updater),"4.2.0",repository_updater/updater32x32.png)
+{
+	# This is our uninstall callback: it will be called by KVIrc when addon.uninstall is invoked
+	# This is an automatically generated alias that will erase the installed files
+ 
+	repository_updater::uninstallfiles
+}
+ 
+# Ok, addon.register succeeded. We can go on with the installation.
+ 
+# Get the path that this script was launched from
+%mypath = $file.extractPath($0)
+ 
+# get the installer helper class (this is pretty standard and included in the distro)
+parse %mypath/utils/installer.kvs
+ 
+# The installer will copy our files and generate automatically
+# an uninstallation alias for them
+%installer = $new(installer,0,myinstaller)
+ 
+# Copy files in each subdirectory
+ 
+# the configs
+if(!$file.exists($file.localdir("config/repository_updater")))
+{
+	file.mkdir $file.localdir("config/repository_updater")
+}
+%installer->$copyFiles("%mypath/config/","*.*","$file.localdir("config/repository_updater")")
+ 
+# the pics
+if(!$file.exists($file.localdir("pics/repository_updater")))
+{
+	file.mkdir $file.localdir("pics/repository_updater")
+}
+%installer->$copyFiles("%mypath/pics/","*.png","$file.localdir("pics/repository_updater")")
+ 
+# parse source files
+%installer->$includeFiles("%mypath/src/","*.kvs")
+ 
+# then generate the uninstall alias
+%installer->$generateUninstallAlias("repository_updater::uninstallfiles")
+ 
+%installer->$includeFiles("%mypath/","init.kvs")
+ 
+# finally kill the installer helper
+delete %installer
+ 
+# Done: the addon is installed and running: enjoy :)

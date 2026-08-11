@@ -1,0 +1,2 @@
+%Set = $new(repository_browser::settings);
+repository_browser::updateList

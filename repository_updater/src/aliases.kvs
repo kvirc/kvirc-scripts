@@ -1,0 +1,68 @@
+alias(repository_updater::checker)
+{
+    %time = $0;
+    %sw = $1;
+    %time = $(%time * 60000);
+    //%time = $(%time * 1000);
+    if(%sw == 1){
+        if($isTimer(updater)){
+            killtimer updater;
+            timer(updater,%time){
+                repository_updater::updateList
+            }
+        } else {
+            timer(updater,%time){
+                repository_updater::updateList
+            }
+        }
+    } else {
+        if($isTimer(updater)){
+            killtimer updater;
+        }
+        repository_updater::updateList();
+    }
+}
+
+
+alias(repository_updater::init)
+{
+    %rep = "$file.localdir/config/repository_updater"
+    %cfg=$config.open(%rep/repository_updater_cfg.kvc)
+    config.setsection %cfg "Main"
+    %period = $config.read(%cfg,CurrentPeriod)
+    %switch = $config.read(%cfg,AutoUpdateList)
+    config.close %cfg
+    $repository_updater::checker(%period,%switch)
+}
+
+
+alias(repository_updater::settings)
+{
+    %U_Set = $new(repository_updater::settings)
+}
+
+
+alias(repository_updater::update)
+{
+    %update = $new(repository_updater::update)
+}
+
+
+alias(repository_updater::updateList)
+{
+    %rep = "$file.localdir/config/repository_updater"
+    %cfg=$config.open(%rep/repository_updater_cfg.kvc)
+    config.setsection %cfg "Main"
+    %currentUrl = $config.read(%cfg,CurrentUrl)
+    %ver = $config.read(%cfg,Version)
+    %n = $str.split(".",%ver)
+    %verM = %n[0]
+    config.close %cfg
+    http.asyncGet -y -с -e=o -w=h (%currentUrl/dists/%verM/rep_info.xml,%rep/rep_info.xml){
+        //    notifier.message -t=5 $tr("List updated",repository_browser)
+        %upd = $new(repository_updater::data);
+    }
+    //	%upd = $new(repository_updater::data);
+}
+
+

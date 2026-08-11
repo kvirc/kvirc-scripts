@@ -1,0 +1,894 @@
+class("repository_browser::xmlparser","xmlreader")
+{
+	function parse()
+	{
+		if ($0 == "")
+		{
+		    debug "[repository_browser::xmlparser] The name of the file to parse was not specified"
+		    return $false
+		}
+		if (!$file.exists($0))
+		{
+		    debug "[repository_browser::xmlparser] The file to parse was not found"
+		    return $false
+		}
+		if(!$$->$xmlreader::parse($file.read($0)))
+		{
+		    debug "[repository_browser::xmlparser] Critical error: $$->$xmlreader::lastError()"
+		    return $false;
+		}
+		else
+		{
+		    return @%stations
+		    debug @%stations
+		}
+	}
+	
+	internal function onWarning()
+	{
+		warning $0
+		return $true;
+	}
+	
+	internal function onText()
+	{
+		// debug $0
+		%text = $0;
+		//Trim leading and trailing space characters
+		%text = $str.strip(%text)
+		if (%text)
+		{
+		    if (@%currentkey == n)
+		    {
+		        %text =~ s/^\///g
+		    }
+		    //	debug @%currentindex : \"%text\"
+		    @%stations[@%currentindex]{@%currentkey} = %text
+		}
+		return $true;
+	}
+	
+	internal function onElementStart()
+	{
+		if ($0 == repository) return $true
+		    if ($0 != addon)
+		    {
+		        @%currentkey = $0
+		        //	debug @%currentkey
+		    }
+		    return $true;
+	}
+	
+	internal function onElementEnd()
+	{
+		//debug </$0>
+		if ($0 == addon) @%currentindex++
+		    return $true;
+	}
+	
+	internal function onDocumentStart()
+	{
+		@%stations = $array();
+		@%currentindex = 0;
+		return $true;
+	}
+	
+	internal function onDocumentEnd()
+	{
+		return $true
+	}
+	
+}
+
+class("repository_browser::settings","dialog")
+{
+	function switch()
+	{
+		if(@%ckbAutoUpdateList->$isChecked()){
+		    @%cbAutoUpdateListPeriod->$setEnabled(1)
+		}else{
+		    @%cbAutoUpdateListPeriod->$setEnabled(0)
+		}
+	}
+	
+	function selectDir()
+	{
+		dialog.file(dir,Choose addon folder,,"All files (*.*)")
+		{
+		    if($0 == "")
+		    {
+		        dialog.message($tr("Warning",repository_browser),$tr("Path can not be empty!",repository_browser),warning,$tr("Close",repository_browser)){}
+		    }
+		    else
+		    {
+		        %Set->%leCache->$setText($0)
+		    }
+		}
+	}
+	
+	function save()
+	{
+		if($str.match("/*",@%leCache->$text())){
+		    %cfg=$config.open(%Rep/rep_cfg.kvc)
+		    config.setsection %cfg "Main"
+		    config.write %cfg UrlList %UrlList
+		    config.write %cfg CurrentUrl @%cbUrl->$current();
+		    config.write %cfg CurrentPeriod @%cbAutoUpdateListPeriod->$current();
+		    config.write %cfg Version @%leVersion->$text();
+		    config.write %cfg Cache @%leCache->$text();
+		    config.write %cfg AutoUpdateList @%ckbAutoUpdateList->$isChecked();
+		    config.close %cfg
+		    
+		    @$getParams();
+		    repository_browser::init
+		    @$close();
+		}else{
+		    dialog.message($tr("Warning",repository_browser),$tr("Please select a folder!",repository_browser),warning,$tr("Close",repository_browser)){}
+		}
+	}
+	
+	function itemSelected()
+	{
+		%CurrentUrl = @%cbUrl->$current()
+	}
+	
+	function getParams()
+	{
+		%Rep = "$file.localdir/config/repository_browser"
+		%cfg=$config.open(%Rep/rep_cfg.kvc);
+		config.setsection %cfg "Main"
+		%CurrentUrl = $config.read(%cfg,CurrentUrl);
+		%UrlList = $config.read(%cfg,UrlList);
+		%Ver = $config.read(%cfg,Version);
+		%AutoUpdateList = $config.read(%cfg,AutoUpdateList)
+		%PeriodsList = $config.read(%cfg,PeriodsList);
+		%CurrentPeriod = $config.read(%cfg,CurrentPeriod);
+		%Cache = $config.read(%cfg,Cache);
+		%n = $str.split(".",%Ver);
+		%VerM = %n[0]
+		config.close %cfg
+	}
+	
+	function constructor()
+	{
+		@$getParams();
+		@%urllist = $str.split(",",%UrlList);
+		@%periodsList = $str.split(",",%PeriodsList);
+		
+		@$setWindowTitle($tr("KVS-repository settings",repository_browser));
+		@$setMinimumWidth(300);
+		@$setMaximumWidth(300);
+		@$setWFlags(Dialog);
+		@$centerToScreen();
+		
+		%l = $new(layout,$$);
+		%l->$setMargin(5);
+		%l->$setSpacing(0);
+		%l->$setColumnStretch(0,4);
+		%l->$setColumnStretch(1,1);
+		%l->$setColumnStretch(2,0);
+		
+		%l->$setRowStretch(0,1);
+		%l->$setRowStretch(1,1);
+		%l->$setRowStretch(2,1);
+		%l->$setRowStretch(3,2);
+		
+		%hb = $new(hbox,$$);
+		%hb->$setMargin(0);
+		%hb->$setSpacing(0);
+		%l->$addmulticellwidget(%hb,5,5,0,2);
+		
+		@%lbUrl = $new(label,$$);
+		@%lbUrl->$setMinimumHeight(30);
+		@%lbUrl->$setText($tr("URL repository",repository_browser));
+		%l->$addwidget(@%lbUrl,0,0);
+		
+		@%cbUrl = $new(combobox,$$)
+		@%cbUrl->$setToolTip("Test tooltip");
+		for(%i = 0;%i < $length(@%urllist);%i++){
+		    @%cbUrl->$insertItem("@%urllist[%i]")
+		    if(@%urllist[%i] == %CurrentUrl){
+		        @%cbUrl->$setCurrentItem(%i)
+		    }
+		}
+		%l->$addmulticellwidget(@%cbUrl,0,0,1,2);
+		
+		@%lbVersion = $new(label,$$)
+		@%lbVersion->$setMinimumHeight(30);
+		@%lbVersion->$setText($tr("Version KVIrc",repository_browser))
+		%l->$addwidget(@%lbVersion,1,0);
+		
+		@%leVersion = $new(lineedit,$$)
+		@%leVersion->$setText("%Ver")
+		%l->$addmulticellwidget(@%leVersion,1,1,1,2);
+		
+		@%lbCache = $new(label,$$)
+		@%lbCache->$setMinimumHeight(30);
+		@%lbCache->$setText($tr("Local cache",repository_browser))
+		%l->$addwidget(@%lbCache,2,0);
+		
+		@%leCache = $new(lineedit,$$)
+		@%leCache->$setText("%Cache")
+		%l->$addwidget(@%leCache,2,1);
+		
+		@%btCacheDir = $new(button,$$)
+		@%btCacheDir->$setImage(106)
+		%l->$addwidget(@%btCacheDir,2,2);
+		
+		@%lbAutoUpdateList = $new(label,$$)
+		@%lbAutoUpdateList->$setMinimumHeight(30);
+		@%lbAutoUpdateList->$setText($tr("Autoupdate list",repository_browser))
+		%l->$addwidget(@%lbAutoUpdateList,3,0);
+		
+		@%ckbAutoUpdateList = $new(checkbox,$$);
+		if(%AutoUpdateList == 1){
+		    @%ckbAutoUpdateList->$setChecked(1);
+		}
+		%l->$addwidget(@%ckbAutoUpdateList,3,2);
+		
+		@%cbAutoUpdateListPeriod = $new(combobox,$$)
+		for(%i = 0;%i < $length(@%periodsList);%i++){
+		    @%cbAutoUpdateListPeriod->$insertItem("@%periodsList[%i]");
+		    if(@%periodsList[%i] == %CurrentPeriod){
+		        @%cbAutoUpdateListPeriod->$setCurrentItem(%i)
+		    }
+		}
+		if(@%ckbAutoUpdateList->$isChecked()){
+		    @%cbAutoUpdateListPeriod->$setEnabled(1)
+		} else {
+		    @%cbAutoUpdateListPeriod->$setEnabled(0)
+		}
+		%l->$addMultiCellWidget(@%cbAutoUpdateListPeriod,4,4,1,2);
+		objects.connect @%ckbAutoUpdateList "toggled" $$ switch
+		
+		@%btSave = $new(button, %hb)
+		@%btSave->$setText($tr("Save",repository_browser))
+		
+		
+		@%btCancel = $new(button, %hb)
+		@%btCancel->$setText($tr("Cancel",repository_browser))
+		
+		objects.connect @%btCacheDir "clicked" $$ selectDir
+		objects.connect @%btSave "clicked" $$ save
+		objects.connect @%btCancel "clicked" $$ close
+		
+		@$show()
+	}
+	
+	function closeEvent()
+	{
+	}
+	
+	function close()
+	{
+		if($str.match("/*",@%leCache->$text())){
+		    if(!$objects.exists(%Rep_main)){
+			unset %Set,%CurrentUrl,%UrlList,%Ver,%Cache,%VerM,%Rep,%AutoUpdateList,%PeriodsList,%CurrentPeriod
+		    }
+		    delete $$
+		}else{
+		    dialog.message($tr("Warning",repository_browser),$tr("Please select a folder!",repository_browser),warning,$tr("Close",repository_browser)){}
+		}
+	}
+	
+}
+
+class("repository_browser::main","widget")
+{
+	function settings()
+	{
+		if($objects.exists(%Set)){
+		    %Set->$show();
+		} else {
+		    repository_browser::settings
+		}
+	}
+	
+	function getParams()
+	{
+		%Rep = "$file.localdir/config/repository_browser"
+		%cfg=$config.open(%Rep/rep_cfg.kvc)
+		config.setsection %cfg "Main"
+		%CurrentUrl = $config.read(%cfg,CurrentUrl)
+		%UrlList = $config.read(%cfg,UrlList)
+		%Ver = $config.read(%cfg,Version)
+		%AutoUpdateList = $config.read(%cfg,AutoUpdateList)
+		%Cache = $config.read(%cfg,Cache)
+		%n = $str.split(".",%Ver)
+		%VerM = %n[0]
+		config.close %cfg
+	}
+	
+	function getList()
+	{
+		http.asyncGet -y -с -e=o -w=h (%CurrentUrl/dists/%VerM/rep_info.xml,%Rep/rep_info.xml)
+		{
+		    %Lst->$refresh()
+		    dialog.message($tr("Info",repository_browser),$tr("List update",repository_browser),information,$tr("Ok")){}
+		}
+	}
+	
+	function constructor()
+	{
+		@$getParams()
+		if(%Cache == "")
+		{
+		    @$settings()
+		}
+		else
+		{
+		    @$setMinimumWidth(1000)
+		    @$setMinimumHeight(500)
+		    @$setWindowTitle($tr("KVIrc scripts repository browser $addon.version(repository_browser)",repository_browser))
+		    @$centerToScreen()
+		    
+		    %l = $new(layout,$$);
+		    %l->$setMargin(0)
+		    %l->$setSpacing(0)
+		    
+		    %hb = $new(hbox,$$);
+		    %hb->$setMargin(0)
+		    %hb->$setSpacing(0)
+		    %l->$addwidget(%hb,0,0)
+		    %l->$setAlignment(%hb,left)
+		    
+		    @%btReload = $new(toolbutton,%hb)
+		    @%btReload->$setImage(292)
+		    %hb->$setAlignment(@%btReload,left)
+		    objects.connect @%btReload "clicked" $$ getList
+		    
+		    @%btSettings = $new(toolbutton,%hb)
+		    @%btSettings->$setImage(20)
+		    objects.connect @%btSettings "clicked" $$ settings
+		    
+		    @%btHelp = $new(toolbutton,%hb)
+		    @%btHelp->$setImage(50)
+		    
+		    %Lst=$new(repository_browser::list,);
+		    %l->$addwidget(%Lst,1,0);
+		    @$show()
+		}
+	}
+	
+	function closeEvent()
+	{
+		unset %Lst,%Set,%CurrentUrl,%UrlList,%Ver,%Cache,%VerM,%Rep,%S_name,%Package,%Gr,%AutoUpdateList,%Rep_main,%PeriodsList,%CurrentPeriod
+	}
+	
+}
+
+class("repository_browser::list","widget")
+{
+	function update()
+	{
+		if($addon.exists(@%name) && $int($str.replace($addon.version(@%name),".","")) < $int($str.replace(@%data[%Id]{version},".","")))
+		{
+		    if(@%name != "repository_browser")
+		    {
+		        @$fulluninstall()
+		        @$install()
+		        
+		    }
+		}
+		else
+		{
+		    dialog.message($tr("Info",repository_browser),$tr("You have already installed the latest version of the script",repository_browser),information,$tr("Close",repository_browser)){}
+		}
+	}
+	
+	function uninstall()
+	{
+		%S_name = "@%data[%Id]{name}-$addon.version(@%data[%Id]{name})"
+		%Package = "@%data[%Id]{name}-$addon.version(@%data[%Id]{name})"
+		if($system.osname == "Linux"){
+		    if(@%name != "repository_browser")
+		    {
+		        exec("rm -Rf %Cache/%S_name"){};
+		        if($addon.exists(@%name))
+		        {
+		            addon.uninstall @%name
+		        }
+		        @$refresh();
+		    }
+		    else
+		    {
+		        dialog.message($tr("Warning","I can not remove myself!!!",repository_browser),warning,$tr("Close",repository_browser)){}
+		    }
+		}
+		if($system.osname == "Windows"){
+		    if(@%name != "repository_browser")
+		    {
+		        %S_name = "@%data[%Id]{name}-$addon.version(@%data[%Id]{name})"
+		        %Package = "@%data[%Id]{name}-$addon.version(@%data[%Id]{name})"
+		        if($addon.exists(@%name))
+		        {
+		            addon.uninstall @%name
+		            if($file.exists(%Cache/%S_name))
+		            {
+		                %txt <+ "cd %Cache"
+		                %txt <+ "rmdir /s /q %S_name"
+		                %txt <+ "ping 127.0.0.1 -n 5 > nul"
+		                %txt <+ "del /q del.bat"
+		                file.writeLines %Cache/del.bat %txt
+		                run %Cache/del.bat;
+		            }
+		            @$refresh();
+		        }
+		    }
+		    else
+		    {
+		        dialog.message($tr("Warning","I can not remove myself!!!",repository_browser),warning,$tr("Ok",repository_browser)){}
+		    }
+		}
+	}
+	
+	function refresh()
+	{
+		for (%i=0; %i<$length(@%data); %i++){
+		    if(@%lv->$topLevelItem(%i)) {
+		        delete @%lv->$topLevelItem(%i)
+		    }
+		}
+		@$loadList(%Gr)
+	}
+	
+	function loadList()
+	{
+		if(!$0) {
+		    %filter = "All"
+		} else {
+		    %filter = %Gr
+		}
+		@%data = @$getData();
+		
+		if(%filter == "All") {
+		    for (%i=0; %i<$length(@%data); %i++)
+		    {
+		        %item = $new(listviewitem, @%lv);
+		        %item->$setText(0, @%data[%i]{title});
+		        %item->$setText(1, %i);
+		        if($addon.exists(@%data[%i]{name})){
+		            if($int($str.replace($addon.version(@%data[%i]{name}),".","")) == $int($str.replace(@%data[%i]{version},".",""))){
+		                %item->$setPixmap(2,repository_browser/rp_ok.png)
+		            }
+		            if($int($str.replace($addon.version(@%data[%i]{name}),".","")) < $int($str.replace(@%data[%i]{version},".",""))){
+		                %item->$setPixmap(2,repository_browser/rp_refresh.png)
+		            }
+		        }
+		        %item->$setText(3, $addon.version(@%data[%i]{name}));
+		        %item->$setText(4, @%data[%i]{version});
+		        %item->$setText(5, @%data[%i]{date});
+		        
+		    }
+		    if(!%Id)
+		    {
+		        %Id = 0
+		    }
+		    @%name = "@%data[%Id]{name}"
+		    @%desc->$clear()
+		    @%desc->$setBold($true)
+		    @%desc->$append($tr("Name:",repository_browser))
+		    @%desc->$setBold($false)
+		    @%desc->$append("@%data[%Id]{title}")
+		    @%desc->$append(" ")
+		    @%desc->$setBold($true)
+		    @%desc->$append($tr("Last version:",repository_browser))
+		    @%desc->$setBold($false)
+		    @%desc->$append("@%data[%Id]{version}")
+		    @%desc->$append(" ")
+		    @%desc->$setBold($true)
+		    @%desc->$append($tr("Description:",repository_browser))
+		    @%desc->$setBold($false)
+		    if(@%data[%Id]{description_$lang(short)}){
+		        @%desc->$append("@%data[%Id]{description_$lang(short)}")
+		    } else {
+		        @%desc->$append("@%data[%Id]{description}")
+		    }
+		    @%desc->$append(" ")
+		    @%desc->$setBold($true)
+		    @%desc->$append($tr("Minimal version KVIrc:",repository_browser))
+		    @%desc->$setBold($false)
+		    @%desc->$append("@%data[%Id]{minimal_version_kvirc}")
+		    @%desc->$append(" ")
+		    @%desc->$setBold($true)
+		    @%desc->$append($tr("Author:",repository_browser))
+		    @%desc->$setBold($false)
+		    @%desc->$append("@%data[%Id]{author}")
+		    @%desc->$append(" ")
+		    @%desc->$setBold($true)
+		    @%desc->$append($tr("Last update:",repository_browser))
+		    @%desc->$setBold($false)
+		    @%desc->$append("@%data[%Id]{date}")
+		} else {
+		    for (%i=0; %i<$length(@%data); %i++)
+		    {
+		        if(@%data[%i]{group} == %Gr) {
+		            %item = $new(listviewitem, @%lv);
+		            %item->$setText(0, @%data[%i]{title});
+		            %item->$setText(1, %i);
+		            if($addon.exists(@%data[%i]{name})){
+		                if($int($str.replace($addon.version(@%data[%i]{name}),".","")) == $int($str.replace(@%data[%i]{version},".",""))){
+		                    %item->$setPixmap(2,repository_browser/rp_ok.png)
+		                }
+		                if($int($str.replace($addon.version(@%data[%i]{name}),".","")) < $int($str.replace(@%data[%i]{version},".",""))){
+		                    %item->$setPixmap(2,repository_browser/rp_refresh.png)
+		                }
+		            }
+		            %item->$setText(3, $addon.version(@%data[%i]{name}));
+		            %item->$setText(4, @%data[%i]{version});
+		            %item->$setText(5, @%data[%i]{date});
+		        }
+		    }
+		    if(!%Id)
+		    {
+		        %Id = 0
+		    }
+		    @%name = "@%data[%Id]{name}"
+		    @%desc->$clear()
+		    @%desc->$setBold($true)
+		    @%desc->$append($tr("Name:",repository_browser))
+		    @%desc->$setBold($false)
+		    @%desc->$append("@%data[%Id]{title}")
+		    @%desc->$append(" ")
+		    @%desc->$setBold($true)
+		    @%desc->$append($tr("Last version:",repository_browser))
+		    @%desc->$setBold($false)
+		    @%desc->$append("@%data[%Id]{version}")
+		    @%desc->$append(" ")
+		    @%desc->$setBold($true)
+		    @%desc->$append($tr("Description:",repository_browser))
+		    @%desc->$setBold($false)
+		    if(@%data[%Id]{description_$lang(short)}){
+		        @%desc->$append("@%data[%Id]{description_$lang(short)}")
+		    } else {
+		        @%desc->$append("@%data[%Id]{description}")
+		    }
+		    @%desc->$append(" ")
+		    @%desc->$setBold($true)
+		    @%desc->$append($tr("Minimal version KVIrc:",repository_browser))
+		    @%desc->$setBold($false)
+		    @%desc->$append("@%data[%Id]{minimal_version_kvirc}")
+		    @%desc->$append(" ")
+		    @%desc->$setBold($true)
+		    @%desc->$append($tr("Author:",repository_browser))
+		    @%desc->$setBold($false)
+		    @%desc->$append("@%data[%Id]{author}")
+		    @%desc->$append(" ")
+		    @%desc->$setBold($true)
+		    @%desc->$append($tr("Last update:",repository_browser))
+		    @%desc->$setBold($false)
+		    @%desc->$append("@%data[%Id]{date}")
+		}
+	}
+	
+	function loadGroupsList()
+	{
+		for (%i=0; %i<$length(@%groups); %i++)
+		{
+		    %item = $new(listviewitem, @%groupsList);
+		    %item->$setText(0, @%groups[%i]);
+		    %item->$setText(1, %i);
+		}
+	}
+	
+	function listviewItemSelected()
+	{
+		if (!$0) halt
+		    %Id = $int($0->$text(1));
+		@%name = "@%data[%Id]{name}"
+		@%desc->$clear()
+		@%desc->$setBold($true)
+		@%desc->$append($tr("Name:",repository_browser))
+		@%desc->$setBold($false)
+		@%desc->$append("@%data[%Id]{title}")
+		@%desc->$append(" ")
+		@%desc->$setBold($true)
+		@%desc->$append($tr("Last version:",repository_browser))
+		@%desc->$setBold($false)
+		@%desc->$append("@%data[%Id]{version}")
+		@%desc->$append(" ")
+		@%desc->$setBold($true)
+		@%desc->$append($tr("Description:",repository_browser))
+		@%desc->$setBold($false)
+		if(@%data[%Id]{description_$lang(short)}){
+		    @%desc->$append("@%data[%Id]{description_$lang(short)}")
+		} else {
+		    @%desc->$append("@%data[%Id]{description}")
+		}
+		@%desc->$append(" ")
+		@%desc->$setBold($true)
+		@%desc->$append($tr("Minimal version KVIrc:",repository_browser))
+		@%desc->$setBold($false)
+		@%desc->$append("@%data[%Id]{minimal_version_kvirc}")
+		@%desc->$append(" ")
+		@%desc->$setBold($true)
+		@%desc->$append($tr("Author:",repository_browser))
+		@%desc->$setBold($false)
+		@%desc->$append("@%data[%Id]{author}")
+		@%desc->$append(" ")
+		@%desc->$setBold($true)
+		@%desc->$append($tr("Last update:",repository_browser))
+		@%desc->$setBold($false)
+		@%desc->$append("@%data[%Id]{date}")
+	}
+	
+	function install()
+	{
+		%S_name = "@%data[%Id]{name}-@%data[%Id]{version}"
+		%Package = "@%data[%Id]{name}-@%data[%Id]{version}.tar.gz"
+		if($system.osname == "Linux"){
+		    if(@%data[%Id]{name} != "repository_browser"){
+		        if(!$addon.exists(@%data[%Id]{name})){
+		            if($file.exists(%Cache/%Package)){
+		                exec("tar zxvf %Cache/%Package -C %Cache"){};
+		                timer(iidl,3000){
+		                    if($file.exists(%Cache/%S_name/install.kvs)){
+		                        parse "%Cache/%S_name/install.kvs"
+		                        dialog.message($tr("Info",repository_browser),$tr("Addon installed",repository_browser),information,$tr("Ok",repository_browser)){}
+		                        killtimer iidl
+		                        %Lst->$refresh()
+		                    }
+		                }
+		            }else{
+		                http.asyncGet -w=h (%CurrentUrl/pool/%VerM/%Package,%Cache/%Package){
+		                    exec("tar zxvf %Cache/%Package -C %Cache"){};
+		                    timer(iidl,3000){
+		                        if($file.exists(%Cache/%S_name/install.kvs)){
+		                            parse "%Cache/%S_name/install.kvs"
+		                            dialog.message($tr("Info",repository_browser),$tr("Addon installed",repository_browser),information,$tr("Close",repository_browser)){}
+		                            killtimer iidl
+		                            %Lst->$refresh()
+		                        }
+		                    }
+		                }
+		            }
+		        }else{
+		            dialog.message($tr("Info",repository_browser),$tr("Addon already installed",repository_browser),information,$tr("Close",repository_browser)){}
+		        }
+		    }else{
+			if($addon.exists(repository_updater)){
+				repository_updater::update
+			}else{
+			        notifier.message -t=5 -i=318 $tr("I can not install myself!!!",repository_browser)
+			}
+		    }
+		}
+		if($system.osname == "Windows"){
+		    if(@%data[%Id]{name} != "repository_browser")
+		    {
+		        %txt <+ "cd \"%Cache\""
+		        %txt <+ "\"%Rep/7za\" x -y %Package"
+		        %txt <+ "ping 127.0.0.1 -n 5 > nul"
+		        %txt <+ "\"%Rep/7za\" x -y *.tar"
+		        %txt <+ "ping 127.0.0.1 -n 5 > nul"
+		        %txt <+ "del /q *.tar"
+		        %txt <+ "ping 127.0.0.1 -n 5 > nul"
+		        %txt <+ "del /q install.bat"
+		        file.writeLines %Cache/install.bat %txt
+		        
+		        if(!$addon.exists(@%data[%Id]{name})){
+		            if($file.exists(%Cache/%Package)){
+		                run %Cache/install.bat;
+		                %N = 0
+		                timer (iidl,1000){
+		                    %N = $(%N +1)
+		                    if($file.exists(%Cache/%S_name/install.kvs)){
+		                        parse "%Cache/%S_name/install.kvs"
+		                        %Lst->$refresh()
+		                        dialog.message($tr("Info",repository_browser),$tr("Addon installed",repository_browser),information,$tr("Ok",repository_browser)){}
+		                        killtimer iidl
+		                    }
+		                    if(%N == 20){
+		                        dialog.message($tr("Warning",repository_browser),$tr("Addon not installed",repository_browser),warning,$tr("Ok",repository_browser)){}
+		                        killtimer iidl
+		                    }
+		                }
+		            }else{
+		                http.asyncGet -w=h (%CurrentUrl/pool/%VerM/%Package,%Cache/%Package){
+		                    run %Cache/install.bat;
+		                    %N = 0
+		                    timer (iidl,1000){
+		                        %N = $(%N +1)
+		                        if($file.exists(%Cache/%S_name/install.kvs)){
+		                            parse "%Cache/%S_name/install.kvs"
+		                            %Lst->$refresh()
+		                            dialog.message($tr("Info",repository_browser),$tr("Addon installed",repository_browser),information,$tr("Ok",repository_browser)){}
+		                            killtimer iidl
+		                        }
+		                        if(%N == 20){
+		                            dialog.message($tr("Warning",repository_browser),$tr("Addon not installed",repository_browser),warning,$tr("Ok",repository_browser)){}
+		                            killtimer iidl
+		                        }
+		                    }
+		                }
+		            }
+		        }else{
+		            dialog.message($tr("Info",repository_browser),$tr("Addon already installed",repository_browser),information,$tr("Ok",repository_browser)){}
+		        }
+		    }else{
+		        if($addon.exists(repository_updater)){
+				repository_updater::update
+			}else{
+			        notifier.message -t=5 -i=318 $tr("I can not install myself!!!",repository_browser)
+			}
+		    }
+		}
+	}
+	
+	function groupsListItemSelected()
+	{
+		if (!$0) halt
+		    %Gr = $0->$text(0);
+		%Lst->$refresh();
+	}
+	
+	function getGroups()
+	{
+		/*
+		 *		%cfg=$config.open(%Rep/rep_cfg.kvc)
+		 *		config.setsection %cfg "Main"
+		 *		@%groups = $config.read(%cfg,Groups)
+		 *		config.close %cfg
+		 *		@%groups = $str.split(",",@%groups)
+		 */
+		@%groups = $array("All");
+		@%data = @$getData();
+		for(%i=0; %i<$length(@%data); %i++) {
+		    %match = 0;
+		    foreach(%y,@%groups) {
+		        if(%y == @%data[%i]{group}) {
+		            %match++
+		        }
+		    }
+		    if(%match == 0){
+		        @%groups <+ @%data[%i]{group};
+		    }
+		}
+	}
+	
+	function getData()
+	{
+		%xml = $new(repository_browser::xmlparser);
+		%addons = %xml->$parse("$file.localdir/config/repository_browser/rep_info.xml")
+		if (!%addons)
+		{
+		    debug "[repository_browser::xmlparser] Error while parsing xml-file $0"
+		    return
+		}
+		return %addons;
+	}
+	
+	function fulluninstall()
+	{
+		if($system.osname == "Linux"){
+		    %s_name = "@%data[%Id]{name}-$addon.version(@%data[%Id]{name})"
+		    %package = "@%data[%Id]{name}-$addon.version(@%data[%Id]{name}).tar.gz"
+		    %package1 = "@%data[%Id]{name}-@%data[%Id]{version}.tar.gz"
+		    if(@%name != "repository_browser")
+		    {
+		        if($file.exists(%Cache/%s_name))
+		        {
+		            exec("rm -Rf %Cache/%s_name"){};
+		        }
+		        if($file.exists(%Cache/%package))
+		        {
+		            exec("rm -Rf %Cache/%package"){};
+		        }
+		        if($file.exists(%Cache/%package1))
+		        {
+		            exec("rm -Rf %Cache/%package1"){};
+		        }
+		        if($addon.exists(@%name))
+		        {
+		            addon.uninstall @%name
+		        }
+		        @$refresh()
+		    }
+		    else
+		    {
+		        dialog.message($tr("Warning",repository_browser),$tr("I can not remove myself!!!",repository_browser),warning,$tr("Close",repository_browser)){}
+		    }
+		}
+		if($system.osname == "Windows"){
+		    if(@%name != "repository_browser")
+		    {
+		        %S_name = "@%data[%Id]{name}-$addon.version(@%data[%Id]{name})"
+		        %Package = "@%data[%Id]{name}-$addon.version(@%data[%Id]{name}).tar.gz"
+		        if($addon.exists(@%name))
+		        {
+		            addon.uninstall @%name
+		            if($file.exists(%Cache/%S_name))
+		            {
+		                %txt <+ "cd %Cache"
+		                %txt <+ "rmdir /s /q %S_name"
+		                %txt <+ "ping 127.0.0.1 -n 5 > nul"
+		                %txt <+ "del /q del.bat"
+		                file.writeLines %Cache/del.bat %txt
+		                run %Cache/del.bat;
+		            }
+		            if($file.exists(%Cache/%Package))
+		            {
+		                file.remove %Cache/%Package
+		            }
+		            @$refresh();
+		        }
+		    }
+		    else
+		    {
+		        dialog.message($tr("Warning","I can not remove myself!!!",repository_browser),warning,$tr("Ok",repository_browser)){}
+		    }
+		}
+	}
+	
+	function constructor()
+	{
+		%l = $new(layout,$$);
+		%l->$setMargin(3)
+		%l->$setSpacing(3)
+		%l->$setColumnStretch(0,1)
+		%l->$setColumnStretch(1,4)
+		%l->$setRowStretch(0,2)
+		%l->$setRowStretch(1,2)
+		%l->$setRowStretch(3,0)
+		
+		// Build list of groups
+		@%groupsList=$new(listview,$$)
+		@%groupsList->$setAllColumnsShowFocus($true)
+		@%groupsList->$hideListViewHeader()
+		@%groupsList->$addcolumn($tr("Name",repository_browser), 0);
+		@%groupsList->$setSortingEnabled(true)
+		@%groupsList->$setSorting(0,"ascending")
+		%l->$addmulticellwidget(@%groupsList,0,1,0,0)
+		objects.connect @%groupsList "selectionChanged" $$ groupsListItemSelected
+		objects.connect @%groupsList "clicked" $$ groupsListItemSelected
+		
+		//Build list of apps
+		@%lv=$new(listview,$$)
+		@%lv->$setAllColumnsShowFocus($true)
+		@%lv->$addcolumn($tr("Name",repository_browser), 300);
+		@%lv->$addcolumn(id, 1);
+		@%lv->$addcolumn($tr("",repository_browser), 32);
+		@%lv->$addcolumn($tr("Installed version",repository_browser), 150);
+		@%lv->$addcolumn($tr("Last version",repository_browser), 150);
+		@%lv->$addcolumn($tr("Date",repository_browser), 100);
+		@%lv->$setSortingEnabled(true)
+		@%lv->$setSorting(0,"ascending")
+		%l->$addwidget(@%lv,0,1);
+		objects.connect @%lv "selectionChanged" $$ listviewItemSelected
+		objects.connect @%lv "clicked" $$ listviewItemSelected
+		
+		// Build multilineedit for app description
+		@%desc=$new(multilineedit,$$);
+		@%desc->$setReadOnly($true);
+		%l->$addmulticellwidget(@%desc,1,2,1,1);
+		
+		// Build horizontal box for buttons
+		%hb = $new(hbox,$$);
+		%hb->$setMargin(0)
+		%hb->$setSpacing(0)
+		%l->$addmulticellwidget(%hb,3,3,0,1)
+		
+		@%btInstall=$new(button,%hb)
+		@%btInstall->$setText($tr("Install",repository_browser))
+		objects.connect @%btInstall "clicked" $$ install
+		
+		@%btUpdate=$new(button,%hb)
+		@%btUpdate->$setText($tr("Update addon",repository_browser))
+		objects.connect @%btUpdate "clicked" $$ update
+		
+		@%btUninstall=$new(button,%hb)
+		@%btUninstall->$setText($tr("Uninstall",repository_browser))
+		objects.connect @%btUnInstall "clicked" $$ uninstall
+		
+		@%btFullUninstall=$new(button,%hb)
+		@%btFullUninstall->$setText($tr("Full uninstall",repository_browser))
+		@%btFullUninstall->$setToolTip("Uninstall addon and remove addon's files")
+		objects.connect @%btFullUnInstall "clicked" $$ fulluninstall
+		
+		@$getGroups();
+		@$loadGroupsList();
+		@$loadList();
+	}
+	
+}
+
