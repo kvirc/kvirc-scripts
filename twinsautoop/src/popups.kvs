@@ -105,7 +105,7 @@ defpopup (twins::autoop::user)
 	item($tr("Remove AutoBan",twinsautoop),67)(%:tao{isuser}{ban})
 		twins::autoop::set::user -b=0 --no-gui %:regnick
 	item($tr("Edit user config",twinsautoop),36)
-		twins::autoop::setuser %:regnick
+		twins::autoop::set::user %:regnick
 	item($tr("Check user now!",twinsautoop),36)(%TwinsAutoOp{status})
 			twins::autoop::check -q $0
 }
